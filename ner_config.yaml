@@ -1,0 +1,26 @@
+labels: 
+  - STRAIN
+  - METABOLITE
+  - SPECIES
+  - ISOLATE
+  - COMPOUND
+  - MEDIUM
+  - ORGANISM
+  - PHENOTYPE
+  - MORPHOLOGY
+  - PROTEIN
+  - EFFECT
+  - DISEASE
+  - GENUS
+model_sets:
+  - train
+  - dev
+  - test
+epochs: 25
+
+dataset : "800"
+input_file: label/project-4-at-2023-12-28-19-03-703340b5.json
+
+cutoff_prediction: 0.50
+cuda_devices: [0,1,2,3]
+test_size: 0.35
