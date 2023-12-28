@@ -8,10 +8,10 @@ from operator import itemgetter
 from sklearn.model_selection import train_test_split
 
 
-configfile: "ner_config.yaml"
+configfile: "config.yaml"
 
 
-labels_flat = config["labels"]
+labels_flat = config["ner_labels"]
 model_sets = config["model_sets"]
 input_file = config["input_file"]
 cuda = config["cuda_devices"]
@@ -20,14 +20,14 @@ test_size = config["test_size"]
 
 rule all:
     input:
-        "NER_output/aggregated_eval.png",
+        "NER_output/aggregated_eval.csv",
 
 
 rule make_split:
     input:
         input_file,
     output:
-        expand("NER/{ENT}/{SET}.json", ENT=labels_flat, SET=model_sets[:3]),
+        expand("NER/{ENT}/{SET}.jsonls", ENT=labels_flat, SET=model_sets[:3]),
     run:
         json_file = json.load(open(input[0]))
         for label in labels_flat:
@@ -67,7 +67,7 @@ rule make_split:
             )
             sentence_split = (X_train, X_test, X_dev)
             for s, y in zip(model_sets, sentence_split):
-                with open(f"NER/{label}/{s}.json", "w") as f:
+                with open(f"NER/{label}/{s}.jsonls", "w") as f:
                     json.dump(list(y), f)
                     f.write("\n")
 
@@ -75,16 +75,16 @@ rule make_split:
 
 rule convert_splits:
     input:
-        json=expand("NER/{ENT}/{SET}.json", ENT=labels_flat, SET=model_sets),
+        json=expand("NER/{ENT}/{SET}.jsonls", ENT=labels_flat, SET=model_sets),
         config="/home/gomez/biobert-pytorch/my_dataset/config.xml",
     output:
         conll=temp(expand("NER/{ENT}/{SET}.conll", ENT=labels_flat, SET=model_sets))
     shell:
         """
-        for f in NER/**/*.json
-        do label-studio-converter export -i $f -c {input.config} -f CONLL2003 -o ${{f%.json}}
-        cat ${{f%.json}}/result.conll > ${{f%json}}conll
-        rm -rf ${{f%.json}}
+        for f in NER/**/*.jsonls
+        do label-studio-converter export -i $f -c {input.config} -f CONLL2003 -o ${{f%.jsonls}}
+        cat ${{f%.jsonls}}/result.conll > ${{f%jsonls}}conll
+        rm -rf ${{f%.jsonls}}
         done
         """
 
@@ -129,22 +129,22 @@ rule convert_to_json:
         ),
     output:
         expand(
-            "NER/{ENT}/{SET}.jsonl",
+            "NER/{ENT}/{SET}.json",
             ENT=labels_flat,
             SET=model_sets,
         ),
     shell:
         """
         for f in NER/**/*.txt
-        do python scripts/conll2003_to_jsonl.py $f ${{f%.txt}}.jsonl
+        do python scripts/conll2003_to_jsonl.py $f ${{f%.txt}}.json
         done
         """
 
 rule run_linkbert:
     input:
-        expand("NER/{ENT}/{SET}.jsonl", ENT=labels_flat, SET=model_sets),
+        expand("NER/{ENT}/{SET}.json", ENT=labels_flat, SET=model_sets),
     output:
-        expand("NER_output/{ENT}/test_results.txt", ENT=labels_flat),
+        expand("NER_output/{ENT}/all_results.json", ENT=labels_flat),
     conda:
         "linkbert"
     params:
@@ -152,55 +152,45 @@ rule run_linkbert:
         cuda=lambda w: ",".join([str(i) for i in cuda]),
     shell:
         """
+        export MODEL=BioLinkBERT-large
+        export MODEL_PATH=michiyasunaga/$MODEL
         export CUDA_VISIBLE_DEVICES={params.cuda}
         export EPOCHS={params.epochs}
-        for ENTITY in {labels_flat};
+        for entity in {labels_flat};
         do
-        export DATA_DIR=NER/${{ENTITY}}
-        python scripts/run_ner.py \
-            --data_dir ${{DATA_DIR}} \
-            --labels ${{DATA_DIR}}/labels.txt \
-            --model_name_or_path dmis-lab/biobert-base-cased-v1.1 \
-            --output_dir NER_output/${{ENTITY}} \
-            --max_seq_length 512 \
-            --num_train_epochs ${{EPOCHS}} \
-            --per_device_train_batch_size 32 \
-            --save_steps 3000 \
-            --seed 1 \
-            --do_train \
-            --do_eval \
-            --do_predict \
-            --overwrite_output_dir \
-            --logging_steps 50 \
-            --eval_steps 5
+            datadir=NER/$entity
+            outdir=NER_output/$entity/$MODEL
+            mkdir -p $outdir
+            python3 -u scripts/run_ner.py --model_name_or_path $MODEL_PATH \
+            --train_file $datadir/train.json --validation_file $datadir/dev.json --test_file $datadir/test.json \
+            --do_train --do_eval --do_predict \
+            --per_device_train_batch_size 16 --gradient_accumulation_steps 2 --fp16 \
+            --learning_rate 2e-5 --warmup_ratio 0.5 --num_train_epochs 10 --max_seq_length 512 \
+            --save_strategy no --evaluation_strategy no --output_dir $outdir --overwrite_output_dir \
+            |& tee $outdir/log.txt 
         done
         """
 
 
 rule aggregate_data:
     input:
-        expand("NER_output/{ENT}/test_results.txt", ENT=labels_flat),
+        expand("NER_output/{ENT}/all_results.json", ENT=labels_flat),
     output:
         "NER_output/aggregated_eval.csv",
     run:
         dfs = []
         for label in labels_flat:
-            for group in ["test", "eval"]:
-                df = pd.read_csv(
-                    f"NER_output/{label}/{group}_results.txt",
-                    sep=" = ",
-                    header=None,
-                    engine="python",
-                )
-                df.loc[:, "label"] = label
-                df.loc[:, "group"] = group
-                dfs.append(df)
+            df = pd.read_json(
+                f"NER_output/{label}/all_results.json",
+            )
+            df.loc[:, "label"] = label
+            dfs.append(df)
         full = pd.concat(dfs, axis=0)
-        full.rename(columns={0: "metric", 1: "value"}, inplace=True)
-        m = full.pivot(
-            index=["metric", "group"], values="value", columns="label"
-        ).reset_index()
-        m.to_csv(output[0], index=False)
+        # full.rename(columns={0: "metric", 1: "value"}, inplace=True)
+        # m = full.pivot(
+        #     index=["metric", "group"], values="value", columns="label"
+        # ).reset_index()
+        full.to_csv(output[0], index=False)
 
 
 rule plot:
