@@ -12,15 +12,6 @@ ner_labels:
   - EFFECT
   - DISEASE
   - GENUS
-model_sets:
-  - train
-  - dev
-  - test
-epochs: 10
-input_file: label/project-4-at-2023-12-28-19-03-703340b5.json
-cutoff_prediction: 0.50
-cuda_devices: [0,1,2,3]
-test_size: 0.35
 re_labels:
 - STRAIN-ISOLATE:INHABITS
 - STRAIN-METABOLITE:PRODUCES
@@ -43,3 +34,13 @@ re_labels:
 - STRAIN-EFFECT:ASSOCIATED_WITH
 - STRAIN-SPECIES:INHIBITS
 - STRAIN-COMPOUND:PRODUCES
+model_sets:
+  - train
+  - dev
+  - test
+epochs: 50
+input_file: label/project-4-at-2023-12-28-19-03-703340b5.json
+cutoff_prediction: 0.50
+cuda_devices: [0,1,2,3]
+ner_test: 0.35
+dataset : "814"
