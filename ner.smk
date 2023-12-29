@@ -156,16 +156,17 @@ rule run_linkbert:
         export MODEL_PATH=michiyasunaga/$MODEL
         export CUDA_VISIBLE_DEVICES={params.cuda}
         export EPOCHS={params.epochs}
+        export TOKENIZERS_PARALLELISM=true
         for entity in {labels_flat};
         do
             datadir=NER/$entity
-            outdir=NER_output/$entity/$MODEL
+            outdir=NER_output/$entity
             mkdir -p $outdir
             python3 -u scripts/run_ner.py --model_name_or_path $MODEL_PATH \
             --train_file $datadir/train.json --validation_file $datadir/dev.json --test_file $datadir/test.json \
             --do_train --do_eval --do_predict \
-            --per_device_train_batch_size 16 --gradient_accumulation_steps 2 --fp16 \
-            --learning_rate 2e-5 --warmup_ratio 0.5 --num_train_epochs 10 --max_seq_length 512 \
+            --per_device_train_batch_size 32 --gradient_accumulation_steps 2 --fp16 \
+            --learning_rate 2e-5 --warmup_ratio 0.5 --num_train_epochs $EPOCHS --max_seq_length 512 \
             --save_strategy no --evaluation_strategy no --output_dir $outdir --overwrite_output_dir \
             |& tee $outdir/log.txt 
         done

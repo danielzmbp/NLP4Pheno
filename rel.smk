@@ -107,14 +107,11 @@ rule split_sets:
         ),
     output:
         expand(
-            "REL/{ENT}/{SPLIT}/{SET}.tsv",
+            "REL/{ENT}/{SET}.json",
             ENT=labels_flat,
             SET=model_sets,
-            SPLIT=splits,
         ),
     run:
-        
-
         for label in labels_flat:
             rel_label = label.split(":")[1]
             df = pd.read_csv(f"REL/{label}/all.tsv", sep="\t")
@@ -123,38 +120,28 @@ rule split_sets:
 
             df.loc[:, "label"] = np.where(df.l.str.endswith(rel_label), 1, 0)
 
-            train, test = train_test_split(df, test_size=0.2, stratify=df.label, random_state=42)
+            train, test_eval = train_test_split(df, test_size=0.4, stratify=df.label, random_state=42)
+            test, evaluation = train_test_split(test_eval, test_size=0.5, stratify=test_eval.label, random_state=42)
 
-            test_data = test.reset_index().drop(columns="index").reset_index()[["index", "sentence", "label"]]
-            test_original_data = test.reset_index().drop(columns="index").reset_index()[["index", "sentence", "label"]]
-            train_data = train.reset_index().drop(columns="index").reset_index()[["index", "sentence", "label"]]
+            data_sets = {"test": test, "eval": evaluation, "train": train}
 
-            with jsonlines.open(f"REL/{label}/test.jsonl", mode='w') as writer:
-                for row in test_data.itertuples(index=False):
-                    writer.write({"id": row[0], "sentence": row[1], "label": row[2]})
-
-            with jsonlines.open(f"REL/{label}/test_original.jsonl", mode='w') as writer:
-                for row in test_original_data.itertuples(index=False):
-                    writer.write({"id": row[0], "sentence": row[1], "label": row[2]})
-
-            with jsonlines.open(f"REL/{label}/train.jsonl", mode='w') as writer:
-                for row in train_data.itertuples(index=False):
-                    writer.write({"id": row[0], "sentence": row[1], "label": row[2]})
-
+            for data_set, data in data_sets.items():
+                data = data.reset_index().drop(columns="index").reset_index()[["index", "sentence", "label"]]
+                with jsonlines.open(f"REL/{label}/{data_set}.jsonl", mode='w') as writer:
+                    for row in data.itertuples(index=False):
+                        writer.write({"id": row[0], "sentence": row[1], "label": row[2]})
 
 rule run_biobert:
     input:
         expand(
-            "REL/{ENT}/{SPLIT}/{SET}.tsv",
+            "REL/{ENT}/{SET}.json",
             ENT=labels_flat,
             SET=model_sets,
-            SPLIT=splits,
         ),
     output:
         expand(
-            "REL_output/{ENT}-{SPLIT}/test_results.txt",
+            "REL_output/{ENT}/all_results.json",
             ENT=labels_flat,
-            SPLIT=splits,
         ),
     conda:
         "bb3"
@@ -170,82 +157,44 @@ rule run_biobert:
         export BATCH_SIZE=32
         export NUM_EPOCHS={params.epochs}
         export SAVE_STEPS=1000
-        export SEED=1
-        
+
         for entity in {labels_flat};
         do
-        for split in {{1..{nsplits}}}
-            do
-            export DATA_DIR=REL/${{entity}}/${{split}}
-                datadir=REL/$entity
-                outdir=runs/$entity/$MODEL
-                mkdir -p $outdir
-                python3 -u seqcls/run_seqcls.py --model_name_or_path $MODEL_PATH \
-                --train_file $datadir/train.json --validation_file $datadir/dev.json --test_file $datadir/test.json \
-                --do_train --do_eval --do_predict --metric_name PRF1 \
-                --per_device_train_batch_size 32 --gradient_accumulation_steps 1 --fp16 \
-                --learning_rate 3e-5 --num_train_epochs 10 --max_seq_length 256 \
-                --save_strategy no --evaluation_strategy no --output_dir $outdir --overwrite_output_dir \
-                |& tee $outdir/log.txt
-            done
+            datadir=REL/$entity
+            outdir=runs/$entity/$MODEL
+            mkdir -p $outdir
+            python3 -u scripts/run_seqcls.py --model_name_or_path $MODEL_PATH \
+            --train_file $datadir/train.json --validation_file $datadir/dev.json --test_file $datadir/test.json \
+            --do_train --do_eval --do_predict --metric_name PRF1 \
+            --per_device_train_batch_size 32 --gradient_accumulation_steps 1 --fp16 \
+            --learning_rate 3e-5 --num_train_epochs 10 --max_seq_length 256 \
+            --save_strategy no --evaluation_strategy no --output_dir $outdir --overwrite_output_dir \
+            |& tee $outdir/log.txt
         done
         """
-
-
-rule get_metrics:
-    input:
-        results=expand(
-            "REL_output/{ENT}-{SPLIT}/test_results.txt",
-            ENT=labels_flat,
-            SPLIT=splits,
-        ),
-        test_original=expand(
-            "REL/{ENT}/{SPLIT}/{SET}.tsv",
-            ENT=labels_flat,
-            SET=["test_original"],
-            SPLIT=splits,
-        ),
-    output:
-        expand(
-            "REL_output/{ENT}-{SPLIT}/metrics.txt",
-            ENT=labels_flat,
-            SPLIT=splits,
-        ),
-    shell:
-        """
-        export SAVE_DIR=./REL_output
-        for ENTITY in {labels_flat};
-        do
-            for SPLIT in {{1..{nsplits}}}
-            do
-                export DATA_DIR=REL/${{ENTITY}}/${{SPLIT}}
-                python ./scripts/re_eval.py --output_path=${{SAVE_DIR}}/${{ENTITY}}-${{SPLIT}}/test_results.txt --answer_path=${{DATA_DIR}}/test_original.tsv > ${{SAVE_DIR}}/${{ENTITY}}-${{SPLIT}}/metrics.txt
-            done
-        done
-        """
-
 
 rule join_metrics:
     input:
         mets=expand(
-            "REL_output/{ENT}-{SPLIT}/metrics.txt",
+            "REL_output/{ENT}/all_results.json",
             ENT=labels_flat,
-            SPLIT=splits,
         ),
     output:
-        "REL_output/all_metrics.txt",
+        "REL_output/all_metrics.tsv",
     run:
+        import json
+        import pandas as pd
+
         dfs = []
         for f in input.mets:
-            print(f)
-            df = pd.read_csv(f, sep="\s+:\s", engine="python", header=None)
-            df.rename(columns={0: "metric", 1: "score"}, inplace=True)
-            df = df.replace("%", "", regex=True)
-            df.loc[:, "score"] = df.score.astype(float) * 0.01
-            df.loc[:, "relation"] = f.rsplit("-", 1)[0].split("/")[1]
-            df.loc[:, "split"] = f.split("-")[-1].split("/")[0]
-            dfs.append(df)
-        pd.concat(dfs).to_csv(output[0], sep="\t", index=False)
+            with open(f, 'r') as file:
+                data = json.load(file)
+                df = pd.DataFrame(data)
+                df['relation'] = f.rsplit("-", 1)[0].split("/")[1]
+                dfs.append(df)
+
+        result_df = pd.concat(dfs)
+        result_df.to_csv(output[0], sep="\t", index=False)
 
 
 rule plot_metrics:
