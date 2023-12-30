@@ -5,6 +5,7 @@ import numpy as np
 import re
 from itertools import permutations
 from sklearn.model_selection import train_test_split
+import jsonlines
 
 
 configfile: "config.yaml"
@@ -127,7 +128,7 @@ rule split_sets:
                 test_eval, test_size=0.5, stratify=test_eval.label, random_state=42
             )
 
-            data_sets = {"test": test, "eval": evaluation, "train": train}
+            data_sets = {"test": test, "dev": evaluation, "train": train}
 
             for data_set, data in data_sets.items():
                 data = (
@@ -135,9 +136,7 @@ rule split_sets:
                     .drop(columns="index")
                     .reset_index()[["index", "sentence", "label"]]
                 )
-                with jsonlines.open(
-                    f"REL/{label}/{data_set}.jsonl", mode="w"
-                ) as writer:
+                with jsonlines.open(f"REL/{label}/{data_set}.json", mode="w") as writer:
                     for row in data.itertuples(index=False):
                         writer.write(
                             {"id": row[0], "sentence": row[1], "label": row[2]}
@@ -157,24 +156,27 @@ rule run_biobert:
             ENT=labels,
         ),
     conda:
-        "bb3"
+        "linkbert"
     params:
         epochs=config["rel_epochs"],
         cuda=lambda w: ",".join([str(i) for i in cuda]),
+        model_type=config["model"],
     shell:
         """
         export CUDA_VISIBLE_DEVICES={params.cuda}
+        export MODEL=BioLinkBERT-{params.model_type}
+        export MODEL_PATH=michiyasunaga/$MODEL
         for entity in {labels};
         do
             datadir=REL/$entity
-            outdir=runs/$entity/$MODEL
+            outdir=REL_output/$entity
             mkdir -p $outdir
             python3 -u scripts/run_seqcls.py --model_name_or_path $MODEL_PATH \
             --train_file $datadir/train.json --validation_file $datadir/dev.json --test_file $datadir/test.json \
             --do_train --do_eval --do_predict --metric_name PRF1 \
             --per_device_train_batch_size 64 --gradient_accumulation_steps 1 --fp16 \
             --learning_rate 3e-5 --num_train_epochs {params.epochs} --max_seq_length 384 \
-            --save_strategy no --evaluation_strategy epochs --evaluation_strategy epochs --logging_steps 1 --eval_steps 1 --output_dir $outdir --overwrite_output_dir \
+            --save_strategy no --evaluation_strategy epoch --evaluation_strategy epoch --logging_steps 1 --eval_steps 1 --output_dir $outdir --overwrite_output_dir \
             |& tee $outdir/log.txt
         done
         """

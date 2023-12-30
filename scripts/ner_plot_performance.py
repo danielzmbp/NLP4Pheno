@@ -129,6 +129,7 @@ fig, axs = plt.subplots(figsize=(17, 8), ncols=3,
 fig.subplots_adjust(wspace=0.25, hspace=0.20, top=0.85, bottom=0.05)
 
 colors = ['b', 'r', 'g', 'm']
+legend_labels = []
 
 for ax, (title, case_data) in zip(axs.flat, data):
     ax.set_rgrids([0.2, 0.4, 0.6, 0.8])
@@ -139,12 +140,21 @@ for ax, (title, case_data) in zip(axs.flat, data):
         ax.plot(theta, d, color=color)
         ax.fill(theta, d, facecolor=color, alpha=0.25, label='_nolegend_')
     ax.set_varlabels(spoke_labels)
-
+    legend_labels.extend(case_data)
 
 # add legend relative to top-left plot
 labs = tuple(mf.metric.drop_duplicates().to_list())
 legend = axs[0].legend(labs, loc=(1, .95),
                        labelspacing=0.1, fontsize='small')
+
+# Set consistent colors for legend
+for line, text, color in zip(legend.get_lines(), legend.get_texts(), colors):
+    line.set_color(color)
+    text.set_color(color)
+
+# Set consistent colors for plots
+for ax in axs.flat:
+    ax.set_prop_cycle(color=colors)
 
 fig.text(0.5, 0.75, 'NER performance',
          horizontalalignment='center', color='black', weight='bold',
