@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 configfile: "config.yaml"
 
 
-labels_flat = config["rel_labels"]
+labels = config["rel_labels"]
 model_sets = config["model_sets"]
 input_file = config["input_file"]
 cuda = config["cuda_devices"]
@@ -18,7 +18,7 @@ cuda = config["cuda_devices"]
 
 rule all:
     input:
-        "REL_output/all_metrics.png",
+        "REL_output/all_metrics.tsv",
 
 
 rule parse_rels:
@@ -88,11 +88,11 @@ rule split_labels:
     output:
         expand(
             "REL/{ENT}/all.tsv",
-            ENT=labels_flat,
+            ENT=labels,
         ),
     run:
         df = pd.read_csv(input[0], sep="\t")
-        for label in labels_flat:
+        for label in labels:
             relation = label.split(":")[0]
             df[df["label"].str.startswith(relation)].to_csv(
                 f"REL/{label}/all.tsv", sep="\t", index=False
@@ -103,16 +103,16 @@ rule split_sets:
     input:
         expand(
             "REL/{ENT}/all.tsv",
-            ENT=labels_flat,
+            ENT=labels,
         ),
     output:
         expand(
             "REL/{ENT}/{SET}.json",
-            ENT=labels_flat,
+            ENT=labels,
             SET=model_sets,
         ),
     run:
-        for label in labels_flat:
+        for label in labels:
             rel_label = label.split(":")[1]
             df = pd.read_csv(f"REL/{label}/all.tsv", sep="\t")
 
@@ -120,45 +120,51 @@ rule split_sets:
 
             df.loc[:, "label"] = np.where(df.l.str.endswith(rel_label), 1, 0)
 
-            train, test_eval = train_test_split(df, test_size=0.4, stratify=df.label, random_state=42)
-            test, evaluation = train_test_split(test_eval, test_size=0.5, stratify=test_eval.label, random_state=42)
+            train, test_eval = train_test_split(
+                df, test_size=0.4, stratify=df.label, random_state=42
+            )
+            test, evaluation = train_test_split(
+                test_eval, test_size=0.5, stratify=test_eval.label, random_state=42
+            )
 
             data_sets = {"test": test, "eval": evaluation, "train": train}
 
             for data_set, data in data_sets.items():
-                data = data.reset_index().drop(columns="index").reset_index()[["index", "sentence", "label"]]
-                with jsonlines.open(f"REL/{label}/{data_set}.jsonl", mode='w') as writer:
+                data = (
+                    data.reset_index()
+                    .drop(columns="index")
+                    .reset_index()[["index", "sentence", "label"]]
+                )
+                with jsonlines.open(
+                    f"REL/{label}/{data_set}.jsonl", mode="w"
+                ) as writer:
                     for row in data.itertuples(index=False):
-                        writer.write({"id": row[0], "sentence": row[1], "label": row[2]})
+                        writer.write(
+                            {"id": row[0], "sentence": row[1], "label": row[2]}
+                        )
+
 
 rule run_biobert:
     input:
         expand(
             "REL/{ENT}/{SET}.json",
-            ENT=labels_flat,
+            ENT=labels,
             SET=model_sets,
         ),
     output:
         expand(
             "REL_output/{ENT}/all_results.json",
-            ENT=labels_flat,
+            ENT=labels,
         ),
     conda:
         "bb3"
     params:
-        epochs=config["epochs"],
+        epochs=config["rel_epochs"],
         cuda=lambda w: ",".join([str(i) for i in cuda]),
     shell:
         """
         export CUDA_VISIBLE_DEVICES={params.cuda}
-        export SAVE_DIR=./REL_output
-
-        export MAX_LENGTH=384
-        export BATCH_SIZE=32
-        export NUM_EPOCHS={params.epochs}
-        export SAVE_STEPS=1000
-
-        for entity in {labels_flat};
+        for entity in {labels};
         do
             datadir=REL/$entity
             outdir=runs/$entity/$MODEL
@@ -166,18 +172,19 @@ rule run_biobert:
             python3 -u scripts/run_seqcls.py --model_name_or_path $MODEL_PATH \
             --train_file $datadir/train.json --validation_file $datadir/dev.json --test_file $datadir/test.json \
             --do_train --do_eval --do_predict --metric_name PRF1 \
-            --per_device_train_batch_size 32 --gradient_accumulation_steps 1 --fp16 \
-            --learning_rate 3e-5 --num_train_epochs 10 --max_seq_length 256 \
-            --save_strategy no --evaluation_strategy no --output_dir $outdir --overwrite_output_dir \
+            --per_device_train_batch_size 64 --gradient_accumulation_steps 1 --fp16 \
+            --learning_rate 3e-5 --num_train_epochs {params.epochs} --max_seq_length 384 \
+            --save_strategy no --evaluation_strategy epochs --evaluation_strategy epochs --logging_steps 1 --eval_steps 1 --output_dir $outdir --overwrite_output_dir \
             |& tee $outdir/log.txt
         done
         """
+
 
 rule join_metrics:
     input:
         mets=expand(
             "REL_output/{ENT}/all_results.json",
-            ENT=labels_flat,
+            ENT=labels,
         ),
     output:
         "REL_output/all_metrics.tsv",
@@ -187,10 +194,10 @@ rule join_metrics:
 
         dfs = []
         for f in input.mets:
-            with open(f, 'r') as file:
+            with open(f, "r") as file:
                 data = json.load(file)
                 df = pd.DataFrame(data)
-                df['relation'] = f.rsplit("-", 1)[0].split("/")[1]
+                df["relation"] = f.rsplit("-", 1)[0].split("/")[1]
                 dfs.append(df)
 
         result_df = pd.concat(dfs)
@@ -204,6 +211,6 @@ rule plot_metrics:
         "REL_output/all_metrics.png",
         "REL_output/best_splits.txt",
     params:
-        labels=labels_flat,
+        labels=labels,
     script:
         "scripts/rel_plot_performance.py"

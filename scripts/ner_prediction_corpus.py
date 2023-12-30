@@ -4,7 +4,6 @@ from tqdm import tqdm
 import argparse
 import pandas as pd
 from torch.utils.data import Dataset
-import os
 
 
 class ListDataset(Dataset):
@@ -46,7 +45,7 @@ texts.pop(-1)
 dataset = ListDataset(texts)
 result = []
 
-for out in tqdm(nlp(dataset, batch_size=32), total=len(dataset)):
+for out in tqdm(nlp(dataset, batch_size=64), total=len(dataset)):
     result.append(out)
 
 df = pd.DataFrame({"text": texts, "ner": result})
