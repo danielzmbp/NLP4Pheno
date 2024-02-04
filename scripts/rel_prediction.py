@@ -63,9 +63,11 @@ for out in tqdm(nlp(dataset, batch_size=64), total=len(dataset)):
 
 dfn.loc[:, "re_result"] = result
 
-sents = dfn[
-    dfn["re_result"].apply(lambda x: x["label"] == "LABEL_1")
-]
+dfn.re_result.apply(pd.Series)
+
+dfc = pd.concat([dfn, dfn.re_result.apply(pd.Series).rename(columns={"score": "rel_score"})],axis=1)
+
+sents = dfc[dfc["label"] == 1]
 
 sents.loc[:, "rel"] = m
 

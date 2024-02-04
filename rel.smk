@@ -15,6 +15,7 @@ labels = config["rel_labels"]
 model_sets = config["model_sets"]
 input_file = config["input_file"]
 cuda = config["cuda_devices"]
+test_size = config["rel_test"]
 
 
 rule all:
@@ -122,10 +123,10 @@ rule split_sets:
             df.loc[:, "label"] = np.where(df.l.str.endswith(rel_label), 1, 0)
 
             train, test_eval = train_test_split(
-                df, test_size=0.4, stratify=df.label, random_state=42
+                df, test_size=test_size, stratify=df.label, random_state=42
             )
             test, evaluation = train_test_split(
-                test_eval, test_size=0.5, stratify=test_eval.label, random_state=42
+                test_eval, test_size=0.6, stratify=test_eval.label, random_state=42
             )
 
             data_sets = {"test": test, "dev": evaluation, "train": train}
@@ -143,7 +144,7 @@ rule split_sets:
                         )
 
 
-rule run_biobert:
+rule run_linkbert:
     input:
         expand(
             "REL/{ENT}/{SET}.json",
@@ -176,8 +177,10 @@ rule run_biobert:
             --do_train --do_eval --do_predict --metric_name PRF1 \
             --per_device_train_batch_size 64 --gradient_accumulation_steps 1 --fp16 \
             --learning_rate 3e-5 --num_train_epochs {params.epochs} --max_seq_length 384 \
-            --save_strategy no --evaluation_strategy epoch --evaluation_strategy epoch --logging_steps 1 --eval_steps 1 --output_dir $outdir --overwrite_output_dir \
+            --save_strategy epoch --evaluation_strategy epoch --evaluation_strategy epoch --logging_steps 1 --eval_steps 1 --output_dir $outdir --overwrite_output_dir --load_best_model_at_end \
+            --metric_for_best_model F1 --greater_is_better True \
             |& tee $outdir/log.txt
+            rm -rf $outdir/checkpoint-*
         done
         """
 
@@ -198,20 +201,19 @@ rule join_metrics:
         for f in input.mets:
             with open(f, "r") as file:
                 data = json.load(file)
-                df = pd.DataFrame(data)
-                df["relation"] = f.rsplit("-", 1)[0].split("/")[1]
-                dfs.append(df)
-
+            relation = f.split("/")[1]  # f.rsplit("-", 1)[0].split("/")[1]
+            df = pd.DataFrame({relation: data})
+            dft = df.transpose()
+            dfs.append(dft)
         result_df = pd.concat(dfs)
-        result_df.to_csv(output[0], sep="\t", index=False)
+        result_df.to_csv(output[0], sep="\t")
 
 
 rule plot_metrics:
     input:
-        "REL_output/all_metrics.txt",
+        "REL_output/all_metrics.tsv",
     output:
         "REL_output/all_metrics.png",
-        "REL_output/best_splits.txt",
     params:
         labels=labels,
     script:

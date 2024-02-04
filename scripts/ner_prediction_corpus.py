@@ -1,9 +1,9 @@
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import argparse
 import pandas as pd
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
 
 class ListDataset(Dataset):
@@ -32,7 +32,7 @@ tokenizer = AutoTokenizer.from_pretrained(path, model_max_length=512)
 model = AutoModelForTokenClassification.from_pretrained(path)
 
 nlp = pipeline(task='ner', model=model, tokenizer=tokenizer,
-               grouped_entities=True, ignore_subwords=True, device=args.device)
+               aggregation_strategy="max", device=args.device)
 
 corpus = args.corpus
 

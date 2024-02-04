@@ -9,6 +9,39 @@ import itertools
 import csv
 
 
+def merge_entities(entity_list):
+    merged_list = []
+    skip = False
+
+    for i in range(len(entity_list)):
+        if skip:
+            skip = False
+            continue
+
+        current_entity = entity_list[i]
+        current_entity.pop("word", None)  # Remove 'word' entry
+        if current_entity["entity_group"] == "B":
+            scores = [current_entity["score"]]
+            # Look ahead to find contiguous 'I' entities
+            next_idx = i + 1
+            while (
+                next_idx < len(entity_list)
+                and entity_list[next_idx]["entity_group"] == "I"
+                and (entity_list[next_idx]["start"] - current_entity["end"]) <= 4
+            ):
+                scores.append(entity_list[next_idx]["score"])
+                current_entity["end"] = entity_list[next_idx]["end"]  # Update end value
+                skip = True
+                next_idx += 1
+
+            # Average the scores
+            current_entity["score"] = sum(scores) / len(scores)
+
+        merged_list.append(current_entity)
+
+    return merged_list
+
+
 configfile: "config.yaml"
 
 
@@ -71,64 +104,18 @@ rule merge_strain_predictions:
         l = []
         for file in glob(preds + "/NER_output/STRAIN/*.parquet"):
             d = pd.read_parquet(file).explode("ner").dropna()
-
-            singletons = d.drop_duplicates(
-                "text", keep=False
-            )  # sentences appearing once
-
-            dups = (
-                d[d.index.isin(singletons.index) == False]
-                .reset_index()
-                .drop(columns="index")
-            )  # sentences appearing more than once
-            # this part is to fix the problem of splitting tokens
-            indeces = []
-            # find indeces of duplicates
-            for i in range(dups.shape[0] - 1):
-                if dups.iloc[i, 0] == dups.iloc[i + 1, 0]:
-                    if (dups.iloc[i, 1]["end"] == dups.iloc[i + 1, 1]["start"]) or (
-                        dups.iloc[i, 1]["end"] + 1 == dups.iloc[i + 1, 1]["start"]
-                    ):
-                        indeces.append(i)
-                        indeces.append(i + 1)
-            split = dups.iloc[indeces, :]
-            dups_fixed = []
-            # join split tokens from the same sentence (start_i = end_i+1)
-            for i in range(split.shape[0] - 1):
-                if dups.iloc[i, 0] == dups.iloc[i + 1, 0]:  # same sentence
-                    if (dups.iloc[i, 1]["end"] == dups.iloc[i + 1, 1]["start"]) or (
-                        dups.iloc[i, 1]["end"] + 1 == dups.iloc[i + 1, 1]["start"]
-                    ):
-                        start = dups.iloc[i, 1]["start"]
-                        end = dups.iloc[i + 1, 1]["end"]
-                        text = dups.iloc[i, 0]
-                        word = text[start:end].lower()
-                        score = np.max(
-                            [dups.iloc[i, 1]["score"], dups.iloc[i + 1, 1]["score"]]
-                        )
-                        temporary = pd.DataFrame(
-                            {
-                                "text": text,
-                                "start": start,
-                                "end": end,
-                                "word": word,
-                                "score": score,
-                            },
-                            index=[0],
-                        )
-                        dups_fixed.append(temporary)
-            c = pd.concat([dups.drop(index=indeces, axis=0), singletons])
-            c = pd.concat([d.drop(columns="ner"), d.ner.apply(pd.Series)], axis=1)
-            c.loc[:, "ner"] = file.split("/")[-2]
-            c.drop(columns="entity_group", inplace=True)
-            if len(dups_fixed) > 0:
-                output_df = pd.concat([c, pd.concat(dups_fixed)])
-            else:
-                output_df = c
-            l.append(c)
-
+            grouped = d.groupby("text").agg({"ner": lambda x: list(x)}).reset_index()
+            grouped["ner"] = grouped["ner"].apply(merge_entities)
+            grouped = grouped.explode("ner")
+            grouped = pd.concat(
+                [grouped.drop(columns="ner"), grouped.ner.apply(pd.Series)], axis=1
+            )
+            l.append(grouped)
         df = pd.concat(l)
-
+        df["word"] = df.apply(
+            lambda row: row["text"][row["start"] : row["end"]], axis=1
+        )
+        df["word"] = df["word"].str.lower()
         df[df["score"] > cutoff].to_parquet(output[0])
 
 
@@ -182,62 +169,20 @@ rule agg_model_results:
         l = []
         for ner in input:
             d = pd.read_parquet(ner).explode("ner").dropna()
-            singletons = d.drop_duplicates(
-                "text", keep=False
-            )  # sentences appearing once
-            dups = (
-                d[d.index.isin(singletons.index) == False]
-                .reset_index()
-                .drop(columns="index")
-            )  # sentences appearing more than once
+            grouped = d.groupby("text").agg({"ner": lambda x: list(x)}).reset_index()
+            grouped["ner"] = grouped["ner"].apply(merge_entities)
+            grouped = grouped.explode("ner")
+            grouped = pd.concat(
+                [grouped.drop(columns="ner"), grouped.ner.apply(pd.Series)], axis=1
+            )
+            grouped["ner"] = ner.split("/")[-1].split(".")[0]
+            l.append(grouped)
 
-            # this part is to fix the problem of splitting tokens
-            indeces = []
-            # find indeces of duplicates
-            for i in range(dups.shape[0] - 1):
-                if dups.iloc[i, 0] == dups.iloc[i + 1, 0]:
-                    if (dups.iloc[i, 1]["end"] == dups.iloc[i + 1, 1]["start"]) or (
-                        dups.iloc[i, 1]["end"] + 1 == dups.iloc[i + 1, 1]["start"]
-                    ):
-                        indeces.append(i)
-                        indeces.append(i + 1)
-            split = dups.iloc[indeces, :]
-            dups_fixed = []
-            # join split tokens from the same sentence (start_i = end_i+1)
-            for i in range(split.shape[0] - 1):
-                if dups.iloc[i, 0] == dups.iloc[i + 1, 0]:  # same sentence
-                    if (dups.iloc[i, 1]["end"] == dups.iloc[i + 1, 1]["start"]) or (
-                        dups.iloc[i, 1]["end"] + 1 == dups.iloc[i + 1, 1]["start"]
-                    ):
-                        start = dups.iloc[i, 1]["start"]
-                        end = dups.iloc[i + 1, 1]["end"]
-                        text = dups.iloc[i, 0]
-                        word = text[start:end].lower()
-                        score = np.max(
-                            [dups.iloc[i, 1]["score"], dups.iloc[i + 1, 1]["score"]]
-                        )
-                        temporary = pd.DataFrame(
-                            {
-                                "text": text,
-                                "start": start,
-                                "end": end,
-                                "word": word,
-                                "score": score,
-                            },
-                            index=[0],
-                        )
-                        dups_fixed.append(temporary)
-            c = pd.concat([dups.drop(index=indeces, axis=0), singletons])
-            c = pd.concat([c.drop(columns="ner"), c.ner.apply(pd.Series)], axis=1)
-            c.drop(columns="entity_group", inplace=True)
-            if len(dups_fixed) > 0:
-                output_df = pd.concat([c, pd.concat(dups_fixed)])
-            else:
-                output_df = c
-            output_df.loc[:, "ner"] = ner.split("/")[-1].split(".")[0]
-            l.append(output_df)
         df = pd.concat(l)
-
+        df["word"] = df.apply(
+            lambda row: row["text"][row["start"] : row["end"]], axis=1
+        )
+        df["word"] = df["word"].str.lower()
         df.to_parquet(output[0])
 
 
@@ -252,9 +197,8 @@ rule merge_preds:
         others = pd.read_parquet(input[1])
         others = others[others["score"] > cutoff]
 
-        strains.drop(columns="ner", inplace=True)
         suff = strains.iloc[:, 1:].add_suffix("_strain")
         strains = pd.concat([strains.iloc[:, 0], suff], axis=1)
         df = strains.merge(others, on="text", how="left")
-        df = df.dropna(subset="ner")
+        df = df.dropna(subset="word")
         df.to_parquet(output[0])

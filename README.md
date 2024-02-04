@@ -43,7 +43,6 @@ snakemake --cores 20 --use-conda -s ner_pred.smk
 
 ```
 snakemake --cores 20 --use-conda -s rel_pred.smk
-
 ```
 
 ## Run all
