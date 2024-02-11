@@ -3,3 +3,5 @@ NER*
 REL*
 wandb/
 corpus*
+test_training/
+gomez/
