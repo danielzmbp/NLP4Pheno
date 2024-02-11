@@ -10,7 +10,7 @@
 ### NER training
 
 - Adjust GPU cores to use for training in `ner.smk` file.
-- Adjust `ner.config` for labels to train on and the number of epochs
+- Adjust `config.yaml` for labels to train on and the number of epochs
 - Run
 
 ```
@@ -19,7 +19,7 @@ rm -rf NER*; snakemake --cores 20 --use-conda -s ner.smk
 
 ### REL training
 
-- Adjust `rel.config` for labels to train on and the number of epochs
+- Adjust `config.yaml` for labels to train on and the number of epochs
 - Adjust GPU cores to use for training in `rel.smk` file.
 - Run
 

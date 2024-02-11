@@ -38,7 +38,7 @@ def get_assembly_summary(id):
     return esummary_record
 
 
-def get_assemblies(term, download=True, path='/home/gomez/gomez/assemblies_linkbert'):
+def get_assemblies(term, download=True, path=f'/home/gomez/gomez/assemblies_linkbert_{max_assemblies}'):
     """Download genbank assemblies for a given search term.
     Args:
         term: search term, usually organism name
@@ -72,7 +72,7 @@ def get_assemblies(term, download=True, path='/home/gomez/gomez/assemblies_linkb
                         print(f"\n{term}->{id}")
                         links.append(link)
                         term = term.replace('/', '_').replace(")", "_").replace(' ', '_').replace(
-                            "(", "_").replace(";", "_").replace("|", "_").replace('___', '_').replace('__', '_')
+                            "(", "_").replace("=", "_").replace("'", "_").replace(";", "_").replace(",", "_").replace("|", "_").replace('.', '_').replace('-', '_').replace('___', '_').replace('__', '_').lstrip('_').rstrip('_')
                         os.makedirs(f'{path}/{term}/{id}/', exist_ok=True)
                         if download == True:
                             if os.path.exists(f'{path}/{term}/{id}/{label}.fna.gz'):
