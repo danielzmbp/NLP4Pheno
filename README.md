@@ -50,3 +50,9 @@ snakemake --cores 20 --use-conda -s rel_pred.smk
 ```
 rm -rf NER*; snakemake --cores 20 --use-conda -s ner.smk; rm -rf REL*; snakemake --cores 20 --use-conda -s rel.smk; snakemake --cores 20 --use-conda -s ner_pred.smk; snakemake --cores 20 --use-conda -s rel_pred.smk; python scripts/download_assemblies.py
 ```
+
+### Pipeline for evolution analysis
+
+- Run `scripts/replace_gff.sh` to make gff compatible with proteinortho
+- Run `notebooks/sort_assemblies_into_categories.ipynb` to prepare files for proteinortho
+- Run `scripts/run_proteinortho.sh` to run proteinortho (still need to prepare script to run per category)

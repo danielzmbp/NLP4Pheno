@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script fixes the gff files produced by prodigal in order to work downstream with proteinortho
-ASSEMBLIES_PATH="/home/gomez/gomez/assemblies_linkbert_7/"
+ASSEMBLIES_PATH="/home/gomez/gomez/assemblies_linkbert_7_backup/assemblies_linkbert_7"
 
 # Loop through all .gff files matching the pattern */*/*.gff
 for file in $ASSEMBLIES_PATH/*/*/*.gff; do
