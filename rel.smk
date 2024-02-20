@@ -20,7 +20,7 @@ test_size = config["rel_test"]
 
 rule all:
     input:
-        "REL_output/all_metrics.tsv",
+        "REL_output/all_metrics.png",
 
 
 rule parse_rels:

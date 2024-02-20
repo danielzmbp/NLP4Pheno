@@ -26,13 +26,12 @@ def get_rels():
     # return df["rel"].unique()
 
 
-# Define rules
 rule all:
     input:
         f"/home/gomez/gomez/xgboost/annotations{DATA}_{MAX_ASSEMBLY}/binary/binary_{MIN_SAMPLES}.pkl",
 
 
-# Rule for processing relationship files
+# Rule for processing relationship files for all the assemblies
 rule process_rel:
     input:
         rel_file=f"/home/gomez/gomez/preds{DATA}/REL_output/preds.parquet",
@@ -45,19 +44,24 @@ rule process_rel:
         df_small = df_small.drop_duplicates()
         df_small.loc[:, "word_strain_qc"] = (
             df_small.word_strain_qc.str.replace("/", " ")
-            .str.replace("(", " ")
             .str.replace(")", " ")
+            .str.replace("_", " ")
+            .str.replace("(", " ")
+            .str.replace("=", " ")
+            .str.replace("'", " ")
             .str.replace(";", " ")
+            .str.replace(",", " ")
             .str.replace("|", " ")
             .str.replace(".", " ")
             .str.replace("-", " ")
             .str.replace("   ", " ")
             .str.replace("  ", " ")
+            .str.lstrip(" ")
+            .str.rstrip(" ")
         )
 
         max_assembly = MAX_ASSEMBLY
 
-        # do not run
         pred_strains = df_small.word_strain_qc.to_list()
         folders = glob(f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLY}/*/")
         assemblies = [f.split("/")[-2].replace("_", " ") for f in folders]
@@ -126,7 +130,7 @@ rule process_rel:
         process_rel(output.rel_output)
 
 
-# Rule for creating pickle files
+# Rule for creating pickle files, which includes the X, y, and index for input to XGBoost (features, labels, and index)
 rule process_file:
     input:
         parquet_file="/home/gomez/gomez/xgboost/annotations{data}_{max_assembly}/{rel}.parquet",
@@ -172,6 +176,7 @@ rule process_file:
         process_file(output.pickle_file)
 
 
+# Run XGBoost on the binary classification task, outputs are the pickles containing the model and the predictions
 rule xgboost_binary:
     input:
         expand(
