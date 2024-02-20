@@ -275,6 +275,7 @@ rule merge_preds:
             .str.replace("^surface waters$", "surface water", regex=True)
             .str.replace("^sea water$", "seawater", regex=True)
             .str.replace("^sediments$", "sediment", regex=True)
+            .str.replace("^soils$", "soil", regex=True)
             .str.replace("^water sample?$", "water", regex=True)
             .str.replace("^stool$", "feces", regex=True)
             .str.replace("^soil sample?$", "soil", regex=True)
@@ -293,6 +294,7 @@ rule merge_preds:
             .str.replace("^filaments$", "filament", regex=True)
             .str.replace("^rod-shaped$", "rod - shaped", regex=True)
             .str.replace("^rod shaped$", "rod - shaped", regex=True)
+            .str.replace("wrinkled colonies", "wrinkled colony", regex=True)
             # compound
             .str.replace("^heavy metals$", "heavy metal", regex=True)
             .str.replace("^hydrocarbons$", "hydrocarbon", regex=True)

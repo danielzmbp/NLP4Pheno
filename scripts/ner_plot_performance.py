@@ -108,7 +108,7 @@ m = pd.read_csv(snakemake.input[0], sep="\t", index_col=0)
 m = m.transpose().reset_index()
 m = m.rename(columns={"index": "metric"})
 columns = ["eval_f1", "eval_precision", "eval_recall", "eval_loss", "test_f1", 
-           "test_precision", "test_recall", "train_loss"]
+           "test_precision", "test_recall","test_loss", "train_loss"]
 mf = m[m["metric"].isin(columns)]
 mf["group"] = mf["metric"].str.split("_").str[0]
 mf["metric"] = mf["metric"].str.replace("eval_", "", regex=True).str.replace(

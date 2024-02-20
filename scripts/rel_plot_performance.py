@@ -107,8 +107,8 @@ def radar_factory(num_vars, frame='circle'):
 m = pd.read_csv(snakemake.input[0], sep="\t", index_col=0)
 m = m.transpose().reset_index()
 m = m.rename(columns={"index": "metric"})
-columns = ["eval_f1", "eval_precision", "eval_recall", "eval_loss", "test_f1", 
-           "test_precision", "test_recall", "train_loss"]
+columns = ["eval_F1", "eval_precision", "eval_recall", "test_F1", 
+           "test_precision", "test_recall"]
 mf = m[m["metric"].isin(columns)]
 mf["group"] = mf["metric"].str.split("_").str[0]
 mf["metric"] = mf["metric"].str.replace("eval_", "", regex=True).str.replace(
@@ -117,18 +117,19 @@ matrices = []
 for group in mf.group.unique():
     matrix = mf[mf["group"] == group].loc[:, labels_flat].values.tolist()
     matrices.append((group, matrix))
-data_mine = [labels_flat, matrices[0], matrices[1], matrices[2]]
+data_mine = [labels_flat, matrices[0], matrices[1]]
 N = len(labels_flat)
 theta = radar_factory(N, frame='polygon')
 
 data = data_mine
 spoke_labels = data.pop(0)
+spoke_labels = [w.replace("STRAIN","S") for w in spoke_labels]
 
-fig, axs = plt.subplots(figsize=(17, 8), ncols=3,
+fig, axs = plt.subplots(figsize=(12, 6), ncols=2,
                         subplot_kw=dict(projection='radar'))
-fig.subplots_adjust(wspace=0.25, hspace=0.20, top=0.85, bottom=0.05)
+fig.subplots_adjust(wspace=1, hspace=0.20, top=0.85, bottom=0.05)
 
-colors = ['b', 'r', 'g', 'm']
+colors = ['b', 'g', 'm']
 legend_labels = []
 
 for ax, (title, case_data) in zip(axs.flat, data):
@@ -141,22 +142,25 @@ for ax, (title, case_data) in zip(axs.flat, data):
         ax.fill(theta, d, facecolor=color, alpha=0.25, label='_nolegend_')
     ax.set_varlabels(spoke_labels)
     legend_labels.extend(case_data)
+    
+    # Rotate the axis labels
+    ax.set_thetagrids(np.degrees(theta), spoke_labels, fontsize=8)
+    ax.tick_params(axis='x', pad=-5)  # Remove padding of x-tick labels
+    for label, angle in zip(ax.get_xticklabels(), np.degrees(theta)):
+        if angle in (0, 180):
+            label.set_horizontalalignment('center')
+        elif 0 < angle < 180:
+            label.set_horizontalalignment('right')
+        else:
+            label.set_horizontalalignment('left')
+
 
 # add legend relative to top-left plot
 labs = tuple(mf.metric.drop_duplicates().to_list())
-legend = axs[0].legend(labs, loc=(1, .95),
+legend = axs[0].legend(labs, loc=(1.3, .95),
                        labelspacing=0.1, fontsize='small')
 
-# Set consistent colors for legend
-for line, text, color in zip(legend.get_lines(), legend.get_texts(), colors):
-    line.set_color(color)
-    text.set_color(color)
-
-# Set consistent colors for plots
-for ax in axs.flat:
-    ax.set_prop_cycle(color=colors)
-
-fig.text(0.5, 0.75, 'REL performance',
+fig.text(0.5, 0.8, 'REL performance',
          horizontalalignment='center', color='black', weight='bold',
          size='large')
 
