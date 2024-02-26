@@ -38,12 +38,13 @@ model_sets:
   - train
   - dev
   - test
-ner_epochs: 40
+ner_epochs: 45
 rel_epochs: 30
-input_file: label/project-4-at-2024-02-20-11-20-41f60e85.json
+input_file: label/project-4-at-2024-02-22-14-21-68427936.json
 cutoff_prediction: 0.50
 cuda_devices: [0,1,2,3]
-ner_test: 0.25
+ner_test: 0.3
 rel_test: 0.3
 dataset : "810"
 model: "large"
+steps: 5

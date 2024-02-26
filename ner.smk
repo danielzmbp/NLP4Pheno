@@ -154,6 +154,7 @@ rule run_linkbert:
         epochs=config["ner_epochs"],
         cuda=lambda w: ",".join([str(i) for i in cuda]),
         model_type=config["model"],
+        steps=config["ner_steps"],
     shell:
         """
         export MODEL_PATH=michiyasunaga/BioLinkBERT-{params.model_type}
@@ -171,7 +172,7 @@ rule run_linkbert:
             --do_train --do_eval --do_predict \
             --per_device_train_batch_size 64 --gradient_accumulation_steps 2 --fp16 \
             --learning_rate 2e-5 --warmup_ratio 0.5 --num_train_epochs $EPOCHS --max_seq_length 512 \
-            --save_strategy steps --evaluation_strategy steps --logging_strategy steps --logging_steps 5 --eval_steps 5 --output_dir $outdir --overwrite_output_dir --load_best_model_at_end \
+            --save_strategy steps --evaluation_strategy steps --logging_strategy steps --logging_steps {params.steps} --eval_steps {params.steps} --output_dir $outdir --overwrite_output_dir --load_best_model_at_end \
             |& tee $outdir/log.txt 
             rm -rf $outdir/checkpoint-*
         done
