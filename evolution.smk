@@ -19,9 +19,9 @@ rule align:
         folder + "/{rel}/seq.faa",
     output:
         folder + "/{rel}/seq.aln",
-    threads: 1
+    threads: 5
     shell:
-        "mafft --auto --thread 1 {input} > {output}"
+        "mafft --auto --thread 5 {input} > {output}"
 
 
 rule fasttree:
@@ -43,13 +43,26 @@ rule codonaln:
         "pal2nal.pl {input.pro_align} {input.nucl_seq} -output fasta > {output.alignment}"
 
 
-rule busted:
+rule remove_dups:
     input:
         aln_codon=folder + "/{rel}/seq.aln.codon",
         tree=folder + "/{rel}/seq.tree",
     output:
+        folder + "/{rel}/seq.nxh",
+    shell:
+        "hyphy /home/gomez/hyphy-analyses/remove-duplicates/remove-duplicates.bf --msa {input.aln_codon} --tree {input.tree} --output {output}"
+
+
+rule busted:
+    input:
+        folder + "/{rel}/seq.nxh",
+    output:
         json=folder + "/{rel}/seq.json",
         log=folder + "/{rel}/seq.log",
-    threads: 1
+    threads: 15
     shell:
-        "hyphy busted --alignment {input.aln_codon} --tree {input.tree} --output {output.json} > {output.log}"
+        """
+        ENV=TOLERATE_NUMERICAL_ERRORS=1
+        CPU=15
+        hyphy busted --alignment {input} --output {output.json} > {output.log}
+        """
