@@ -30,6 +30,7 @@ rule make_split:
         expand("NER/{ENT}/{SET}.jsonls", ENT=labels, SET=model_sets),
     run:
         json_file = json.load(open(input[0]))
+        seed = 1
         for label in labels:
             sentences = []
             ners = []
@@ -43,26 +44,26 @@ rule make_split:
                             pass
                 sentences.append(item)
                 if label in annotations:
-                    ners.append(1)
+                    ners.append(seed)
                 else:
                     ners.append(0)
             count_positives = np.sum(ners)
             t = list(zip(sentences, ners))
-            sort = sorted(t, key=itemgetter(1))
+            sort = sorted(t, key=itemgetter(seed))
             # get x times more negatives than positives
             # sort = sort[-(count_positives * 10) :]
-            random.seed(42)
+            random.seed(seed)
             random.shuffle(sort)
             sentences, ners = zip(*sort)
             sentences = list(sentences)
             X_train, X_test_dev, _, y_test_dev = train_test_split(
-                sentences, ners, test_size=test_size, random_state=42, stratify=ners
+                sentences, ners, test_size=test_size, random_state=1, stratify=ners
             )
             X_test, X_dev, _, _ = train_test_split(
                 X_test_dev,
                 y_test_dev,
                 test_size=0.6,
-                random_state=42,
+                random_state=1,
                 stratify=y_test_dev,
             )
             sentence_split = (X_train, X_test, X_dev)
