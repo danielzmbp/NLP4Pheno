@@ -75,23 +75,21 @@ rule make_strain_file:
 
 rule run_strain_prediction:
     input:
-        expand(corpus + "/{p}.txt", p=PARTS),
+        corpus_file=corpus + "/{strain}.txt",
         dev=preds + "/NER_output/device_strain.txt",
     output:
-        expand(preds + "/NER_output/STRAIN/{p}.parquet", p=PARTS),
+        preds + "/NER_output/STRAIN/{strain}.parquet",
     conda:
         "torch"
     shell:
         """
-        for i in {cuda};do
-            while read -r d m; do
-            if [ ${{d}} -eq ${{i}} ]; then
+        while read -r d s; do
+            if [ "$s" == "{wildcards.strain}" ]; then
                 export MODEL=NER_output/STRAIN
-                python scripts/ner_prediction_corpus.py --model $MODEL --device ${{d}} --output {preds}/$MODEL/$m.parquet --corpus {corpus}/$m.txt
+                python scripts/ner_prediction_corpus.py --model $MODEL --device $d --output {output} --corpus {input.corpus_file}
+                break
             fi
-            done < {input.dev} &
-        done
-        wait
+        done < {input.dev}
         """
 
 
