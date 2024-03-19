@@ -76,7 +76,7 @@ rule make_split:
 rule convert_splits:
     input:
         json=expand("NER/{ENT}/{SET}.jsonls", ENT=labels, SET=model_sets),
-        config="/home/gomez/biobert-pytorch/my_dataset/config.xml",
+        config="config.xml",
     output:
         conll=temp(expand("NER/{ENT}/{SET}.conll", ENT=labels, SET=model_sets)),
     shell:

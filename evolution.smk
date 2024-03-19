@@ -2,7 +2,9 @@ import pandas as pd
 
 max_assemblies = 5
 data = 810
-folder = f"/home/gomez/gomez/seqfiles_linkbert_{data}_{max_assemblies}"
+min_samples = 21
+
+folder = f"/home/gomez/gomez/seqfiles_linkbert_{data}_{max_assemblies}_{min_samples}"
 (R,) = glob_wildcards(folder + "/{rel}/seq.faa")
 
 
@@ -59,10 +61,10 @@ rule busted:
     output:
         json=folder + "/{rel}/seq.json",
         log=folder + "/{rel}/seq.log",
-    threads: 15
+    threads: 20
     shell:
         """
         ENV=TOLERATE_NUMERICAL_ERRORS=1
-        CPU=15
+        CPU=20
         hyphy busted --alignment {input} --output {output.json} > {output.log}
         """

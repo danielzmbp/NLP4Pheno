@@ -1,0 +1,42 @@
+<View>
+   <Relations>
+    <Relation value="INHABITS"/>
+	<Relation value="FORMS"/>
+    <Relation value="PRODUCES"/>
+    <Relation value="INFECTS"/>
+    <Relation value="ASSOCIATED_WITH"/>
+    <Relation value="GROWS_ON"/>
+    <Relation value="RESISTS"/>
+    <Relation value="PRESENTS"/>
+    <Relation value="PROMOTES"/>
+	<Relation value="INHIBITS"/>
+	<Relation value="SYMBIONT_OF"/>
+    <Relation value="DEGRADES"/>
+    <Relation value="REQUIRES"/>
+  </Relations>
+  <Labels name="label" toName="text">
+
+    <Label value="STRAIN" background="blue"/>
+    <Label value="ASSEMBLY" background="pink"/>
+    <Label value="METABOLITE" background="yellow"/>
+	<Label value="ISOLATE" background="brown"/>
+    <Label value="MORPHOLOGY" background="darkgreen"/>
+    <Label value="ORGANISM" background="grey"/>
+    <Label value="DISEASE" background="purple"/>
+    <Label value="MEDIUM" background="darkorange"/>
+    <Label value="COMPOUND" background="darkblue"/>
+    <Label value="EFFECT" background="chocolate"/>
+    <Label value="PHENOTYPE" background="red"/>
+    <Label value="GENE" background="black"/>
+    <Label value="PROTEIN" background="aquamarine"/>
+    <Label value="GENUS" background="orange"/>
+    <Label value="SPECIES" background="green"/>
+
+  </Labels>
+
+  <Text name="text" value="$text"/>
+</View>
+
+<!-- {"data": {
+  "text": "Microsoft was founded by Bill Gates and Paul Allen on April 4, 1975, to develop and sell BASIC interpreters for the Altair 8800."
+}} -->
