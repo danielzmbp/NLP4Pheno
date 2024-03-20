@@ -1,5 +1,8 @@
 # LinkBERT model for phenotyope prediction
-
+## Install python environments
+```
+mamba env create -n envs/*.yaml
+```
 ## Create PMC corpus
 
 - Use snakemake_PMC repository to download files.
