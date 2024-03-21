@@ -150,7 +150,7 @@ rule run_linkbert:
     output:
         expand("NER_output/{ENT}/all_results.json", ENT=labels),
     conda:
-        "linkbert"
+        "l"
     params:
         epochs=config["ner_epochs"],
         cuda=lambda w: ",".join([str(i) for i in cuda]),
@@ -171,9 +171,9 @@ rule run_linkbert:
             python3 -u scripts/run_ner.py --model_name_or_path $MODEL_PATH \
             --train_file $datadir/train.json --validation_file $datadir/dev.json --test_file $datadir/test.json \
             --do_train --do_eval --do_predict \
-            --per_device_train_batch_size 64 --gradient_accumulation_steps 2 --fp16 \
+            --per_device_train_batch_size 32 --gradient_accumulation_steps 2 --fp16 \
             --learning_rate 2e-5 --warmup_ratio 0.5 --num_train_epochs $EPOCHS --max_seq_length 512 \
-            --save_strategy steps --evaluation_strategy steps --logging_strategy steps --logging_steps {params.steps} --eval_steps {params.steps} --output_dir $outdir --overwrite_output_dir --load_best_model_at_end \
+            --save_strategy epoch --evaluation_strategy epoch --logging_strategy epoch --output_dir $outdir --overwrite_output_dir --load_best_model_at_end \
             |& tee $outdir/log.txt 
             rm -rf $outdir/checkpoint-*
         done
