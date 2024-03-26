@@ -9,3 +9,4 @@ notebooks/figures/
 notebooks/network_files/
 gomez
 .DS_Store
+*-checkpoint*
