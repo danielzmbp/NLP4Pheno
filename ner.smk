@@ -49,7 +49,7 @@ rule make_split:
                     ners.append(0)
             count_positives = np.sum(ners)
             t = list(zip(sentences, ners))
-            sort = sorted(t, key=itemgetter(seed))
+            sort = sorted(t, key=itemgetter(1))
             # get x times more negatives than positives
             # sort = sort[-(count_positives * 10) :]
             random.seed(seed)
@@ -155,7 +155,6 @@ rule run_linkbert:
         epochs=config["ner_epochs"],
         cuda=lambda w: ",".join([str(i) for i in cuda]),
         model_type=config["model"],
-        steps=config["ner_steps"],
     shell:
         """
         export MODEL_PATH=michiyasunaga/BioLinkBERT-{params.model_type}
