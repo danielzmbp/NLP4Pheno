@@ -38,8 +38,8 @@ model_sets:
   - dev
   - test
 ner_epochs: 20
-rel_epochs: 15
-input_file: label/project-4-at-2024-03-26-13-52-f70b6bf1.json
+rel_epochs: 20
+input_file: label/project-4-at-2024-03-27-10-47-8ca45c9d.json
 cutoff_prediction: 0.50
 cuda_devices: [0,1,2,3]
 ner_test: 0.2
