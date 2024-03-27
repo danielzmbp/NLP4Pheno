@@ -28,6 +28,9 @@ rule parse_rels:
         input_file,
     output:
         "REL/parsed_rels.txt",
+    resources:
+        slurm_partition="single",
+        runtime=30,
     run:
         data = json.load(open(input[0]))
         ners = []
@@ -92,6 +95,9 @@ rule split_labels:
             "REL/{ENT}/all.tsv",
             ENT=labels,
         ),
+    resources:
+        slurm_partition="single",
+        runtime=30,
     run:
         df = pd.read_csv(input[0], sep="\t")
         for label in labels:
@@ -113,6 +119,9 @@ rule split_sets:
             ENT=labels,
             SET=model_sets,
         ),
+    resources:
+        slurm_partition="single",
+        runtime=30,
     run:
         for label in labels:
             rel_label = label.split(":")[1]
@@ -162,6 +171,10 @@ rule run_linkbert:
         epochs=config["rel_epochs"],
         cuda=lambda w: ",".join([str(i) for i in cuda]),
         model_type=config["model"],
+    resources:
+        slurm_partition="gpu_4",
+        slurm_extra="--gres=gpu:2",
+        runtime=300,
     shell:
         """
         export CUDA_VISIBLE_DEVICES={params.cuda}

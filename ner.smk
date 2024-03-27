@@ -28,6 +28,9 @@ rule make_split:
         input_file,
     output:
         expand("NER/{ENT}/{SET}.jsonls", ENT=labels, SET=model_sets),
+    resources:
+        slurm_partition="single",
+        runtime=30,
     run:
         json_file = json.load(open(input[0]))
         seed = 1
@@ -79,6 +82,9 @@ rule convert_splits:
         config="config.xml",
     output:
         conll=temp(expand("NER/{ENT}/{SET}.conll", ENT=labels, SET=model_sets)),
+    resources:
+        slurm_partition="single",
+        runtime=30,
     shell:
         """
         for f in NER/**/*.jsonls
@@ -104,6 +110,9 @@ rule convert_to_bio:
                 SET=model_sets,
             )
         ),
+    resources:
+        slurm_partition="single",
+        runtime=30,
     run:
         for label in labels:
             for split in model_sets:
@@ -130,6 +139,9 @@ rule convert_to_json:
             ENT=labels,
             SET=model_sets,
         ),
+    resources:
+        slurm_partition="single",
+        runtime=30,
     output:
         expand(
             "NER/{ENT}/{SET}.json",
@@ -155,6 +167,10 @@ rule run_linkbert:
         epochs=config["ner_epochs"],
         cuda=lambda w: ",".join([str(i) for i in cuda]),
         model_type=config["model"],
+    resources:
+        slurm_partition="gpu_8",
+        slurm_extra="--gres=gpu:2",
+        runtime=200,
     shell:
         """
         export MODEL_PATH=michiyasunaga/BioLinkBERT-{params.model_type}
@@ -184,6 +200,9 @@ rule aggregate_data:
         expand("NER_output/{ENT}/all_results.json", ENT=labels),
     output:
         "NER_output/aggregated_eval.tsv",
+    resources:
+        slurm_partition="single",
+        runtime=50,
     run:
         dfs = []
         for label in labels:
@@ -203,5 +222,8 @@ rule plot:
         "NER_output/aggregated_eval.png",
     params:
         labels=labels,
+    resources:
+        slurm_partition="single",
+        runtime=30,
     script:
         "scripts/ner_plot_performance.py"
