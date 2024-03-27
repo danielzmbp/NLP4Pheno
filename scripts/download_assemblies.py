@@ -72,7 +72,7 @@ def get_assemblies(term, download=True, path=f'/home/gomez/gomez/assemblies_link
                         print(f"\n{term}->{id}")
                         links.append(link)
                         term = term.replace('/', '_').replace(")", "_").replace(' ', '_').replace(
-                            "(", "_").replace("=", "_").replace("'", "_").replace(";", "_").replace(",", "_").replace("|", "_").replace('.', '_').replace('-', '_').replace('___', '_').replace('__', '_').lstrip('_').rstrip('_')
+                            "(", "_").replace("=", "_").replace("'", "_").replace(";", "_").replace(",", "_").replace("|", "_").replace('.', '_').replace('-', '_').replace("^","_").replace('___', '_').replace('__', '_').lstrip('_').rstrip('_')
                         os.makedirs(f'{path}/{term}/{id}/', exist_ok=True)
                         if download == True:
                             if os.path.exists(f'{path}/{term}/{id}/{label}.fna.gz'):
