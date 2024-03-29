@@ -33,7 +33,7 @@ rule make_split:
         runtime=30,
     run:
         json_file = json.load(open(input[0]))
-        seed = 1
+        seed = 42
         for label in labels:
             sentences = []
             ners = []
@@ -47,7 +47,7 @@ rule make_split:
                             pass
                 sentences.append(item)
                 if label in annotations:
-                    ners.append(seed)
+                    ners.append(1)
                 else:
                     ners.append(0)
             count_positives = np.sum(ners)
@@ -168,9 +168,9 @@ rule run_linkbert:
         cuda=lambda w: ",".join([str(i) for i in cuda]),
         model_type=config["model"],
     resources:
-        slurm_partition="gpu_8",
-        slurm_extra="--gres=gpu:2",
-        runtime=200,
+        slurm_partition="gpu_4",
+        slurm_extra="--gres=gpu:1",
+        runtime=250,
     shell:
         """
         export MODEL_PATH=michiyasunaga/BioLinkBERT-{params.model_type}

@@ -173,8 +173,8 @@ rule run_linkbert:
         model_type=config["model"],
     resources:
         slurm_partition="gpu_4",
-        slurm_extra="--gres=gpu:2",
-        runtime=300,
+        slurm_extra="--gres=gpu:1",
+        runtime=500,
     shell:
         """
         export CUDA_VISIBLE_DEVICES={params.cuda}
@@ -206,6 +206,9 @@ rule join_metrics:
         ),
     output:
         "REL_output/all_metrics.tsv",
+    resources:
+        slurm_partition="single",
+	runtime=30,
     run:
         import json
         import pandas as pd
@@ -229,5 +232,8 @@ rule plot_metrics:
         "REL_output/all_metrics.png",
     params:
         labels=labels,
+    resources:
+        slurm_partition="single",
+	runtime=30,
     script:
         "scripts/rel_plot_performance.py"
