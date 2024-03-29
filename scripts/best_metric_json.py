@@ -18,4 +18,5 @@ for rel_json in glob("REL_output/*/trainer_state.json"):
     for epoch in json_file["log_history"]:
         if epoch.get("eval_F1") == best_metric:
             print(f"{rel_json.split('/')[-2]} -> EPOCH={epoch['epoch']}: F1={best_metric}")
+            break
     
