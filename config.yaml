@@ -39,11 +39,11 @@ model_sets:
   - test
 ner_epochs: 13
 rel_epochs: 15
-input_file: label/project-4-at-2024-03-29-16-09-d5927f51.json
+input_file: label/project-4-at-2024-03-29-19-34-b209fe46.json
 cutoff_prediction: 0.50
-cuda_devices: [0,1,2,3]
+cuda_devices: [1,2,3]
 ner_test: 0.3
 rel_test: 0.35
 dataset : "1500"
 model: "large"
-seed: 73
+seed: 23
