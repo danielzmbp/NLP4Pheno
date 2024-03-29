@@ -122,6 +122,8 @@ rule split_sets:
     resources:
         slurm_partition="single",
         runtime=30,
+    params:
+        seed=config["seed"],
     run:
         for label in labels:
             rel_label = label.split(":")[1]
@@ -132,10 +134,13 @@ rule split_sets:
             df.loc[:, "label"] = np.where(df.l.str.endswith(rel_label), 1, 0)
 
             train, test_eval = train_test_split(
-                df, test_size=test_size, stratify=df.label, random_state=42
+                df, test_size=test_size, stratify=df.label, random_state=params.seed
             )
             test, evaluation = train_test_split(
-                test_eval, test_size=0.6, stratify=test_eval.label, random_state=42
+                test_eval,
+                test_size=0.6,
+                stratify=test_eval.label,
+                random_state=params.seed,
             )
 
             data_sets = {"test": test, "dev": evaluation, "train": train}
@@ -208,7 +213,7 @@ rule join_metrics:
         "REL_output/all_metrics.tsv",
     resources:
         slurm_partition="single",
-	runtime=30,
+        runtime=30,
     run:
         import json
         import pandas as pd
@@ -234,6 +239,6 @@ rule plot_metrics:
         labels=labels,
     resources:
         slurm_partition="single",
-	runtime=30,
+        runtime=30,
     script:
         "scripts/rel_plot_performance.py"

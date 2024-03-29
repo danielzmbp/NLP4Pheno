@@ -31,9 +31,11 @@ rule make_split:
     resources:
         slurm_partition="single",
         runtime=30,
+    params:
+        seed=config["seed"],
     run:
         json_file = json.load(open(input[0]))
-        seed = 42
+        seed = params.seed
         for label in labels:
             sentences = []
             ners = []
