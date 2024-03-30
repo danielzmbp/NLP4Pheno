@@ -4,15 +4,14 @@ import pandas as pd
 from tqdm import tqdm
 import subprocess
 import argparse
-import argparse
 
 Entrez.email = "d.gomez@lmu.de"
 Entrez.api_key = "71c734bb92382389e17af918de877c12b308"
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--max_assemblies", type=int, default=100,
+parser.add_argument("--max_assemblies", type=int, default=500,
                     help="Maximum number of assemblies")
-parser.add_argument("--data", type=int, default=1000, help="Data value")
+parser.add_argument("--data", type=int, help="Data value")
 parser.add_argument("--word_size_limit", type=int,
                     default=3, help="Word size limit")
 args = parser.parse_args()
@@ -23,9 +22,10 @@ word_size_limit = args.word_size_limit
 
 st = pd.read_parquet(f"../../gomez/preds{data}/REL_output/preds.parquet")
 
+nostrains = set()
 if os.path.exists('scripts/strain_cache.txt'):
     with open('scripts/strain_cache.txt', 'r') as f:
-        nostrains = f.read().splitlines()
+        nostrains = set(line.strip() for line in f)
 else:
     os.system('touch scripts/strain_cache.txt')
     nostrains = []
@@ -46,7 +46,7 @@ def get_assemblies(term, download=True, path=f'/home/gomez/gomez/assemblies_link
         path: folder to save to
     """
     # check if path exists
-    if (term not in nostrains):
+    if term not in nostrains:
         if not (os.path.exists(f'{path}/{term.replace(" ","_")}/')):
             handle = Entrez.esearch(
                 db="assembly", term=f"({term} [ORGN]) AND (Bacteria [ORGN])", retmax=str(max_assemblies))
@@ -72,7 +72,7 @@ def get_assemblies(term, download=True, path=f'/home/gomez/gomez/assemblies_link
                         print(f"\n{term}->{id}")
                         links.append(link)
                         term = term.replace('/', '_').replace(")", "_").replace(' ', '_').replace(
-                            "(", "_").replace("=", "_").replace("'", "_").replace(";", "_").replace(",", "_").replace("|", "_").replace('.', '_').replace('-', '_').replace("^","_").replace('___', '_').replace('__', '_').lstrip('_').rstrip('_')
+                            "(", "_").replace("=", "_").replace("'", "_").replace(";", "_").replace(",", "_").replace("|", "_").replace('.', '_').replace('-', '_').replace("^", "_").replace('___', '_').replace('__', '_').lstrip('_').rstrip('_')
                         os.makedirs(f'{path}/{term}/{id}/', exist_ok=True)
                         if download == True:
                             if os.path.exists(f'{path}/{term}/{id}/{label}.fna.gz'):
