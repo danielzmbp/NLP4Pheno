@@ -39,11 +39,16 @@ def get_assembly_summary(id):
 
 
 def get_assemblies(term, download=True, path=f'/home/gomez/gomez/assemblies_linkbert_{max_assemblies}'):
-    """Download genbank assemblies for a given search term.
+    """
+    Download genbank assemblies for a given search term.
+
     Args:
-        term: search term, usually organism name
-        download: whether to download the results
-        path: folder to save to
+        term (str): The search term, usually the organism name.
+        download (bool, optional): Whether to download the results. Defaults to True.
+        path (str, optional): The folder to save the assemblies to. Defaults to '/home/gomez/gomez/assemblies_linkbert_{max_assemblies}'.
+
+    Returns:
+        list: A list of FTP links to the downloaded assemblies.
     """
     # check if path exists
     if term not in nostrains:

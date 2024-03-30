@@ -48,10 +48,12 @@ snakemake --cores 20 --use-conda -s ner_pred.smk
 snakemake --cores 20 --use-conda -s rel_pred.smk
 ```
 
-## Run all
+## Download assemblies and annotate
 
 ```
-rm -rf NER*; snakemake --cores 20 --use-conda -s ner.smk; rm -rf REL*; snakemake --cores 20 --use-conda -s rel.smk; snakemake --cores 20 --use-conda -s ner_pred.smk; snakemake --cores 20 --use-conda -s rel_pred.smk; python scripts/download_assemblies.py
+python scripts/download_assemblies.py --data 1500 --max_assemblies 500
+python scripts/filter_assemblies.py --data 1500 --max_assemblies 5
+snakemake --cores 200 --use-conda -k -s ip.smk
 ```
 
 ### Pipeline for evolution analysis
