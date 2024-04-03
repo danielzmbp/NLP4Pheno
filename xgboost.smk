@@ -4,10 +4,6 @@ import os
 import pickle
 import polars as pl
 from tqdm import tqdm
-import xgboost as xgb
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
 
 
 configfile: "xgboost_config.yaml"
@@ -63,10 +59,12 @@ rule process_rel:
         max_assembly = MAX_ASSEMBLY
 
         pred_strains = df_small.word_strain_qc.to_list()
-        folders = glob(f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLY}/*/")
+        folders = glob(
+            f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLY}_filtered{MIN_SAMPLES}/*/"
+        )
         assemblies = [f.split("/")[-2].replace("_", " ") for f in folders]
         annotations = glob(
-            f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLY}/**/**/*.parquet"
+            f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLY}_filtered{MIN_SAMPLES}/**/**/*.parquet"
         )
         pred_annotations = [
             f for f in annotations if f.split("/")[-3].replace("_", " ") in pred_strains

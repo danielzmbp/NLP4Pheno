@@ -1,4 +1,4 @@
-data: "810"
-max_assembly: 5
-min_samples: 21
+data: "1500"
+max_assembly: 500
+min_samples: 3
 device: 1
