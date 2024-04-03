@@ -12,3 +12,4 @@ gomez
 .DS_Store
 *-checkpoint*
 temp/
+scripts/__pycache__
