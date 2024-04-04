@@ -34,19 +34,25 @@ rule make_split:
     params:
         seed=config["seed"],
     run:
-        json_file = json.load(open(input[0]))
         seed = params.seed
         for label in labels:
+            with open(input_file) as f:
+                json_file = json.load(f)
             sentences = []
             ners = []
             for item in json_file:
                 annotations = []
+                indices_to_remove = []
                 for a in item["annotations"]:
-                    for r in a["result"]:
+                    for ind, r in enumerate(a["result"]):
                         try:
                             annotations.append(r["value"]["labels"][0])
+                            if r["value"]["labels"][0] != label:
+                                indices_to_remove.append(ind)
                         except:
                             pass
+                for index in sorted(indices_to_remove, reverse=True):
+                    item["annotations"][0]["result"].pop(index)
                 sentences.append(item)
                 if label in annotations:
                     ners.append(1)
@@ -83,7 +89,7 @@ rule convert_splits:
         json=expand("NER/{ENT}/{SET}.jsonls", ENT=labels, SET=model_sets),
         config="config.xml",
     output:
-        conll=temp(expand("NER/{ENT}/{SET}.conll", ENT=labels, SET=model_sets)),
+        conll=expand("NER/{ENT}/{SET}.conll", ENT=labels, SET=model_sets),
     resources:
         slurm_partition="single",
         runtime=30,
@@ -105,12 +111,10 @@ rule convert_to_bio:
             SET=model_sets,
         ),
     output:
-        temp(
-            expand(
-                "NER/{ENT}/{SET}.txt",
-                ENT=labels,
-                SET=model_sets,
-            )
+        expand(
+            "NER/{ENT}/{SET}.txt",
+            ENT=labels,
+            SET=model_sets,
         ),
     resources:
         slurm_partition="single",
