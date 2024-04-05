@@ -60,11 +60,11 @@ rule process_rel:
 
         pred_strains = df_small.word_strain_qc.to_list()
         folders = glob(
-            f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLY}_filtered{MIN_SAMPLES}/*/"
+            f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLY}_filtered_{MIN_SAMPLES}/*/"
         )
         assemblies = [f.split("/")[-2].replace("_", " ") for f in folders]
         annotations = glob(
-            f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLY}_filtered{MIN_SAMPLES}/**/**/*.parquet"
+            f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLY}_filtered_{MIN_SAMPLES}/**/**/*.parquet"
         )
         pred_annotations = [
             f for f in annotations if f.split("/")[-3].replace("_", " ") in pred_strains
