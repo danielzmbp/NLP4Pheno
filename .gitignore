@@ -13,3 +13,4 @@ gomez
 *-checkpoint*
 temp/
 scripts/__pycache__
+.vscode/
