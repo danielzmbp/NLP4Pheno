@@ -9,7 +9,7 @@ Entrez.email = "d.gomez@lmu.de"
 Entrez.api_key = "71c734bb92382389e17af918de877c12b308"
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--max_assemblies", type=int, default=500,
+parser.add_argument("--max_assemblies", type=int, default=1500,
                     help="Maximum number of assemblies")
 parser.add_argument("--data", type=int, help="Data value")
 parser.add_argument("--word_size_limit", type=int,
@@ -76,8 +76,8 @@ def get_assemblies(term, download=True, path=f'/home/gomez/gomez/assemblies_link
                         link = os.path.join(url, label+'_genomic.fna.gz')
                         print(f"\n{term}->{id}")
                         links.append(link)
-                        term = term.replace('/', '_').replace(")", "_").replace(' ', '_').replace(
-                            "(", "_").replace("=", "_").replace("'", "_").replace(";", "_").replace(",", "_").replace("|", "_").replace('.', '_').replace('-', '_').replace("^", "_").replace('___', '_').replace('__', '_').lstrip('_').rstrip('_')
+                        term = term.replace('/', '_').replace(")", "_").replace(":", "_").replace(' ', '_').replace(
+                            "(", "_").replace("=", "_").replace("'", "_").replace(";", "_").replace(",", "_").replace("|", "_").replace('.', '_').replace('-', '_').replace("^", "_").replace("*", "_").replace('"', '_').replace('___', '_').replace('__', '_').lstrip('_').rstrip('_')
                         os.makedirs(f'{path}/{term}/{id}/', exist_ok=True)
                         if download == True:
                             if os.path.exists(f'{path}/{term}/{id}/{label}.fna.gz'):
