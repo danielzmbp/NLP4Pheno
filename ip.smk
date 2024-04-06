@@ -2,7 +2,7 @@ import pandas as pd
 
 # TODO: this should be extended to the download and filter scripts
 
-folder = "/home/gomez/gomez/assemblies_linkbert_500_filtered_5"
+folder = "/home/gomez/gomez/assemblies_linkbert_500_filtered_3"
 (
     S,
     F,
@@ -57,7 +57,7 @@ rule ip:
         temp(folder + "/{strain}/{f}.tsv"),
     threads: 5
     shell:
-        "/home/gomez/interproscan-5.67-99.0/interproscan.sh -goterms --iprlookup -pa --cpu {threads} -i {input} -o {output} -f TSV -appl SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
+        "/home/gomez/interproscan-5.67-99.0/interproscan.sh -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
 
 
 rule convert_to_parquet:
