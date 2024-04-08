@@ -50,17 +50,11 @@ snakemake --cores 20 --use-conda -s rel_pred.smk
 
 ## Download assemblies and annotate
 
-```
-python scripts/download_assemblies.py --data 1500 --max_assemblies 500
-python scripts/filter_assemblies.py --data 1500 --max_assemblies 5
-snakemake --cores 200 --use-conda -k -s ip.smk
-```
 
-### Pipeline for evolution analysis
-
-- Run `scripts/replace_gff.sh` to make gff compatible with proteinortho
-- Run `notebooks/sort_assemblies_into_categories.ipynb` to prepare files for proteinortho
-- Run `scripts/run_proteinortho.sh` to run proteinortho (still need to prepare script to run per category)
+```
+python scripts/download_assemblies.py --data 1500 --max_assemblies 500 --min_samples 3
+snakemake --cores 300 --use-conda -s ip.smk
+```
 
 ### XGBoost importances
 
@@ -71,4 +65,13 @@ snakemake --cores 40 --use-conda -s xgboost.smk
 ```
 
 - Then analyze with notebooks:
-  - "analyze_xgboost_binary.ipynb" and "analyze_xgboost_binary_gain.ipynb" for binary classification with either weight or gain as metric, respectively.
+  - `analyze_xgboost_binary.ipynb` and `analyze_xgboost_binary_gain.ipynb` for binary classification with either weight or gain as metric, respectively.
+
+
+#### Pipeline for evolution analysis
+
+- Run `scripts/prepare_cds.sh`.
+- Create evolution dataset using `analyze_xgboost_binary_gain.ipynb`.
+- Run `evolution.smk` to make alignments and calculate selective pressures.
+
+TODO: merge the previous?
