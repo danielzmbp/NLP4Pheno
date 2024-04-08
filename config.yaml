@@ -47,3 +47,7 @@ rel_test: 0.35
 dataset : "1500"
 model: "large"
 seed: 1
+max_assembly: 500
+min_samples: 3
+xgboost_device: 1
+word_size_limit: 3

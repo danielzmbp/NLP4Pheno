@@ -6,11 +6,11 @@ import polars as pl
 from tqdm import tqdm
 
 
-configfile: "xgboost_config.yaml"
+configfile: "config.yaml"
 
 
 # Define constants
-DATA = config["data"]
+DATA = config["dataset"]
 MAX_ASSEMBLY = config["max_assembly"]
 MIN_SAMPLES = config["min_samples"]
 
@@ -189,7 +189,7 @@ rule xgboost_binary:
         data=DATA,
         max_assembly=MAX_ASSEMBLY,
         min_samples=MIN_SAMPLES,
-        device=config["device"],
+        device=config["xgboost_device"],
     conda:
         "xgb"
     script:
