@@ -1,18 +1,32 @@
 import pandas as pd
 
-# TODO: this should be extended to the download and filter scripts
 
-folder = "/home/gomez/gomez/assemblies_linkbert_500_filtered_3"
+configfile: "config.yaml"
+
+
+data = config["dataset"]
+max_assemblies = config["max_assemblies"]
+min_samples = config["min_samples"]
+word_size_limit = config["word_size_limit"]
+
+path = f"/home/gomez/gomez/assemblies/{data}/{max_assemblies}_{min_samples}"
+
 (
     S,
     F,
-) = glob_wildcards(folder + "/{strain}/{f}.fna.gz")
+) = glob_wildcards(path + "/{strain}/{f}.fna.gz")
 
 
 rule final:
     input:
         expand(
             folder + "/{strain}/{f}.parquet",
+            zip,
+            f=F,
+            strain=S,
+        ),
+        expand(
+            folder + "/{strain}/{f}.cds",
             zip,
             f=F,
             strain=S,
@@ -58,6 +72,37 @@ rule ip:
     threads: 5
     shell:
         "/home/gomez/interproscan-5.67-99.0/interproscan.sh -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
+
+
+rule fix_gff:
+    input:
+        temp(folder + "/{strain}/{f}.gff"),
+    output:
+        folder + "/{strain}/{f}.gff3",
+    threads: 1
+    shell:
+        """
+            awk '{
+                if ($0 ~ /^[^#]/ && $3 == "CDS") {
+                    # Extract the full ID at the beginning of the line
+                    full_id=$1;
+                    # Replace the number before "_" in the ID with the full ID, ensuring the part after "_" is preserved
+                    sub(/ID=[^;_]+_/, "ID=" full_id "_", $0);
+                }
+                print $0;
+            }' {input} > {output}
+        """
+
+
+rule get_cds:
+    input:
+        fna=folder + "/{strain}/{f}.fna",
+        gff=folder + "/{strain}/{f}.gff3",
+    output:
+        folder + "/{strain}/{f}.cds",
+    threads: 1
+    shell:
+        "gffread -x {output} -g {input.fna} {input.gff}"
 
 
 rule convert_to_parquet:
