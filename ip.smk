@@ -20,13 +20,13 @@ path = f"/home/gomez/gomez/assemblies/{data}/{max_assemblies}_{min_samples}"
 rule final:
     input:
         expand(
-            folder + "/{strain}/{f}.parquet",
+            path + "/{strain}/{f}.parquet",
             zip,
             f=F,
             strain=S,
         ),
         expand(
-            folder + "/{strain}/{f}.cds",
+            path + "/{strain}/{f}.cds",
             zip,
             f=F,
             strain=S,
@@ -35,9 +35,9 @@ rule final:
 
 rule unzip:
     input:
-        folder + "/{strain}/{f}.fna.gz",
+        path + "/{strain}/{f}.fna.gz",
     output:
-        folder + "/{strain}/{f}.fna",
+        path + "/{strain}/{f}.fna",
     threads: 1
     shell:
         "gunzip -c {input} > {output}"
@@ -45,10 +45,10 @@ rule unzip:
 
 rule annotate:
     input:
-        folder + "/{strain}/{f}.fna",
+        path + "/{strain}/{f}.fna",
     output:
-        fasta=temp(folder + "/{strain}/{f}.fasta"),
-        gff=folder + "/{strain}/{f}.gff",
+        fasta=temp(path + "/{strain}/{f}.fasta"),
+        gff=path + "/{strain}/{f}.gff",
     threads: 1
     shell:
         "prodigal -f 'gff' -q -a {output.fasta} -i {input} -o {output.gff}"
@@ -56,9 +56,9 @@ rule annotate:
 
 rule replace_asterisks:
     input:
-        folder + "/{strain}/{f}.fasta",
+        path + "/{strain}/{f}.fasta",
     output:
-        folder + "/{strain}/{f}.faa",
+        path + "/{strain}/{f}.faa",
     threads: 1
     shell:
         "sed 's/*//g' {input} > {output}"
@@ -66,9 +66,9 @@ rule replace_asterisks:
 
 rule ip:
     input:
-        folder + "/{strain}/{f}.faa",
+        path + "/{strain}/{f}.faa",
     output:
-        temp(folder + "/{strain}/{f}.tsv"),
+        temp(path + "/{strain}/{f}.tsv"),
     threads: 5
     shell:
         "/home/gomez/interproscan-5.67-99.0/interproscan.sh -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
@@ -76,9 +76,9 @@ rule ip:
 
 rule fix_gff:
     input:
-        temp(folder + "/{strain}/{f}.gff"),
+        temp(path + "/{strain}/{f}.gff"),
     output:
-        folder + "/{strain}/{f}.gff3",
+        path + "/{strain}/{f}.gff3",
     threads: 1
     shell:
         """
@@ -96,10 +96,10 @@ rule fix_gff:
 
 rule get_cds:
     input:
-        fna=folder + "/{strain}/{f}.fna",
-        gff=folder + "/{strain}/{f}.gff3",
+        fna=path + "/{strain}/{f}.fna",
+        gff=path + "/{strain}/{f}.gff3",
     output:
-        folder + "/{strain}/{f}.cds",
+        path + "/{strain}/{f}.cds",
     threads: 1
     shell:
         "gffread -x {output} -g {input.fna} {input.gff}"
@@ -107,9 +107,9 @@ rule get_cds:
 
 rule convert_to_parquet:
     input:
-        folder + "/{strain}/{f}.tsv",
+        path + "/{strain}/{f}.tsv",
     output:
-        folder + "/{strain}/{f}.parquet",
+        path + "/{strain}/{f}.parquet",
     threads: 1
     run:
         headers = [
