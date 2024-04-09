@@ -1,26 +1,30 @@
 import pandas as pd
 
-max_assemblies = 5
-data = 810
-min_samples = 21
 
-folder = f"/home/gomez/gomez/seqfiles_linkbert_{data}_{max_assemblies}_{min_samples}"
-(R,) = glob_wildcards(folder + "/{rel}/seq.faa")
+configfile: "config.yaml"
+
+
+data = config["dataset"]
+max_assemblies = config["max_assemblies"]
+min_samples = config["min_samples"]
+
+path = f"/home/gomez/gomez/seqfiles_linkbert_{data}_{max_assemblies}_{min_samples}"
+(R,) = glob_wildcards(path + "/{rel}/seq.faa")
 
 
 rule final:
     input:
         expand(
-            folder + "/{rel}/seq.json",
+            path + "/{rel}/seq.json",
             rel=R,
         ),
 
 
 rule align:
     input:
-        folder + "/{rel}/seq.faa",
+        path + "/{rel}/seq.faa",
     output:
-        folder + "/{rel}/seq.aln",
+        path + "/{rel}/seq.aln",
     threads: 5
     shell:
         "mafft --auto --thread 5 {input} > {output}"
@@ -28,39 +32,39 @@ rule align:
 
 rule fasttree:
     input:
-        folder + "/{rel}/seq.aln",
+        path + "/{rel}/seq.aln",
     output:
-        folder + "/{rel}/seq.tree",
+        path + "/{rel}/seq.tree",
     shell:
         "fasttree -nosupport {input} > {output}"
 
 
 rule codonaln:
     input:
-        pro_align=folder + "/{rel}/seq.aln",
-        nucl_seq=folder + "/{rel}/seq.fna",
+        pro_align=path + "/{rel}/seq.aln",
+        nucl_seq=path + "/{rel}/seq.fna",
     output:
-        alignment=folder + "/{rel}/seq.aln.codon",
+        alignment=path + "/{rel}/seq.aln.codon",
     shell:
         "pal2nal.pl {input.pro_align} {input.nucl_seq} -output fasta > {output.alignment}"
 
 
 rule remove_dups:
     input:
-        aln_codon=folder + "/{rel}/seq.aln.codon",
-        tree=folder + "/{rel}/seq.tree",
+        aln_codon=path + "/{rel}/seq.aln.codon",
+        tree=path + "/{rel}/seq.tree",
     output:
-        folder + "/{rel}/seq.nxh",
+        path + "/{rel}/seq.nxh",
     shell:
         "hyphy /home/gomez/hyphy-analyses/remove-duplicates/remove-duplicates.bf --msa {input.aln_codon} --tree {input.tree} --output {output}"
 
 
 rule busted:
     input:
-        folder + "/{rel}/seq.nxh",
+        path + "/{rel}/seq.nxh",
     output:
-        json=folder + "/{rel}/seq.json",
-        log=folder + "/{rel}/seq.log",
+        json=path + "/{rel}/seq.json",
+        log=path + "/{rel}/seq.log",
     threads: 20
     shell:
         """
