@@ -65,81 +65,38 @@ def get_assemblies(term, download=True, path=path):
         list: A list of FTP links to the downloaded assemblies.
     """
     # check if path exists
-    if term not in nostrains:
-        if not (os.path.exists(f'{path}/{term.replace(" ","_")}/')):
-            handle = Entrez.esearch(
-                db="assembly",
-                term=f"({term} [ORGN]) AND (Bacteria [ORGN])",
-                retmax=str(max_assemblies),
-            )
-            record = Entrez.read(handle, validate=False)
-            ids = record["IdList"]
-            if len(ids) == 0:
-                if term not in nostrains:
-                    with open("scripts/strain_cache.txt", "a") as f:
-                        f.write(f"{term}\n")
-            elif len(ids) < max_assemblies:
-                links = []
-                for id in tqdm(ids, desc="ids", position=1, leave=False):
-                    # get summary
-                    summary = get_assembly_summary(id)
-                    # get ftp link
-                    try:
-                        url = summary["DocumentSummarySet"]["DocumentSummary"][0][
-                            "FtpPath_GenBank"
-                        ]
-                        if url == "":
-                            continue
-                        label = os.path.basename(url)
-                        # get the fasta link - change this to get other formats
-                        link = os.path.join(url, label + "_genomic.fna.gz")
-                        print(f"\n{term}->{id}")
-                        links.append(link)
-                        term = (
-                            term.replace("/", "_")
-                            .replace(")", "_")
-                            .replace(":", "_")
-                            .replace(" ", "_")
-                            .replace("(", "_")
-                            .replace("=", "_")
-                            .replace("'", "_")
-                            .replace(";", "_")
-                            .replace(",", "_")
-                            .replace("|", "_")
-                            .replace(".", "_")
-                            .replace("-", "_")
-                            .replace("^", "_")
-                            .replace("*", "_")
-                            .replace('"', "_")
-                            .replace("___", "_")
-                            .replace("__", "_")
-                            .lstrip("_")
-                            .rstrip("_")
-                        )
-                        os.makedirs(f"{path}/{term}/{id}/", exist_ok=True)
-                        if download == True:
-                            if os.path.exists(f"{path}/{term}/{id}/{label}.fna.gz"):
-                                continue
-                            # download link
-                            else:
-                                subprocess.Popen(
-                                    [
-                                        "wget",
-                                        "-q",
-                                        "-O",
-                                        f"{path}/{term}/{id}/{label}.fna.gz",
-                                        link,
-                                    ]
-                                )
-                    except:
-                        pass
-                return links
-            else:
-                print(f"\n {term} <- {len(ids)}")
+    sterm = term.replace("/", "_").replace(")", "_").replace(":", "_").replace(" ", "_").replace("(", "_").replace("=", "_").replace("'", "_").replace(";", "_").replace(",", "_").replace("|", "_").replace(".", "_").replace("-", "_").replace("^", "_").replace("*", "_").replace('"', "_").replace("___", "_").replace("__", "_").lstrip("_").rstrip("_")
+
+    if term not in nostrains and not os.path.exists(f'{path}/{sterm}/'):
+        handle = Entrez.esearch(
+            db="assembly",
+            term=f"({term} [ORGN]) AND (Bacteria [ORGN])",
+            retmax=str(max_assemblies),
+        )
+        record = Entrez.read(handle, validate=False)
+        ids = record["IdList"]
+        if len(ids) == 0:
+            with open("scripts/strain_cache.txt", "a") as f:
+                f.write(f"{sterm}\n")
+        elif len(ids) < max_assemblies:
+            links = []
+            for id in tqdm(ids, desc="ids", position=1, leave=False):
+                summary = get_assembly_summary(id)
+                url = summary["DocumentSummarySet"]["DocumentSummary"][0]["FtpPath_GenBank"]
+                if url:
+                    label = os.path.basename(url)
+                    link = os.path.join(url, label + "_genomic.fna.gz")
+                    print(f"\n{sterm}->{id}")
+                    links.append(link)
+                    os.makedirs(f"{path}/{sterm}/{id}/", exist_ok=True)
+                    if download:
+                        if not os.path.exists(f"{path}/{sterm}/{id}/{label}.fna.gz"):
+                            subprocess.Popen(["wget", "-q", "-O", f"{path}/{sterm}/{id}/{label}.fna.gz", link])
+            return links
         else:
-            print(f"\n {term} <- already exists")
+            print(f"\n {sterm} <- {len(ids)}")
     else:
-        print(f"\n {term} <- no results")
+        print(f"\n {sterm} <- already exists or no results")
 
 
 strains = list(st.word_strain_qc.value_counts().index)
@@ -161,9 +118,9 @@ os.makedirs(filtered_path, exist_ok=True)
 for strain in tqdm(os.listdir(path)):
     os.makedirs(f"{filtered_path}/{strain}", exist_ok=True)
     assemblies = os.listdir(f"{path}/{strain}")
-    if len(assemblies) > max_assemblies:
+    if len(assemblies) > min_samples:
         selected_assemblies = np.random.choice(
-            assemblies, max_assemblies, replace=False
+            assemblies, min_samples, replace=False
         )
         for assembly in selected_assemblies:
             assembly_path = f"{path}/{strain}/{assembly}"
