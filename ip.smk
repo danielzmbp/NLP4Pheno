@@ -48,7 +48,7 @@ rule annotate:
         path + "/{strain}/{f}.fna",
     output:
         fasta=temp(path + "/{strain}/{f}.fasta"),
-        gff=path + "/{strain}/{f}.gff",
+        gff=temp(path + "/{strain}/{f}.gff"),
     threads: 1
     shell:
         "prodigal -f 'gff' -q -a {output.fasta} -i {input} -o {output.gff}"
@@ -76,21 +76,21 @@ rule ip:
 
 rule fix_gff:
     input:
-        temp(path + "/{strain}/{f}.gff"),
+        path + "/{strain}/{f}.gff",
     output:
         path + "/{strain}/{f}.gff3",
     threads: 1
     shell:
         """
-            awk '{
-                if ($0 ~ /^[^#]/ && $3 == "CDS") {
-                    # Extract the full ID at the beginning of the line
-                    full_id=$1;
-                    # Replace the number before "_" in the ID with the full ID, ensuring the part after "_" is preserved
-                    sub(/ID=[^;_]+_/, "ID=" full_id "_", $0);
-                }
-                print $0;
-            }' {input} > {output}
+        awk '{{
+            if ($0 ~ /^[^#]/ && $3 == "CDS") {{
+            # Extract the full ID at the beginning of the line
+            full_id=$1;
+            # Replace the number before "_" in the ID with the full ID, ensuring the part after "_" is preserved
+            sub(/ID=[^;_]+_/, "ID=" full_id "_", $0);
+            }}
+            print $0;
+        }}' {input} > {output}
         """
 
 
