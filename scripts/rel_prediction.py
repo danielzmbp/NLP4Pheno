@@ -58,14 +58,14 @@ sl = dfn.formatted_text.to_list()
 dataset = ListDataset(sl)
 result = []
 
-for out in tqdm(nlp(dataset, batch_size=64), total=len(dataset)):
+for out in tqdm(nlp(dataset, batch_size=32), total=len(dataset)):
     result.append(out)
 
 dfn.loc[:, "re_result"] = result
 
-dfn.re_result.apply(pd.Series)
-
 dfc = pd.concat([dfn, dfn.re_result.apply(pd.Series).rename(columns={"score": "rel_score"})],axis=1)
+
+dfc["label"] = dfc.label.str.split("_",expand=True)[1].astype(int)
 
 sents = dfc[dfc["label"] == 1]
 
