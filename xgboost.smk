@@ -6,12 +6,12 @@ import polars as pl
 from tqdm import tqdm
 
 
-configfile: "xgboost_config.yaml"
+configfile: "config.yaml"
 
 
 # Define constants
-DATA = config["data"]
-MAX_ASSEMBLY = config["max_assembly"]
+DATA = config["dataset"]
+MAX_ASSEMBLIES = config["max_assemblies"]
 MIN_SAMPLES = config["min_samples"]
 
 
@@ -24,7 +24,7 @@ def get_rels():
 
 rule all:
     input:
-        f"/home/gomez/gomez/xgboost/annotations{DATA}_{MAX_ASSEMBLY}/binary/binary_{MIN_SAMPLES}.pkl",
+        f"/home/gomez/gomez/xgboost/annotations{DATA}_{MAX_ASSEMBLIES}/binary/binary_{MIN_SAMPLES}.pkl",
 
 
 # Rule for processing relationship files for all the assemblies
@@ -32,7 +32,7 @@ rule process_rel:
     input:
         rel_file=f"/home/gomez/gomez/preds{DATA}/REL_output/preds.parquet",
     output:
-        rel_output="/home/gomez/gomez/xgboost/annotations{data}_{max_assembly}/{rel}.parquet",
+        rel_output="/home/gomez/gomez/xgboost/annotations{data}_{max_assemblies}/{rel}.parquet",
     run:
         df = pd.read_parquet(input.rel_file)
 
@@ -50,21 +50,24 @@ rule process_rel:
             .str.replace("|", " ")
             .str.replace(".", " ")
             .str.replace("-", " ")
+            .str.replace("*", " ")
+            .str.replace("^", " ")
+            .str.replace(":", " ")
             .str.replace("   ", " ")
             .str.replace("  ", " ")
             .str.lstrip(" ")
             .str.rstrip(" ")
         )
 
-        max_assembly = MAX_ASSEMBLY
+        max_assemblies = MAX_ASSEMBLIES
 
         pred_strains = df_small.word_strain_qc.to_list()
         folders = glob(
-            f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLY}_filtered_{MIN_SAMPLES}/*/"
+            f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLIES}_filtered_{MIN_SAMPLES}/*/"
         )
         assemblies = [f.split("/")[-2].replace("_", " ") for f in folders]
         annotations = glob(
-            f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLY}_filtered_{MIN_SAMPLES}/**/**/*.parquet"
+            f"/home/gomez/gomez/assemblies_linkbert_{MAX_ASSEMBLIES}_filtered_{MIN_SAMPLES}/**/**/*.parquet"
         )
         pred_annotations = [
             f for f in annotations if f.split("/")[-3].replace("_", " ") in pred_strains
@@ -73,7 +76,7 @@ rule process_rel:
         annotation_counts = pd.Series(
             [i.split("/")[-3].replace("_", " ") for i in pred_annotations]
         ).value_counts()
-        small_assemblies = annotation_counts[annotation_counts <= max_assembly]
+        small_assemblies = annotation_counts[annotation_counts <= max_assemblies]
 
 
         def process_rel(rel_file):
@@ -131,9 +134,9 @@ rule process_rel:
 # Rule for creating pickle files, which includes the X, y, and index for input to XGBoost (features, labels, and index)
 rule process_file:
     input:
-        parquet_file="/home/gomez/gomez/xgboost/annotations{data}_{max_assembly}/{rel}.parquet",
+        parquet_file="/home/gomez/gomez/xgboost/annotations{data}_{max_assemblies}/{rel}.parquet",
     output:
-        pickle_file="/home/gomez/gomez/xgboost/annotations{data}_{max_assembly}/{rel}.pkl",
+        pickle_file="/home/gomez/gomez/xgboost/annotations{data}_{max_assemblies}/{rel}.pkl",
     run:
         def process_file(output_file):
             rel = output_file.split("/")[-1].replace(".parquet", "")
@@ -178,18 +181,18 @@ rule process_file:
 rule xgboost_binary:
     input:
         expand(
-            "/home/gomez/gomez/xgboost/annotations{data}_{max_assembly}/{rel}.pkl",
+            "/home/gomez/gomez/xgboost/annotations{data}_{max_assemblies}/{rel}.pkl",
             data=DATA,
-            max_assembly=MAX_ASSEMBLY,
+            max_assemblies=MAX_ASSEMBLIES,
             rel=get_rels(),
         ),
     output:
-        f"/home/gomez/gomez/xgboost/annotations{DATA}_{MAX_ASSEMBLY}/binary/binary_{MIN_SAMPLES}.pkl",
+        f"/home/gomez/gomez/xgboost/annotations{DATA}_{MAX_ASSEMBLIES}/binary/binary_{MIN_SAMPLES}.pkl",
     params:
         data=DATA,
-        max_assembly=MAX_ASSEMBLY,
+        max_assemblies=MAX_ASSEMBLIES,
         min_samples=MIN_SAMPLES,
-        device=config["device"],
+        device=config["xgboost_device"],
     conda:
         "xgb"
     script:

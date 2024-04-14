@@ -9,7 +9,7 @@ import pickle
 
 
 data = snakemake.params.data
-max_assembly = snakemake.params.max_assembly
+max_assemblies = snakemake.params.max_assemblies
 device = snakemake.params.device
 min_samples = snakemake.params.min_samples
 
@@ -43,9 +43,9 @@ d = {}
 from joblib import Parallel, delayed
 
 
-def process_rel(rel, data, max_assembly, min_samples, device, ip_names):
+def process_rel(rel, data, max_assemblies, min_samples, device, ip_names):
     d_rel = []
-    filepath = f"/home/gomez/gomez/xgboost/annotations{data}_{max_assembly}/{rel}.pkl"
+    filepath = f"/home/gomez/gomez/xgboost/annotations{data}_{max_assemblies}/{rel}.pkl"
     # Read the pickle file
     with open(filepath, "rb") as f:
         dat = pickle.load(f)
@@ -99,7 +99,7 @@ def process_rel(rel, data, max_assembly, min_samples, device, ip_names):
 
 # Parallel processing
 results = Parallel(n_jobs=-1)(
-    delayed(process_rel)(rel, data, max_assembly, min_samples, device, ip_names)
+    delayed(process_rel)(rel, data, max_assemblies, min_samples, device, ip_names)
     for rel in rels
 )
 
