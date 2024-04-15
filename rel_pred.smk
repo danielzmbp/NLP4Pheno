@@ -1,6 +1,7 @@
 import pandas as pd
 import itertools
 from rapidfuzz import process
+from rapidfuzz import fuzz
 import multiprocessing
 
 
@@ -14,7 +15,7 @@ cuda = config["cuda_devices"]
 
 rule all:
     input:
-        f"{preds}/REL_output/preds.pqt",
+        f"{preds}/REL_output/preds_strainselect.parquet",
 
 
 rule format_sentences:
@@ -345,18 +346,26 @@ rule download_strainselect:
     output:
         f"{preds}/strainselect/StrainSelect21_edges.tab.txt",
         f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
+    resources:
+        slurm_partition="single",
+        runtime=30,
     shell:
-        "wget https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_edges.tab.txt output[0] & https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_vertices.tab.txt output[1]"
+        "wget https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_edges.tab.txt -O {output[0]}; wget https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_vertices.tab.txt -O {output[1]}"
 
 
 rule match_strainselect:
     input:
-        f"{preds}/REL_output/preds.parquet",
+        f"{preds}/REL_output/preds.pqt",
         f"{preds}/strainselect/StrainSelect21_edges.tab.txt",
         f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
     output:
         f"{preds}/REL_output/preds_strainselect.parquet",
-    threads: 50
+    threads: 80
+    resources:
+        slurm_partition="single",
+        runtime=1000,
+        mem_mb=20000,
+        tasks=40
     run:
         """
         This rule matches the strains in the dataset to the StrainSelect database.
@@ -365,6 +374,7 @@ rule match_strainselect:
         1.1. Match again the split to prevent wrong matches.
         2. Do a full match to the StrainSelect database.
         """
+
         batch_size = 100
         # Load data and simple merge
         df = pd.read_parquet(input[0])
@@ -411,18 +421,18 @@ rule match_strainselect:
             all_matches_partial.extend(result)
 
         def all_combinations(text):
-        """
-        Generates all possible combinations of splits of a string by period.
+            """
+            Generates all possible combinations of splits of a string by period.
 
-        Args:
-            text: The string to split.
+            Args:
+                text: The string to split.
 
-        Returns:
-            A generator object containing all possible combinations of splits.
-        """
-        for length in range(len(text) + 1):
-            for combo in itertools.combinations(text.split('.'), length):
-            yield '.'.join(combo)
+            Returns:
+                A generator object containing all possible combinations of splits.
+            """
+            for length in range(len(text) + 1):
+                for combo in itertools.combinations(text.split('.'), length):
+                    yield '.'.join(combo)
 
         # Check for perfect matches
         perf = [i for i in all_matches_partial if i[1][0][1]>95]
@@ -488,7 +498,7 @@ rule match_strainselect:
                 df_matches_full,
             ]
         )
-        
+
         merged = df.merge(
             pd.concat([df_matches_partial,df_matches_full]), left_on="vertex_dot", right_on="strain", how="left"
         )
@@ -497,3 +507,4 @@ rule match_strainselect:
         df.merge(
             pd.concat([df_matches_partial,df_matches_full]), left_on="vertex_dot", right_on="strain", how="left"
         ).to_parquet(output[0])
+
