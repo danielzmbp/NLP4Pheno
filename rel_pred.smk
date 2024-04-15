@@ -1,9 +1,10 @@
 import pandas as pd
 import itertools
+from rapidfuzz import process
+import multiprocessing
 
 
 configfile: "config.yaml"
-
 
 cutoff = config["cutoff_prediction"]
 preds = "/home/gomez/gomez/preds" + config["dataset"]
@@ -326,3 +327,161 @@ rule merge_preds:
             .str.replace("plant beneficial", "plant - beneficial", regex=True)
         )
         d[d["score_rel"] > cutoff].to_parquet(output[0])
+
+
+rule download_strainselect:
+    output:
+        f"{preds}/strainselect/StrainSelect21_edges.tab.txt",
+        f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
+    shell:
+        "wget https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_edges.tab.txt output[0] & https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_vertices.tab.txt output[1]"
+
+
+rule match_strainselect:
+    input:
+        f"{preds}/REL_output/preds.parquet",
+        f"{preds}/strainselect/StrainSelect21_edges.tab.txt",
+        f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
+    output:
+        f"{preds}/REL_output/preds_strainselect.parquet",
+    threads: 50
+    run:
+        """
+        This rule matches the strains in the dataset to the StrainSelect database.
+        The following steps are performed:
+        1. Do a partial match to the StrainSelect database.
+        1.1. Match again the split to prevent wrong matches.
+        2. Do a full match to the StrainSelect database.
+        """
+        batch_size = 100
+        # Load data and simple merge
+        df = pd.read_parquet(input[0])
+        edges = pd.read_csv(input[1], sep="\t")
+        vertices = pd.read_csv(input[2], sep="\t").drop(columns=["StrainSelectID_2019"])
+        vertices["vertex_dot"] = vertices.vertex.str.replace("_", ".").str.lower()
+
+
+        df["vertex_dot"] = df.word_strain_qc.str.replace(" ",".").str.replace("-",".").str.replace("atcc","atcc.").str.replace("dsm","dsm.").str.replace("=","").str.replace("“","").str.replace("”","").str.replace("^","").str.replace(":",".").str.replace("(","").str.replace(")","").str.replace(",","").str.replace("/",".").str.replace("_",".").str.replace("...",".").str.replace("..",".")
+        strains = df.vertex_dot.unique()
+        strains = [strain for strain in strains if len(strain) > 2]
+
+
+        vertices_noass = vertices[
+            (vertices.vertex.str.startswith("GCA") == False)
+            & (vertices.vertex.str.startswith("GCF") == False)
+        ] # Remove assembly accessions 
+
+        ## Partial match to strainselect
+        # Split the strains into batches
+        strain_batches = [strains[i:i+batch_size] for i in range(0, len(strains), batch_size)]
+
+        # Define a function to process each batch of strains
+        def process_strain_batch(batch):
+            matches = []
+            for s in batch:
+                result = process.extract(s, ss_v_noass.vertex_dot, limit=1,scorer=fuzz.partial_ratio)
+                matches.append([s,result])
+            return matches
+
+        # Create a pool of processes
+        pool = multiprocessing.Pool(processes=num_processes)
+
+        # Apply the function to each batch of strains in parallel
+        results = pool.map(process_strain_batch, strain_batches)
+
+        # Close the pool of processes
+        pool.close()
+        pool.join()
+
+        # Combine the results from all batches
+        all_matches_partial = []
+        for result in results:
+            all_matches_partial.extend(result)
+
+        def all_combinations(text):
+        """
+        Generates all possible combinations of splits of a string by period.
+
+        Args:
+            text: The string to split.
+
+        Returns:
+            A generator object containing all possible combinations of splits.
+        """
+        for length in range(len(text) + 1):
+            for combo in itertools.combinations(text.split('.'), length):
+            yield '.'.join(combo)
+
+        # Check for perfect matches
+        perf = [i for i in all_matches_partial if i[1][0][1]>95]
+        matches_partial = []
+        for i in perf:
+            r = process.extract(i[0], list(all_combinations(i[1][0][0]))[1:])
+            if r[0][1] > 95:
+                matches_partial.append([i[0], i[1][0][0], i[1][0][1], r[0][1]])
+
+        # Create a DataFrame from the results
+        df_matches_partial = pd.DataFrame(
+            matches_partial, columns=["strain", "strainselect","score_partial", "score_parts"]
+        )
+        # Merge the matches with the original DataFrame
+        df_partial = df.merge(
+            df_matches_partial, left_on="vertex_dot", right_on="strain", how="left"
+        )
+        strains_left = df_partial[
+            df_partial.strainselect.isnull()
+        ].vertex_dot.unique()
+
+        ## Full match to strainselect
+        matches_full = []
+
+        # Split the strains into batches
+        strain_batches = [strains_left[i:i+batch_size] for i in range(0, len(strains_left), batch_size)]
+
+        # Define a function to process each batch of strains
+        def process_strain_batch(batch):
+            matches = []
+            for s in batch:
+                result = process.extract(s, ss_v_noass.vertex.str.lower(), limit=1)
+                matches.append([s,result])
+            return matches
+
+        # Create a pool of processes
+        pool = multiprocessing.Pool(processes=num_processes)
+
+        # Apply the function to each batch of strains in parallel
+        results = pool.map(process_strain_batch, strain_batches)
+
+        # Close the pool of processes
+        pool.close()
+        pool.join()
+
+        # Combine the results from all batches
+        all_matches_full = []
+        for result in results:
+            all_matches_full.extend(result)
+
+        matches_full = [[i[0],i[1][0][0],i[1][0][1]] for i in all_matches_full if i[1][0][1]>97.6]
+
+
+        # Create a DataFrame from the results
+        df_matches_full = pd.DataFrame(
+            matches_full, columns=["strain", "strainselect","score_full"]
+        )
+
+        # Merge the matches with the original DataFrame
+        matches = pd.concat(
+            [
+                df_partial,
+                df_matches_full,
+            ]
+        )
+        
+        merged = df.merge(
+            pd.concat([df_matches_partial,df_matches_full]), left_on="vertex_dot", right_on="strain", how="left"
+        )
+
+
+        df.merge(
+            pd.concat([df_matches_partial,df_matches_full]), left_on="vertex_dot", right_on="strain", how="left"
+        ).to_parquet(output[0])
