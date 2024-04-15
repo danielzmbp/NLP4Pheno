@@ -125,11 +125,11 @@ for strain in tqdm(os.listdir(path)):
         for assembly in selected_assemblies:
             assembly_path = f"{path}/{strain}/{assembly}"
             # Check file size in bytes
-            if os.path.getsize(glob(f"{assembly_path}/*.fna.gz")[0]) < 5120:
+            if os.path.getsize(glob(f"{assembly_path}/*.fna.gz")[0]) < 6000:
                 available_assemblies = [
                     a
                     for a in assemblies
-                    if os.path.getsize(glob(f"{path}/{strain}/{a}/*.fna.gz")[0]) >= 5120
+                    if os.path.getsize(glob(f"{path}/{strain}/{a}/*.fna.gz")[0]) >= 6000
                 ]
                 if available_assemblies:
                     assembly = np.random.choice(available_assemblies)
@@ -145,11 +145,11 @@ for strain in tqdm(os.listdir(path)):
         for assembly in assemblies:
             assembly_path = f"{path}/{strain}/{assembly}"
             # Check file size in bytes
-            if os.path.getsize(glob(f"{assembly_path}/*.fna.gz")[0]) < 5120:
+            if os.path.getsize(glob(f"{assembly_path}/*.fna.gz")[0]) < 6000:
                 available_assemblies = [
                     a
                     for a in assemblies
-                    if os.path.getsize(glob(f"{path}/{strain}/{a}/*.fna.gz")[0]) >= 5120
+                    if os.path.getsize(glob(f"{path}/{strain}/{a}/*.fna.gz")[0]) >= 6000
                 ]
                 if available_assemblies:
                     assembly = np.random.choice(available_assemblies)
