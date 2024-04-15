@@ -7,21 +7,25 @@ import multiprocessing
 configfile: "config.yaml"
 
 cutoff = config["cutoff_prediction"]
-preds = "/home/gomez/gomez/preds" + config["dataset"]
+preds = "/home/tu/tu_tu/tu_bbpgo01/link/preds" + config["dataset"]
 labels = config["rel_labels"]
 cuda = config["cuda_devices"]
 
 
 rule all:
     input:
-        f"{preds}/REL_output/preds.parquet",
+        f"{preds}/REL_output/preds.pqt",
 
 
 rule format_sentences:
     input:
         f"{preds}/NER_output/preds.parquet",
     output:
-        f"{preds}/REL_output/ner_preds.parquet",
+        f"{preds}/NER_output/ner_preds.parquet",
+    resources:
+        slurm_partition="single",
+        runtime=100,
+        mem_mb=20000
     run:
         df = pd.read_parquet(input[0])
         df.insert(0, "formatted_text", "")
@@ -54,6 +58,9 @@ rule format_sentences:
 rule make_device_file:
     output:
         f"{preds}/REL_output/device_models.txt",
+    resources:
+        slurm_partition="single",
+        runtime=30,
     run:
         dev = [str(x) for x in cuda]
         models = [x + " " + y for x, y in zip(itertools.cycle(dev), labels)]
@@ -64,22 +71,23 @@ rule make_device_file:
 
 rule run_all_models:
     input:
-        f"{preds}/REL_output/ner_preds.parquet",
+        f"{preds}/NER_output/ner_preds.parquet",
         f"{preds}/REL_output/device_models.txt",
     output:
-        expand(preds + "/REL_output/{l}.parquet", l=labels),
+        preds + "/REL_output/{l}.parquet",
     conda:
         "torch"
+    resources:
+        slurm_partition="gpu_4",
+        slurm_extra="--gres=gpu:1",
+        runtime=600,
     shell:
         """
-        for i in {cuda};do
-            while read -r d m; do
-            if [ ${{d}} -eq ${{i}} ]; then
-                python scripts/rel_prediction.py --model $m --device ${{d}} --output {preds}/REL_output/$m.parquet --input {input[0]} 
+        while read -r d m; do
+            if [ "$m" = "{wildcards.l}" ]; then
+                python scripts/rel_prediction.py --model $m --device $d --output {preds}/REL_output/$m.parquet --input {input[0]} 
             fi
-            done < {input[1]} &
-        done
-        wait
+            done < {input[1]}
         """
 
 
@@ -87,7 +95,11 @@ rule merge_preds:
     input:
         expand(preds + "/REL_output/{l}.parquet", l=labels),
     output:
-        f"{preds}/REL_output/preds.parquet",
+        f"{preds}/REL_output/preds.pqt",
+    resources:
+        slurm_partition="single",
+        runtime=300,
+        mem_mb=20000
     run:
         l = []
         for i in input:

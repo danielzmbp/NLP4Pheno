@@ -49,7 +49,7 @@ labels_flat = config["ner_labels"][1:]
 cutoff = config["cutoff_prediction"]
 cuda = config["cuda_devices"]
 corpus = "corpus" + config["dataset"]
-preds = "/home/gomez/gomez/preds" + config["dataset"]
+preds = config["output_path"] + "preds" + config["dataset"]
 
 
 (PARTS,) = glob_wildcards(corpus + "/{part}.txt")
@@ -63,6 +63,9 @@ rule all:
 rule make_strain_file:
     output:
         preds + "/NER_output/device_strain.txt",
+    resources:
+        slurm_partition="single",
+        runtime=30,
     run:
         # add device to each strain
         device = cuda
@@ -81,6 +84,11 @@ rule run_strain_prediction:
         preds + "/NER_output/STRAIN/{strain}.parquet",
     conda:
         "torch"
+    resources:
+        slurm_partition="gpu_4",
+        slurm_extra="--gres=gpu:1",
+        runtime=70,
+        mem_mb=5000
     shell:
         """
         while read -r d s; do
@@ -98,6 +106,9 @@ rule merge_strain_predictions:
         expand(preds + "/NER_output/STRAIN/{p}.parquet", p=PARTS),
     output:
         preds + "/NER_output/STRAIN/strains.parquet",
+    resources:
+        slurm_partition="single",
+        runtime=300,
     run:
         l = []
         for file in glob(preds + "/NER_output/STRAIN/*.parquet"):
@@ -123,6 +134,9 @@ rule make_sentence_file:
     output:
         preds + "/NER_output/strains.txt",
         preds + "/NER_output/device_models.txt",
+    resources:
+        slurm_partition="single",
+        runtime=300,
     run:
         df = pd.read_parquet(input[0])
         df.drop_duplicates(subset="text")["text"].to_csv(
@@ -141,20 +155,21 @@ rule run_all_models:
         preds + "/NER_output/strains.txt",
         preds + "/NER_output/device_models.txt",
     output:
-        expand(preds + "/NER_output/{l}.parquet", l=labels_flat),
+        preds + "/NER_output/{l,[A-Z]+}.parquet",
     conda:
         "torch"
+    resources:
+        slurm_partition="gpu_4",
+        slurm_extra="--gres=gpu:1",
+        runtime=600,
     shell:
         """
-        for i in {cuda};do
-            while read -r d m; do
-            if [ ${{d}} -eq ${{i}} ]; then
-                export MODEL=NER_output/${{m}}
-                python scripts/ner_prediction_corpus.py --model $MODEL --device ${{d}} --output {preds}/$MODEL.parquet --corpus {input[0]} 
-            fi
-            done < {input[1]} &
-        done
-        wait
+        while read -r d m; do
+           if [ "$m" = "{wildcards.l}" ]; then
+               export MODEL=NER_output/${{m}}
+               python scripts/ner_prediction_corpus.py --model $MODEL --device ${{d}} --output {preds}/$MODEL.parquet --corpus {input[0]} 
+           fi
+        done < {input[1]} 
         """
 
 
@@ -163,6 +178,10 @@ rule agg_model_results:
         expand(preds + "/NER_output/{l}.parquet", l=labels_flat),
     output:
         preds + "/NER_output/strain_preds.parquet",
+    resources:
+        slurm_partition="single",
+        runtime=300,
+        mem_mb=20000
     run:
         l = []
         for ner in input:
@@ -190,6 +209,10 @@ rule merge_preds:
         preds + "/NER_output/strain_preds.parquet",
     output:
         preds + "/NER_output/preds.parquet",
+    resources:
+        slurm_partition="single",
+        runtime=300,
+        mem_mb=20000
     run:
         strains = pd.read_parquet(input[0])
         others = pd.read_parquet(input[1])
