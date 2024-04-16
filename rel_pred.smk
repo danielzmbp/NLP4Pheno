@@ -383,7 +383,7 @@ rule match_strainselect:
         vertices["vertex_dot"] = vertices.vertex.str.replace("_", ".").str.lower()
 
 
-        df["vertex_dot"] = df.word_strain_qc.str.replace(" ",".").str.replace("-",".").str.replace("atcc","atcc.").str.replace("dsm","dsm.").str.replace("=","").str.replace("“","").str.replace("”","").str.replace("^","").str.replace(":",".").str.replace("(","").str.replace(")","").str.replace(",","").str.replace("/",".").str.replace("_",".").str.replace("...",".").str.replace("..",".")
+        df["vertex_dot"] = df.word_strain_qc.str.replace(" ",".").str.replace("-",".").str.replace("atcc","atcc.").str.replace("dsm","dsm.").str.replace("=","").str.replace("“","").str.replace("”","").str.replace('"',"").str.replace("^","").str.replace(":",".").str.replace("®","").str.replace("™","").str.replace("(","").str.replace(")","").str.replace(",","").str.replace("/",".").str.replace("_",".").str.replace("cip","cip.").str.replace("nccp","nccp.").str.replace("...",".").str.replace("..",".")
         strains = df.vertex_dot.unique()
         strains = [strain for strain in strains if len(strain) > 2]
 
@@ -500,11 +500,12 @@ rule match_strainselect:
         )
 
         merged = df.merge(
-            pd.concat([df_matches_partial,df_matches_full]), left_on="vertex_dot", right_on="strain", how="left"
+            matches, left_on="vertex_dot", right_on="strain", how="left"
         )
+        
+        merged.drop(columns=["strain"],inplace=True)
 
+        vertex_merged = merged.dropna(subset = "strainselect").merge(vertices, left_on="strainselect", right_on="vertex_dot", how="left")
 
-        df.merge(
-            pd.concat([df_matches_partial,df_matches_full]), left_on="vertex_dot", right_on="strain", how="left"
-        ).to_parquet(output[0])
+        vertex_merged.to_parquet(output[0])
 
