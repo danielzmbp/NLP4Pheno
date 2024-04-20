@@ -9,9 +9,6 @@ configfile: "config.yaml"
 
 
 data = config["dataset"]
-max_assemblies = config["max_assemblies"]
-min_samples = config["min_samples"]
-word_size_limit = config["word_size_limit"]
 
 path = f"../preds{data}/REL_output/strains_assemblies.txt"
 
