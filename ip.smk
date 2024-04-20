@@ -1,4 +1,8 @@
 import pandas as pd
+from Bio import Entrez
+from Bio import SeqIO
+import os
+import subprocess
 
 
 configfile: "config.yaml"
@@ -9,107 +13,56 @@ max_assemblies = config["max_assemblies"]
 min_samples = config["min_samples"]
 word_size_limit = config["word_size_limit"]
 
-path = f"/home/gomez/gomez/assemblies/{data}/{max_assemblies}_{min_samples}"
+path = f"../preds{data}/REL_output/strains_assemblies.txt"
 
-(
-    S,
-    F,
-) = glob_wildcards(path + "/{strain}/{f}.fna.gz")
+assemblies = []
+strains = []
+with open(f"../preds{data}/REL_output/strains_assemblies.txt", "r") as f:
+    for line in f:
+        s,a = line.strip().split("/")
+        strains.append(s)
+        assemblies.append(a)
 
 
 rule final:
     input:
-        expand(
-            path + "/{strain}/{f}.parquet",
-            zip,
-            f=F,
-            strain=S,
-        ),
-        expand(
-            path + "/{strain}/{f}.cds",
-            zip,
-            f=F,
-            strain=S,
-        ),
+        expand("../assemblies/{strain}/{assembly}/annotation.parquet", zip , strain=strains,assembly=assemblies)
 
+rule download:
+    output:
+        temp("../assemblies/{strain}/{assembly}.zip"),
+    shell:
+        "datasets download genome accession {wildcards.assembly} --include gff3,cds,protein,genome,seq-report --filename {output} --assembly-version 'latest'"
+        
+    
 
 rule unzip:
     input:
-        path + "/{strain}/{f}.fna.gz",
+        "../assemblies/{strain}/{assembly}.zip",
     output:
-        path + "/{strain}/{f}.fna",
-    threads: 1
+        "../assemblies/{strain}/{assembly}/protein.faa",
+        "../assemblies/{strain}/{assembly}/genomic.fna",
+        "../assemblies/{strain}/{assembly}/genomic.cds",
+        "../assemblies/{strain}/{assembly}/genomic.gff",
     shell:
-        "gunzip -c {input} > {output}"
-
-
-rule annotate:
-    input:
-        path + "/{strain}/{f}.fna",
-    output:
-        fasta=temp(path + "/{strain}/{f}.fasta"),
-        gff=temp(path + "/{strain}/{f}.gff"),
-    threads: 1
-    shell:
-        "prodigal -f 'gff' -q -a {output.fasta} -i {input} -o {output.gff}"
-
-
-rule replace_asterisks:
-    input:
-        path + "/{strain}/{f}.fasta",
-    output:
-        path + "/{strain}/{f}.faa",
-    threads: 1
-    shell:
-        "sed 's/*//g' {input} > {output}"
+        "unzip -j {input} 'ncbi_dataset/data/*/*.faa' 'ncbi_dataset/data/*/*.fna' 'ncbi_dataset/data/*/*.gff' -d ../assemblies/{wildcards.strain}/{wildcards.assembly}; mv ../assemblies/{wildcards.strain}/{wildcards.assembly}/cds_from_genomic.fna ../assemblies/{wildcards.strain}/{wildcards.assembly}/genomic.cds; mv ../assemblies/{wildcards.strain}/{wildcards.assembly}/*_genomic.fna ../assemblies/{wildcards.strain}/{wildcards.assembly}/genomic.fna"
 
 
 rule ip:
     input:
-        path + "/{strain}/{f}.faa",
+        "../assemblies/{strain}/{assembly}/protein.faa",
     output:
-        temp(path + "/{strain}/{f}.tsv"),
-    threads: 5
+        temp("../assemblies/{strain}/{assembly}/annotation.tsv"),
+    threads: 2
     shell:
-        "/home/gomez/interproscan-5.67-99.0/interproscan.sh -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
-
-
-rule fix_gff:
-    input:
-        path + "/{strain}/{f}.gff",
-    output:
-        path + "/{strain}/{f}.gff3",
-    threads: 1
-    shell:
-        """
-        awk '{{
-            if ($0 ~ /^[^#]/ && $3 == "CDS") {{
-            # Extract the full ID at the beginning of the line
-            full_id=$1;
-            # Replace the number before "_" in the ID with the full ID, ensuring the part after "_" is preserved
-            sub(/ID=[^;_]+_/, "ID=" full_id "_", $0);
-            }}
-            print $0;
-        }}' {input} > {output}
-        """
-
-
-rule get_cds:
-    input:
-        fna=path + "/{strain}/{f}.fna",
-        gff=path + "/{strain}/{f}.gff3",
-    output:
-        path + "/{strain}/{f}.cds",
-    threads: 1
-    shell:
-        "gffread -x {output} -g {input.fna} {input.gff}"
+        "/home/tu/tu_tu/tu_bbpgo01/ip/interproscan-5.67-99.0/interproscan.sh -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
 
 
 rule convert_to_parquet:
     input:
-        path + "/{strain}/{f}.tsv",
+        "../assemblies/{strain}/{assembly}/annotation.tsv",
     output:
-        path + "/{strain}/{f}.parquet",
+        "../assemblies/{strain}/{assembly}/annotation.parquet",
     threads: 1
     run:
         headers = [
