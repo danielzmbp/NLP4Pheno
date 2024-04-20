@@ -9,7 +9,8 @@ configfile: "config.yaml"
 
 
 data = config["dataset"]
-path = ".."
+# path = ".."
+path = config["output_path"]
 
 assemblies = []
 strains = []
