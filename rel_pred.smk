@@ -15,7 +15,7 @@ cuda = config["cuda_devices"]
 
 rule all:
     input:
-        f"{preds}/REL_output/preds_strainselect.parquet",
+        f"{preds}/REL_output/strains_assemblies.txt"
 
 
 rule format_sentences:
@@ -114,6 +114,7 @@ rule merge_preds:
             ],
             axis=1,
         )
+        d.loc[:,"word_strain_qc"] = d.word_strain
         d.loc[:, "word_strain_qc"] = (
             d.word_strain.str.replace("strain ", "", regex=True)
             .str.replace("pv ", "pv. ", regex=True)
@@ -361,9 +362,9 @@ rule match_strainselect:
     output:
         f"{preds}/REL_output/preds_strainselect.parquet",
     resources:
-        slurm_partition="single",
-        runtime=800,
-        mem_mb=180000,
+        slurm_partition="fat",
+        runtime=730,
+        mem_mb=500000,
         tasks=40
     run:
         """
@@ -376,7 +377,7 @@ rule match_strainselect:
         # Load data and simple merge
         df = pd.read_parquet(input[0])
         edges = pd.read_csv(input[1], sep="\t")
-        vertices = pd.read_csv(input[2], sep="\t").drop(columns=["StrainSelectID_2019"])
+        vertices = pd.read_csv(input[2], sep="\t",usecols = [0,1,2])
         vertices["vertex_dot"] = vertices.vertex.str.replace("_", ".").str.lower()
 
 
@@ -386,7 +387,7 @@ rule match_strainselect:
 
         vertices_noass = vertices[(vertices.vertex_type.str.endswith("_assembly") == False)].vertex_dot.to_list() # Remove assembly accessions 
 
-        batch_size = 3500
+        batch_size = 5000
         strain_batches = [strains[i:i + batch_size] for i in range(0, len(strains), batch_size)]
         batch_results = []
         for strain_batch in tqdm(strain_batches):
@@ -467,3 +468,27 @@ rule match_strainselect:
         
         final = df.merge(pd.concat(batch_results),left_on="vertex_dot", right_on="strain", how="left")
         final.to_parquet(output[0])
+
+rule write_download_file:
+    input:
+        f"{preds}/REL_output/preds_strainselect.parquet",
+        f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
+    output:
+        f"{preds}/REL_output/strains_assemblies.txt"
+    resources:
+        slurm_partition="single",
+        runtime=30,
+    run:
+        df = pd.read_parquet(input[0])
+
+        df = df.dropna(subset="StrainSelectID")
+        vertices = pd.read_csv(input[1],sep="\t",usecols = [0,1,2])
+        v_rs = vertices[vertices["vertex_type"]=="rs_assembly"]
+        merged = df.merge(v_rs, on ="StrainSelectID")
+        merged.loc[:,"assemblies"] = merged["StrainSelectID"] + "/" + merged["vertex_y"]
+        assemblies = merged.drop_duplicates("assemblies").assemblies.to_list()
+
+        with open(output[0],"w") as f:
+            for a in assemblies:
+                f.write(a+"\n")
+
