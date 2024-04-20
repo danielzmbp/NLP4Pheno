@@ -41,12 +41,12 @@ ner_epochs: 13
 rel_epochs: 15
 input_file: label/project-4-at-2024-04-09-13-48-f86e832f.json
 cutoff_prediction: 0.50
-cuda_devices: [1,2,3]
+cuda_devices: [0]
 ner_test: 0.35
-rel_test: 0.35
-dataset : "1500"
+rel_test: 0.45
+dataset : "1000"
 model: "large"
-seed: 1
+seed: 42
 max_assemblies: 500
 min_samples: 3
 xgboost_device: 1
