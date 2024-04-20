@@ -8,7 +8,9 @@ from tqdm.auto import tqdm
 configfile: "config.yaml"
 
 cutoff = config["cutoff_prediction"]
-preds = "/home/tu/tu_tu/tu_bbpgo01/link/preds" + config["dataset"]
+output_path = config["output_path"] # /home/tu/tu_tu/tu_bbpgo01/link
+
+preds = f"{output_path}/preds" + config["dataset"]
 labels = config["rel_labels"]
 cuda = config["cuda_devices"]
 
