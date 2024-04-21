@@ -116,7 +116,7 @@ rule merge_preds:
             ],
             axis=1,
         )
-        d.loc[:,"word_strain_qc"] = d.word_strain
+
         d.loc[:, "word_strain_qc"] = (
             d.word_strain.str.replace("strain ", "", regex=True)
             .str.replace("pv ", "pv. ", regex=True)
@@ -367,7 +367,7 @@ rule match_strainselect:
         slurm_partition="fat",
         runtime=730,
         mem_mb=500000,
-        tasks=40
+        tasks=60
     run:
         """
         This rule matches the strains in the dataset to the StrainSelect database.
@@ -469,6 +469,8 @@ rule match_strainselect:
             batch_results.append(matches)
         
         final = df.merge(pd.concat(batch_results),left_on="vertex_dot", right_on="strain", how="left")
+        final = final.drop(columns = ["vertex_dot_x", "vertex_dot_y","strainselect","strain"])
+        final.rename(columns={"score":"ner_score","vertex":"strainselect_vertex"})
         final.to_parquet(output[0])
 
 rule write_download_file:
@@ -493,4 +495,5 @@ rule write_download_file:
         with open(output[0],"w") as f:
             for a in assemblies:
                 f.write(a+"\n")
+
 
