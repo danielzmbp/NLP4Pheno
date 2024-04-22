@@ -362,10 +362,10 @@ rule match_strainselect:
     output:
         f"{preds}/REL_output/preds_strainselect.parquet",
     resources:
-        slurm_partition="fat",
-        runtime=730,
-        mem_mb=500000,
-        tasks=60
+        slurm_partition="single",
+        runtime=750,
+        mem_mb=180000,
+        tasks=40
     run:
         """
         This rule matches the strains in the dataset to the StrainSelect database.
@@ -385,9 +385,9 @@ rule match_strainselect:
         strains = df.vertex_dot.unique()
         strains = [strain for strain in strains if len(strain) > 2]
 
-        vertices_noass = vertices[(vertices.vertex_type.str.endswith("_assembly") == False)].vertex_dot.to_list() # Remove assembly accessions 
+        vertices_noass = vertices[(vertices.vertex_type.str.endswith("_assembly") == False)&(vertices.vertex_type != "gold_org")&(vertices.vertex_type != "patric_genome")].vertex_dot.to_list() # Remove assembly accessions 
 
-        batch_size = 5000
+        batch_size = 4000
         strain_batches = [strains[i:i + batch_size] for i in range(0, len(strains), batch_size)]
         batch_results = []
         for strain_batch in tqdm(strain_batches):
@@ -435,8 +435,9 @@ rule match_strainselect:
                 return df[df.groupby('strain')['score_partial'].transform(max) == df['score_partial']]
 
             df_matches_partial = filter_strains(g(filtered_df_all_matches_partial))
-
-            df_matches_partial = df_matches_partial[~((df_matches_partial['score_parts'] == 90) & (df_matches_partial['score_partial'] == 95))]
+            df_matches_partial = df_matches_partial[df_matches_partial['score_partial'] > 70]
+            df_matches_partial = df_matches_partial[~((df_matches_partial['score_parts'] <= 90) & (df_matches_partial['vertex_type'] == "biocyc_pgdb"))]
+            # df_matches_partial = df_matches_partial[~((df_matches_partial['score_parts'] == 90) & (df_matches_partial['score_partial'] == 95))]
 
             # Full matches
             strains_left = list(set(strain_batch) - set(df_matches_partial.strain.unique()))
