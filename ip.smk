@@ -61,9 +61,9 @@ rule ip:
 
 rule convert_to_parquet:
     input:
-        temp + "../assemblies/{strain}/{assembly}/annotation.tsv",
+        path + "/assemblies/{strain}/{assembly}/annotation.tsv",
     output:
-        temp + "../assemblies/{strain}/{assembly}/annotation.parquet",
+        path + "/assemblies/{strain}/{assembly}/annotation.parquet",
     threads: 1
     run:
         headers = [
