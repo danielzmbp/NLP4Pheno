@@ -49,7 +49,7 @@ labels_flat = config["ner_labels"][1:]
 cutoff = config["cutoff_prediction"]
 cuda = config["cuda_devices"]
 corpus = "corpus" + config["dataset"]
-preds = config["output_path"] + "preds" + config["dataset"]
+preds = config["output_path"] + "/preds" + config["dataset"]
 
 
 (PARTS,) = glob_wildcards(corpus + "/{part}.txt")

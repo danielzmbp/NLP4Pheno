@@ -48,7 +48,7 @@ cuda_devices: [0]
 ner_test: 0.35
 rel_test: 0.35
 # dataset: "1500"
-dataset: "1000"
+dataset: "920"
 model: "large"
 seed: 37
 max_assemblies: 500
