@@ -29,7 +29,7 @@ rule download:
     output:
         temp("../assemblies/{strain}/{assembly}.zip"),
     shell:
-        "datasets download genome accession {wildcards.assembly} --include gff3,cds,protein,genome,seq-report --filename {output} --assembly-version 'latest'"
+        "datasets download genome accession {wildcards.assembly} --include gff3,cds,protein,genome,seq-report --filename {output} --assembly-version 'latest' --api-key 71c734bb92382389e17af918de877c12b308"
         
     
 
@@ -52,7 +52,7 @@ rule ip:
         temp("../assemblies/{strain}/{assembly}/annotation.tsv"),
     threads: 2
     shell:
-        "/home/tu/tu_tu/tu_bbpgo01/ip/interproscan-5.67-99.0/interproscan.sh -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
+        "/home/tu/tu_tu/tu_bbpgo01/ip/interproscan-5.67-99.0/interproscan.sh -T $TMPDIR -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
 
 
 rule convert_to_parquet:
