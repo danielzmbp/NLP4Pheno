@@ -75,3 +75,7 @@ snakemake --cores 40 --use-conda -s xgboost.smk
 
 TODO: merge the previous?
 
+## Potential improvements
+- Improve sentence tokenization
+  - The problems is that tidyPMC often breaks sentences with periods in the middle of the sentence, as it is often with strain and species naems.
+  - Maybe manual fix by merging those that end up with `sp` or uppercase letter.
