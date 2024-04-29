@@ -83,7 +83,7 @@ rule run_all_models:
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=500,
+        runtime=350,
     shell:
         """
         while read -r d m; do

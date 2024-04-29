@@ -22,6 +22,14 @@ rule all:
     input:
         "REL_output/all_metrics.png",
 
+# rule make_input_json:
+#     resources:
+#         slurm_partition="single",
+#         runtime=10,
+#     output:
+#         input_file,
+#     run:
+#         "python scripts/convert_label.py"
 
 rule parse_rels:
     input:
@@ -138,7 +146,7 @@ rule split_sets:
             )
             test, evaluation = train_test_split(
                 test_eval,
-                test_size=0.6,
+                test_size=0.5,
                 stratify=test_eval.label,
                 random_state=params.seed,
             )
@@ -179,7 +187,7 @@ rule run_linkbert:
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=600,
+        runtime=270,
     shell:
         """
         export CUDA_VISIBLE_DEVICES={params.cuda}
