@@ -22,6 +22,14 @@ rule all:
     input:
         "NER_output/aggregated_eval.png",
 
+# rule make_input_json:
+#     resources:
+#         slurm_partition="single",
+#         runtime=10,
+#     output:
+#         input_file,
+#     run:
+#         "python scripts/convert_label.py"
 
 rule make_split:
     input:
@@ -73,7 +81,7 @@ rule make_split:
             X_test, X_dev, _, _ = train_test_split(
                 X_test_dev,
                 y_test_dev,
-                test_size=0.6,
+                test_size=0.5,
                 random_state=1,
                 stratify=y_test_dev,
             )
