@@ -83,7 +83,7 @@ rule run_all_models:
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=500,
+        runtime=350,
     shell:
         """
         while read -r d m; do
@@ -387,7 +387,7 @@ rule match_strainselect:
         strains = df.vertex_dot.unique()
         strains = [strain for strain in strains if len(strain) > 2]
 
-        vertices_noass = vertices[(vertices.vertex_type.str.endswith("_assembly") == False)&(vertices.vertex_type != "gold_org")&(vertices.vertex_type != "patric_genome")].vertex_dot.to_list() # Remove assembly accessions 
+        vertices_noass = vertices[(vertices.vertex_type.str.endswith("_assembly") == False)&(vertices.vertex_type != "gold_org")&(vertices.vertex_type != "patric_genome")&(vertices.vertex_type != "kegg_genome")&(vertices.vertex.str.contains("GCF_") == False)&(vertices.vertex.str.contains("GCA_") == False)].vertex_dot.to_list() # Remove assembly accessions 
 
         batch_size = 4000
         strain_batches = [strains[i:i + batch_size] for i in range(0, len(strains), batch_size)]
@@ -483,6 +483,7 @@ rule write_download_file:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=10000,
     run:
         df = pd.read_parquet(input[0])
 
