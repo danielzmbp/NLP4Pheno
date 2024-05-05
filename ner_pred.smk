@@ -109,6 +109,7 @@ rule merge_strain_predictions:
     resources:
         slurm_partition="single",
         runtime=300,
+        mem_mb=5000,
     run:
         l = []
         for file in glob(preds + "/NER_output/STRAIN/*.parquet"):
