@@ -80,16 +80,21 @@ rule parse_rels:
                     text1, f"@{lab1[2:-2]}$"
                 )
                 sentences.append(replaced_sentence)
-                try:
-                    rel_label = str(
-                        rel[
-                            (rel["from_id"] == perm[0]) & (rel["to_id"] == perm[1])
-                        ].labels.values[0]
-                    )
-                except:
-                    rel_label = ""
-                label = f"{lab0[2:-2]}-{lab1[2:-2]}:{rel_label[2:-2]}"
-                labels.append(label)
+                rel_label = rel[
+                        (rel["from_id"] == perm[0]) & (rel["to_id"] == perm[1])
+                    ].labels.values
+                if rel_label.size == 1:
+                    if len(rel_label[0]) == 2:
+                        sentences.append(replaced_sentence)
+                        for lbl in rel_label[0]:
+                            label = f"{lab0[2:-2]}-{lab1[2:-2]}:{str(lbl)}"
+                            labels.append(label)
+                    elif len(rel_label[0]) == 1:
+                        label = f"{lab0[2:-2]}-{lab1[2:-2]}:{str(rel_label[0])[2:-2]}"
+                        labels.append(label)
+                elif rel_label.size == 0:
+                    label = f"{lab0[2:-2]}-{lab1[2:-2]}:"
+                    labels.append(label)
         pd.DataFrame({"sentence": sentences, "label": labels}).to_csv(
             output[0], sep="\t", index=False
         )
