@@ -50,15 +50,18 @@ snakemake --cores 20 --use-conda -s rel_pred.smk
 
 ## Download assemblies and annotate
 
-
+- Run `ip.smk`to download and annotate assemblies.
+- Run with `scripts/ip_slurm.sh` to run using slurm.
+<!---
 ```
 python scripts/download_assemblies.py --data 1500 --max_assemblies 500 --min_samples 3
 snakemake --cores 300 --use-conda -s ip.smk
 ```
+---> 
 
 ### XGBoost importances
 
-- Run xgboost.smk snakemake pipeline, config in `xgboost_config.yaml` file.
+- Run xgboost.smk snakemake pipeline, config in `config.yaml` file.
 
 ```
 snakemake --cores 40 --use-conda -s xgboost.smk

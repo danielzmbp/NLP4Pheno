@@ -9,9 +9,10 @@ import pickle
 
 
 data = snakemake.params.data
-max_assemblies = snakemake.params.max_assemblies
+# max_assemblies = snakemake.params.max_assemblies
 device = snakemake.params.device
-min_samples = snakemake.params.min_samples
+path = snakemake.params.path
+# min_samples = snakemake.params.min_samples
 
 ip_names = pd.read_csv(
     "https://ftp.ebi.ac.uk/pub/databases/interpro/current_release/entry.list",
@@ -43,9 +44,9 @@ d = {}
 from joblib import Parallel, delayed
 
 
-def process_rel(rel, data, max_assemblies, min_samples, device, ip_names):
+def process_rel(rel, data, device, ip_names):
     d_rel = []
-    filepath = f"/home/gomez/gomez/xgboost/annotations{data}_{max_assemblies}/{rel}.pkl"
+    filepath = path + f"/xgboost/annotations{data}/{rel}.pkl"
     # Read the pickle file
     with open(filepath, "rb") as f:
         dat = pickle.load(f)
@@ -56,7 +57,7 @@ def process_rel(rel, data, max_assemblies, min_samples, device, ip_names):
 
     ind_names = [ip_names[ip_names.index == i]["ENTRY_NAME"].values[0] for i in ind]
 
-    for i in vc[vc >= min_samples].index:
+    for i in vc.index:
         y_binary = ["target" if label == i[0] else "other" for label in y]
 
         X_train, X_test, y_train, y_test = train_test_split(
@@ -99,7 +100,7 @@ def process_rel(rel, data, max_assemblies, min_samples, device, ip_names):
 
 # Parallel processing
 results = Parallel(n_jobs=-1)(
-    delayed(process_rel)(rel, data, max_assemblies, min_samples, device, ip_names)
+    delayed(process_rel)(rel, data, device, ip_names)
     for rel in rels
 )
 
