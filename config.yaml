@@ -1,34 +1,25 @@
 ner_labels:
   - STRAIN
-  #  - METABOLITE
   - SPECIES
   - ISOLATE
   - COMPOUND
   - MEDIUM
   - ORGANISM
   - PHENOTYPE
-  #   - MORPHOLOGY
-  - PROTEIN
   - EFFECT
   - DISEASE
 rel_labels:
   - STRAIN-ISOLATE:INHABITS
-  #  - STRAIN-METABOLITE:PRODUCES
   - STRAIN-MEDIUM:GROWS_ON
   - STRAIN-PHENOTYPE:PRESENTS
-  - STRAIN-PROTEIN:PRODUCES
   - STRAIN-ORGANISM:INHABITS
-  #  - STRAIN-MORPHOLOGY:FORMS
   - STRAIN-COMPOUND:RESISTS
-  #  - STRAIN-METABOLITE:RESISTS
   - STRAIN-EFFECT:PROMOTES
   - STRAIN-ORGANISM:INFECTS
   - COMPOUND-STRAIN:INHIBITS
   - STRAIN-EFFECT:PRESENTS
-  #  - STRAIN-METABOLITE:DEGRADES
   - STRAIN-DISEASE:ASSOCIATED_WITH
   - STRAIN-COMPOUND:DEGRADES
-  #  - METABOLITE-STRAIN:INHIBITS
   - STRAIN-ORGANISM:SYMBIONT_OF
   - STRAIN-SPECIES:INHIBITS
   - STRAIN-ORGANISM:INHIBITS
@@ -39,20 +30,18 @@ model_sets:
   - train
   - dev
   - test
-ner_epochs: 10
+ner_epochs: 15
 rel_epochs: 20
-input_file: label/project-5-at-2024-04-29-09-34-8bf5e750.json
+input_file: label/project-5-at-2024-06-13-17-32-810854cc.json
 cutoff_prediction: 0.50
 # cuda_devices: [1,2,3]
 cuda_devices: [0]
 ner_test: 0.35
-rel_test: 0.35
+rel_test: 0.40
 # dataset: "1500"
 dataset: "920"
 model: "large"
-seed: 42
-max_assemblies: 500
-min_samples: 3
+seed: 37
 xgboost_device: 1
 # output_path: /home/gomez/gomez
-output_path: /home/tu/tu_tu/tu_bbpgo01/link
+output_path: /home/tu/tu_tu/tu_kmpaj01/link
