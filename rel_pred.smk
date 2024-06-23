@@ -4,6 +4,8 @@ from rapidfuzz import process
 from rapidfuzz import fuzz
 from scipy import sparse
 from tqdm.auto import tqdm
+import dask.array as da
+from scipy.sparse import csr_matrix
 
 configfile: "config.yaml"
 
@@ -364,10 +366,10 @@ rule match_strainselect:
     output:
         f"{preds}/REL_output/preds_strainselect.parquet",
     resources:
-        slurm_partition="single",
-        runtime=750,
-        mem_mb=180000,
-        tasks=40
+        slurm_partition="fat",
+        runtime=4000,
+        mem_mb=380000,
+        tasks=80
     run:
         """
         This rule matches the strains in the dataset to the StrainSelect database.
@@ -376,6 +378,9 @@ rule match_strainselect:
         1.1. Match again the split to prevent wrong matches.
         2. Do a full match to the StrainSelect database.
         """
+        workers=160
+        batch_size = 30000
+
         # Load data and simple merge
         df = pd.read_parquet(input[0])
         edges = pd.read_csv(input[1], sep="\t")
@@ -385,21 +390,46 @@ rule match_strainselect:
 
         df["vertex_dot"] = df.word_strain_qc.str.replace(" ",".").str.replace("-",".").str.replace("atcc","atcc.").str.replace("dsm","dsm.").str.replace("=","").str.replace("“","").str.replace("”","").str.replace('"',"").str.replace("^","").str.replace(":",".").str.replace("®","").str.replace("™","").str.replace("’","").str.replace("‘","").str.replace("(","").str.replace(")","").str.replace(",","").str.replace("/",".").str.replace("_",".").str.replace("cip","cip.").str.replace("nccp","nccp.").str.replace("...",".").str.replace("..",".")
         strains = df.vertex_dot.unique()
-        strains = [strain for strain in strains if len(strain) > 2]
+        strains = [strain for strain in strains if len(strain.replace(".","")) > 2]
 
         vertices_noass = vertices[(vertices.vertex_type.str.endswith("_assembly") == False)&(vertices.vertex_type != "gold_org")&(vertices.vertex_type != "patric_genome")&(vertices.vertex_type != "kegg_genome")&(vertices.vertex.str.contains("GCF_") == False)&(vertices.vertex.str.contains("GCA_") == False)].vertex_dot.to_list() # Remove assembly accessions 
 
-        batch_size = 4000
         strain_batches = [strains[i:i + batch_size] for i in range(0, len(strains), batch_size)]
+
+        def all_combinations(text):
+            for length in range(len(text) + 1):
+                for combo in itertools.combinations(text.split('.'), length):
+                    yield '.'.join(combo)
+
+        def filter_strains(df):
+            def check_strainselectid(group):
+                return len(group['StrainSelectID'].unique()) == 1
+
+            filtered = df.groupby('strain').filter(check_strainselectid)
+
+            return filtered.groupby('strain').head(1)
+
+        def g(df):
+            return df[df.groupby('strain')['score_partial'].transform("max") == df['score_partial']]
+
+        def gf(df):
+            return df[df.groupby('strain')['score_full'].transform("max") == df['score_full']]
+
+        def to_sparse(chunk):
+            return csr_matrix(chunk)
+
         batch_results = []
+
         for strain_batch in tqdm(strain_batches):
             # Partial matches
-            all_matches_partial = process.cdist(strain_batch, vertices_noass, scorer=fuzz.partial_ratio, workers=-1, score_cutoff=95)
-            all_matches_partial_sparse = sparse.csr_matrix(all_matches_partial)
+            all_matches_partial = process.cdist(strain_batch, vertices_noass, scorer=fuzz.partial_ratio, workers=workers, score_cutoff=95)
 
+            dask_array = da.from_array(all_matches_partial, chunks=(all_matches_partial.shape[0], all_matches_partial.shape[1]//(workers - 1)))
+            sparse_matrix_dask = dask_array.map_blocks(to_sparse, dtype=csr_matrix)
+            all_matches_partial_sparse = sparse_matrix_dask.compute()
+
+            nonzero_row_indices, nonzero_col_indices = all_matches_partial_sparse.nonzero()
             nonzero_values = all_matches_partial_sparse.data
-            nonzero_row_indices = all_matches_partial_sparse.nonzero()[0]
-            nonzero_col_indices = all_matches_partial_sparse.nonzero()[1]
 
             df_all_matches_partial = pd.DataFrame({
                 'strain': nonzero_row_indices,
@@ -410,45 +440,32 @@ rule match_strainselect:
             df_all_matches_partial['strain'] = df_all_matches_partial['strain'].map(lambda x: strain_batch[x])
             df_all_matches_partial['strainselect'] = df_all_matches_partial['strainselect'].map(lambda x: vertices_noass[x])
 
+            high_abundant = df_all_matches_partial.groupby("strain").size().sort_values(ascending=False)
+            high_abundant = high_abundant[high_abundant < 2000].index.to_list()
+            filtered_df_all_matches_partial = df_all_matches_partial[df_all_matches_partial['strain'].isin(high_abundant)].copy()
 
-            def all_combinations(text):
-                for length in range(len(text) + 1):
-                    for combo in itertools.combinations(text.split('.'), length):
-                        yield '.'.join(combo)
-
-            high_abundant = df_all_matches_partial.groupby("strain").count().sort_values("score_partial", ascending=False).query("score_partial < 2000").index.to_list()
-            filtered_df_all_matches_partial = df_all_matches_partial.query("strain in @high_abundant")
-            matches_partial = []
-            for i in tqdm(filtered_df_all_matches_partial.iterrows(), total=filtered_df_all_matches_partial.shape[0]):
-                r = process.extract(i[1]["strain"], list(all_combinations(i[1]["strainselect"]))[1:])
-                filtered_df_all_matches_partial.loc[i[0],"score_parts"] = r[0][1]
+            filtered_df_all_matches_partial.loc[:,'score_parts'] = filtered_df_all_matches_partial.apply(
+                lambda row: process.extractOne(row['strain'], list(all_combinations(row['strainselect']))[1:],score_cutoff=60)[1], axis=1
+            )
 
             filtered_df_all_matches_partial = filtered_df_all_matches_partial.merge(vertices, left_on="strainselect", right_on="vertex_dot")
-
-            def filter_strains(df):
-                def check_strainselectid(group):
-                    return len(group['StrainSelectID'].unique()) == 1
-
-                filtered = df.groupby('strain').filter(check_strainselectid)
-
-                return filtered.groupby('strain').head(1)
-
-            def g(df):
-                return df[df.groupby('strain')['score_partial'].transform(max) == df['score_partial']]
 
             df_matches_partial = filter_strains(g(filtered_df_all_matches_partial))
             df_matches_partial = df_matches_partial[df_matches_partial['score_partial'] > 70]
             df_matches_partial = df_matches_partial[~((df_matches_partial['score_parts'] <= 90) & (df_matches_partial['vertex_type'] == "biocyc_pgdb"))]
-            # df_matches_partial = df_matches_partial[~((df_matches_partial['score_parts'] == 90) & (df_matches_partial['score_partial'] == 95))]
 
             # Full matches
-            strains_left = list(set(strain_batch) - set(df_matches_partial.strain.unique()))
+            strains_left = list(set(strain_batch) - set(df_matches_partial['strain'].unique()))
 
-            all_matches_full = process.cdist(strains_left, vertices_noass, workers=-1, score_cutoff=90)
-            all_matches_full_sparse = sparse.csr_matrix(all_matches_full)
+            all_matches_full = process.cdist(strains_left, vertices_noass, workers=workers, score_cutoff=90)
+
+            dask_array = da.from_array(all_matches_full, chunks=(all_matches_full.shape[0], all_matches_full.shape[1]//(workers -1 )))
+            sparse_matrix_dask = dask_array.map_blocks(to_sparse, dtype=csr_matrix)
+            all_matches_full_sparse = sparse_matrix_dask.compute()
+
+
+            nonzero_row_indices, nonzero_col_indices = all_matches_full_sparse.nonzero()
             nonzero_values = all_matches_full_sparse.data
-            nonzero_row_indices = all_matches_full_sparse.nonzero()[0]
-            nonzero_col_indices = all_matches_full_sparse.nonzero()[1]
 
             df_all_matches_full = pd.DataFrame({
                 'strain': nonzero_row_indices,
@@ -461,14 +478,13 @@ rule match_strainselect:
 
             filtered_df_all_matches_full = df_all_matches_full.merge(vertices, left_on="strainselect", right_on="vertex_dot")
 
-            def gf(df):
-                return df[df.groupby('strain')['score_full'].transform(max) == df['score_full']]
             df_matches_full = filter_strains(gf(filtered_df_all_matches_full))
 
-            matches = pd.concat([df_matches_full, df_matches_partial])
+            matches = pd.concat([df_matches_full, df_matches_partial], ignore_index=True)
 
             batch_results.append(matches)
-        
+
+
         final = df.merge(pd.concat(batch_results),left_on="vertex_dot", right_on="strain", how="left")
         final = final.drop(columns = ["vertex_dot_x", "vertex_dot_y","strainselect","strain"])
         final.rename(columns={"score":"ner_score","vertex":"strainselect_vertex"})
