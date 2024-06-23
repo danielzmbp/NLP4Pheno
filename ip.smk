@@ -57,7 +57,7 @@ rule ip:
         temp(output_path + "{strain}/{assembly}/annotation.tsv"),
     threads: 2
     shell:
-        "/home/tu/tu_tu/tu_bbpgo01/ip/interproscan-5.67-99.0/interproscan.sh -T $TMPDIR -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
+        "/home/tu/tu_tu/tu_bbpgo01/ip/interproscan-5.68-100.0/interproscan.sh -T $TMPDIR -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
 
 
 rule convert_to_parquet:
