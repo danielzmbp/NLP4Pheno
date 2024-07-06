@@ -1,1 +1,1 @@
-sbatch -p single -n 40 -t 2-00:00:00 --mem=180000 snakemake -s ip.smk --cores 80 -k
+sbatch -p single -n 20 -t 07:00:00 --mem=90000 snakemake -s ip.smk --cores 40 -k --rerun-incomplete
