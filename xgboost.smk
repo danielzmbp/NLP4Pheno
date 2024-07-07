@@ -15,7 +15,7 @@ path = config["output_path"]
 
 
 # Helper function to get unique relationship types
-input_df = f"{path}/preds{DATA}/REL_output/preds_strainselect.parquet"
+input_df = f"{path}/preds{DATA}/REL_output/preds_strainselect.pqt"
 def get_rels():
     df = pd.read_parquet(input_df)
     return df["rel"].unique()
@@ -31,6 +31,7 @@ rule create_downloaded_strains_file:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=10000
     run:
         filtered_assemblies = []
         for strain in glob(f"{path}/assemblies_{DATA}/*/"):
@@ -117,9 +118,10 @@ rule process_file:
     output:
         pickle_file=path + "/xgboost/annotations{data}/{rel}.pkl",
     resources:
-        slurm_partition="single",
-        runtime=300,
-        mem_mb=100000
+        slurm_partition="fat",
+        runtime=2500,
+        mem_mb=300000,
+        tasks=50,
     run:
         d = pl.read_parquet(input.parquet_file)
         t = (

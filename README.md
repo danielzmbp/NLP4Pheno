@@ -5,7 +5,7 @@ mamba env create -n envs/*.yaml
 ```
 ## Create PMC corpus
 
-- Use snakemake_PMC repository to download files.
+- Use [snakemake_PMC repository](https://github.com/danielzmbp/snakemake_PMC) repository to download files.
 - Prepare files with `scripts/make_test_corpus.py` script and save to `corpus/` directory.
 
 ## Training
@@ -52,12 +52,6 @@ snakemake --cores 20 --use-conda -s rel_pred.smk
 
 - Run `ip.smk`to download and annotate assemblies.
 - Run with `scripts/ip_slurm.sh` to run using slurm.
-<!---
-```
-python scripts/download_assemblies.py --data 1500 --max_assemblies 500 --min_samples 3
-snakemake --cores 300 --use-conda -s ip.smk
-```
----> 
 
 ### XGBoost importances
 

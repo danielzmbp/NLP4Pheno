@@ -138,6 +138,7 @@ rule make_sentence_file:
     resources:
         slurm_partition="single",
         runtime=300,
+        mem_mb=10000,
     run:
         df = pd.read_parquet(input[0])
         df.drop_duplicates(subset="text")["text"].to_csv(
