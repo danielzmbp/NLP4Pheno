@@ -14,7 +14,6 @@ mamba env create -n envs/*.yaml
 
 - Adjust GPU cores to use for training in `ner.smk` file.
 - Adjust `config.yaml` for labels to train on and the number of epochs
-- Run
 
 ```
 rm -rf NER*; snakemake --cores 20 --use-conda -s ner.smk
@@ -24,7 +23,6 @@ rm -rf NER*; snakemake --cores 20 --use-conda -s ner.smk
 
 - Adjust `config.yaml` for labels to train on and the number of epochs
 - Adjust GPU cores to use for training in `rel.smk` file.
-- Run
 
 ```
 rm -rf REL*; snakemake --cores 20 --use-conda -s rel.smk
@@ -34,15 +32,11 @@ rm -rf REL*; snakemake --cores 20 --use-conda -s rel.smk
 
 ### NER prediction
 
-- Run
-
 ```
 snakemake --cores 20 --use-conda -s ner_pred.smk
 ```
 
 ### REL prediction
-
-- Run
 
 ```
 snakemake --cores 20 --use-conda -s rel_pred.smk
@@ -74,5 +68,5 @@ TODO: merge the previous?
 
 ## Potential improvements
 - Improve sentence tokenization
-  - The problems is that tidyPMC often breaks sentences with periods in the middle of the sentence, as it is often with strain and species naems.
+  - The problems is that tidyPMC often breaks sentences with periods in the middle of the sentence, as it is often with strain and species names.
   - Maybe manual fix by merging those that end up with `sp` or uppercase letter.
