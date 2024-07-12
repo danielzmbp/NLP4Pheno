@@ -170,7 +170,7 @@ rule xgboost_binary:
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=600,
+        runtime=2500,
     params:
         data=DATA,
         device=config["cuda_devices"],

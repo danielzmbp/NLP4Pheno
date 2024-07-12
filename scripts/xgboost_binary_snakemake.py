@@ -54,6 +54,7 @@ def process_rel(rel, data, device, ip_names):
     X = dat[0]
     y = dat[1]
     ind = dat[2]
+    vc = vc[vc > 10]
 
     ind_names = [ip_names[ip_names.index == i]["ENTRY_NAME"].values[0] for i in ind]
 
