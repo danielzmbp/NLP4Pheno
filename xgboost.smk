@@ -15,7 +15,7 @@ path = config["output_path"]
 
 
 # Helper function to get unique relationship types
-input_df = f"{path}/preds{DATA}/REL_output/preds_strainselect.pqt"
+input_df = f"{path}/preds{DATA}/REL_output/preds_strainselect_grouped.pqt"
 def get_rels():
     df = pd.read_parquet(input_df)
     return df["rel"].unique()
@@ -59,7 +59,7 @@ rule process_rel:
     run:
         df = pd.read_parquet(input.rel_file)
 
-        df = df[["StrainSelectID", "word_qc", "rel"]].dropna(subset="StrainSelectID").drop_duplicates()
+        df = df[["StrainSelectID", "word_qc_group", "rel"]].dropna(subset="StrainSelectID").drop_duplicates()
 
         # Get downloaded strains
         with open(input.downloaded_strains, "r") as f:
@@ -70,13 +70,13 @@ rule process_rel:
         das.rename(columns={0:"strain",1:"assembly"}, inplace=True)
 
         drel = df[df.rel == wildcards.rel]
-        word_counts = drel["word_qc"].value_counts()
-        drel = drel[drel["word_qc"].isin(word_counts[word_counts > 1].index)]
+        word_counts = drel["word_qc_group"].value_counts()
+        drel = drel[drel["word_qc_group"].isin(word_counts[word_counts > 1].index)]
 
         rel_annotations = []
         for _, row in tqdm(drel.iterrows(), total=drel.shape[0]):
             strain = row.StrainSelectID
-            word = row.word_qc
+            word = row.word_qc_group
             if strain in das.strain.unique():
                 annotations_for_assembly = das[das.strain == strain].assembly.to_list()
                 for annotation in annotations_for_assembly:
@@ -97,13 +97,13 @@ rule process_rel:
                         subset=["InterPro_accession"], inplace=True
                     )
                     annotation_df["sa_ner"] = strain + "!" + annotation + "!" + word
-                    annotation_df["word_qc"] = word
+                    annotation_df["word_qc_group"] = word
                     rel_annotations.append(annotation_df)
         try:
             df_rel_annotations = pd.concat(rel_annotations)
-            wcts = df_rel_annotations["word_qc"].value_counts()
+            wcts = df_rel_annotations["word_qc_group"].value_counts()
             df_rel_annotations = df_rel_annotations[
-                df_rel_annotations["word_qc"].isin(wcts[wcts > 1].index)
+                df_rel_annotations["word_qc_group"].isin(wcts[wcts > 1].index)
             ]
             df_rel_annotations.to_parquet(output.rel_output)
         except Exception as e:
@@ -119,7 +119,7 @@ rule process_file:
         pickle_file=path + "/xgboost/annotations{data}/{rel}.pkl",
     resources:
         slurm_partition="fat",
-        runtime=2500,
+        runtime=2450,
         mem_mb=300000,
         tasks=50,
     run:
