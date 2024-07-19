@@ -7,13 +7,14 @@ from tqdm.auto import tqdm
 import dask.array as da
 from scipy.sparse import csr_matrix
 import numpy as np
+from collections import defaultdict
 
 configfile: "config.yaml"
 
 cutoff = config["cutoff_prediction"]
 output_path = config["output_path"] # /home/tu/tu_tu/tu_bbpgo01/link
 
-preds = f"{output_path}/preds" + config["dataset"]
+preds = f"{output_path}/preds" + str(config["dataset"])
 labels = config["rel_labels"]
 cuda = config["cuda_devices"]
 
@@ -227,6 +228,7 @@ rule merge_preds:
             .str.replace("^luria - bertani \( lb \)$", "lb", regex=True)
             .str.replace("^brain heart infusion$", "bhi", regex=True)
             .str.replace("^brain - heart infusion$", "bhi", regex=True)
+            .str.replace("^brain-heart infusion$", "bhi", regex=True)
             .str.replace("^brain heart infusion broth$", "bhi broth", regex=True)
             .str.replace(
                 "^brain heart infusion \( bhi \) broth$", "bhi broth", regex=True
@@ -242,7 +244,9 @@ rule merge_preds:
             .str.replace("^luria broth \( lb \)$", "lb broth", regex=True)
             .str.replace("^luria broth$", "lb broth", regex=True)
             .str.replace("^luria - bertani \( lb \) broth$", "lb broth", regex=True)
+            .str.replace("^luria-bertani$", "lb", regex=True)
             .str.replace("^luria - bertani broth$", "lb broth", regex=True)
+            .str.replace("^luria-bertani broth$", "lb broth", regex=True)
             .str.replace("^luria - bertani agar$", "lb agar", regex=True)
             .str.replace("^luria bertani broth$", "lb broth", regex=True)
             .str.replace("^tryptic soy broth ( tsb )$", "tsb", regex=True)
@@ -262,6 +266,7 @@ rule merge_preds:
             .str.replace("^nematode - growth$", "nematode growth", regex=True)
             .str.replace("^bhi\) agar$", "bhi agar", regex=True)
             .str.replace("^bhi\) broth$", "bhi broth", regex=True)
+            .str.replace("^lb\) broth$", "lb broth", regex=True)
             .str.replace("^mh\) agar$", "mh agar", regex=True)
             .str.replace("^mh\) broth$", "mh broth", regex=True)
             .str.replace("^mrs\) agar$", "mrs agar", regex=True)
@@ -280,16 +285,7 @@ rule merge_preds:
             .str.replace("^gram-negative$", "gram - negative", regex=True)
             .str.replace("^gram ‐ negative$", "gram - negative", regex=True)
             .str.replace("^gram - stain - negative$", "gram - negative", regex=True)
-            .str.replace("^hydrogen oxidizing$", "hydrogen - oxidizing", regex=True)
-            .str.replace("^acetate oxidizing$", "acetate - oxidizing", regex=True)
-            .str.replace("^manganese oxidizing", "manganese - oxidizing", regex=True)
-            .str.replace("^iron reducing$", "iron - reducing", regex=True)
-            .str.replace("^sulfur reducing$", "sulfur - reducing", regex=True)
-            .str.replace("^metal reducing$", "metal - reducing", regex=True)
-            .str.replace("^nitrogen fixing$", "nitrogen - fixing", regex=True)
             .str.replace("^iron-reducing$", "iron - reducing", regex=True)
-            .str.replace("^nitrate reducing$", "nitrate - reducing", regex=True)
-            .str.replace("^methanotrophs$", "methanotroph", regex=True)
             .str.replace(
                 "^facultatively anaerobic$", "facultative anaerobic", regex=True
             )
@@ -297,11 +293,10 @@ rule merge_preds:
             .str.replace("^anaerobe$", "anaerobic", regex=True)
             .str.replace("^n - fixing$", "nitrogen - fixing", regex=True)
             .str.replace("^fast-growing$", "fast - growing", regex=True)
-            .str.replace("^salt tolerant$", "salt - tolerant", regex=True)
             # isolate
             .str.replace("^marine sediments$", "marine sediment", regex=True)
             .str.replace("^human faeces$", "human feces", regex=True)
-            .str.replace("^surface waters$", "surface water", regex=True)
+#            .str.replace("^surface waters$", "surface water", regex=True)
             .str.replace("^sea water$", "seawater", regex=True)
             .str.replace("^sediments$", "sediment", regex=True)
             .str.replace("^soils$", "soil", regex=True)
@@ -314,20 +309,15 @@ rule merge_preds:
                 "moss - dominated soil crust",
                 regex=True,
             )
-            .str.replace("chromium contaminated", "chromium - contaminated", regex=True)
-            .str.replace("deep - subsurface", "deep subsurface", regex=True)
             # morphology
             .str.replace("^biofilms$", "biofilm", regex=True)
             .str.replace("^spores$", "spore", regex=True)
             .str.replace("^endospores$", "endospore", regex=True)
-            .str.replace("^heterocysts$", "heterocyst", regex=True)
             .str.replace("^filaments$", "filament", regex=True)
             .str.replace("^rod-shaped$", "rod - shaped", regex=True)
-            .str.replace("^rod shaped$", "rod - shaped", regex=True)
             .str.replace("wrinkled colonies", "wrinkled colony", regex=True)
             # compound
             .str.replace("^heavy metals$", "heavy metal", regex=True)
-            .str.replace("^hydrocarbons$", "hydrocarbon", regex=True)
             .str.replace("^cu$", "copper", regex=True)
             .str.replace("^metals", "metal", regex=True)
             .str.replace("^zn$", "zinc", regex=True)
@@ -338,18 +328,20 @@ rule merge_preds:
             .str.replace("^sugars$", "sugar", regex=True)
             .str.replace("^lipopeptides$", "lipopeptide", regex=True)
             .str.replace("^lipids$", "lipid", regex=True)
+            .str.replace("^α-glucans$", "α-glucan", regex=True)
+            .str.replace("^β-glucans", "β-glucan", regex=True)
             # organism
             .str.replace("^humans$", "human", regex=True)
             .str.replace("^mice$", "mouse", regex=True)
             .str.replace("^birds$", "bird", regex=True)
             .str.replace("^soybeans$", "soybean", regex=True)
-            .str.replace("^wild boar$", "wild boar", regex=True)
+            .str.replace("^wild boars$", "wild boar", regex=True)
             .str.replace("^chickens$", "chicken", regex=True)
             .str.replace("^cockroaches$", "cockroach", regex=True)
             .str.replace("^dogs$", "dog", regex=True)
             .str.replace("^insects$", "insect", regex=True)
             .str.replace("^legumes$", "legume", regex=True)
-            .str.replace("^marine sponges$", "marine sponge", regex=True)
+#            .str.replace("^marine sponges$", "marine sponge", regex=True)
             .str.replace("^mosquitoes$", "mosquito", regex=True)
             .str.replace("^potatoes$", "potato", regex=True)
             .str.replace("^pigs$", "pig", regex=True)
@@ -359,6 +351,7 @@ rule merge_preds:
             .str.replace("^raw264.7$", "raw 264.7", regex=True)
             .str.replace("^c. elegans$", "caenorhabditis elegans", regex=True)
             .str.replace("^rats$", "rat", regex=True)
+            .str.replace("trees$","tree",regex=True)
             # effect
             .str.replace("^antimicrobial activity$", "antimicrobial", regex=True)
             .str.replace("^antibacterial activity$", "antibacterial", regex=True)
@@ -368,6 +361,14 @@ rule merge_preds:
             .str.replace("^plant-growth", "plant growth", regex=True)
             .str.replace("^plant growth-", "plant growth", regex=True)
             .str.replace("plant beneficial", "plant - beneficial", regex=True)
+            #species
+            .str.replace("^escherichia coli$", "e. coli", regex=True)
+            .str.replace("^enterococcus faecalis$", "e. faecalis", regex=True)
+            .str.replace("^listeria monocytogenes$", "l. monocytogenes", regex=True)
+            .str.replace("^staphylococcus aureus$", "s. aureus", regex=True)
+            .str.replace("^pseudomonas aeruginosa$", "p. aeruginosa", regex=True)
+            .str.replace("^lactobacillus plantarum$", "l. plantarum", regex=True)
+            .str.replace("^candida albicans$", "c. albicans", regex=True)
         )
         d[d["score_rel"] > cutoff].to_parquet(output[0])
 
@@ -411,7 +412,7 @@ rule match_batch_strainselect:
         batch_output=f"{preds}/batched_output_results/{{batch_id}}.pqt",
     resources:
         slurm_partition="single",
-        runtime=300,
+        runtime=230,
         mem_mb=180000,
         tasks=40
     run:
@@ -530,10 +531,74 @@ rule merge_batch_outputs_strainselect:
         df = pd.concat(l)
         df.to_parquet(output[0])
 
+rule group_entities:
+    input:
+        f"{preds}/REL_output/preds_strainselect.pqt",
+    output:
+        f"{preds}/REL_output/preds_strainselect_grouped.pqt",
+    resources:
+        slurm_partition="single",
+        runtime=100,
+        mem_mb=180000,
+        ntasks=40
+    run:
+        df = pd.read_parquet(input[0])
+        df = df.drop(columns=["label_rel","label"])
+        df.rename(columns={"score":"ner_score",})
+
+        l = []
+        for ner in df["ner"].unique():
+            df_filter = df[df["ner"] == ner]
+
+            words = df_filter[df_filter["ner"]==ner].word_qc.value_counts()
+            query_words = words[words > 1].index
+            all_words = words.index
+            cutoff = 95
+            
+            result = process.cdist(query_words, all_words, scorer=fuzz.token_sort_ratio, score_cutoff=cutoff, workers=-1)
+            indices = np.argwhere(result >= cutoff)
+            word_indices = list(zip(all_words[indices[:,0]], all_words[indices[:,1]]))
+            matchesdf = pd.DataFrame(word_indices)
+
+            scores = result[indices[:,0], indices[:,1]]
+            matchesdf['score'] = scores
+            unique_matches = matchesdf[matchesdf[0] != matchesdf[1]]
+
+            word_counts = df.word_qc.value_counts()
+            unique_matches.loc[:, 'total_count_0'] = unique_matches[0].map(word_counts)
+            unique_matches.loc[:, 'total_count_1'] = unique_matches[1].map(word_counts)
+
+            unique_matches.loc[:, 'consensus_word'] = unique_matches.apply(lambda x: x[0] if x['total_count_0'] > x['total_count_1'] else x[1], axis=1)
+
+            # Create a dictionary to group words based on common connections
+            grouped_words = defaultdict(list)
+            for _, row in unique_matches.iterrows():
+                grouped_words[row['consensus_word']].append(row)
+
+            # Create a dictionary to map each consensus word to all connected words
+            consensus_to_words = defaultdict(set)
+
+            # Iterate through each group to check their abundances and select the consensus word
+            for group_key, group_values in grouped_words.items():
+                # Calculate the total count for each word in the group
+                total_counts = {word: sum(unique_matches[unique_matches[0] == word]['total_count_0']) + sum(unique_matches[unique_matches[1] == word]['total_count_1']) for word in [row[0] for row in group_values] + [row[1] for row in group_values]}
+                # Select the word with the highest total count as the consensus word
+                consensus_word = max(total_counts, key=total_counts.get)
+                
+                # Add all words in the group to the set of the consensus word
+                for row in group_values:
+                    consensus_to_words[consensus_word].update([row[0], row[1]])
+            
+            df_filter['word_qc_group'] = df_filter['word_qc'].apply(lambda x: next((k for k, v in consensus_to_words.items() if x in v), x))
+            l.append(df_filter)
+
+        finaldf = pd.concat(l)
+        finaldf.to_parquet(output[0])
+
 
 rule write_download_file:
     input:
-        f"{preds}/REL_output/preds_strainselect.pqt",
+        f"{preds}/REL_output/preds_strainselect_grouped.pqt",
         f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
     output:
         f"{preds}/REL_output/strains_assemblies.txt"
