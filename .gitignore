@@ -9,6 +9,7 @@ notebooks/figures/
 notebooks/network_files/
 notebooks/ner_annotation/
 notebooks/ontologies/
+notebooks/embeddings_files/
 gomez
 .DS_Store
 *-checkpoint*

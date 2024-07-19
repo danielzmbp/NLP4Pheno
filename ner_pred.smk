@@ -48,8 +48,8 @@ configfile: "config.yaml"
 labels_flat = config["ner_labels"][1:]
 cutoff = config["cutoff_prediction"]
 cuda = config["cuda_devices"]
-corpus = "corpus" + config["dataset"]
-preds = config["output_path"] + "/preds" + config["dataset"]
+corpus = "corpus" + str(config["dataset"])
+preds = config["output_path"] + "/preds" + str(config["dataset"])
 
 
 (PARTS,) = glob_wildcards(corpus + "/{part}.txt")
@@ -108,8 +108,8 @@ rule merge_strain_predictions:
         preds + "/NER_output/STRAIN/strains.parquet",
     resources:
         slurm_partition="single",
-        runtime=300,
-        mem_mb=5000,
+        runtime=200,
+        mem_mb=40000,
     run:
         l = []
         for file in glob(preds + "/NER_output/STRAIN/*.parquet"):
@@ -163,7 +163,7 @@ rule run_all_models:
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=600,
+        runtime=800,
     shell:
         """
         while read -r d m; do
