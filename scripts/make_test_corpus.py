@@ -2,10 +2,10 @@ import more_itertools
 import os
 import polars as pl
 
-size = "1000"
+size = "1100"
 
 corpus = pl.read_parquet(
-    '/home/gomez/biobert-pytorch/snakemake_pmc/pmc.parquet')
+    '../snakemake_PMC/pmc.parquet')
 
 # corpus = corpus.filter(pl.col("text").str.len_chars() <= 512)
 
