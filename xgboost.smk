@@ -119,9 +119,9 @@ rule process_file:
         pickle_file=path + "/xgboost/annotations{data}/{rel}.pkl",
     resources:
         slurm_partition="fat",
-        runtime=2450,
-        mem_mb=300000,
-        tasks=50,
+        runtime=2700,
+        mem_mb=210000,
+        tasks=20,
     run:
         d = pl.read_parquet(input.parquet_file)
         t = (
