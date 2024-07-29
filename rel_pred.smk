@@ -8,6 +8,7 @@ import dask.array as da
 from scipy.sparse import csr_matrix
 import numpy as np
 from collections import defaultdict
+from glob import glob
 
 configfile: "config.yaml"
 
@@ -21,7 +22,8 @@ cuda = config["cuda_devices"]
 
 rule all:
     input:
-        f"{preds}/REL_output/strains_assemblies.txt"
+        f"{preds}/REL_output/strains_assemblies.txt",
+        f"{preds}/network.tsv",
 
 
 rule format_sentences:
@@ -87,7 +89,7 @@ rule run_all_models:
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=350,
+        runtime=500,
     shell:
         """
         while read -r d m; do
@@ -387,7 +389,7 @@ rule split_batches_strainselect:
     input:
         preds_file=f"{preds}/REL_output/preds.pqt",
     output:
-        batch_files=expand(f"{preds}/REL_output/batched_input/{{batch_id}}.pqt", batch_id=range(0, 300)),
+        batch_files=expand(f"{preds}/REL_output/batched_input/{{batch_id}}.pqt", batch_id=range(0, 400)),
     resources:
         slurm_partition="single",
         runtime=100,
@@ -397,7 +399,7 @@ rule split_batches_strainselect:
         df = pd.read_parquet(input[0])
         df["vertex_dot"] = df.word_strain_qc.str.replace(" ",".").str.replace(".number.","").str.replace("atcc.no","atcc").str.replace("mtcc.no","mtcc").str.replace("cgmcc.no","cgmcc").str.replace("dsm.no","dsm").str.replace("-",".").str.replace("atcc","atcc.").str.replace("mtcc","mtcc.").str.replace("dsm","dsm.").str.replace("cgmcc","cgmcc.").str.replace("=","").str.replace("“","").str.replace("”","").str.replace('"',"").str.replace("#",".").str.replace("*",".").str.replace("^","").str.replace(":",".").str.replace("®","").str.replace("™","").str.replace("’","").str.replace("‘","").str.replace("(","").str.replace(")","").str.replace(",","").str.replace("/",".").str.replace("_",".").str.replace("Δ","").str.replace("cip","cip.").str.replace("nccp","nccp.").str.replace("...",".").str.replace("..",".")
         df = df[~df['vertex_dot'].str.match("^[a-z]\.[a-z]+$")]
-        num_batches = 300
+        num_batches = 400
         batched_df = np.array_split(df, num_batches)
         os.makedirs(f"{preds}/REL_output/batched_input/", exist_ok=True)
         for i, batch_df in enumerate(batched_df):
@@ -412,7 +414,7 @@ rule match_batch_strainselect:
         batch_output=f"{preds}/batched_output_results/{{batch_id}}.pqt",
     resources:
         slurm_partition="single",
-        runtime=230,
+        runtime=200,
         mem_mb=180000,
         tasks=40
     run:
@@ -517,7 +519,7 @@ rule match_batch_strainselect:
 
 rule merge_batch_outputs_strainselect:
     input:
-        batch_outputs=expand(f"{preds}/batched_output_results/{{batch_id}}.pqt", batch_id=range(0, 300)),
+        batch_outputs=expand(f"{preds}/batched_output_results/{{batch_id}}.pqt", batch_id=range(0, 400)),
     output:
         merged_output=f"{preds}/REL_output/preds_strainselect.pqt",
     resources:
@@ -620,4 +622,64 @@ rule write_download_file:
             for a in assemblies:
                 f.write(a+"\n")
 
+rule create_network:
+    input:
+        f"{preds}/REL_output/preds_strainselect_grouped.pqt",
+    output:
+        f"{preds}/network.tsv",
+        f"{preds}/strains.txt",
+        f"{preds}/network_assemblies.tsv",
+        f"{preds}/strains_assemblies.txt",
+    resources:
+        slurm_partition="single",
+        runtime=30,
+        mem_mb=10000,
+    params:
+        data=str(config["dataset"]),
+    run:
+        df = pd.read_parquet(input[0])
+        network = df[df.StrainSelectID.isna() == False].loc[:,["StrainSelectID","word_qc_group","rel"]].drop_duplicates(["StrainSelectID","word_qc_group","rel"])
+        network.loc[:,"source"] = np.where(network['rel'].str.startswith("STRAIN"), network.StrainSelectID	, network.word_qc_group)
+        network.loc[:,"target"] = np.where(network['rel'].str.startswith("STRAIN")==False, network.StrainSelectID, network.word_qc_group)
 
+        network = network.loc[:,["source","target","rel"]]
+
+        network = pd.concat([network,
+            network.rel.str.split(":",expand=True)[0].str.split("-",expand=True).rename(
+            columns={0:"source_ner",1:"target_ner"})]
+                ,axis=1
+                )
+
+        network["rel"] = network.rel.str.split(":",expand=True)[1]
+
+        network.to_csv(output[0],index=False,sep="\t")
+
+        with open(output[1], "w") as f:
+            for s in sorted(set(df[df.StrainSelectID.isna() == False].StrainSelectID.to_list())):
+                f.write(f"{s}\n")
+
+        # filtered network
+        
+        folders = glob(f"{output_path}/assemblies_{params.data}/*")
+
+        strains = [f.split("/")[-1] for f in folders]
+        filtered_df= df[df.StrainSelectID.isin(strains)]
+
+        network = filtered_df.loc[:,["StrainSelectID","word_qc_group","rel"]].drop_duplicates(["StrainSelectID","word_qc_group","rel"])
+        network.loc[:,"source"] = np.where(network['rel'].str.startswith("STRAIN"), network.StrainSelectID	, network.word_qc_group)
+        network.loc[:,"target"] = np.where(network['rel'].str.startswith("STRAIN")==False, network.StrainSelectID, network.word_qc_group)
+
+        network = network.loc[:,["source","target","rel"]]
+
+        network = pd.concat([network,
+        network.rel.str.split(":",expand=True)[0].str.split("-",expand=True).rename(
+        columns={0:"source_ner",1:"target_ner"})]
+            ,axis=1
+            )
+
+        network["rel"] = network.rel.str.split(":",expand=True)[1]
+        network.to_csv(output[2],index=False,sep="\t")
+
+        with open(output[3], "w") as f:
+            for s in sorted(set(filtered_df.StrainSelectID.to_list())):
+                f.write(f"{s}\n")
