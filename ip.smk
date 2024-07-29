@@ -9,7 +9,6 @@ configfile: "config.yaml"
 
 
 data = config["dataset"]
-# path = ".."
 path = config["output_path"]
 
 assemblies = []
