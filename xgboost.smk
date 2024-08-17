@@ -119,39 +119,53 @@ rule process_file:
         pickle_file=path + "/xgboost/annotations{data}/{rel}.pkl",
     resources:
         slurm_partition="fat",
-        runtime=2700,
-        mem_mb=210000,
-        tasks=20,
+        runtime=30,
+        mem_mb=220000,
+        tasks=10,
     run:
+        # Read the parquet file
         d = pl.read_parquet(input.parquet_file)
+
+        # Create initial count of InterPro_accession
         t = (
             d.group_by("InterPro_accession")
             .agg(pl.count("InterPro_accession").alias("count"))
             .sort("InterPro_accession")
         )
+
+        # Select only necessary columns and perform operations in one go
         d_tiny = d.select(["Protein_accession", "InterPro_accession", "sa_ner"])
-        sa_unique = d_tiny.select("sa_ner").unique().to_pandas()["sa_ner"].tolist()
-        for sa in tqdm(sa_unique):
-            selected = d_tiny.filter(pl.col("sa_ner") == sa)
-            s = selected.group_by(["Protein_accession", "InterPro_accession"]).agg(
-                pl.count("*").alias("count")
-            )
-            selected_valuecount = (
-                s.group_by("InterPro_accession")
-                .agg(pl.sum("count").alias(sa))
-                .sort("InterPro_accession")
-            )
-            t = t.join(selected_valuecount, on="InterPro_accession", how="left")
+        sa_unique = d_tiny.select("sa_ner").unique()
+
+        # Perform grouping and aggregation for all sa_ner values at once
+        result = (
+            d_tiny.group_by(["sa_ner", "InterPro_accession"])
+            .agg(pl.count("*").alias("count"))
+            .group_by(["sa_ner", "InterPro_accession"])
+            .agg(pl.sum("count").alias("count"))
+            .pivot(values="count", index="InterPro_accession", columns="sa_ner")
+            .fill_null(0)
+        )
+
+        # Join the results with the initial count
+        t = t.join(result, on="InterPro_accession", how="left")
+
+        # Convert to pandas and perform final operations
         t = t.to_pandas().set_index("InterPro_accession")
         ind = t.index.to_list()
         tt = t.transpose()
+
+        # Extract the third part of the index after splitting by '!'
         temp = tt.reset_index()["index"].str.split("!", expand=True)[2]
         tempdf = pd.concat([tt.reset_index(), temp], axis=1)
         tempdf = tempdf[tempdf[2].duplicated(keep=False)]
         tempdf.set_index("index", inplace=True)
         tempdf.drop(columns=[2], inplace=True)
+
         X = tempdf.to_numpy()
         y = tempdf.reset_index()["index"].str.split("!", expand=True)[2].to_numpy()
+
+        # Save the results
         with open(output.pickle_file, "wb") as f:
             pickle.dump([X, y, ind], f)
 
@@ -171,6 +185,7 @@ rule xgboost_binary:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
         runtime=2880,
+        tasks=10,
     params:
         data=DATA,
         device=config["cuda_devices"],
