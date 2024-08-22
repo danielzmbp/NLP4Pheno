@@ -29,6 +29,12 @@ rule final:
             strain=strains,
             assembly=assemblies,
         ),
+            expand(
+            output_path + "{strain}/{assembly}/genomic.fna.gz",
+            zip,
+            strain=strains,
+            assembly=assemblies,
+        ),
 
 
 rule download:
@@ -47,6 +53,16 @@ rule unzip:
         output_path + "{strain}/{assembly}/genomic.gff",
     shell:
         "unzip -j {input} 'ncbi_dataset/data/*/*.faa' 'ncbi_dataset/data/*/*.fna' 'ncbi_dataset/data/*/*.gff' -d {output_path}/{wildcards.strain}/{wildcards.assembly}; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/cds_from_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.cds; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/*_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.fna"
+        
+rule compress_fna_gff:
+    input:
+        output_path + "{strain}/{assembly}/genomic.fna",
+        output_path + "{strain}/{assembly}/genomic.gff",
+    output:
+        output_path + "{strain}/{assembly}/genomic.gff.gz",
+        output_path + "{strain}/{assembly}/genomic.fna.gz",
+    shell:
+        "gzip {input[0]}; gzip {input[1]}"
 
 
 rule ip:
