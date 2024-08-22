@@ -239,8 +239,6 @@ rule merge_preds:
             .str.replace("^lysogeny broth \( lb \)$", "lb", regex=True)
             .str.replace("^lysogeny broth$", "lb", regex=True)
             .str.replace("^lb medium$", "lb", regex=True)
-            .str.replace("^lb - agar$", "lb agar", regex=True)
-            .str.replace("^lb - broth$", "lb broth", regex=True)
             .str.replace("^luria bertani$", "lb", regex=True)
             .str.replace("^luria bertani \( lb \)$", "lb", regex=True)
             .str.replace("^luria broth \( lb \)$", "lb broth", regex=True)
@@ -260,9 +258,7 @@ rule merge_preds:
             .str.replace("^tryptic soy broth \( tsb \)$", "tsb", regex=True)
             .str.replace("^nutrient broth$", "nb", regex=True)
             .str.replace("^mueller−hinton$", "mueller hinton", regex=True)
-            .str.replace("^mueller − hinton$", "mueller hinton", regex=True)
             .str.replace("^tryptic -", "tryptic", regex=True)
-            .str.replace("^mueller - hinton$", "mueller hinton", regex=True)
             .str.replace("^mueller-hinton", "mueller hinton", regex=True)
             .str.replace("^terrific - broth -", "terrific broth", regex=True)
             .str.replace("^nematode - growth$", "nematode growth", regex=True)
@@ -279,14 +275,10 @@ rule merge_preds:
             # metabolite
             .str.replace("^acetyl - coa$", "acetyl coa", regex=True)
             # phenotype
-            .str.replace("^gram- negative$", "gram - negative", regex=True)
-            .str.replace("^gram- positive$", "gram - negative", regex=True)
-            .str.replace("^gram positive$", "gram - positive", regex=True)
-            .str.replace("^gram negative$", "gram - negative", regex=True)
-            .str.replace("^gram-positive$", "gram - positive", regex=True)
-            .str.replace("^gram-negative$", "gram - negative", regex=True)
-            .str.replace("^gram ‐ negative$", "gram - negative", regex=True)
-            .str.replace("^gram - stain - negative$", "gram - negative", regex=True)
+            .str.replace("^gram- negative$", "gram-negative", regex=True)
+            .str.replace("^gram- positive$", "gram-positive", regex=True)
+            .str.replace("^gram ‐ negative$", "gram-negative", regex=True)
+            .str.replace("^gram - stain - negative$", "gram-negative", regex=True)
             .str.replace("^iron-reducing$", "iron - reducing", regex=True)
             .str.replace(
                 "^facultatively anaerobic$", "facultative anaerobic", regex=True
@@ -298,7 +290,6 @@ rule merge_preds:
             # isolate
             .str.replace("^marine sediments$", "marine sediment", regex=True)
             .str.replace("^human faeces$", "human feces", regex=True)
-#            .str.replace("^surface waters$", "surface water", regex=True)
             .str.replace("^sea water$", "seawater", regex=True)
             .str.replace("^sediments$", "sediment", regex=True)
             .str.replace("^soils$", "soil", regex=True)
@@ -306,17 +297,11 @@ rule merge_preds:
             .str.replace("^water sample?$", "water", regex=True)
             .str.replace("^stool$", "feces", regex=True)
             .str.replace("^soil sample?$", "soil", regex=True)
-            .str.replace(
-                "^moss - dominated soil crusts$",
-                "moss - dominated soil crust",
-                regex=True,
-            )
-            # morphology
+            .str.replace("^stool sample?$", "feces", regex=True)
             .str.replace("^biofilms$", "biofilm", regex=True)
             .str.replace("^spores$", "spore", regex=True)
             .str.replace("^endospores$", "endospore", regex=True)
             .str.replace("^filaments$", "filament", regex=True)
-            .str.replace("^rod-shaped$", "rod - shaped", regex=True)
             .str.replace("wrinkled colonies", "wrinkled colony", regex=True)
             # compound
             .str.replace("^heavy metals$", "heavy metal", regex=True)
@@ -343,9 +328,10 @@ rule merge_preds:
             .str.replace("^dogs$", "dog", regex=True)
             .str.replace("^insects$", "insect", regex=True)
             .str.replace("^legumes$", "legume", regex=True)
-#            .str.replace("^marine sponges$", "marine sponge", regex=True)
+            .str.replace("^piglets$", "piglet", regex=True)
             .str.replace("^mosquitoes$", "mosquito", regex=True)
             .str.replace("^potatoes$", "potato", regex=True)
+            .str.replace("^tomatoes$", "tomato", regex=True)
             .str.replace("^pigs$", "pig", regex=True)
             .str.replace("^rabbits$", "rabbit", regex=True)
             .str.replace("^plants$", "plant", regex=True)
@@ -354,15 +340,33 @@ rule merge_preds:
             .str.replace("^c. elegans$", "caenorhabditis elegans", regex=True)
             .str.replace("^rats$", "rat", regex=True)
             .str.replace("trees$","tree",regex=True)
+            .str.replace("^nematodes$", "nematode", regex=True)
+            .str.replace("^larval$", "larvae", regex=True)
+            .str.replace("^ferrets$", "ferret", regex=True)
+            .str.replace("^maize plants$", "maize", regex=True)
+            .str.replace("^tomato plants$", "tomato", regex=True)
+            .str.replace("^potato plants$", "potato", regex=True)
+            .str.replace("^d. melanogaster$", "drosophila melanogaster", regex=True)
+            .str.replace("^p. falciparum$", "plasmodium falciparum", regex=True)
+            .str.replace("^zebra fish$", "zebrafish", regex=True)
+            .str.replace("^a. stephensi$", "anopheles stephensi", regex=True)
+            .str.replace("^hamsters$", "hamster", regex=True)
+            .str.replace("^calves$", "calf", regex=True)
+            .str.replace("^cows$", "cow", regex=True)
+            .str.replace("^horses$", "horse", regex=True)
+            .str.replace("^sponges$", "sponge", regex=True)
+            .str.replace("^cats$", "cat", regex=True)
+            .str.replace("^corn$", "maize", regex=True)
+            .str.replace("a. mellifera", "apis mellifera", regex=True)
+            .str.replace("ticks","tick",regex=True)
+            .str.replace("worms","worm",regex=True)
             # effect
             .str.replace("^antimicrobial activity$", "antimicrobial", regex=True)
             .str.replace("^antibacterial activity$", "antibacterial", regex=True)
             .str.replace("^antibacterial effects$", "antibacterial", regex=True)
             .str.replace("^antifungal activity$", "antifungal", regex=True)
-            .str.replace("^plant - growth", "plant growth", regex=True)
             .str.replace("^plant-growth", "plant growth", regex=True)
             .str.replace("^plant growth-", "plant growth", regex=True)
-            .str.replace("plant beneficial", "plant - beneficial", regex=True)
             #species
             .str.replace("^escherichia coli$", "e. coli", regex=True)
             .str.replace("^enterococcus faecalis$", "e. faecalis", regex=True)
@@ -371,6 +375,12 @@ rule merge_preds:
             .str.replace("^pseudomonas aeruginosa$", "p. aeruginosa", regex=True)
             .str.replace("^lactobacillus plantarum$", "l. plantarum", regex=True)
             .str.replace("^candida albicans$", "c. albicans", regex=True)
+            .str.replace("^a. thaliana$", "a. thaliana", regex=True)
+            #general
+            .str.replace(" of$", "", regex=True)
+            .str.replace("^the ", "", regex=True)
+            #disease
+            .str.replace("^cf$", "cystic fibrosis", regex=True)
         )
         d[d["score_rel"] > cutoff].to_parquet(output[0])
 
@@ -389,7 +399,7 @@ rule split_batches_strainselect:
     input:
         preds_file=f"{preds}/REL_output/preds.pqt",
     output:
-        batch_files=expand(f"{preds}/REL_output/batched_input/{{batch_id}}.pqt", batch_id=range(0, 400)),
+        batch_files=expand(f"{preds}/REL_output/batched_input/{{batch_id}}.pqt", batch_id=range(0, 500)),
     resources:
         slurm_partition="single",
         runtime=100,
@@ -399,7 +409,7 @@ rule split_batches_strainselect:
         df = pd.read_parquet(input[0])
         df["vertex_dot"] = df.word_strain_qc.str.replace(" ",".").str.replace(".number.","").str.replace("atcc.no","atcc").str.replace("mtcc.no","mtcc").str.replace("cgmcc.no","cgmcc").str.replace("dsm.no","dsm").str.replace("-",".").str.replace("atcc","atcc.").str.replace("mtcc","mtcc.").str.replace("dsm","dsm.").str.replace("cgmcc","cgmcc.").str.replace("=","").str.replace("“","").str.replace("”","").str.replace('"',"").str.replace("#",".").str.replace("*",".").str.replace("^","").str.replace(":",".").str.replace("®","").str.replace("™","").str.replace("’","").str.replace("‘","").str.replace("(","").str.replace(")","").str.replace(",","").str.replace("/",".").str.replace("_",".").str.replace("Δ","").str.replace("cip","cip.").str.replace("nccp","nccp.").str.replace("...",".").str.replace("..",".")
         df = df[~df['vertex_dot'].str.match("^[a-z]\.[a-z]+$")]
-        num_batches = 400
+        num_batches = 500
         batched_df = np.array_split(df, num_batches)
         os.makedirs(f"{preds}/REL_output/batched_input/", exist_ok=True)
         for i, batch_df in enumerate(batched_df):
@@ -408,21 +418,19 @@ rule split_batches_strainselect:
 rule match_batch_strainselect:
     input:
         batch_file=f"{preds}/REL_output/batched_input/{{batch_id}}.pqt",
-        edges=f"{preds}/strainselect/StrainSelect21_edges.tab.txt",
         vertices=f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
     output:
-        batch_output=f"{preds}/batched_output_results/{{batch_id}}.pqt",
+        batch_output=f"{preds}/batched_output_results/{{batch_id}}.parquet",
     resources:
         slurm_partition="single",
-        runtime=200,
-        mem_mb=180000,
-        tasks=40
+        runtime=120,
+        mem_mb=85000,
+        tasks=3
     run:
-        workers = 40
+        workers = 6
 
         df = pd.read_parquet(input[0])
-        edges = pd.read_csv(input[1], sep="\t")
-        vertices = pd.read_csv(input[2], sep="\t",usecols = [0,1,2])
+        vertices = pd.read_csv(input[1], sep="\t",usecols = [0,1,2])
         vertices["vertex_dot"] = vertices.vertex.str.replace("_", ".").str.lower()
 
         strains = df.vertex_dot.str.replace("\.$","",regex=True).str.replace("^\.","",regex=True).unique()
@@ -455,8 +463,10 @@ rule match_batch_strainselect:
         all_matches_partial = process.cdist(strains, vertices_noass, scorer=fuzz.partial_ratio, workers=workers, score_cutoff=95)
 
         dask_array = da.from_array(all_matches_partial, chunks=(all_matches_partial.shape[0], all_matches_partial.shape[1]//(workers - 1)))
+        del all_matches_partial
         sparse_matrix_dask = dask_array.map_blocks(to_sparse, dtype=csr_matrix)
         all_matches_partial_sparse = sparse_matrix_dask.compute()
+        del sparse_matrix_dask
 
         nonzero_row_indices, nonzero_col_indices = all_matches_partial_sparse.nonzero()
         nonzero_values = all_matches_partial_sparse.data
@@ -474,6 +484,7 @@ rule match_batch_strainselect:
         high_abundant = high_abundant[high_abundant < 2000].index.to_list()
         filtered_df_all_matches_partial = df_all_matches_partial[df_all_matches_partial['strain'].isin(high_abundant)].copy()
 
+        del high_abundant, df_all_matches_partial
         filtered_df_all_matches_partial.loc[:,'score_parts'] = filtered_df_all_matches_partial.apply(
             lambda row: process.extractOne(row['strain'], list(all_combinations(row['strainselect']))[1:],score_cutoff=60)[1], axis=1
         )
@@ -481,6 +492,7 @@ rule match_batch_strainselect:
         filtered_df_all_matches_partial = filtered_df_all_matches_partial.merge(vertices, left_on="strainselect", right_on="vertex_dot")
 
         df_matches_partial = filter_strains(g(filtered_df_all_matches_partial))
+        del filtered_df_all_matches_partial
         df_matches_partial = df_matches_partial[df_matches_partial['score_partial'] > 70]
         df_matches_partial = df_matches_partial[~((df_matches_partial['score_parts'] <= 90) & (df_matches_partial['vertex_type'] == "biocyc_pgdb"))]
 
@@ -490,8 +502,10 @@ rule match_batch_strainselect:
         all_matches_full = process.cdist(strains_left, vertices_noass, workers=workers, score_cutoff=90)
 
         dask_array = da.from_array(all_matches_full, chunks=(all_matches_full.shape[0], all_matches_full.shape[1]//(workers -1 )))
+        del all_matches_full
         sparse_matrix_dask = dask_array.map_blocks(to_sparse, dtype=csr_matrix)
         all_matches_full_sparse = sparse_matrix_dask.compute()
+        del sparse_matrix_dask
 
 
         nonzero_row_indices, nonzero_col_indices = all_matches_full_sparse.nonzero()
@@ -519,7 +533,7 @@ rule match_batch_strainselect:
 
 rule merge_batch_outputs_strainselect:
     input:
-        batch_outputs=expand(f"{preds}/batched_output_results/{{batch_id}}.pqt", batch_id=range(0, 400)),
+        batch_outputs=expand(f"{preds}/batched_output_results/{{batch_id}}.parquet", batch_id=range(0, 500)),
     output:
         merged_output=f"{preds}/REL_output/preds_strainselect.pqt",
     resources:
@@ -541,8 +555,8 @@ rule group_entities:
     resources:
         slurm_partition="single",
         runtime=100,
-        mem_mb=180000,
-        ntasks=40
+        mem_mb=90000,
+        ntasks=20
     run:
         df = pd.read_parquet(input[0])
         df = df.drop(columns=["label_rel","label"])
@@ -628,8 +642,8 @@ rule create_network:
     output:
         f"{preds}/network.tsv",
         f"{preds}/strains.txt",
-        f"{preds}/network_assemblies.tsv",
-        f"{preds}/strains_assemblies.txt",
+        # f"{preds}/network_assemblies.tsv",
+        # f"{preds}/strains_assemblies.txt",
     resources:
         slurm_partition="single",
         runtime=30,
@@ -658,28 +672,28 @@ rule create_network:
             for s in sorted(set(df[df.StrainSelectID.isna() == False].StrainSelectID.to_list())):
                 f.write(f"{s}\n")
 
-        # filtered network
+        # # filtered network
         
-        folders = glob(f"{output_path}/assemblies_{params.data}/*")
+        # folders = glob(f"{output_path}/assemblies_{params.data}/*")
 
-        strains = [f.split("/")[-1] for f in folders]
-        filtered_df= df[df.StrainSelectID.isin(strains)]
+        # strains = [f.split("/")[-1] for f in folders]
+        # filtered_df= df[df.StrainSelectID.isin(strains)]
 
-        network = filtered_df.loc[:,["StrainSelectID","word_qc_group","rel"]].drop_duplicates(["StrainSelectID","word_qc_group","rel"])
-        network.loc[:,"source"] = np.where(network['rel'].str.startswith("STRAIN"), network.StrainSelectID	, network.word_qc_group)
-        network.loc[:,"target"] = np.where(network['rel'].str.startswith("STRAIN")==False, network.StrainSelectID, network.word_qc_group)
+        # network = filtered_df.loc[:,["StrainSelectID","word_qc_group","rel"]].drop_duplicates(["StrainSelectID","word_qc_group","rel"])
+        # network.loc[:,"source"] = np.where(network['rel'].str.startswith("STRAIN"), network.StrainSelectID	, network.word_qc_group)
+        # network.loc[:,"target"] = np.where(network['rel'].str.startswith("STRAIN")==False, network.StrainSelectID, network.word_qc_group)
 
-        network = network.loc[:,["source","target","rel"]]
+        # network = network.loc[:,["source","target","rel"]]
 
-        network = pd.concat([network,
-        network.rel.str.split(":",expand=True)[0].str.split("-",expand=True).rename(
-        columns={0:"source_ner",1:"target_ner"})]
-            ,axis=1
-            )
+        # network = pd.concat([network,
+        # network.rel.str.split(":",expand=True)[0].str.split("-",expand=True).rename(
+        # columns={0:"source_ner",1:"target_ner"})]
+        #     ,axis=1
+        #     )
 
-        network["rel"] = network.rel.str.split(":",expand=True)[1]
-        network.to_csv(output[2],index=False,sep="\t")
+        # network["rel"] = network.rel.str.split(":",expand=True)[1]
+        # network.to_csv(output[2],index=False,sep="\t")
 
-        with open(output[3], "w") as f:
-            for s in sorted(set(filtered_df.StrainSelectID.to_list())):
-                f.write(f"{s}\n")
+        # with open(output[3], "w") as f:
+        #     for s in sorted(set(filtered_df.StrainSelectID.to_list())):
+        #         f.write(f"{s}\n")
