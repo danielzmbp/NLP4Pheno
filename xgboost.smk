@@ -172,20 +172,16 @@ rule process_file:
 
 
 # Run XGBoost on the binary classification task, outputs are the pickles containing the model and the predictions
-rule xgboost_binary:
+rule xgboost_binary_parts:
     input:
-        expand(
-            path + "/xgboost/annotations{data}/{rel}.pkl",
-            data=DATA,
-            rel=get_rels(),
-        ),
+        path + "/xgboost/annotations{data}/{rel}.pkl"
     output:
-        path + f"/xgboost/annotations{DATA}/binary.pkl",
+        path + "/xgboost/annotations{data}/{rel}.pickle",
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=2880,
-        tasks=10,
+        runtime=1440,
+        tasks=5,
     params:
         data=DATA,
         device=config["cuda_devices"],
@@ -194,3 +190,37 @@ rule xgboost_binary:
         "xgb"
     script:
         "scripts/xgboost_binary_snakemake.py"
+
+
+rule xgboost_binary_join:
+    input:
+        expand(
+            path + "/xgboost/annotations{data}/{rel}.pickle",
+            data=DATA,
+            rel=get_rels(),
+        ),
+    output:
+        path + f"/xgboost/annotations{DATA}/binary.pkl",
+    resources:
+        slurm_partition="single",
+        runtime=30,
+        tasks=2,
+        mem_mb=20000,
+    params:
+        data=DATA,
+        device=config["cuda_devices"],
+        path=path
+    run:
+        results = []
+        for rel_file in snakemake.input:
+            with open(rel_file, "rb") as f:
+                result = pickle.load(f)
+                rel = rel_file.split("/")[-1].split(".")[0]
+                results.append((rel, result))
+        d = {}
+        for rel, result in results:
+            d[rel] = result
+
+        with open(snakemake.output[0], "wb") as f:
+            pickle.dump(d, f)
+
