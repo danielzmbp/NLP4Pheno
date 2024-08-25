@@ -5,10 +5,8 @@ configfile: "config.yaml"
 
 
 data = config["dataset"]
-max_assemblies = config["max_assemblies"]
-min_samples = config["min_samples"]
 
-path = f"/home/gomez/gomez/seqfiles_linkbert_{data}_{max_assemblies}_{min_samples}"
+path = f"/home/tu/tu_tu/tu_kmpaj01/link/seqfiles_{data}"
 (R,) = glob_wildcards(path + "/{rel}/seq.faa")
 
 
