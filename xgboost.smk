@@ -48,7 +48,8 @@ rule create_downloaded_strains_file:
 rule process_rel:
     input:
         rel_file=input_df,
-        downloaded_strains= f"{path}/preds{DATA}/REL_output/strains_assemblies_downloaded.txt"
+        downloaded_strains= f"{path}/preds{DATA}/REL_output/strains_assemblies_downloaded.txt",
+        strainselect_vertices=f"{path}/preds{DATA}/strainselect/StrainSelect21_vertices.tab.txt",
     output:
         rel_output=path + "/xgboost/annotations{data}/{rel}.parquet",
     resources:
@@ -72,6 +73,22 @@ rule process_rel:
         drel = df[df.rel == wildcards.rel]
         word_counts = drel["word_qc_group"].value_counts()
         drel = drel[drel["word_qc_group"].isin(word_counts[word_counts > 1].index)]
+
+        # Remove groups that include only strains from the same genus
+        strainselect_vertices = pd.read_csv(input.strainselect_vertices, sep="\t")
+        ss = strainselect_vertices[strainselect_vertices["vertex_type"] == "gss"]
+        ss["genus"] = ss.vertex.str.split(".", expand=True)[0]
+        ss = ss[["StrainSelectID", "genus"]]
+        m = drel.merge(
+            ss,
+            on="StrainSelectID",
+            how="left",
+        )
+        genus_groups = m.groupby("word_qc_group").apply(
+            lambda x: x["genus"].nunique() > 1
+        )
+        valid_groups = genus_groups[genus_groups].index
+        drel = drel[drel["word_qc_group"].isin(valid_groups)]
 
         rel_annotations = []
         for _, row in tqdm(drel.iterrows(), total=drel.shape[0]):
@@ -212,7 +229,7 @@ rule xgboost_binary_join:
         path=path
     run:
         results = []
-        for rel_file in snakemake.input:
+        for rel_file in input:
             with open(rel_file, "rb") as f:
                 result = pickle.load(f)
                 rel = rel_file.split("/")[-1].split(".")[0]
@@ -221,6 +238,6 @@ rule xgboost_binary_join:
         for rel, result in results:
             d[rel] = result
 
-        with open(snakemake.output[0], "wb") as f:
+        with open(output[0], "wb") as f:
             pickle.dump(d, f)
 
