@@ -360,6 +360,8 @@ rule merge_preds:
             .str.replace("a. mellifera", "apis mellifera", regex=True)
             .str.replace("ticks","tick",regex=True)
             .str.replace("worms","worm",regex=True)
+            .str.replace("mice", "mouse", regex=True)
+            .str.replace("zebra fish", "zebrafish", regex=True)
             # effect
             .str.replace("^antimicrobial activity$", "antimicrobial", regex=True)
             .str.replace("^antibacterial activity$", "antibacterial", regex=True)
@@ -424,7 +426,7 @@ rule match_batch_strainselect:
     resources:
         slurm_partition="single",
         runtime=120,
-        mem_mb=85000,
+        mem_mb=90000,
         tasks=3
     run:
         workers = 6
@@ -652,6 +654,9 @@ rule create_network:
         data=str(config["dataset"]),
     run:
         df = pd.read_parquet(input[0])
+        # filter out wrongly assigned strains
+        df = df[~df["word_strain_qc"].str.contains("adapted|covid")]
+
         network = df[df.StrainSelectID.isna() == False].loc[:,["StrainSelectID","word_qc_group","rel"]].drop_duplicates(["StrainSelectID","word_qc_group","rel"])
         network.loc[:,"source"] = np.where(network['rel'].str.startswith("STRAIN"), network.StrainSelectID	, network.word_qc_group)
         network.loc[:,"target"] = np.where(network['rel'].str.startswith("STRAIN")==False, network.StrainSelectID, network.word_qc_group)
