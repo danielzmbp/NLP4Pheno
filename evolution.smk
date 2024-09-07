@@ -54,7 +54,7 @@ rule remove_dups:
     output:
         path + "/{rel}/seq.nxh",
     shell:
-        "hyphy /home/gomez/hyphy-analyses/remove-duplicates/remove-duplicates.bf --msa {input.aln_codon} --tree {input.tree} --output {output}"
+        "hyphy /home/tu/tu_tu/tu_kmpaj01/hyphy-analyses/remove-duplicates/remove-duplicates.bf --msa {input.aln_codon} --tree {input.tree} --output {output}"
 
 
 rule busted:
