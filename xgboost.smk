@@ -24,6 +24,7 @@ def get_rels():
 rule all:
     input:
         f"{path}/xgboost/annotations{DATA}/binary.pkl",
+        # expand(path + "/xgboost/annotations"+ DATA + "/{rel}.parquet", rel=get_rels()),
 
 rule create_downloaded_strains_file:
     output:
@@ -137,7 +138,7 @@ rule process_file:
     resources:
         slurm_partition="fat",
         runtime=30,
-        mem_mb=220000,
+        mem_mb=240000,
         tasks=10,
     run:
         # Read the parquet file
@@ -197,7 +198,7 @@ rule xgboost_binary_parts:
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=1440,
+        runtime=2000,
         tasks=5,
     params:
         data=DATA,
@@ -222,7 +223,7 @@ rule xgboost_binary_join:
         slurm_partition="single",
         runtime=30,
         tasks=2,
-        mem_mb=20000,
+        mem_mb=40000,
     params:
         data=DATA,
         device=config["cuda_devices"],
