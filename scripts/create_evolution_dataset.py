@@ -14,8 +14,8 @@ outdir = f"{path}/seqfiles_{data}"
 
 
 def load_pickle(path, data):
-    with open(f"{path}/xgboost/annotations{data}/binary/binary.pkl", "rb") as f:
-        # with open(f"{path}/binary.pkl", 'rb') as f:
+    # with open(f"{path}/xgboost/annotations{data}/binary/binary.pkl", "rb") as f:
+    with open(f"{path}/binary.pkl", 'rb') as f:
         pickle_file = pickle.load(f)
 
     l = []
@@ -60,6 +60,7 @@ def process_strain(strain, folder_path, protein_ids):
     output_faa = []
     output_fna = []
     protein_ids_seen = set()  # Keep track of protein IDs already seen
+    cds_ids_seen = set()  # Keep track of CDS IDs already seen
 
     if os.path.exists(folder_path):
         for assembly in os.listdir(folder_path):
@@ -82,13 +83,12 @@ def process_strain(strain, folder_path, protein_ids):
                             "]"
                         )[0]
                         if (
-                            protein_id in protein_ids
-                            and protein_id not in protein_ids_seen
+                            protein_id in protein_ids and protein_id not in cds_ids_seen
                         ):
                             record.id = protein_id
                             record.description = ""
                             output_fna.append(record)
-                            protein_ids_seen.add(protein_id)
+                            cds_ids_seen.add(record.id)
 
     return output_faa, output_fna
 
@@ -103,7 +103,7 @@ def create_evolution_dataset(df, path, data, outdir):
     for rel in tqdm(df["rel"].unique().to_list()):
         filtered_df = df.filter(pl.col("rel") == rel)
 
-        filtered_df = filtered_df.sample(n=10, with_replacement=True)
+#        filtered_df = filtered_df.sample(n=10, with_replacement=True)
 
         parq = pl.read_parquet(f"{path}/xgboost/annotations{data}/{rel}.parquet")
 
@@ -113,7 +113,7 @@ def create_evolution_dataset(df, path, data, outdir):
             sa_ner_df = parq.filter(pl.col("word_qc_group") == row["ner"])
             if not sa_ner_df.is_empty():
                 strains = (
-                    sa_ner_df["sa_ner"].str.split("!").list.get(0).unique().to_list()
+                    sa_ner_df.filter(pl.col("InterPro_description") == row["gene"])["sa_ner"].str.split("!").list.get(0).unique().to_list()
                 )
                 new_rel = row["rel"].replace(":", "_")
                 new_ner = (
@@ -122,10 +122,13 @@ def create_evolution_dataset(df, path, data, outdir):
                     .replace("'", "")
                     .replace("(", "_")
                     .replace(")", "_")
+                    .replace("/", "_")
+                    .replace(":", "_")
                 )
                 sa_ner = f"first_{new_rel}_{new_ner}"
                 protein_ids = set(
-                    parq.filter(pl.col("InterPro_description") == row["gene"])[
+                    parq.filter(pl.col("InterPro_description") == row["gene"],
+                                pl.col("word_qc_group") == row["ner"])[
                         "Protein_accession"
                     ]
                     .unique()
@@ -135,7 +138,7 @@ def create_evolution_dataset(df, path, data, outdir):
                 output_faa = []
                 output_fna = []
 
-                with ThreadPoolExecutor(max_workers=10) as executor:
+                with ThreadPoolExecutor(max_workers=80) as executor:
                     futures = {
                         executor.submit(
                             process_strain,
