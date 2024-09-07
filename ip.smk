@@ -48,9 +48,9 @@ rule unzip:
         output_path + "{strain}/{assembly}.zip",
     output:
         output_path + "{strain}/{assembly}/protein.faa",
-        output_path + "{strain}/{assembly}/genomic.fna",
+        temp(output_path + "{strain}/{assembly}/genomic.fna"),
         output_path + "{strain}/{assembly}/genomic.cds",
-        output_path + "{strain}/{assembly}/genomic.gff",
+        temp(output_path + "{strain}/{assembly}/genomic.gff"),
     shell:
         "unzip -j {input} 'ncbi_dataset/data/*/*.faa' 'ncbi_dataset/data/*/*.fna' 'ncbi_dataset/data/*/*.gff' -d {output_path}/{wildcards.strain}/{wildcards.assembly}; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/cds_from_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.cds; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/*_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.fna"
         
