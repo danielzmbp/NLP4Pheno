@@ -10,6 +10,7 @@ notebooks/network_files/
 notebooks/ner_annotation/
 notebooks/ontologies/
 notebooks/embeddings_files/
+notebooks/evolution_files/
 gomez
 .DS_Store
 *-checkpoint*
@@ -17,3 +18,4 @@ temp/
 scripts/__pycache__
 .vscode/
 *.out
+errors.log
