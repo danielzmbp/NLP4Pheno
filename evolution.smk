@@ -63,10 +63,10 @@ rule busted:
     output:
         json=path + "/{rel}/seq.json",
         log=path + "/{rel}/seq.log",
-    threads: 20
+    threads: 5
     shell:
         """
         ENV=TOLERATE_NUMERICAL_ERRORS=1
-        CPU=20
+        CPU=5
         hyphy busted --alignment {input} --output {output.json} > {output.log}
         """
