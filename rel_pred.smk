@@ -425,8 +425,8 @@ rule match_batch_strainselect:
         batch_output=f"{preds}/batched_output_results/{{batch_id}}.parquet",
     resources:
         slurm_partition="single",
-        runtime=120,
-        mem_mb=90000,
+        runtime=200,
+        mem_mb=100000,
         tasks=3
     run:
         workers = 6
