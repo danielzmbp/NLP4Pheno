@@ -95,7 +95,10 @@ rule parse_rels:
                 elif rel_label.size == 0:
                     label = f"{lab0[2:-2]}-{lab1[2:-2]}:"
                     labels.append(label)
-        pd.DataFrame({"sentence": sentences, "label": labels}).to_csv(
+        rel_df = pd.DataFrame({"sentence": sentences, "label": labels})
+        # replace all hyphens in the data by spaces
+        rel_df["sentence"] = rel_df["sentence"].str.replace(r'(?<=\w)-(?=\w)', ' ')
+        rel_df.to_csv(
             output[0], sep="\t", index=False
         )
 

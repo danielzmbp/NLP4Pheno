@@ -4,6 +4,7 @@ from tqdm.auto import tqdm
 import argparse
 import pandas as pd
 from torch.utils.data import Dataset, DataLoader
+import re
 
 
 class ListDataset(Dataset):
@@ -41,6 +42,9 @@ with open(corpus, "r") as f:
 
 texts = text.split("\n")
 texts.pop(-1)
+
+# Replace hyphens between words with spaces using regex
+texts = [re.sub(r'(?<=\w)-(?=\w)', ' ', sentence) for sentence in texts]
 
 dataset = ListDataset(texts)
 result = []
