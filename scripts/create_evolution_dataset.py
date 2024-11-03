@@ -9,13 +9,13 @@ import polars as pl
 
 
 path = ".."
-data = "1100"
+data = "2009"
 outdir = f"{path}/seqfiles_{data}"
 
 
 def load_pickle(path, data):
-    # with open(f"{path}/xgboost/annotations{data}/binary/binary.pkl", "rb") as f:
-    with open(f"{path}/binary.pkl", 'rb') as f:
+    with open(f"{path}/xgboost/annotations{data}/binary/binary.pkl", "rb") as f:
+#    with open(f"{path}/binary.pkl", 'rb') as f:
         pickle_file = pickle.load(f)
 
     l = []
