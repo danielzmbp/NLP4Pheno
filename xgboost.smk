@@ -23,7 +23,7 @@ def get_rels():
 
 rule all:
     input:
-        f"{path}/xgboost/annotations{DATA}/binary.pkl",
+        f"{path}/xgboost/annotations{DATA}/binary/binary.pkl",
         # expand(path + "/xgboost/annotations"+ DATA + "/{rel}.parquet", rel=get_rels()),
 
 rule create_downloaded_strains_file:
@@ -218,7 +218,7 @@ rule xgboost_binary_join:
             rel=get_rels(),
         ),
     output:
-        path + f"/xgboost/annotations{DATA}/binary.pkl",
+        path + f"/xgboost/annotations{DATA}/binary/binary.pkl",
     resources:
         slurm_partition="single",
         runtime=30,

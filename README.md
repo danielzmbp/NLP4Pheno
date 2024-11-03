@@ -61,8 +61,9 @@ snakemake --cores 40 --use-conda -s xgboost.smk
 
 #### Pipeline for evolution analysis
 
-- Create evolution dataset using `analyze_xgboost_binary_gain.ipynb`.
+- Create evolution dataset using `scripts/create_evolution_dataset.py`.
 - Run `evolution.smk` to make alignments and calculate selective pressures.
+- Analyze with `analyze_evolution.ipynb`.
 
 TODO: merge the previous?
 
