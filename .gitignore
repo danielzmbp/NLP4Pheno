@@ -6,11 +6,10 @@ corpus*
 test_training/
 gomez/
 notebooks/figures/
-notebooks/network_files/
 notebooks/ner_annotation/
 notebooks/ontologies/
-notebooks/embeddings_files/
-notebooks/evolution_files/
+notebooks/*_files/
+notebooks/go-basic.obo
 gomez
 .DS_Store
 *-checkpoint*

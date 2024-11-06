@@ -24,6 +24,7 @@ rule all:
     input:
         f"{preds}/REL_output/strains_assemblies.txt",
         f"{preds}/network.tsv",
+        f"{preds}/REL_output/preds.pqt",
 
 
 rule format_sentences:
@@ -349,7 +350,7 @@ rule merge_preds:
             .str.replace("^d. melanogaster$", "drosophila melanogaster", regex=True)
             .str.replace("^p. falciparum$", "plasmodium falciparum", regex=True)
             .str.replace("^zebra fish$", "zebrafish", regex=True)
-            .str.replace("^a. stephensi$", "anopheles stephensi", regex=True)
+            .str.replace("a. stephensi", "anopheles stephensi", regex=True)
             .str.replace("^hamsters$", "hamster", regex=True)
             .str.replace("^calves$", "calf", regex=True)
             .str.replace("^cows$", "cow", regex=True)
@@ -362,6 +363,11 @@ rule merge_preds:
             .str.replace("worms","worm",regex=True)
             .str.replace("mice", "mouse", regex=True)
             .str.replace("zebra fish", "zebrafish", regex=True)
+            .str.replace("sugar cane", "sugarcane", regex=True)
+            .str.replace("^a. thaliana$", "arabidopsis thaliana", regex=True)
+            .str.replace("^sugar beet$", "beta vulgaris", regex=True)
+            .str.replace("^d. melanogaster", "drosophila melanogaster", regex=True)
+            .str.replace("onions", "onion", regex=True)
             # effect
             .str.replace("^antimicrobial activity$", "antimicrobial", regex=True)
             .str.replace("^antibacterial activity$", "antibacterial", regex=True)
