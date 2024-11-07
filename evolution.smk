@@ -9,7 +9,7 @@ data = config["dataset"]
 path = f"/home/tu/tu_tu/tu_kmpaj01/link/seqfiles_{data}"
 (R,) = glob_wildcards(path + "/{rel}/seq.faa")
 
-localrules: align, fasttree, codonaln, remove_dups, final
+localrules: align, codonaln, remove_dups, final
 
 
 rule final:
@@ -35,6 +35,11 @@ rule fasttree:
         path + "/{rel}/seq.aln",
     output:
         path + "/{rel}/seq.tree",
+    threads: 10
+    resources:
+        mem_mb=16 * 1024,
+        slurm_partition="single",
+        runtime=2000,
     shell:
         "fasttree -nosupport {input} > {output}"
 
@@ -65,14 +70,14 @@ rule busted:
     output:
         json=path + "/{rel}/seq.json",
         log=path + "/{rel}/seq.log",
-    threads: 10
+    threads: 20
     resources:
-        mem_mb=10000,
+        mem_mb=32 * 1024,
         slurm_partition="single",
         runtime=3000,
     shell:
         """
         ENV=TOLERATE_NUMERICAL_ERRORS=1
-        CPU=10
+        CPU=20
         hyphy busted --alignment {input} --output {output.json} > {output.log}
         """
