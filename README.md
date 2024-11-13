@@ -5,7 +5,7 @@ mamba env create -n envs/*.yaml
 ```
 ## Create PMC corpus
 
-- Use [snakemake_PMC repository](https://github.com/danielzmbp/snakemake_PMC) repository to download files.
+- Use `snakemake_PMC/` to download files.
 - Prepare files with `scripts/make_test_corpus.py` script and save to `corpus/` directory.
 
 ## Training
@@ -61,12 +61,6 @@ snakemake --cores 40 --use-conda -s xgboost.smk
 
 #### Pipeline for evolution analysis
 
-- Create evolution dataset using `analyze_xgboost_binary_gain.ipynb`.
+- Create evolution dataset using `scripts/create_evolution_dataset.py`.
 - Run `evolution.smk` to make alignments and calculate selective pressures.
-
-TODO: merge the previous?
-
-## Potential improvements
-- Improve sentence tokenization
-  - The problems is that tidyPMC often breaks sentences with periods in the middle of the sentence, as it is often with strain and species names.
-  - Maybe manual fix by merging those that end up with `sp` or uppercase letter.
+- Analyze with `analyze_evolution.ipynb`.

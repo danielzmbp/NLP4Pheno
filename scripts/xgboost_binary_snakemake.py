@@ -1,5 +1,4 @@
 import pandas as pd
-from glob import glob
 from tqdm.autonotebook import tqdm
 import xgboost as xgb
 from sklearn.preprocessing import LabelEncoder
@@ -7,12 +6,9 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 import pickle
 
-
 data = snakemake.params.data
-# max_assemblies = snakemake.params.max_assemblies
-device = snakemake.params.device
+device = snakemake.params.device[0]
 path = snakemake.params.path
-# min_samples = snakemake.params.min_samples
 
 ip_names = pd.read_csv(
     "https://ftp.ebi.ac.uk/pub/databases/interpro/current_release/entry.list",
@@ -28,8 +24,6 @@ ip_names["ENTRY_NAME"] = (
     .str.replace("<", "_")
 )
 
-rels = [i.split("/")[-1].split(".")[0] for i in snakemake.input]
-
 
 def calculate_acc(dtest, bst, enc, y_test_binary):
     # calculate accuracy
@@ -40,13 +34,8 @@ def calculate_acc(dtest, bst, enc, y_test_binary):
     return acc
 
 
-d = {}
-from joblib import Parallel, delayed
-
-
-def process_rel(rel, data, device, ip_names):
+def process_rel(filepath, device, ip_names):
     d_rel = []
-    filepath = path + f"/xgboost/annotations{data}/{rel}.pkl"
     # Read the pickle file
     with open(filepath, "rb") as f:
         dat = pickle.load(f)
@@ -54,6 +43,7 @@ def process_rel(rel, data, device, ip_names):
     X = dat[0]
     y = dat[1]
     ind = dat[2]
+    vc = vc[vc >= 10] #cutoff here!
 
     ind_names = [ip_names[ip_names.index == i]["ENTRY_NAME"].values[0] for i in ind]
 
@@ -61,7 +51,7 @@ def process_rel(rel, data, device, ip_names):
         y_binary = ["target" if label == i[0] else "other" for label in y]
 
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y_binary, test_size=0.4, stratify=y, random_state=42
+            X, y_binary, test_size=0.2, stratify=y, random_state=42
         )
 
         enc = LabelEncoder().fit(y_train)
@@ -75,7 +65,7 @@ def process_rel(rel, data, device, ip_names):
 
         param = {
             "max_depth": 6,
-            "eta": 0.05,
+            "eta": 0.3,
             "objective": "binary:logistic",
             "device": f"cuda:{device}",
             "eval_metric": ["logloss"],
@@ -95,18 +85,11 @@ def process_rel(rel, data, device, ip_names):
 
         accuracy = calculate_acc(dtest, bst, enc, y_test)
         d_rel.append([i, accuracy, bst])
-    return rel, d_rel
+        print(f"{filepath.split("/")[-1]} {i} {accuracy} {vc[i]}")
+    return d_rel
 
-
-# Parallel processing
-results = Parallel(n_jobs=-1)(
-    delayed(process_rel)(rel, data, device, ip_names)
-    for rel in rels
-)
-
-# Collect results
-for rel, result in results:
-    d[rel] = result
+print(snakemake.input)
+result = process_rel(str(snakemake.input), device, ip_names)
 
 with open(snakemake.output[0], "wb") as f:
-    pickle.dump(d, f)
+    pickle.dump(result, f)

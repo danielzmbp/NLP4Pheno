@@ -9,7 +9,6 @@ configfile: "config.yaml"
 
 
 data = config["dataset"]
-# path = ".."
 path = config["output_path"]
 
 assemblies = []
@@ -30,6 +29,12 @@ rule final:
             strain=strains,
             assembly=assemblies,
         ),
+            expand(
+            output_path + "{strain}/{assembly}/genomic.fna.gz",
+            zip,
+            strain=strains,
+            assembly=assemblies,
+        ),
 
 
 rule download:
@@ -43,11 +48,21 @@ rule unzip:
         output_path + "{strain}/{assembly}.zip",
     output:
         output_path + "{strain}/{assembly}/protein.faa",
-        output_path + "{strain}/{assembly}/genomic.fna",
+        temp(output_path + "{strain}/{assembly}/genomic.fna"),
         output_path + "{strain}/{assembly}/genomic.cds",
-        output_path + "{strain}/{assembly}/genomic.gff",
+        temp(output_path + "{strain}/{assembly}/genomic.gff"),
     shell:
         "unzip -j {input} 'ncbi_dataset/data/*/*.faa' 'ncbi_dataset/data/*/*.fna' 'ncbi_dataset/data/*/*.gff' -d {output_path}/{wildcards.strain}/{wildcards.assembly}; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/cds_from_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.cds; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/*_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.fna"
+        
+rule compress_fna_gff:
+    input:
+        output_path + "{strain}/{assembly}/genomic.fna",
+        output_path + "{strain}/{assembly}/genomic.gff",
+    output:
+        output_path + "{strain}/{assembly}/genomic.gff.gz",
+        output_path + "{strain}/{assembly}/genomic.fna.gz",
+    shell:
+        "gzip {input[0]}; gzip {input[1]}"
 
 
 rule ip:
@@ -57,7 +72,7 @@ rule ip:
         temp(output_path + "{strain}/{assembly}/annotation.tsv"),
     threads: 2
     shell:
-        "/home/tu/tu_tu/tu_kmpaj01/ip/interproscan-5.68-100.0/interproscan.sh -T $TMPDIR -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
+        "/home/tu/tu_tu/tu_kmpaj01/ip/interproscan-5.70-102.0/interproscan.sh -T $TMPDIR -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
 
 
 rule convert_to_parquet:

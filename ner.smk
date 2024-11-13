@@ -75,6 +75,18 @@ rule make_split:
             random.shuffle(sort)
             sentences, ners = zip(*sort)
             sentences = list(sentences)
+
+            # replace all hyphens in the data by spaces
+            for sentence in sentences:
+                for annotation in sentence["annotations"]:
+                    for result in annotation["result"]:
+                        if "value" in result:
+                            if "text" in result["value"]:
+                                result["value"]["text"] = re.sub(r'(?<=\w)-(?=\w)', ' ', result["value"]["text"])
+                if "data" in sentence:
+                    if "text" in sentence["data"]:
+                        sentence["data"]["text"] = re.sub(r'(?<=\w)-(?=\w)', ' ', sentence["data"]["text"])
+            
             X_train, X_test_dev, _, y_test_dev = train_test_split(
                 sentences, ners, test_size=test_size, random_state=1, stratify=ners
             )
