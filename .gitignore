@@ -18,3 +18,10 @@ scripts/__pycache__
 .vscode/
 *.out
 errors.log
+linkbert_pipeline/snakemake_PMC/PMC*/
+linkbert_pipeline/snakemake_PMC/*.tar.gz
+linkbert_pipeline/snakemake_PMC/*.txt
+linkbert_pipeline/snakemake_PMC/*.parquet
+linkbert_pipeline/snakemake_PMC/*.pqt
+linkbert_pipeline/snakemake_PMC/*.tsv
+linkbert_pipeline/snakemake_PMC/*.csv
