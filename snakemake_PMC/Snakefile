@@ -16,24 +16,26 @@ rule all:
 
 rule bulk_download:
     output:
-        tar=temp("oa_comm_xml.{pmc}xxxxxx.baseline.2024-06-18.tar.gz"),
-        filelist=temp("oa_comm_xml.{pmc}xxxxxx.baseline.2024-06-18.filelist.txt"),
+        tar=temp("oa_comm_xml.{pmc}xxxxxx.baseline.2024-12-18.tar.gz"),
+        filelist=temp("oa_comm_xml.{pmc}xxxxxx.baseline.2024-12-18.filelist.txt"),
     resources:
         slurm_partition="single",
-        runtime=200,
+        runtime=3000,
         mem_mb=5000,
+        tasks=1,
     shell:
         "wget https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/{output.tar}; tar -xvzf {output.tar};wget https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/{output.filelist}"
 
 
 rule bulk_download_noncomm:
     output:
-        tar=temp("oa_noncomm_xml.{pmc}xxxxxx.baseline.2024-06-18.tar.gz"),
-        filelist=temp("oa_noncomm_xml.{pmc}xxxxxx.baseline.2024-06-18.filelist.txt"),
+        tar=temp("oa_noncomm_xml.{pmc}xxxxxx.baseline.2024-12-18.tar.gz"),
+        filelist=temp("oa_noncomm_xml.{pmc}xxxxxx.baseline.2024-12-18.filelist.txt"),
     resources:
         slurm_partition="single",
-        runtime=200,
+        runtime=3000,
         mem_mb=5000,
+        tasks=1,
     shell:
         """
         wget https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/{output.tar} || touch {output.tar}
@@ -46,8 +48,8 @@ rule bulk_download_noncomm:
 
 rule concat_lists:
     input:
-        lists="oa_comm_xml.{pmc}xxxxxx.baseline.2024-06-18.filelist.txt",
-        lists_nc="oa_noncomm_xml.{pmc}xxxxxx.baseline.2024-06-18.filelist.txt",
+        lists="oa_comm_xml.{pmc}xxxxxx.baseline.2024-12-18.filelist.txt",
+        lists_nc="oa_noncomm_xml.{pmc}xxxxxx.baseline.2024-12-18.filelist.txt",
     output:
         "{pmc}_filelist.tsv",
     resources:
@@ -101,7 +103,7 @@ rule csv_parquet:
         "{pmc}_parquet.txt",
     resources:
         slurm_partition="single",
-        runtime=300,
+        runtime=3000,
         mem_mb=5000,
     script:
         "scripts/tsv2parquet.py"
@@ -143,7 +145,8 @@ rule filter_parquet:
         mem_mb=140000,
     run:
         df = pl.read_parquet(input)
-        df = df.drop(["paragraph", "sentence", "__index_level_0__"])
+        df = df.drop(["paragraph", "sentence"])
+      #  df = df.drop(["paragraph", "sentence", "__index_level_0__"])
         df = df.unique("text")
         df = df.filter(
             (pl.col("text").str.len_chars().cast(pl.UInt32) >= 40)
