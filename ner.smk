@@ -39,6 +39,7 @@ rule make_split:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     params:
         seed=config["seed"],
     run:
@@ -113,6 +114,7 @@ rule convert_splits:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     shell:
         """
         for f in NER/**/*.jsonls
@@ -139,6 +141,7 @@ rule convert_to_bio:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     run:
         for label in labels:
             for split in model_sets:
@@ -168,6 +171,7 @@ rule convert_to_json:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     output:
         expand(
             "NER/{ENT}/{SET}.json",
@@ -196,7 +200,8 @@ rule run_linkbert:
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=250,
+        runtime=500,
+        mem_mb=32000,
     shell:
         """
         export MODEL_PATH=michiyasunaga/BioLinkBERT-{params.model_type}
@@ -229,6 +234,7 @@ rule aggregate_data:
     resources:
         slurm_partition="single",
         runtime=50,
+        mem_mb=8000,
     run:
         dfs = []
         for label in labels:
@@ -251,5 +257,6 @@ rule plot:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     script:
         "scripts/ner_plot_performance.py"

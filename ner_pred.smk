@@ -66,6 +66,7 @@ rule make_strain_file:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=5000,
     run:
         # add device to each strain
         device = cuda

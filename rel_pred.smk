@@ -35,7 +35,7 @@ rule format_sentences:
     resources:
         slurm_partition="single",
         runtime=100,
-        mem_mb=20000
+        mem_mb=30000
     run:
         df = pd.read_parquet(input[0])
         df.insert(0, "formatted_text", "")
@@ -71,6 +71,7 @@ rule make_device_file:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=5000,
     run:
         dev = [str(x) for x in cuda]
         models = [x + " " + y for x, y in zip(itertools.cycle(dev), labels)]
@@ -90,7 +91,7 @@ rule run_all_models:
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=500,
+        runtime=500
     shell:
         """
         while read -r d m; do
@@ -108,7 +109,7 @@ rule merge_preds:
         f"{preds}/REL_output/preds.pqt",
     resources:
         slurm_partition="single",
-        runtime=300,
+        runtime=1000,
         mem_mb=20000
     run:
         l = []
@@ -276,18 +277,26 @@ rule merge_preds:
             # metabolite
             .str.replace("^acetyl - coa$", "acetyl coa", regex=True)
             # phenotype
-            .str.replace("^gram- negative$", "gram-negative", regex=True)
-            .str.replace("^gram- positive$", "gram-positive", regex=True)
-            .str.replace("^gram ‐ negative$", "gram-negative", regex=True)
-            .str.replace("^gram - stain - negative$", "gram-negative", regex=True)
+            .str.replace("^gram- negative$", "gram negative", regex=True)
+            .str.replace("^gram- positive$", "gram positive", regex=True)
+            .str.replace("^gram ‐ negative$", "gram negative", regex=True)
+            .str.replace("^gram - stain - negative$", "gram negative", regex=True)
+            .str.replace("^gram\\^+$", "gram positive", regex=True)
+            .str.replace("^gram\\^-$", "gram negative", regex=True)
+            .str.replace("^gram (+)$", "gram positive", regex=True)
+            .str.replace("^gram (-)$", "gram negative", regex=True)
+            .str.replace("^gram (+$", "gram positive", regex=True)
+            .str.replace("^gram (-$", "gram negative", regex=True)
             .str.replace("^iron-reducing$", "iron - reducing", regex=True)
             .str.replace(
                 "^facultatively anaerobic$", "facultative anaerobic", regex=True
             )
+            .str.replace("nonpathogenic", "non pathogenic", regex=True)
             .str.replace("^facultative anaerobe$", "facultative anaerobic", regex=True)
             .str.replace("^anaerobe$", "anaerobic", regex=True)
             .str.replace("^n - fixing$", "nitrogen - fixing", regex=True)
             .str.replace("^fast-growing$", "fast - growing", regex=True)
+            .str.replace("^anaerobically$", "anaerobic", regex=True)
             # isolate
             .str.replace("^marine sediments$", "marine sediment", regex=True)
             .str.replace("^human faeces$", "human feces", regex=True)
