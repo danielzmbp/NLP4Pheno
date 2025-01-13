@@ -51,7 +51,7 @@ rule codonaln:
     output:
         alignment=path + "/{rel}/seq.aln.codon",
     shell:
-        "pal2nal.pl {input.pro_align} {input.nucl_seq} -output fasta > {output.alignment}"
+        "pal4nal.pl {input.pro_align} {input.nucl_seq} -output fasta -o {output.alignment}"
 
 
 rule remove_dups:
@@ -70,14 +70,14 @@ rule busted:
     output:
         json=path + "/{rel}/seq.json",
         log=path + "/{rel}/seq.log",
-    threads: 20
+    threads: 32
     resources:
-        mem_mb=32 * 1024,
+        mem_mb=64 * 1024,
         slurm_partition="single",
-        runtime=3000,
+        runtime=4320,
     shell:
         """
         ENV=TOLERATE_NUMERICAL_ERRORS=1
-        CPU=20
+        CPU=32
         hyphy busted --alignment {input} --output {output.json} > {output.log}
         """
