@@ -39,6 +39,7 @@ rule parse_rels:
     resources:
         slurm_partition="single",
         runtime=100,
+        mem_mb=8000,
     run:
         data = json.load(open(input[0]))
         ners = []
@@ -114,6 +115,7 @@ rule split_labels:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     run:
         df = pd.read_csv(input[0], sep="\t")
         for label in labels:
@@ -138,6 +140,7 @@ rule split_sets:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     params:
         seed=config["seed"],
     run:
@@ -195,9 +198,11 @@ rule run_linkbert:
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=270,
+        runtime=1000,
+        mem_mb=32000,
     shell:
         """
+        export WANDB_MODE=offline
         export CUDA_VISIBLE_DEVICES={params.cuda}
         export MODEL=BioLinkBERT-{params.model_type}
         export MODEL_PATH=michiyasunaga/$MODEL
@@ -230,6 +235,7 @@ rule join_metrics:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     run:
         import json
         import pandas as pd
@@ -253,6 +259,7 @@ rule plot_metrics:
         "REL_output/all_metrics.png",
     params:
         labels=labels,
+        mem_mb=8000,
     resources:
         slurm_partition="single",
         runtime=30,
