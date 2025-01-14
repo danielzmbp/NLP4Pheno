@@ -283,10 +283,10 @@ rule merge_preds:
             .str.replace("^gram - stain - negative$", "gram negative", regex=True)
             .str.replace("^gram\^\+$", "gram positive", regex=True)
             .str.replace("^gram\^\-$", "gram negative", regex=True)
-            .str.replace("^gram (+)$", "gram positive", regex=True)
-            .str.replace("^gram (-)$", "gram negative", regex=True)
-            .str.replace("^gram (+$", "gram positive", regex=True)
-            .str.replace("^gram (-$", "gram negative", regex=True)
+            .str.replace("^gram \(+\)$", "gram positive", regex=True)
+            .str.replace("^gram \(-\)$", "gram negative", regex=True)
+            .str.replace("^gram \(+$", "gram positive", regex=True)
+            .str.replace("^gram \(-$", "gram negative", regex=True)
             .str.replace("^iron-reducing$", "iron - reducing", regex=True)
             .str.replace(
                 "^facultatively anaerobic$", "facultative anaerobic", regex=True
