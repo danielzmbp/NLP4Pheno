@@ -6,6 +6,9 @@ mamba env create -n envs/*.yaml
 ## Create PMC corpus
 
 - Use `snakemake_PMC/` to download files.
+```
+snakemake --cores 20 --use-conda -s snakemake_PMC/Snakefile
+```
 - Prepare files with `scripts/make_test_corpus.py` script and save to `corpus/` directory.
 
 ## Training
@@ -63,4 +66,7 @@ snakemake --cores 40 --use-conda -s xgboost.smk
 
 - Create evolution dataset using `scripts/create_evolution_dataset.py`.
 - Run `evolution.smk` to make alignments and calculate selective pressures.
+```
+snakemake --cores 20 --use-conda -s evolution.smk
+```
 - Analyze with `analyze_evolution.ipynb`.
