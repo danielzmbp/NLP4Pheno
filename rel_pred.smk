@@ -416,7 +416,7 @@ rule split_batches_strainselect:
     input:
         preds_file=f"{preds}/REL_output/preds.pqt",
     output:
-        batch_files=expand(f"{preds}/REL_output/batched_input/{{batch_id}}.pqt", batch_id=range(0, 500)),
+        batch_files=expand(f"{preds}/REL_output/batched_input/{{batch_id}}.pqt", batch_id=range(0, 1000)),
     resources:
         slurm_partition="single",
         runtime=100,
@@ -426,7 +426,7 @@ rule split_batches_strainselect:
         df = pd.read_parquet(input[0])
         df["vertex_dot"] = df.word_strain_qc.str.replace(" ",".").str.replace(".number.","").str.replace("atcc.no","atcc").str.replace("mtcc.no","mtcc").str.replace("cgmcc.no","cgmcc").str.replace("dsm.no","dsm").str.replace("-",".").str.replace("atcc","atcc.").str.replace("mtcc","mtcc.").str.replace("dsm","dsm.").str.replace("cgmcc","cgmcc.").str.replace("=","").str.replace("“","").str.replace("”","").str.replace('"',"").str.replace("#",".").str.replace("*",".").str.replace("^","").str.replace(":",".").str.replace("®","").str.replace("™","").str.replace("’","").str.replace("‘","").str.replace("(","").str.replace(")","").str.replace(",","").str.replace("/",".").str.replace("_",".").str.replace("Δ","").str.replace("cip","cip.").str.replace("nccp","nccp.").str.replace("...",".").str.replace("..",".")
         df = df[~df['vertex_dot'].str.match("^[a-z]\.[a-z]+$")]
-        num_batches = 500
+        num_batches = 1000
         batched_df = np.array_split(df, num_batches)
         os.makedirs(f"{preds}/REL_output/batched_input/", exist_ok=True)
         for i, batch_df in enumerate(batched_df):
@@ -440,7 +440,7 @@ rule match_batch_strainselect:
         batch_output=f"{preds}/batched_output_results/{{batch_id}}.parquet",
     resources:
         slurm_partition="single",
-        runtime=200,
+        runtime=100,
         mem_mb=100000,
         tasks=3
     run:
@@ -550,7 +550,7 @@ rule match_batch_strainselect:
 
 rule merge_batch_outputs_strainselect:
     input:
-        batch_outputs=expand(f"{preds}/batched_output_results/{{batch_id}}.parquet", batch_id=range(0, 500)),
+        batch_outputs=expand(f"{preds}/batched_output_results/{{batch_id}}.parquet", batch_id=range(0, 1000)),
     output:
         merged_output=f"{preds}/REL_output/preds_strainselect.pqt",
     resources:
@@ -572,7 +572,7 @@ rule group_entities:
     resources:
         slurm_partition="single",
         runtime=100,
-        mem_mb=90000,
+        mem_mb=140000,
         ntasks=20
     run:
         df = pd.read_parquet(input[0])
