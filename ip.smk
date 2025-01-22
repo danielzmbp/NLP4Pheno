@@ -52,7 +52,7 @@ rule unzip:
         output_path + "{strain}/{assembly}/genomic.cds",
         temp(output_path + "{strain}/{assembly}/genomic.gff"),
     shell:
-        "unzip -j {input} 'ncbi_dataset/data/*/*.faa' 'ncbi_dataset/data/*/*.fna' 'ncbi_dataset/data/*/*.gff' -d {output_path}/{wildcards.strain}/{wildcards.assembly}; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/cds_from_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.cds; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/*_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.fna"
+        "unzip -o -j {input} 'ncbi_dataset/data/*/*.faa' 'ncbi_dataset/data/*/*.fna' 'ncbi_dataset/data/*/*.gff' -d {output_path}/{wildcards.strain}/{wildcards.assembly}; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/cds_from_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.cds; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/*_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.fna"
         
 rule compress_fna_gff:
     input:
@@ -72,7 +72,7 @@ rule ip:
         temp(output_path + "{strain}/{assembly}/annotation.tsv"),
     threads: 2
     shell:
-        "/home/tu/tu_tu/tu_kmpaj01/ip/interproscan-5.70-102.0/interproscan.sh -T $TMPDIR -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
+        "/home/tu/tu_tu/tu_kmpaj01/ip/interproscan-5.72-103.0/interproscan.sh -T $TMPDIR -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
 
 
 rule convert_to_parquet:
