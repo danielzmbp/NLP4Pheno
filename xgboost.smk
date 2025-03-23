@@ -161,7 +161,7 @@ rule process_file:
             .agg(pl.count("*").alias("count"))
             .group_by(["sa_ner", "InterPro_accession"])
             .agg(pl.sum("count").alias("count"))
-            .pivot(values="count", index="InterPro_accession", columns="sa_ner")
+            .pivot(values="count", index="InterPro_accession", on="sa_ner")
             .fill_null(0)
         )
 
