@@ -109,7 +109,7 @@ rule merge_preds:
         f"{preds}/REL_output/preds.pqt",
     resources:
         slurm_partition="single",
-        runtime=1000,
+        runtime=100,
         mem_mb=20000
     run:
         l = []
@@ -124,7 +124,18 @@ rule merge_preds:
             ],
             axis=1,
         )
+        # remove 1 character ners
+        d.loc[d["ner"] == "COMPOUND", "word"] = d.loc[d["ner"] == "COMPOUND", "word"].str.replace("^p$", "phosphorus").str.replace("^c$","carbon").str.replace("^n$","nitrogen").str.replace("^s$","sulfur").str.replace("^k$", "potassium")
+        d = d[(d.word.str.len() > 1)]
+        # remove 2 character SPECIES ners
+        d = d[~((d.ner == "SPECIES") & (d.word.str.len() == 2))]
 
+        d = d.query('not (word.str.len() == 2 and word.str.contains(r"_", regex=True))')
+        d = d.query('not ((ner == "COMPOUND" and word.str.contains(r"\d\d", regex=True)) or word.str.len() == 2)')
+        # remove uninterpretable ners
+        uninterpretable = ["less","of", "week old", "old", "4′", "6a", "levels", "multi", "1 week old", "centenarian", "heavy", "broad","synthesis","binding","decline","formation","production","loss","na", "4 day old","like","the","system", "in","10", "effects", "wt", "wild type", "sp.", "spp", "non", "for", "at the", "with", "iii", "1 day old", "8 week old","8 week old female"]
+        d = d[~d["word"].isin(uninterpretable)]
+        # replace entities for consistency
         d.loc[:, "word_strain_qc"] = (
             d.word_strain.str.replace("strain ", "", regex=True)
             .str.replace("pv ", "pv. ", regex=True)
@@ -225,11 +236,14 @@ rule merge_preds:
             # general
             d.word.str.replace("‐", "-", regex=True)
             .str.replace("’", "'", regex=True)
+            .str.replace(" \($", "", regex=True)
             # medium
             .str.replace("bertini", "bertani", regex=True)
             .str.replace("^luria - bertani$", "lb", regex=True)
             .str.replace("^luria ‐ bertani$", "lb", regex=True)
             .str.replace("^luria - bertani \( lb \)$", "lb", regex=True)
+            .str.replace("luria-bertani", "luria bertani", regex=True)
+            .str.replace("^lb\)$", "lb", regex=True)
             .str.replace("^brain heart infusion$", "bhi", regex=True)
             .str.replace("^brain - heart infusion$", "bhi", regex=True)
             .str.replace("^brain-heart infusion$", "bhi", regex=True)
@@ -277,6 +291,8 @@ rule merge_preds:
             # metabolite
             .str.replace("^acetyl - coa$", "acetyl coa", regex=True)
             # phenotype
+            .str.replace("^plaques$","plaque",regex=True)
+            .str.replace("^spore-$", "spore", regex=True)
             .str.replace("^gram- negative$", "gram negative", regex=True)
             .str.replace("^gram- positive$", "gram positive", regex=True)
             .str.replace("^gram ‐ negative$", "gram negative", regex=True)
@@ -309,6 +325,8 @@ rule merge_preds:
             .str.replace("^soil sample?$", "soil", regex=True)
             .str.replace("^stool sample?$", "feces", regex=True)
             .str.replace("^biofilms$", "biofilm", regex=True)
+            .str.replace("^biofilm formation by$", "biofilm formation", regex=True)
+            .str.replace("^formation of biofilm$", "biofilm formation", regex=True)
             .str.replace("^spores$", "spore", regex=True)
             .str.replace("^endospores$", "endospore", regex=True)
             .str.replace("^filaments$", "filament", regex=True)
@@ -316,21 +334,44 @@ rule merge_preds:
             # compound
             .str.replace("^heavy metals$", "heavy metal", regex=True)
             .str.replace("^cu$", "copper", regex=True)
+            .str.replace("^fe$", "iron", regex=True)
             .str.replace("^metals", "metal", regex=True)
             .str.replace("^zn$", "zinc", regex=True)
+            .str.replace("^zn\^2+$", "zinc", regex=True)
             .str.replace("^ni$", "nickel", regex=True)
+            .str.replace("^k\^+","potassium",regex=True)
             .str.replace("^β-lactams$", "β-lactam", regex=True)
+            .str.replace("^β lactams$", "β-lactam", regex=True)
+            .str.replace("^β lactam$", "β-lactam", regex=True)
+            .str.replace("^beta lactams$", "β-lactam", regex=True)
+            .str.replace("^amp$","ampicillin",regex=True)
+            .str.replace("^kan$", "kanamycin", regex=True)
+            .str.replace("^rif\)$", "rifampicin", regex=True)
+            .str.replace("^quinolones$" ,"quinolone",regex=True)
             .str.replace("^rif$","rifampicin",regex=True)
             .str.replace("^rifampin$","rifampicin",regex=True)
+            .str.replace("^tet$","tetracycline",regex=True)
+            .str.replace("^van$", "vancomycin", regex=True)
             .str.replace("^sugars$", "sugar", regex=True)
             .str.replace("^lipopeptides$", "lipopeptide", regex=True)
             .str.replace("^lipids$", "lipid", regex=True)
             .str.replace("^α-glucans$", "α-glucan", regex=True)
             .str.replace("^β-glucans", "β-glucan", regex=True)
             # organism
+            .str.replace("^dairy cows$", "dairy cow", regex=True)
+            .str.replace("^flies$", "fly", regex=True)
+            .str.replace("^goats$", "goat", regex=True)
+            .str.replace("^grasses$", "grass", regex=True)
             .str.replace("^humans$", "human", regex=True)
             .str.replace("^mice$", "mouse", regex=True)
+            .str.replace("^murine$", "mouse", regex=True)
+            .str.replace("^bovine$", "cow", regex=True)
+            .str.replace("^bovines$", "cow", regex=True)
+            .str.replace("^canine$", "dog", regex=True)
+            .str.replace("^cattle$", "cow", regex=True)
+            .str.replace("^avian$", "bird", regex=True)
             .str.replace("^birds$", "bird", regex=True)
+            .str.replace("^pigeons$", "pigeon", regex=True)
             .str.replace("^soybeans$", "soybean", regex=True)
             .str.replace("^wild boars$", "wild boar", regex=True)
             .str.replace("^chickens$", "chicken", regex=True)
@@ -342,6 +383,7 @@ rule merge_preds:
             .str.replace("^mosquitoes$", "mosquito", regex=True)
             .str.replace("^potatoes$", "potato", regex=True)
             .str.replace("^tomatoes$", "tomato", regex=True)
+            .str.replace("^oomycetes$", "oomycete", regex=True)
             .str.replace("^pigs$", "pig", regex=True)
             .str.replace("^rabbits$", "rabbit", regex=True)
             .str.replace("^plants$", "plant", regex=True)
@@ -358,7 +400,7 @@ rule merge_preds:
             .str.replace("^potato plants$", "potato", regex=True)
             .str.replace("^d. melanogaster$", "drosophila melanogaster", regex=True)
             .str.replace("^p. falciparum$", "plasmodium falciparum", regex=True)
-            .str.replace("^zebra fish$", "zebrafish", regex=True)
+            .str.replace("fishes$", "fish", regex=True)
             .str.replace("a. stephensi", "anopheles stephensi", regex=True)
             .str.replace("^hamsters$", "hamster", regex=True)
             .str.replace("^calves$", "calf", regex=True)
@@ -393,6 +435,14 @@ rule merge_preds:
             .str.replace("^lactobacillus plantarum$", "l. plantarum", regex=True)
             .str.replace("^candida albicans$", "c. albicans", regex=True)
             .str.replace("^a. thaliana$", "a. thaliana", regex=True)
+            .str.replace("^x. campestris", "xanthomonas campestris", regex=True)
+            .str.replace("^r. solanacearum","ralstonia solanacearum", regex=True)
+            .str.replace("^e. faecium", "enterococcus faecium", regex=True)
+            .str.replace("^b. anthracis", "bacillus anthracis", regex=True)
+            .str.replace("^v. alginolyticus", "vibrio alginolyticus", regex=True)
+            .str.replace("^v. anguillarum", "vibrio anguillarum", regex=True)
+            .str.replace("^v. parahemolyticus", "vibrio parahemolyticus", regex=True)
+            .str.replace("^p. fluorescens", "pseudomonas fluorescens", regex=True)
             #general
             .str.replace(" of$", "", regex=True)
             .str.replace("^the ", "", regex=True)
@@ -419,7 +469,7 @@ rule split_batches_strainselect:
         batch_files=expand(f"{preds}/REL_output/batched_input/{{batch_id}}.pqt", batch_id=range(0, 1000)),
     resources:
         slurm_partition="single",
-        runtime=100,
+        runtime=50,
         mem_mb=10000,
         tasks=2
     run:
@@ -440,7 +490,7 @@ rule match_batch_strainselect:
         batch_output=f"{preds}/batched_output_results/{{batch_id}}.parquet",
     resources:
         slurm_partition="single",
-        runtime=100,
+        runtime=75,
         mem_mb=100000,
         tasks=3
     run:
