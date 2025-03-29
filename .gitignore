@@ -8,6 +8,7 @@ gomez/
 notebooks/figures/
 notebooks/ner_annotation/
 notebooks/ontologies/
+notebooks/entities/
 notebooks/*_files/
 notebooks/go-basic.obo
 gomez
@@ -25,3 +26,4 @@ snakemake_PMC/*.parquet
 snakemake_PMC/*.pqt
 snakemake_PMC/*.tsv
 snakemake_PMC/*.csv
+models_biorxiv.tar.gz
