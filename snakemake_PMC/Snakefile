@@ -90,7 +90,7 @@ rule xml_csv:
     resources:
         slurm_partition="single",
         tasks=10,
-        runtime=900,
+        runtime=2000,
         mem_mb=50000,
     script:
         "scripts/xml2tsv.R"
@@ -145,7 +145,7 @@ rule filter_parquet:
         mem_mb=140000,
     run:
         df = pl.read_parquet(input)
-        df = df.drop(["paragraph", "sentence"])
+#        df = df.drop(["paragraph", "sentence"])
       #  df = df.drop(["paragraph", "sentence", "__index_level_0__"])
         df = df.unique("text")
         df = df.filter(

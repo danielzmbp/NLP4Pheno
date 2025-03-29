@@ -1,3 +1,4 @@
+options(editor = "vi")
 library(data.table)
 library(xml2)
 library(tidypmc)
