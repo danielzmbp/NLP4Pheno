@@ -555,8 +555,6 @@ def main():
     if training_args.do_predict:
         logger.info("*** Predict ***")
 
-        # metrics = trainer.evaluate(eval_dataset=predict_dataset, metric_key_prefix="test")
-        # metrics["test_samples"] = len(predict_dataset)
         results = trainer.predict(predict_dataset, metric_key_prefix="test")
         predictions = results.predictions
         metrics = results.metrics
@@ -566,15 +564,77 @@ def main():
         trainer.save_metrics("test", metrics)
         trainer.log(metrics)
 
-        import json
-        output_dir = training_args.output_dir
-        word_ids = predict_dataset["word_ids"]
-        json.dump({"predictions": results.predictions.tolist(), "label_ids": results.label_ids.tolist(), "word_ids": word_ids},
-                      open(f"{output_dir}/test_outputs.json", "w"))
+        # ---------------------------------------------------------
+        # Write out predictions to a tab-separated text file
+        # ---------------------------------------------------------
+        # Convert raw logits into integer predictions
+        predictions = np.argmax(predictions, axis=2)
 
-        if os.environ.get('USE_CODALAB', 0):
-            import json
-            json.dump(metrics, open("test_stats.json", "w"))
+        # We already have "word_ids" stored in predict_dataset thanks to `tokenize_and_align_labels`.
+        word_ids_list = predict_dataset["word_ids"]
+
+        # Grab the original token sequences from the *raw* test dataset
+        # (These are the untokenized words, e.g. ["John","is","here",...])
+        texts = raw_datasets["test"][text_column_name]
+
+        output_test_predictions_file = os.path.join(training_args.output_dir, "test_predictions.txt")
+
+        with open(output_test_predictions_file, "w", encoding="utf-8") as writer:
+            # Loop over each example in the test set
+            for i in range(len(predict_dataset)):
+                # For example i, get the word_ids alignment and predicted token-level IDs
+                word_ids = word_ids_list[i]
+                predicted_ids = predictions[i]
+                label_ids = results.label_ids[i]  # real label IDs that correspond to each token (may be -100)
+
+                # The original words from the raw test data (unsubworded)
+                original_words = texts[i]
+
+                # We'll create a "prediction label" for each *word* (not subword).
+                # Start each word's label as "O" (or some dummy), then overwrite with the predicted label
+                new_labels = ["O"] * len(original_words)
+
+                # Reconstruct the label for each *word*, ignoring subword duplicates/special tokens
+                for subword_idx, w_idx in enumerate(word_ids):
+                    if w_idx is None:
+                        continue
+
+                    # If the label is -100, it's a special token or we are ignoring it
+                    if label_ids[subword_idx] == -100:
+                        continue
+
+                    # The predicted label ID
+                    pred_label_id = predicted_ids[subword_idx]
+                    predicted_label = label_list[pred_label_id]
+
+                    # Assign this label to the corresponding word
+                    new_labels[w_idx] = predicted_label
+
+                # Now write out each token and its predicted label
+                for word, pred_label in zip(original_words, new_labels):
+                    writer.write(f"{word}\t{pred_label}\n")
+                writer.write("\n")  # blank line between sentences
+
+    # ---------------------------------------------------------
+    # (Optional) write out raw logits, label_ids, etc. as JSON:
+    # ---------------------------------------------------------
+    import json
+    output_dir = training_args.output_dir
+    json.dump(
+        {
+            "predictions": results.predictions.tolist(),
+            "label_ids": results.label_ids.tolist(),
+            "word_ids": predict_dataset["word_ids"],
+        },
+        open(f"{output_dir}/test_outputs.json", "w"),
+        ensure_ascii=False,
+        indent=2,
+    )
+
+    # If you are in a CodaLab environment:
+    if os.environ.get("USE_CODALAB", 0):
+        import json
+        json.dump(metrics, open("test_stats.json", "w"))
 
 
     if training_args.push_to_hub:
