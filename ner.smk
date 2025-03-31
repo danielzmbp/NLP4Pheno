@@ -104,10 +104,223 @@ rule make_split:
                     json.dump(list(y), f)
                     f.write("\n")
 
+# # this swaps the current entities randomly of the same kind
+# rule data_aug:
+#     input:
+#         expand("NER/{ENT}/{SET}.jsonls", ENT=labels, SET=model_sets),
+#     output:
+#         expand("NER/{ENT}/{SET}.jsonla", ENT=labels, SET=model_sets),
+#     resources:
+#         slurm_partition="single",
+#         runtime=30,
+#         mem_mb=8000,
+#     params:
+#         seed=config["seed"],
+#     run:
+#         for label in labels:
+#             for split in model_sets:
+#                 if split == "train":
+#                     with open(f"NER/{label}/{split}.jsonls") as infile:
+#                         data = json.load(infile)
+                    
+#                     items_without_annotations = []
+#                     items_with_annotations = []
+#                     all_texts = []
+
+#                     for i in data:
+#                         has_valid_annotation = False
+#                         if i["annotations"]:
+#                             for j in i["annotations"]:
+#                                 if j["result"]:
+#                                     for result in j["result"]:
+#                                         if "value" in result:
+#                                             has_valid_annotation = True
+#                                             if "text" in result["value"]:
+#                                                 all_texts.append(result["value"]["text"])
+                        
+#                         if has_valid_annotation:
+#                             items_with_annotations.append(i)
+#                         else:
+#                             items_without_annotations.append(i)
+
+#                     no_annotations_count = len(items_without_annotations)
+#                     with_annotations_count = len(items_with_annotations)
+
+#                     def replace_entities_with_random(item, all_texts):
+#                         # Create a deep copy to avoid modifying the original
+#                         new_item = copy.deepcopy(item)
+                        
+#                         # Get the original text
+#                         original_text = new_item["data"]["text"]
+#                         new_text = original_text
+                        
+#                         # Sort annotations by their position in reverse order (to avoid offset issues)
+#                         entity_positions = []
+#                         for annotation in new_item["annotations"]:
+#                             for result in annotation["result"]:
+#                                 if "value" in result and "start" in result["value"] and "end" in result["value"]:
+#                                     entity_positions.append({
+#                                         "start": result["value"]["start"],
+#                                         "end": result["value"]["end"],
+#                                         "text": result["value"]["text"],
+#                                         "labels": result["value"]["labels"]
+#                                     })
+                        
+#                         # Sort in reverse order (from end to start)
+#                         entity_positions.sort(key=lambda x: x["start"], reverse=True)
+                        
+#                         # Replace each entity with a random one from all_texts
+#                         for entity in entity_positions:
+#                             # Choose a random replacement text
+#                             replacement = random.choice(all_texts)
+                            
+#                             # Replace in the text
+#                             new_text = new_text[:entity["start"]] + replacement + new_text[entity["end"]:]
+                            
+#                             # Update the annotation
+#                             for annotation in new_item["annotations"]:
+#                                 for result in annotation["result"]:
+#                                     if "value" in result and "start" in result["value"] and "end" in result["value"]:
+#                                         if result["value"]["start"] == entity["start"] and result["value"]["end"] == entity["end"]:
+#                                             result["value"]["text"] = replacement
+                        
+#                         # Update the text in the item
+#                         new_item["data"]["text"] = new_text
+                        
+#                         return new_item
+#                     # Generate as many items as there are without annotations
+#                     all_texts = list(set(all_texts))
+#                     #num_to_generate = no_annotations_count - with_annotations_count 
+#                     num_to_generate = with_annotations_count // 5
+#                     augmented_items = []
+#                     for _ in range(num_to_generate):
+#                         random_item = random.choice(items_with_annotations)
+#                         augmented_item = replace_entities_with_random(random_item, all_texts)
+#                         augmented_items.append(augmented_item)
+
+#                     all_items = []
+#                     all_items.extend(items_with_annotations)
+#                     all_items.extend(items_without_annotations)
+#                     all_items.extend(augmented_items)
+#                     random.shuffle(all_items) 
+
+#                     with open(f"NER/{label}/{split}.jsonla", 'w') as f:
+#                         json.dump(all_items, f, indent=2)
+
+
+#                 else:
+#                     # Copy the original file for non-train splits
+#                     with open(f"NER/{label}/{split}.jsonls") as infile:
+#                         with open(f"NER/{label}/{split}.jsonla", "w") as outfile:
+#                             for line in infile:
+#                                 outfile.write(line)
+
+
+rule data_aug:
+    input:
+        input_file,
+        expand("NER/{ENT}/{SET}.jsonls", ENT=labels, SET=model_sets),
+    output:
+        expand("NER/{ENT}/{SET}.jsonla", ENT=labels, SET=model_sets),
+    resources:
+        slurm_partition="single",
+        runtime=30,
+        mem_mb=8000,
+    params:
+        seed=config["seed"],
+    run:
+        with open(input_file) as f:
+            json_file = json.load(f)
+        strain_catalog = []
+        for i in json_file:
+            if i["annotations"]:
+                for j in i["annotations"]:
+                    if j["result"]:
+                        for result in j["result"]:
+                            if "value" in result and "labels" in result["value"]:
+                                if result["value"]["labels"][0] == "STRAIN":
+                                    strain_catalog.append(result["value"]["text"])
+        strain_catalog = list(set(strain_catalog))
+
+        for label in labels:
+            if label == "STRAIN":
+                for split in model_sets:
+                    with open(f"NER/{label}/{split}.jsonls") as infile:
+                        with open(f"NER/{label}/{split}.jsonla", "w") as outfile:
+                            outfile.write(infile.read()) 
+            else:    
+                for split in model_sets:
+                    if split == "train":
+                        with open(f"NER/{label}/{split}.jsonls") as infile:
+                            data = json.load(infile)
+                        
+                        items_without_annotations = []
+                        items_with_annotations = []
+
+                        for i in data:
+                            has_valid_annotation = False
+                            if i["annotations"]:
+                                for j in i["annotations"]:
+                                    if j["result"]:
+                                        for result in j["result"]:
+                                            if "value" in result:
+                                                has_valid_annotation = True
+                            
+                            if has_valid_annotation:
+                                items_with_annotations.append(i)
+                            else:
+                                items_without_annotations.append(i)
+
+                        no_annotations_count = len(items_without_annotations)
+                        with_annotations_count = len(items_with_annotations)
+
+                        def replace_entities_with_random(item, strain_catalog):
+                            new_item = copy.deepcopy(item)
+                            
+                            original_text = new_item["data"]["text"]
+                            new_text = original_text
+                            
+                            # Search for substrings from strain_catalog in the text
+                            for strain in strain_catalog:
+                                if strain in new_text:
+                                    # Replace the first occurrence of the strain with a random one from the catalog
+                                    replacement = random.choice(strain_catalog)
+                                    new_text = new_text.replace(strain, replacement, 1)
+                                    break  # Only replace one entity and stop
+                            
+                            # Update the text in the item
+                            new_item["data"]["text"] = new_text
+                            
+                            return new_item
+                        # Generate as many items as there are without annotations
+                        num_to_generate = no_annotations_count - with_annotations_count 
+                        num_to_generate = with_annotations_count
+                        augmented_items = []
+                        for _ in range(num_to_generate):
+                            random_item = random.choice(items_with_annotations)
+                            augmented_item = replace_entities_with_random(random_item, strain_catalog)
+                            augmented_items.append(augmented_item)
+
+                        all_items = []
+                        all_items.extend(items_with_annotations)
+                        all_items.extend(items_without_annotations)
+                        all_items.extend(augmented_items)
+                        random.shuffle(all_items) 
+
+                        with open(f"NER/{label}/{split}.jsonla", 'w') as f:
+                            json.dump(all_items, f, indent=2)
+
+
+                    else:
+                        # Copy the original file for non-train splits
+                        with open(f"NER/{label}/{split}.jsonls") as infile:
+                            with open(f"NER/{label}/{split}.jsonla", "w") as outfile:
+                                for line in infile:
+                                    outfile.write(line)
 
 rule convert_splits:
     input:
-        json=expand("NER/{ENT}/{SET}.jsonls", ENT=labels, SET=model_sets),
+        json=expand("NER/{ENT}/{SET}.jsonla", ENT=labels, SET=model_sets),
         config="config.xml",
     output:
         conll=expand("NER/{ENT}/{SET}.conll", ENT=labels, SET=model_sets),
@@ -117,10 +330,10 @@ rule convert_splits:
         mem_mb=8000,
     shell:
         """
-        for f in NER/**/*.jsonls
-        do label-studio-converter export -i $f -c {input.config} -f CONLL2003 -o ${{f%.jsonls}}
-        cat ${{f%.jsonls}}/result.conll > ${{f%jsonls}}conll
-        rm -rf ${{f%.jsonls}}
+        for f in NER/**/*.jsonla
+        do label-studio-converter export -i $f -c {input.config} -f CONLL2003 -o ${{f%.jsonla}}
+        cat ${{f%.jsonla}}/result.conll > ${{f%jsonla}}conll
+        rm -rf ${{f%.jsonla}}
         done
         """
 
@@ -204,6 +417,7 @@ rule run_linkbert:
         mem_mb=32000,
     shell:
         """
+        export WANDB_DISABLED=true
         export MODEL_PATH=michiyasunaga/BioLinkBERT-{params.model_type}
         export MODEL=BioLinkBERT-{params.model_type}
         export CUDA_VISIBLE_DEVICES={params.cuda}
