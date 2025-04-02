@@ -171,7 +171,7 @@ rule split_sets:
                 df, test_size=test_size, stratify=df.label, random_state=params.seed
             )
 
-            num_to_generate = (train[train["label"] ==0].shape[0] - train[train["label"] ==1].shape[0]) // 10
+            num_to_generate = (train[train["label"] ==0].shape[0] - train[train["label"] ==1].shape[0]) // 5
 
             for _ in range(num_to_generate):
                 random_sentence = train[train["label"] ==1].sample(1).iloc[0]
