@@ -22,15 +22,6 @@ rule all:
     input:
         "NER_output/aggregated_eval.png",
 
-# rule make_input_json:
-#     resources:
-#         slurm_partition="single",
-#         runtime=10,
-#     output:
-#         input_file,
-#     run:
-#         "python scripts/convert_label.py"
-
 rule make_split:
     input:
         input_file,
@@ -89,13 +80,13 @@ rule make_split:
                         sentence["data"]["text"] = re.sub(r'(?<=\w)-(?=\w)', ' ', sentence["data"]["text"])
             
             X_train, X_test_dev, _, y_test_dev = train_test_split(
-                sentences, ners, test_size=test_size, random_state=1, stratify=ners
+                sentences, ners, test_size=test_size, random_state=params.seed, stratify=ners
             )
             X_test, X_dev, _, _ = train_test_split(
                 X_test_dev,
                 y_test_dev,
                 test_size=0.5,
-                random_state=1,
+                random_state=params.seed,
                 stratify=y_test_dev,
             )
             sentence_split = (X_train, X_test, X_dev)
@@ -103,117 +94,6 @@ rule make_split:
                 with open(f"NER/{label}/{s}.jsonls", "w") as f:
                     json.dump(list(y), f)
                     f.write("\n")
-
-# # this swaps the current entities randomly of the same kind
-# rule data_aug:
-#     input:
-#         expand("NER/{ENT}/{SET}.jsonls", ENT=labels, SET=model_sets),
-#     output:
-#         expand("NER/{ENT}/{SET}.jsonla", ENT=labels, SET=model_sets),
-#     resources:
-#         slurm_partition="single",
-#         runtime=30,
-#         mem_mb=8000,
-#     params:
-#         seed=config["seed"],
-#     run:
-#         for label in labels:
-#             for split in model_sets:
-#                 if split == "train":
-#                     with open(f"NER/{label}/{split}.jsonls") as infile:
-#                         data = json.load(infile)
-                    
-#                     items_without_annotations = []
-#                     items_with_annotations = []
-#                     all_texts = []
-
-#                     for i in data:
-#                         has_valid_annotation = False
-#                         if i["annotations"]:
-#                             for j in i["annotations"]:
-#                                 if j["result"]:
-#                                     for result in j["result"]:
-#                                         if "value" in result:
-#                                             has_valid_annotation = True
-#                                             if "text" in result["value"]:
-#                                                 all_texts.append(result["value"]["text"])
-                        
-#                         if has_valid_annotation:
-#                             items_with_annotations.append(i)
-#                         else:
-#                             items_without_annotations.append(i)
-
-#                     no_annotations_count = len(items_without_annotations)
-#                     with_annotations_count = len(items_with_annotations)
-
-#                     def replace_entities_with_random(item, all_texts):
-#                         # Create a deep copy to avoid modifying the original
-#                         new_item = copy.deepcopy(item)
-                        
-#                         # Get the original text
-#                         original_text = new_item["data"]["text"]
-#                         new_text = original_text
-                        
-#                         # Sort annotations by their position in reverse order (to avoid offset issues)
-#                         entity_positions = []
-#                         for annotation in new_item["annotations"]:
-#                             for result in annotation["result"]:
-#                                 if "value" in result and "start" in result["value"] and "end" in result["value"]:
-#                                     entity_positions.append({
-#                                         "start": result["value"]["start"],
-#                                         "end": result["value"]["end"],
-#                                         "text": result["value"]["text"],
-#                                         "labels": result["value"]["labels"]
-#                                     })
-                        
-#                         # Sort in reverse order (from end to start)
-#                         entity_positions.sort(key=lambda x: x["start"], reverse=True)
-                        
-#                         # Replace each entity with a random one from all_texts
-#                         for entity in entity_positions:
-#                             # Choose a random replacement text
-#                             replacement = random.choice(all_texts)
-                            
-#                             # Replace in the text
-#                             new_text = new_text[:entity["start"]] + replacement + new_text[entity["end"]:]
-                            
-#                             # Update the annotation
-#                             for annotation in new_item["annotations"]:
-#                                 for result in annotation["result"]:
-#                                     if "value" in result and "start" in result["value"] and "end" in result["value"]:
-#                                         if result["value"]["start"] == entity["start"] and result["value"]["end"] == entity["end"]:
-#                                             result["value"]["text"] = replacement
-                        
-#                         # Update the text in the item
-#                         new_item["data"]["text"] = new_text
-                        
-#                         return new_item
-#                     # Generate as many items as there are without annotations
-#                     all_texts = list(set(all_texts))
-#                     #num_to_generate = no_annotations_count - with_annotations_count 
-#                     num_to_generate = with_annotations_count // 5
-#                     augmented_items = []
-#                     for _ in range(num_to_generate):
-#                         random_item = random.choice(items_with_annotations)
-#                         augmented_item = replace_entities_with_random(random_item, all_texts)
-#                         augmented_items.append(augmented_item)
-
-#                     all_items = []
-#                     all_items.extend(items_with_annotations)
-#                     all_items.extend(items_without_annotations)
-#                     all_items.extend(augmented_items)
-#                     random.shuffle(all_items) 
-
-#                     with open(f"NER/{label}/{split}.jsonla", 'w') as f:
-#                         json.dump(all_items, f, indent=2)
-
-
-#                 else:
-#                     # Copy the original file for non-train splits
-#                     with open(f"NER/{label}/{split}.jsonls") as infile:
-#                         with open(f"NER/{label}/{split}.jsonla", "w") as outfile:
-#                             for line in infile:
-#                                 outfile.write(line)
 
 
 rule data_aug:
