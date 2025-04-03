@@ -26,14 +26,13 @@ def main():
 	# Iterate over labels to evaluate predictions for each
 	for label in config:
 		ground_truth = load_ground_truth(label)
-		ground_truth = ground_truth.replace("-DOCSTART- -X- O\n", "").replace(" -X- _ ","\t")
+		ground_truth = ground_truth.replace("-DOCSTART- -X- O\n", "").replace(" -X- _ ", "\t")
 		predictions = load_predictions(label)
 
 		# Initialize the evaluator
-		evaluator = Evaluator(ground_truth, predictions, tags=[""],loader="conll")
+		evaluator = Evaluator(ground_truth, predictions, tags=[""], loader="conll")
 
 		# Evaluate
-		
 		results, results_by_tag, result_indices, result_indices_by_tag = evaluator.evaluate()
 
 		# Write results to file
@@ -52,6 +51,37 @@ def main():
 
 		with open(os.path.join(output_dir, "results_per_tag.json"), "w") as per_tag_file:
 			json.dump(adjusted_results_by_tag, per_tag_file, indent=4)
+
+		# Compare and report missed, partial, and wrong instances
+		strict = result_indices.get("strict", [])
+		partial = result_indices.get("partial", [])
+		ent_type = result_indices.get("ent_type", [])
+
+		predictions_split = predictions.split("\n\n")
+		comparison_report = {
+			"strict": strict,
+			"partial": partial,
+			"ent_type": ent_type,
+		}
+
+		unique_indices = {}
+		for category in comparison_report.keys():
+			for typ in comparison_report[category].keys():
+				indices = comparison_report[category][typ]
+				
+				# Make indices unique based on the first element of each pair
+				unique_indices[typ] = list({idx[0]: idx for idx in indices}.values())
+				
+				sentences = [predictions_split[idx[0]] for idx in unique_indices[typ]]
+				
+				# Write the sentences to a file
+				output_file_path = os.path.join(output_dir, f"{category}_{typ}_sentences.txt")
+				with open(output_file_path, "w") as output_file:
+					output_file.write("\n\n".join(sentences))
+
+
+		with open(os.path.join(output_dir, "comparison_report.json"), "w") as comparison_file:
+			json.dump(comparison_report, comparison_file, indent=4)
 
 if __name__ == "__main__":
 	main()
