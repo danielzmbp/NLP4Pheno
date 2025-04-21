@@ -32,13 +32,13 @@ model_sets:
   - test
 ner_epochs: 15
 rel_epochs: 25
-input_file: label/project-5-at-2024-12-30-15-29-f47f63e7.json
+input_file: label/project-5-at-2025-04-03-15-30-d43aa787.json
 cutoff_prediction: 0.50
 # cuda_devices: [1,2,3]
 cuda_devices: [0]
-ner_test: 0.25
-rel_test: 0.4
-dataset: "2812"
+ner_test: 0.2
+rel_test: 0.3
+dataset: "3103"
 model: "large"
-seed: 1
+seed: 30
 output_path: /home/tu/tu_tu/tu_kmpaj01/link
