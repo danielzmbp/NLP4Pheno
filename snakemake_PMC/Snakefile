@@ -9,6 +9,77 @@ from lingua import Language, LanguageDetectorBuilder
 import pyarrow as pa
 
 
+def merge_sentences_polars(df: pl.DataFrame) -> pl.DataFrame:
+    grouped_rows = []
+
+    df = df.sort(["pmcid", "section", "paragraph", "sentence"])
+
+    # Wrap each row as a struct for grouped access
+    groups = (
+        df
+        .group_by(["pmcid", "section", "paragraph"])
+        .agg(pl.struct(pl.all()).alias("rows"))
+    )
+
+    for group in groups.iter_rows(named=True):
+        pmcid = group["pmcid"]
+        section = group["section"]
+        paragraph = group["paragraph"]
+        rows = group["rows"]
+
+        total_len = sum(len(r["text"]) if r["text"] else 0 for r in rows)
+
+        # Rule: if full paragraph text > 512, return individual sentences
+        if total_len > 512:
+            for r in rows:
+                if not r["text"]:
+                    continue
+                grouped_rows.append({
+                    "pmcid": pmcid,
+                    "section": section,
+                    "paragraph": paragraph,
+                    "sentence_range": str(r["sentence"]),
+                    "text": r["text"]
+                })
+        else:
+            current_text = ""
+            current_sentences = []
+
+            for r in rows:
+                sentence = r["sentence"]
+                text = r["text"]
+
+                if text is None:
+                    continue
+
+                candidate = (current_text + " " + text).strip() if current_text else text
+
+                if len(candidate) <= 512:
+                    current_text = candidate
+                    current_sentences.append(sentence)
+                else:
+                    if current_text:
+                        grouped_rows.append({
+                            "pmcid": pmcid,
+                            "section": section,
+                            "paragraph": paragraph,
+                            "sentence_range": f"{current_sentences[0]}-{current_sentences[-1]}" if len(current_sentences) > 1 else f"{current_sentences[0]}",
+                            "text": current_text
+                        })
+                    current_text = text
+                    current_sentences = [sentence]
+
+            if current_text:
+                grouped_rows.append({
+                    "pmcid": pmcid,
+                    "section": section,
+                    "paragraph": paragraph,
+                    "sentence_range": f"{current_sentences[0]}-{current_sentences[-1]}" if len(current_sentences) > 1 else f"{current_sentences[0]}",
+                    "text": current_text
+                })
+
+    return pl.DataFrame(grouped_rows)
+    
 rule all:
     input:
         "pmc.parquet",
@@ -138,20 +209,21 @@ rule filter_parquet:
         "{pmc}.parquet",
     output:
         "{pmc}.pqt",
+        "{pmc}_stats.txt"
     resources:
         slurm_partition="single",
         runtime=500,
         tasks=20,
-        mem_mb=140000,
+        mem_mb=180000,
     run:
         df = pl.read_parquet(input)
 #        df = df.drop(["paragraph", "sentence"])
       #  df = df.drop(["paragraph", "sentence", "__index_level_0__"])
+        df = merge_sentences_polars(df)
+
         df = df.unique("text")
-        df = df.filter(
-            (pl.col("text").str.len_chars().cast(pl.UInt32) >= 40)
-            & (pl.col("text").str.len_chars().cast(pl.UInt32) <= 512)
-            & (
+        df = df.filter( 
+            (
                 ~pl.col("section").str.contains(
                     "Declaration|Contribut|Author|AUTHOR|Title|Conflict|Data sharing|Competing|CONFLICT|(?i)ethic|(?i)contributions|(?i)abbreviation|(?i)Funding|(?i)interest|(?i)data availability|(?i)acknowledgement|(?i)ACKNOWLEDGMENT|(?i)contribution statement|(?i)Reviewers|(?i)Family|(?i)publisher|(?i)Consent|(?i)Disclosure|(?i)contributor|(?i)credit author|(?i)Software availability|(?i)Pre-publication history|(?i)Checklist|(?i)Availability|(?i)Documentation|(?i)financial|(?i)cancer"
                 )
@@ -162,6 +234,17 @@ rule filter_parquet:
                 )
             )
         )
+        
+        before_filtering = df.shape 
+        df = df.filter(            
+            (pl.col("text").str.len_chars().cast(pl.UInt32) >= 40)
+            & (pl.col("text").str.len_chars().cast(pl.UInt32) <= 512)
+            )
+        after_filtering = df.shape
+
+        with open(output[1],"w") as f:
+            f.write(f"Before filtering: {before_filtering[0]} rows\n")
+            f.write(f"After filtering: {after_filtering[0]} rows\n")
 
         languages = [
             Language.ENGLISH,
@@ -175,7 +258,7 @@ rule filter_parquet:
         ]
         detector = LanguageDetectorBuilder.from_languages(*languages).build()
         confidences = []
-        chunk_size = 1000000  # do in chunks otherwise overwhelms memory
+        chunk_size = 1000000 // 3  # do in chunks otherwise overwhelms memory
         for i in range(0, df.height, chunk_size):
             chunk = df[i : i + chunk_size].select(pl.col("text"))
             confidences_chunk = detector.compute_language_confidence_values_in_parallel(
