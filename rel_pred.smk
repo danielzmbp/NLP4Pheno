@@ -9,11 +9,12 @@ from scipy.sparse import csr_matrix
 import numpy as np
 from collections import defaultdict
 from glob import glob
+import polars as pl
 
 configfile: "config.yaml"
 
 cutoff = config["cutoff_prediction"]
-output_path = config["output_path"] # /home/tu/tu_tu/tu_bbpgo01/link
+output_path = config["output_path"]
 
 preds = f"{output_path}/preds" + str(config["dataset"])
 labels = config["rel_labels"]
@@ -24,8 +25,7 @@ rule all:
     input:
         f"{preds}/REL_output/strains_assemblies.txt",
         f"{preds}/network.tsv",
-        f"{preds}/REL_output/preds.pqt",
-
+        f"{preds}/network_pmc.tsv",
 
 rule format_sentences:
     input:
@@ -33,7 +33,7 @@ rule format_sentences:
     output:
         f"{preds}/NER_output/ner_preds.parquet",
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=100,
         mem_mb=30000
     run:
@@ -69,7 +69,7 @@ rule make_device_file:
     output:
         f"{preds}/REL_output/device_models.txt",
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=30,
         mem_mb=5000,
     run:
@@ -108,7 +108,7 @@ rule merge_preds:
     output:
         f"{preds}/REL_output/preds.pqt",
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=100,
         mem_mb=20000
     run:
@@ -457,7 +457,7 @@ rule download_strainselect:
         f"{preds}/strainselect/StrainSelect21_edges.tab.txt",
         f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=30,
     shell:
         "wget https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_edges.tab.txt -O {output[0]}; wget https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_vertices.tab.txt -O {output[1]}"
@@ -468,7 +468,7 @@ rule split_batches_strainselect:
     output:
         batch_files=expand(f"{preds}/REL_output/batched_input/{{batch_id}}.pqt", batch_id=range(0, 1000)),
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=50,
         mem_mb=10000,
         tasks=2
@@ -489,9 +489,9 @@ rule match_batch_strainselect:
     output:
         batch_output=f"{preds}/batched_output_results/{{batch_id}}.parquet",
     resources:
-        slurm_partition="single",
-        runtime=75,
-        mem_mb=100000,
+        slurm_partition="cpu",
+        runtime=2000,
+        mem_mb=75000,
         tasks=3
     run:
         workers = 6
@@ -595,7 +595,7 @@ rule match_batch_strainselect:
 
         final = df.merge(matches,left_on="vertex_dot", right_on="strain", how="left")
         final = final.drop(columns = ["vertex_dot_x", "vertex_dot_y","strainselect","strain"])
-        final.rename(columns={"score":"ner_score","vertex":"strainselect_vertex"})
+        final.rename(columns={"score":"ner_score","vertex":"strainselect_vertex"}, inplace=True)
         final.to_parquet(output[0])
 
 rule merge_batch_outputs_strainselect:
@@ -604,7 +604,7 @@ rule merge_batch_outputs_strainselect:
     output:
         merged_output=f"{preds}/REL_output/preds_strainselect.pqt",
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=100,
         mem_mb=20000
     run:
@@ -620,10 +620,10 @@ rule group_entities:
     output:
         f"{preds}/REL_output/preds_strainselect_grouped.pqt",
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=100,
         mem_mb=140000,
-        ntasks=20
+        tasks=20
     run:
         df = pd.read_parquet(input[0])
         df = df.drop(columns=["label_rel","label"])
@@ -686,7 +686,7 @@ rule write_download_file:
     output:
         f"{preds}/REL_output/strains_assemblies.txt"
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=30,
         mem_mb=10000,
     run:
@@ -703,6 +703,37 @@ rule write_download_file:
             for a in assemblies:
                 f.write(a+"\n")
 
+rule link_pmc:
+    input:
+        f"{preds}/REL_output/preds_strainselect_grouped.pqt",
+        "snakemake_PMC/pmc.parquet",
+    output:
+        f"{preds}/REL_output/preds_strainselect_grouped_pmc.pqt",
+    resources:
+        slurm_partition="cpu",
+        runtime=100,
+        mem_mb=100000,
+        tasks= 20,
+    run:
+        df = pl.scan_parquet(input[0])
+        pmc = (
+            pl.scan_parquet(input[1])
+            .select(["text", "pmcid", "paragraph","sentence_range"])
+            .with_columns(
+                pl.col("text").str.replace_all(r"(\w)-(\w)", r"$1 $2")
+            )
+            .with_columns(
+                pl.col("text").str.replace_all(r"(\w)-(\w)", r"$1 $2")
+            )
+        )
+
+        df_merged = df.join(pmc, on="text", how="left")
+
+        merged_df = df_merged.collect(engine="streaming")
+
+        merged_df.write_parquet(output[0])
+        
+
 rule create_network:
     input:
         f"{preds}/REL_output/preds_strainselect_grouped.pqt",
@@ -712,7 +743,7 @@ rule create_network:
         # f"{preds}/network_assemblies.tsv",
         # f"{preds}/strains_assemblies.txt",
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=30,
         mem_mb=10000,
     params:
@@ -767,3 +798,24 @@ rule create_network:
         # with open(output[3], "w") as f:
         #     for s in sorted(set(filtered_df.StrainSelectID.to_list())):
         #         f.write(f"{s}\n")
+
+
+rule link_pmc_network:
+    input:
+        f"{preds}/network.tsv",
+        f"{preds}/REL_output/preds_strainselect_grouped_pmc.pqt",
+    output:
+        f"{preds}/network_pmc.tsv",
+    resources:
+        slurm_partition="cpu",
+        runtime=30,
+        mem_mb=10000,
+    run:
+        df = pd.read_parquet(input[1])
+        network = pd.read_csv(input[0], sep="\t")
+        network = network.merge(df[["StrainSelectID", "word_qc_group", "pmcid", "paragraph", "sentence_range"]], 
+                    left_on=["source", "target"], 
+                    right_on=["StrainSelectID", "word_qc_group"], 
+                    how="left")
+        network = network.drop(columns=["StrainSelectID", "word_qc_group",])
+        network.to_csv(output[0], index=False, sep="\t")
