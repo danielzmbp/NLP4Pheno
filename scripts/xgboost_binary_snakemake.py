@@ -1,5 +1,4 @@
 import pandas as pd
-from tqdm.autonotebook import tqdm
 import xgboost as xgb
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
@@ -43,7 +42,7 @@ def process_rel(filepath, device, ip_names):
     X = dat[0]
     y = dat[1]
     ind = dat[2]
-    vc = vc[vc >= 10] #cutoff here!
+    # vc = vc[vc >= 10] #cutoff here!
 
     ind_names = [ip_names[ip_names.index == i]["ENTRY_NAME"].values[0] for i in ind]
 

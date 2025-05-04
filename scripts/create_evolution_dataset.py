@@ -9,7 +9,7 @@ import polars as pl
 
 
 path = ".."
-data = "2009"
+data = "3103"
 outdir = f"{path}/seqfiles_{data}"
 
 

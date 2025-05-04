@@ -2,7 +2,7 @@ import os
 import polars as pl
 import pyarrow.parquet as pq
 
-size = 2812
+size = 3103
 pfile = pq.ParquetFile("./snakemake_PMC/pmc.parquet")
 
 corpus_dir = f"corpus{size}"
