@@ -242,6 +242,7 @@ rule merge_preds:
             .str.replace("^luria - bertani$", "lb", regex=True)
             .str.replace("^luria ‐ bertani$", "lb", regex=True)
             .str.replace("^luria - bertani \( lb \)$", "lb", regex=True)
+            .str.replace("^luria bertani \(lb$", "lb", regex=True)
             .str.replace("luria-bertani", "luria bertani", regex=True)
             .str.replace("^lb\)$", "lb", regex=True)
             .str.replace("^brain heart infusion$", "bhi", regex=True)
@@ -251,6 +252,7 @@ rule merge_preds:
             .str.replace(
                 "^brain heart infusion \( bhi \) broth$", "bhi broth", regex=True
             )
+            .str.replace("^brain heart infusion \(bhi$", "bhi", regex=True)
             .str.replace("^brain - heart infusion broth$", "bhi broth", regex=True)
             .str.replace("^lysogeny broth \( lb \)$", "lb", regex=True)
             .str.replace("^lysogeny broth$", "lb", regex=True)
@@ -272,6 +274,7 @@ rule merge_preds:
             .str.replace("^muller hinton agar$", "mueller hinton agar", regex=True)
             .str.replace("^tryptic soy broth$", "tsb", regex=True)
             .str.replace("^tryptic soy broth \( tsb \)$", "tsb", regex=True)
+            .str.replace("^tryptic soy broth \(tsb$", "tsb", regex=True)
             .str.replace("^nutrient broth$", "nb", regex=True)
             .str.replace("^mueller−hinton$", "mueller hinton", regex=True)
             .str.replace("^tryptic -", "tryptic", regex=True)
@@ -280,6 +283,7 @@ rule merge_preds:
             .str.replace("^nematode - growth$", "nematode growth", regex=True)
             .str.replace("^bhi\) agar$", "bhi agar", regex=True)
             .str.replace("^bhi\) broth$", "bhi broth", regex=True)
+            .str.replace("^bhi\)$", "bhi", regex=True)
             .str.replace("^lb\) broth$", "lb broth", regex=True)
             .str.replace("^mh\) agar$", "mh agar", regex=True)
             .str.replace("^mh\) broth$", "mh broth", regex=True)
@@ -288,6 +292,7 @@ rule merge_preds:
             .str.replace("^rpmi-1640$", "rpmi 1640", regex=True)
             .str.replace("^muller-hinton broth$", "mueller hinton broth", regex=True)
             .str.replace("^m9 minimal medium$", "m9 minimal", regex=True)
+            .str.replace("^yeast peptone dextrose \(ypd$", "ypd", regex=True)
             # metabolite
             .str.replace("^acetyl - coa$", "acetyl coa", regex=True)
             # phenotype
