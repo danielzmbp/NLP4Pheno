@@ -41,7 +41,7 @@ rule download:
     output:
         temp(output_path + "{strain}/{assembly}.zip"),
     shell:
-        "datasets download genome accession {wildcards.assembly} --include gff3,cds,protein,genome,seq-report --filename {output} --assembly-version 'latest' --api-key $(cat .ncbi_api_key)"
+        "datasets download genome accession {wildcards.assembly} --include gff3,cds,protein,genome,seq-report --filename {output} --assembly-version 'latest' --api-key $(cat .ncbi_api_key) --fast-zip-validation --no-progressbar" 
 
 rule unzip:
     input:
@@ -70,9 +70,9 @@ rule ip:
         output_path + "{strain}/{assembly}/protein.faa",
     output:
         temp(output_path + "{strain}/{assembly}/annotation.tsv"),
-    threads: 2
+    threads: 4
     shell:
-        "/home/tu/tu_tu/tu_kmpaj01/ip/interproscan-5.73-104.0/interproscan.sh -T $TMPDIR -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
+        "/home/tu/tu_tu/tu_kmpaj01/ip/interproscan-5.74-105.0/interproscan.sh -T $TMPDIR -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
 
 
 rule convert_to_parquet:
