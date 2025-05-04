@@ -30,8 +30,8 @@ rule create_downloaded_strains_file:
     output:
         f"{path}/preds{DATA}/REL_output/strains_assemblies_downloaded.txt"
     resources:
-        slurm_partition="single",
-        runtime=30,
+        slurm_partition="cpu",
+        runtime=60,
         mem_mb=10000
     run:
         filtered_assemblies = []
@@ -46,6 +46,8 @@ rule create_downloaded_strains_file:
 
         
 # Rule for processing relationship files for all the assemblies
+# Assuming 'path', 'DATA', 'input_df', 'log' are defined earlier in the Snakefile
+
 rule process_rel:
     input:
         rel_file=input_df,
@@ -53,79 +55,190 @@ rule process_rel:
         strainselect_vertices=f"{path}/preds{DATA}/strainselect/StrainSelect21_vertices.tab.txt",
     output:
         rel_output=path + "/xgboost/annotations{data}/{rel}.parquet",
+    params:
+        base_annotation_path=f"{path}/assemblies_{DATA}",
+        cols_to_drop=[
+            "Sequence_MD5_digest", "Score", "Sequence_length",
+            "Start_location", "Stop_location", "GO_annotations", "Pathways_annotations"
+        ]
+    threads: 16
     resources:
-        slurm_partition="fat",
-        runtime=100,
-        mem_mb=300000,
-        tasks=25,
+        slurm_partition="cpu",
+        runtime=4300,
+        mem_mb=200000,
     run:
-        df = pd.read_parquet(input.rel_file)
 
-        df = df[["StrainSelectID", "word_qc_group", "rel"]].dropna(subset="StrainSelectID").drop_duplicates()
+        import pandas as pd
+        from pathlib import Path
+        import concurrent.futures
 
-        # Get downloaded strains
-        with open(input.downloaded_strains, "r") as f:
-            downloaded_assemblies = f.readlines()
-        downloaded_assemblies = [l.strip() for l in downloaded_assemblies]
+        # --- Helper function to load and process one annotation file ---
+        def load_and_process_annotation(args):
+            strain, assembly, base_path, cols_to_drop_list = args
+            annotation_file = Path(base_path) / strain / assembly / "annotation.parquet"
 
-        das = pd.DataFrame(downloaded_assemblies)[0].str.split("/",expand=True)
-        das.rename(columns={0:"strain",1:"assembly"}, inplace=True)
+            if not annotation_file.exists():
+                return None # Return None for missing files
 
-        drel = df[df.rel == wildcards.rel]
+            annotation_df = pd.read_parquet(annotation_file) 
+            # Drop unnecessary columns (handle missing columns gracefully)
+            cols_present = [col for col in cols_to_drop_list if col in annotation_df.columns]
+            if cols_present:
+                annotation_df.drop(columns=cols_present, inplace=True)
+
+            # Drop rows with missing InterPro accessions
+            annotation_df.dropna(subset=["InterPro_accession"], inplace=True)
+
+            if not annotation_df.empty:
+                # Add identifiers back for merging
+                annotation_df['strain'] = strain
+                annotation_df['assembly'] = assembly
+                # Select only essential columns here to reduce memory before concatenation
+                # Example: Keep 'InterPro_accession', 'Protein_ID', 'Length', 'strain', 'assembly'
+                essential_cols = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'strain', 'assembly']
+                cols_to_keep_final = [col for col in essential_cols if col in annotation_df.columns]
+                return annotation_df[cols_to_keep_final]
+            else:
+                return None # Return None for empty or fully dropped dataframes
+
+
+
+        # --- 1. Load Initial Data Efficiently ---
+        # Load only required columns immediately
+
+        df = pd.read_parquet(input.rel_file, columns=["StrainSelectID", "word_qc_group", "rel"])
+
+
+        # Use read_csv for potentially faster parsing, handle empty file
+        das = pd.read_csv(input.downloaded_strains, sep="/", header=None, names=["strain", "assembly"])
+        downloaded_strains_set = set(das['strain'].unique())
+
+        # Specify columns to load
+        strainselect_vertices = pd.read_csv(
+            input.strainselect_vertices,
+            sep="\t",
+            usecols=["StrainSelectID", "vertex_type", "vertex"]
+        )
+ 
+
+        # --- 2. Initial Filtering of Relation Data ---
+        df.dropna(subset=["StrainSelectID"], inplace=True)
+        df.drop_duplicates(inplace=True) 
+
+        drel = df[(df.rel == wildcards.rel) & (df.StrainSelectID.isin(downloaded_strains_set))].copy()
+        del df 
+
+
+        # Keep only word_qc_groups appearing more than twice
         word_counts = drel["word_qc_group"].value_counts()
-        drel = drel[drel["word_qc_group"].isin(word_counts[word_counts > 1].index)]
+        drel = drel[drel["word_qc_group"].isin(word_counts[word_counts > 2].index)]
 
-        # Remove groups that include only strains from the same genus
-        strainselect_vertices = pd.read_csv(input.strainselect_vertices, sep="\t")
-        ss = strainselect_vertices[strainselect_vertices["vertex_type"] == "gss"]
-        ss["genus"] = ss.vertex.str.split(".", expand=True)[0]
+        # --- 3. Filter by Genus Diversity (Optimized) ---
+        ss = strainselect_vertices[strainselect_vertices["vertex_type"] == "gss"].copy()
+        del strainselect_vertices 
+        ss.loc[:, "genus"] = ss['vertex'].str.split('.', n=1, expand=True)[0].astype('category') # Use category for genus
         ss = ss[["StrainSelectID", "genus"]]
-        m = drel.merge(
-            ss,
-            on="StrainSelectID",
-            how="left",
-        )
-        genus_groups = m.groupby("word_qc_group").apply(
-            lambda x: x["genus"].nunique() > 1
-        )
-        valid_groups = genus_groups[genus_groups].index
-        drel = drel[drel["word_qc_group"].isin(valid_groups)]
 
-        rel_annotations = []
-        for _, row in tqdm(drel.iterrows(), total=drel.shape[0]):
-            strain = row.StrainSelectID
-            word = row.word_qc_group
-            if strain in das.strain.unique():
-                annotations_for_assembly = das[das.strain == strain].assembly.to_list()
-                for annotation in annotations_for_assembly:
-                    annotation_df = pd.read_parquet(f"{path}/assemblies_{DATA}/{strain}/{annotation}/annotation.parquet")
-                    annotation_df.drop(
-                        columns=[
-                            "Sequence_MD5_digest",
-                            "Score",
-                            "Sequence_length",
-                            "Start_location",
-                            "Stop_location",
-                            "GO_annotations",
-                            "Pathways_annotations",
-                        ],
-                        inplace=True,
-                    )
-                    annotation_df.dropna(
-                        subset=["InterPro_accession"], inplace=True
-                    )
-                    annotation_df["sa_ner"] = strain + "!" + annotation + "!" + word
-                    annotation_df["word_qc_group"] = word
-                    rel_annotations.append(annotation_df)
-        try:
-            df_rel_annotations = pd.concat(rel_annotations)
-            wcts = df_rel_annotations["word_qc_group"].value_counts()
-            df_rel_annotations = df_rel_annotations[
-                df_rel_annotations["word_qc_group"].isin(wcts[wcts > 1].index)
-            ]
-            df_rel_annotations.to_parquet(output.rel_output)
-        except Exception as e:
-            print(f"Error: {e}")
+        m = drel.merge(ss, on="StrainSelectID", how="left")
+        del ss
+
+        m['genus_count_in_group'] = m.groupby("word_qc_group")['genus'].transform('nunique')
+
+        # Calculate the proportion of strains with the same genus within each group
+        m['genus_count'] = m.groupby(["word_qc_group", "genus"])['StrainSelectID'].transform('count')
+        m['total_strains_in_group'] = m.groupby("word_qc_group")['StrainSelectID'].transform('count')
+        m['genus_proportion'] = m['genus_count'] / m['total_strains_in_group']
+
+        # Filter groups where nunique > 2 first 
+        # Filter out groups where any single genus makes up > 30% of the group
+        m = m[m['genus_count_in_group'] > 2]
+        m = m[m['genus_proportion'] <= 0.3]
+
+
+        # Get the remaining valid word_qc_groups
+        valid_groups = m['word_qc_group'].unique()
+        drel = drel[drel["word_qc_group"].isin(valid_groups)] # Filter original drel
+
+        del m 
+
+        # --- 4. Prepare for Annotation Loading ---
+
+        # Merge drel with available assemblies (das)
+        drel_expanded = drel.merge(das, left_on="StrainSelectID", right_on="strain", how="inner")
+        del drel
+        del das
+
+        # Identify unique strain/assembly pairs for which we need to load annotations
+        unique_sa_to_load = drel_expanded[['strain', 'assembly']].drop_duplicates().reset_index(drop=True)
+
+
+        # --- 5. Load and Process Annotations in Parallel ---
+        all_processed_annotations = []
+        # Prepare arguments for the parallel function
+        tasks_args = [
+            (row['strain'], row['assembly'], params.base_annotation_path, params.cols_to_drop)
+            for _, row in unique_sa_to_load.iterrows()
+        ]
+        del unique_sa_to_load 
+
+        # Use ThreadPoolExecutor for parallel I/O
+        processed_results = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+            future_to_sa = {executor.submit(load_and_process_annotation, arg): arg for arg in tasks_args}
+            for i, future in enumerate(concurrent.futures.as_completed(future_to_sa)):
+                sa = future_to_sa[future]
+                result_df = future.result()
+                if result_df is not None and not result_df.empty:
+                    processed_results.append(result_df)
+
+
+
+        # Filter out potential None results if submit was used or errors occurred
+        all_processed_annotations = [df for df in processed_results if df is not None]
+
+
+        # --- 6. Combine Annotations and Merge ---
+        # Concatenate all loaded annotation dataframes into one
+
+        df_annotations_combined = pd.concat(all_processed_annotations, ignore_index=True)
+        del all_processed_annotations 
+
+        # Merge the combined annotations back to the expanded relation data
+        # Ensure correct merge keys
+        # Perform merge in chunks if df_annotations_combined or drel_expanded are massive to save memory
+        # For now, assume direct merge is feasible given the memory request
+        final_df = drel_expanded.merge(
+            df_annotations_combined,
+            on=['strain', 'assembly'], # Corresponds to StrainSelectID and assembly
+            how="inner" # Keep only rows where annotation data was successfully loaded and processed
+        )
+        del drel_expanded 
+        del df_annotations_combined 
+        logging.info(f"Shape after merging annotations: {final_df.shape}")
+
+
+        # --- 7. Final Processing and Output ---
+        # Add the combined identifier column 
+        # Ensure columns exist before concatenation
+        if 'strain' in final_df.columns and 'assembly' in final_df.columns and 'word_qc_group' in final_df.columns:
+             final_df['sa_ner'] = final_df['strain'] + "!" + final_df['assembly'] + "!" + final_df['word_qc_group']
+        else:
+             final_df['sa_ner'] = pd.NA
+
+
+        # Final filter: ensure word_qc_groups still have more than two entry *after* merging with annotations
+        final_word_counts = final_df["word_qc_group"].value_counts()
+        final_df = final_df[final_df["word_qc_group"].isin(final_word_counts[final_word_counts > 2].index)]
+
+        # Select and order final columns for clarity and efficiency
+        # Define the exact columns needed in the output parquet file
+        output_columns = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'sa_ner', 'word_qc_group']
+        # Ensure all expected columns exist, handle missing ones if necessary
+        final_output_columns = [col for col in output_columns if col in final_df.columns]
+
+
+        # Write only selected columns
+        final_df[final_output_columns].to_parquet(output.rel_output, index=False)
 
 
 
@@ -136,10 +249,9 @@ rule process_file:
     output:
         pickle_file=path + "/xgboost/annotations{data}/{rel}.pkl",
     resources:
-        slurm_partition="fat",
-        runtime=30,
-        mem_mb=240000,
-        tasks=10,
+        slurm_partition="cpu",
+        runtime=1000,
+        mem_mb=150000,
     run:
         # Read the parquet file
         d = pl.read_parquet(input.parquet_file)
@@ -196,10 +308,11 @@ rule xgboost_binary_parts:
     output:
         path + "/xgboost/annotations{data}/{rel}.pickle",
     resources:
-        slurm_partition="gpu_4",
+        slurm_partition="gpu_h100_il",
         slurm_extra="--gres=gpu:1",
         runtime=2000,
         tasks=5,
+        mem_mb=30000,
     params:
         data=DATA,
         device=config["cuda_devices"],
@@ -220,7 +333,7 @@ rule xgboost_binary_join:
     output:
         path + f"/xgboost/annotations{DATA}/binary/binary.pkl",
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=30,
         tasks=2,
         mem_mb=40000,
