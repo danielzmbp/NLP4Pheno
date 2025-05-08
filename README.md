@@ -1,5 +1,6 @@
-# LinkBERT model for phenotyope prediction
-This repository contains the code to reproduce the analyses from the paper: [Integrating natural language processing and genome analysis enables accurate bacterial phenotype prediction](https://doi.org/10.1101/2024.12.07.627346). 
+# NLP4Pheno: a pipeline for phenotype prediction using natural languague processing on the PubMed Corpus and genome analysis
+
+This repository contains the code to reproduce the analyses from the paper: [Integrating natural language processing and genome analysis enables accurate bacterial phenotype prediction](https://doi.org/10.1101/2024.12.07.627346).
 
 The repository consists of a series of Snakemake pipelines, scripts and notebooks to download and process data, train models for Named Entity Recognition (NER) and Relation Extration (RE), and analyze results. To reproduce, first adjust `config.yaml` to match your particular setup.
 
