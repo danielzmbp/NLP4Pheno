@@ -24,7 +24,7 @@ def get_rels():
 rule all:
     input:
         f"{path}/xgboost/annotations{DATA}/binary/binary.pkl",
-        # expand(path + "/xgboost/annotations"+ DATA + "/{rel}.parquet", rel=get_rels()),
+        f"{path}/xgboost/seqfiles_{DATA}/.EVOLUTION_DATASET_COMPLETE"
 
 rule create_downloaded_strains_file:
     output:
@@ -61,11 +61,11 @@ rule process_rel:
             "Sequence_MD5_digest", "Score", "Sequence_length",
             "Start_location", "Stop_location", "GO_annotations", "Pathways_annotations"
         ]
-    threads: 16
+    threads: 8
     resources:
         slurm_partition="cpu",
-        runtime=4300,
-        mem_mb=200000,
+        runtime=2000,
+        mem_mb=150000,
     run:
 
         import pandas as pd
@@ -93,8 +93,7 @@ rule process_rel:
                 # Add identifiers back for merging
                 annotation_df['strain'] = strain
                 annotation_df['assembly'] = assembly
-                # Select only essential columns here to reduce memory before concatenation
-                # Example: Keep 'InterPro_accession', 'Protein_ID', 'Length', 'strain', 'assembly'
+
                 essential_cols = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'strain', 'assembly']
                 cols_to_keep_final = [col for col in essential_cols if col in annotation_df.columns]
                 return annotation_df[cols_to_keep_final]
@@ -131,7 +130,7 @@ rule process_rel:
 
         # Keep only word_qc_groups appearing more than twice
         word_counts = drel["word_qc_group"].value_counts()
-        drel = drel[drel["word_qc_group"].isin(word_counts[word_counts > 2].index)]
+        drel = drel[drel["word_qc_group"].isin(word_counts[word_counts > 4].index)]
 
         # --- 3. Filter by Genus Diversity (Optimized) ---
         ss = strainselect_vertices[strainselect_vertices["vertex_type"] == "gss"].copy()
@@ -149,9 +148,9 @@ rule process_rel:
         m['total_strains_in_group'] = m.groupby("word_qc_group")['StrainSelectID'].transform('count')
         m['genus_proportion'] = m['genus_count'] / m['total_strains_in_group']
 
-        # Filter groups where nunique > 2 first 
+        # Filter groups where nunique > 3 first 
         # Filter out groups where any single genus makes up > 30% of the group
-        m = m[m['genus_count_in_group'] > 2]
+        m = m[m['genus_count_in_group'] > 3]
         m = m[m['genus_proportion'] <= 0.3]
 
 
@@ -206,7 +205,6 @@ rule process_rel:
         # Merge the combined annotations back to the expanded relation data
         # Ensure correct merge keys
         # Perform merge in chunks if df_annotations_combined or drel_expanded are massive to save memory
-        # For now, assume direct merge is feasible given the memory request
         final_df = drel_expanded.merge(
             df_annotations_combined,
             on=['strain', 'assembly'], # Corresponds to StrainSelectID and assembly
@@ -214,7 +212,7 @@ rule process_rel:
         )
         del drel_expanded 
         del df_annotations_combined 
-        logging.info(f"Shape after merging annotations: {final_df.shape}")
+
 
 
         # --- 7. Final Processing and Output ---
@@ -251,7 +249,7 @@ rule process_file:
     resources:
         slurm_partition="cpu",
         runtime=1000,
-        mem_mb=150000,
+        mem_mb=140000,
     run:
         # Read the parquet file
         d = pl.read_parquet(input.parquet_file)
@@ -308,11 +306,11 @@ rule xgboost_binary_parts:
     output:
         path + "/xgboost/annotations{data}/{rel}.pickle",
     resources:
-        slurm_partition="gpu_h100_il",
+        slurm_partition="gpu_h100",
         slurm_extra="--gres=gpu:1",
-        runtime=2000,
-        tasks=5,
-        mem_mb=30000,
+        runtime=900,
+        # tasks=5,
+        # mem_mb=30000,
     params:
         data=DATA,
         device=config["cuda_devices"],
@@ -355,3 +353,22 @@ rule xgboost_binary_join:
         with open(output[0], "wb") as f:
             pickle.dump(d, f)
 
+rule evolution_dataset:
+    input:
+        binary = f"{path}/xgboost/annotations{DATA}/binary/binary.pkl",
+        parquet_files = expand(
+            f"{path}/xgboost/annotations{DATA}/{{rel}}.parquet",
+            rel=get_rels(),
+        )
+    output:
+        f"{path}/xgboost/seqfiles_{DATA}/.EVOLUTION_DATASET_COMPLETE"
+    params:
+        path = path,
+        data = DATA
+    threads: 32
+    resources:
+        slurm_partition = "cpu",
+        runtime         = 4300,
+        mem_mb          = 250000
+    script:
+        "scripts/create_evolution_dataset_snakemake.py"

@@ -6,7 +6,7 @@ configfile: "config.yaml"
 
 data = config["dataset"]
 
-path = f"/home/tu/tu_tu/tu_kmpaj01/link/seqfiles_{data}"
+path = f"/home/tu/tu_tu/tu_kmpaj01/link/xgboost/seqfiles_{data}"
 (R,) = glob_wildcards(path + "/{rel}/seq.faa")
 
 localrules: align, codonaln, remove_dups, final
