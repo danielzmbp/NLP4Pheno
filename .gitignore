@@ -27,3 +27,4 @@ snakemake_PMC/*.pqt
 snakemake_PMC/*.tsv
 snakemake_PMC/*.csv
 models_biorxiv.tar.gz
+notebooks/.ipynb_checkpoints
