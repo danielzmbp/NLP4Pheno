@@ -6,8 +6,11 @@ corpus*
 test_training/
 gomez/
 notebooks/figures/
-notebooks/network_files/
 notebooks/ner_annotation/
+notebooks/ontologies/
+notebooks/entities/
+notebooks/*_files/
+notebooks/go-basic.obo
 gomez
 .DS_Store
 *-checkpoint*
@@ -15,3 +18,13 @@ temp/
 scripts/__pycache__
 .vscode/
 *.out
+errors.log
+snakemake_PMC/PMC*/
+snakemake_PMC/*.tar.gz
+snakemake_PMC/*.txt
+snakemake_PMC/*.parquet
+snakemake_PMC/*.pqt
+snakemake_PMC/*.tsv
+snakemake_PMC/*.csv
+models_biorxiv.tar.gz
+notebooks/.ipynb_checkpoints

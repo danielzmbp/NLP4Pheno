@@ -9,7 +9,6 @@ configfile: "config.yaml"
 
 
 data = config["dataset"]
-# path = ".."
 path = config["output_path"]
 
 assemblies = []
@@ -30,24 +29,40 @@ rule final:
             strain=strains,
             assembly=assemblies,
         ),
+            expand(
+            output_path + "{strain}/{assembly}/genomic.fna.gz",
+            zip,
+            strain=strains,
+            assembly=assemblies,
+        ),
 
 
 rule download:
     output:
         temp(output_path + "{strain}/{assembly}.zip"),
     shell:
-        "datasets download genome accession {wildcards.assembly} --include gff3,cds,protein,genome,seq-report --filename {output} --assembly-version 'latest' --api-key 71c734bb92382389e17af918de877c12b308"
+        "datasets download genome accession {wildcards.assembly} --include gff3,cds,protein,genome,seq-report --filename {output} --assembly-version 'latest' --api-key 71c734bb92382389e17af918de877c12b308 --fast-zip-validation --no-progressbar" 
 
 rule unzip:
     input:
         output_path + "{strain}/{assembly}.zip",
     output:
         output_path + "{strain}/{assembly}/protein.faa",
-        output_path + "{strain}/{assembly}/genomic.fna",
+        temp(output_path + "{strain}/{assembly}/genomic.fna"),
         output_path + "{strain}/{assembly}/genomic.cds",
-        output_path + "{strain}/{assembly}/genomic.gff",
+        temp(output_path + "{strain}/{assembly}/genomic.gff"),
     shell:
-        "unzip -j {input} 'ncbi_dataset/data/*/*.faa' 'ncbi_dataset/data/*/*.fna' 'ncbi_dataset/data/*/*.gff' -d {output_path}/{wildcards.strain}/{wildcards.assembly}; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/cds_from_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.cds; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/*_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.fna"
+        "unzip -o -j {input} 'ncbi_dataset/data/*/*.faa' 'ncbi_dataset/data/*/*.fna' 'ncbi_dataset/data/*/*.gff' -d {output_path}/{wildcards.strain}/{wildcards.assembly}; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/cds_from_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.cds; mv {output_path}/{wildcards.strain}/{wildcards.assembly}/*_genomic.fna {output_path}/{wildcards.strain}/{wildcards.assembly}/genomic.fna"
+        
+rule compress_fna_gff:
+    input:
+        output_path + "{strain}/{assembly}/genomic.fna",
+        output_path + "{strain}/{assembly}/genomic.gff",
+    output:
+        output_path + "{strain}/{assembly}/genomic.gff.gz",
+        output_path + "{strain}/{assembly}/genomic.fna.gz",
+    shell:
+        "gzip {input[0]}; gzip {input[1]}"
 
 
 rule ip:
@@ -55,9 +70,9 @@ rule ip:
         output_path + "{strain}/{assembly}/protein.faa",
     output:
         temp(output_path + "{strain}/{assembly}/annotation.tsv"),
-    threads: 2
+    threads: 4
     shell:
-        "/home/tu/tu_tu/tu_kmpaj01/ip/interproscan-5.68-100.0/interproscan.sh -T $TMPDIR -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
+        "/home/tu/tu_tu/tu_kmpaj01/ip/interproscan-5.74-105.0/interproscan.sh -T $TMPDIR -goterms -dra --iprlookup --cpu {threads} -i {input} -o {output} -f TSV -appl Pfam # SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam"
 
 
 rule convert_to_parquet:

@@ -5,11 +5,11 @@ configfile: "config.yaml"
 
 
 data = config["dataset"]
-max_assemblies = config["max_assemblies"]
-min_samples = config["min_samples"]
 
-path = f"/home/gomez/gomez/seqfiles_linkbert_{data}_{max_assemblies}_{min_samples}"
+path = f"/home/tu/tu_tu/tu_kmpaj01/link/xgboost/seqfiles_{data}"
 (R,) = glob_wildcards(path + "/{rel}/seq.faa")
+
+localrules: align, codonaln, remove_dups, final
 
 
 rule final:
@@ -35,6 +35,11 @@ rule fasttree:
         path + "/{rel}/seq.aln",
     output:
         path + "/{rel}/seq.tree",
+    threads: 10
+    resources:
+        mem_mb=16 * 1024,
+        slurm_partition="single",
+        runtime=2000,
     shell:
         "fasttree -nosupport {input} > {output}"
 
@@ -46,7 +51,7 @@ rule codonaln:
     output:
         alignment=path + "/{rel}/seq.aln.codon",
     shell:
-        "pal2nal.pl {input.pro_align} {input.nucl_seq} -output fasta > {output.alignment}"
+        "pal4nal.pl {input.pro_align} {input.nucl_seq} -output fasta -o {output.alignment}"
 
 
 rule remove_dups:
@@ -56,7 +61,7 @@ rule remove_dups:
     output:
         path + "/{rel}/seq.nxh",
     shell:
-        "hyphy /home/gomez/hyphy-analyses/remove-duplicates/remove-duplicates.bf --msa {input.aln_codon} --tree {input.tree} --output {output}"
+        "hyphy /home/tu/tu_tu/tu_kmpaj01/hyphy-analyses/remove-duplicates/remove-duplicates.bf --msa {input.aln_codon} --tree {input.tree} --output {output}"
 
 
 rule busted:
@@ -65,10 +70,14 @@ rule busted:
     output:
         json=path + "/{rel}/seq.json",
         log=path + "/{rel}/seq.log",
-    threads: 20
+    threads: 32
+    resources:
+        mem_mb=64 * 1024,
+        slurm_partition="single",
+        runtime=4320,
     shell:
         """
         ENV=TOLERATE_NUMERICAL_ERRORS=1
-        CPU=20
+        CPU=32
         hyphy busted --alignment {input} --output {output.json} > {output.log}
         """

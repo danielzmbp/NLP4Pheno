@@ -39,6 +39,7 @@ rule parse_rels:
     resources:
         slurm_partition="single",
         runtime=100,
+        mem_mb=8000,
     run:
         data = json.load(open(input[0]))
         ners = []
@@ -95,7 +96,10 @@ rule parse_rels:
                 elif rel_label.size == 0:
                     label = f"{lab0[2:-2]}-{lab1[2:-2]}:"
                     labels.append(label)
-        pd.DataFrame({"sentence": sentences, "label": labels}).to_csv(
+        rel_df = pd.DataFrame({"sentence": sentences, "label": labels})
+        # replace all hyphens in the data by spaces
+        rel_df["sentence"] = rel_df["sentence"].str.replace(r'(?<=\w)-(?=\w)', ' ')
+        rel_df.to_csv(
             output[0], sep="\t", index=False
         )
 
@@ -111,6 +115,7 @@ rule split_labels:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     run:
         df = pd.read_csv(input[0], sep="\t")
         for label in labels:
@@ -126,6 +131,7 @@ rule split_sets:
             "REL/{ENT}/all.tsv",
             ENT=labels,
         ),
+        input_file
     output:
         expand(
             "REL/{ENT}/{SET}.json",
@@ -135,9 +141,24 @@ rule split_sets:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     params:
         seed=config["seed"],
     run:
+        # Data Augmentation
+        with open(input_file, "r") as file:
+            data = json.load(file)
+        strain_catalog = []
+        for i in data:
+            if i["annotations"]:
+                for j in i["annotations"]:
+                    if j["result"]:
+                        for result in j["result"]:
+                            if "value" in result and "labels" in result["value"]:
+                                if result["value"]["labels"][0] == "STRAIN":
+                                    strain_catalog.append(result["value"]["text"])
+        strain_catalog = list(set(strain_catalog))
+
         for label in labels:
             rel_label = label.split(":")[1]
             df = pd.read_csv(f"REL/{label}/all.tsv", sep="\t")
@@ -149,6 +170,21 @@ rule split_sets:
             train, test_eval = train_test_split(
                 df, test_size=test_size, stratify=df.label, random_state=params.seed
             )
+
+            num_to_generate = (train[train["label"] ==0].shape[0] - train[train["label"] ==1].shape[0]) // 5
+
+            for _ in range(num_to_generate):
+                random_sentence = train[train["label"] ==1].sample(1).iloc[0]
+                s = random_sentence.sentence
+                for strain in strain_catalog:
+                    if strain in s:
+                        new_strain = np.random.choice([x for x in strain_catalog if x != strain])
+                        augmented_sentence = s.replace(strain, new_strain)
+                        augmented_row = random_sentence.copy()
+                        augmented_row.sentence = augmented_sentence
+                        train = pd.concat([train, pd.DataFrame([augmented_row])], ignore_index=True)
+
+
             test, evaluation = train_test_split(
                 test_eval,
                 test_size=0.5,
@@ -192,9 +228,11 @@ rule run_linkbert:
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
-        runtime=270,
+        runtime=1000,
+        mem_mb=32000,
     shell:
         """
+        export WANDB_MODE=offline
         export CUDA_VISIBLE_DEVICES={params.cuda}
         export MODEL=BioLinkBERT-{params.model_type}
         export MODEL_PATH=michiyasunaga/$MODEL
@@ -207,7 +245,7 @@ rule run_linkbert:
             --train_file $datadir/train.json --validation_file $datadir/dev.json --test_file $datadir/test.json \
             --do_train --do_eval --do_predict --metric_name PRF1 \
             --per_device_train_batch_size 32 --gradient_accumulation_steps 1 --fp16 \
-            --learning_rate 3e-5 --num_train_epochs {params.epochs} --max_seq_length 384 \
+            --learning_rate 3e-5 --num_train_epochs {params.epochs} --max_seq_length 512 \
             --save_strategy epoch --evaluation_strategy epoch --logging_strategy epoch --output_dir $outdir --overwrite_output_dir --load_best_model_at_end \
             --metric_for_best_model F1 --greater_is_better True \
             |& tee $outdir/log.txt
@@ -227,6 +265,7 @@ rule join_metrics:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     run:
         import json
         import pandas as pd
@@ -253,5 +292,6 @@ rule plot_metrics:
     resources:
         slurm_partition="single",
         runtime=30,
+        mem_mb=8000,
     script:
         "scripts/rel_plot_performance.py"

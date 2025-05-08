@@ -1,0 +1,20 @@
+# Downloads PMC articles from the PubMed Central Open Access Subset
+
+To run in an empty directory:
+
+```
+snakemake --cores 20 --use-conda
+```
+
+Clean PMC\* folders before rerunning.
+If it doesn't work it may be that there's a new release from PMC, check date of URL.
+
+To run using slurm (`pip install snakemake-executor-plugin-slurm`):
+
+```
+snakemake --jobs 40 --use-conda --executor slurm
+```
+
+## Deps
+- `pip install lingua-language-detector`
+- R packages: [tidypmc](https://github.com/ropensci/tidypmc), data.table, doParallel.
