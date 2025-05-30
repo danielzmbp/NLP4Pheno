@@ -61,16 +61,15 @@ rule process_rel:
             "Sequence_MD5_digest", "Score", "Sequence_length",
             "Start_location", "Stop_location", "GO_annotations", "Pathways_annotations"
         ]
-    threads: 8
+    threads: 16
     resources:
         slurm_partition="cpu",
         runtime=2000,
         mem_mb=150000,
     run:
-
-        import pandas as pd
         from pathlib import Path
         import concurrent.futures
+        import pyarrow as pa
 
         # --- Helper function to load and process one annotation file ---
         def load_and_process_annotation(args):
@@ -128,9 +127,10 @@ rule process_rel:
         del df 
 
 
-        # Keep only word_qc_groups appearing more than twice
+        # Keep only word_qc_groups appearing more than 2 times
         word_counts = drel["word_qc_group"].value_counts()
-        drel = drel[drel["word_qc_group"].isin(word_counts[word_counts > 4].index)]
+        drel = drel[drel["word_qc_group"].isin(word_counts[word_counts > 2].index)]
+
 
         # --- 3. Filter by Genus Diversity (Optimized) ---
         ss = strainselect_vertices[strainselect_vertices["vertex_type"] == "gss"].copy()
@@ -148,9 +148,9 @@ rule process_rel:
         m['total_strains_in_group'] = m.groupby("word_qc_group")['StrainSelectID'].transform('count')
         m['genus_proportion'] = m['genus_count'] / m['total_strains_in_group']
 
-        # Filter groups where nunique > 3 first 
+        # Filter groups where nunique > 4 first 
         # Filter out groups where any single genus makes up > 30% of the group
-        m = m[m['genus_count_in_group'] > 3]
+        m = m[m['genus_count_in_group'] > 4]
         m = m[m['genus_proportion'] <= 0.3]
 
 
@@ -214,29 +214,94 @@ rule process_rel:
         del df_annotations_combined 
 
 
-
         # --- 7. Final Processing and Output ---
         # Add the combined identifier column 
         # Ensure columns exist before concatenation
-        if 'strain' in final_df.columns and 'assembly' in final_df.columns and 'word_qc_group' in final_df.columns:
-             final_df['sa_ner'] = final_df['strain'] + "!" + final_df['assembly'] + "!" + final_df['word_qc_group']
-        else:
-             final_df['sa_ner'] = pd.NA
+
+        final_df.drop(columns=["rel","StrainSelectID"], inplace=True) 
+
+        for col in final_df.columns:
+            if final_df[col].dtype == 'object':
+                # Attempt to convert to Pandas' Arrow-backed string type
+                try:
+                    # if final_df[col].dropna().apply(type).eq(str).all():
+                    print(f"Converting column '{col}' to pd.StringDtype()...")
+                    final_df[col] = final_df[col].astype(pd.StringDtype())
+                except Exception as e:
+                    print(f"Could not convert column '{col}' to pd.StringDtype(): {e}")
+
+        
+        final_df_pl = pl.from_pandas(final_df)
+
+        final_df_pl = final_df_pl.with_columns(
+            pl.concat_str(
+                [
+                    pl.col("strain").cast(pl.Utf8),
+                    pl.lit("!"), # Literal string
+                    pl.col("assembly").cast(pl.Utf8),
+                    pl.lit("!"),
+                    pl.col("word_qc_group").cast(pl.Utf8)
+                ],
+                separator=""
+            ).alias("sa_ner")
+        )
+
+        # if 'strain' in final_df.columns and 'assembly' in final_df.columns and 'word_qc_group' in final_df.columns:
+        #      final_df['sa_ner'] = final_df['strain'] + "!" + final_df['assembly'] + "!" + final_df['word_qc_group']
+        # else:
+        #      final_df['sa_ner'] = pd.NA
 
 
         # Final filter: ensure word_qc_groups still have more than two entry *after* merging with annotations
-        final_word_counts = final_df["word_qc_group"].value_counts()
-        final_df = final_df[final_df["word_qc_group"].isin(final_word_counts[final_word_counts > 2].index)]
+        # final_word_counts = final_df["word_qc_group"].value_counts()
+        # final_df = final_df[final_df["word_qc_group"].isin(final_word_counts[final_word_counts > 2].index)]
+
+        # # Select and order final columns for clarity and efficiency
+        # # Define the exact columns needed in the output parquet file
+        # output_columns = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'sa_ner', 'word_qc_group']
+        # # Ensure all expected columns exist, handle missing ones if necessary
+        # final_output_columns = [col for col in output_columns if col in final_df.columns]
+
+
+        # # Write only selected columns
+        # final_df[final_output_columns].to_parquet(output.rel_output, index=False)
+        # Final filter: ensure word_qc_groups still have more than two entries
+        if "word_qc_group" in final_df_pl.columns:
+            final_df_pl = final_df_pl.with_columns(
+                pl.col("word_qc_group").count().over("word_qc_group").alias("temp_wqc_count")
+            ).filter(
+                pl.col("temp_wqc_count") > 2
+            ).drop("temp_wqc_count") # Remove the temporary count column
+        else:
+            print("Warning: 'word_qc_group' column not found. Skipping group count filter.")
+
 
         # Select and order final columns for clarity and efficiency
         # Define the exact columns needed in the output parquet file
-        output_columns = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'sa_ner', 'word_qc_group']
-        # Ensure all expected columns exist, handle missing ones if necessary
-        final_output_columns = [col for col in output_columns if col in final_df.columns]
+        output_columns_desired = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'sa_ner', 'word_qc_group']
 
+        # Ensure all expected columns exist in the Polars DataFrame
+        current_polars_columns = final_df_pl.columns
+        final_output_columns_pl = [col for col in output_columns_desired if col in current_polars_columns]
 
-        # Write only selected columns
-        final_df[final_output_columns].to_parquet(output.rel_output, index=False)
+        # If no columns are selected (e.g., if final_df_pl became empty or desired columns don't exist),
+        # handle this to avoid errors.
+        if not final_output_columns_pl:
+            print(f"Warning: No columns from '{output_columns_desired}' found in the DataFrame after processing. Parquet file will not be written or will be empty.")
+        elif final_df_pl.is_empty():
+            print(f"Warning: DataFrame is empty after filtering. Writing an empty Parquet file with selected columns: {final_output_columns_pl}")
+            try:
+                # Attempt to get schema from the (potentially empty) DataFrame for the selected columns
+                schema_for_empty_df = {col: final_df_pl.schema[col] for col in final_output_columns_pl}
+                pl.DataFrame(schema=schema_for_empty_df).write_parquet(output.rel_output)
+            except Exception as e:
+                print(f"Could not write empty parquet, possibly due to schema issues with an empty dataframe: {e}")
+        else:
+            # Select the columns and write to Parquet
+            # Polars' write_parquet does not write an index by default.
+            final_df_pl.select(final_output_columns_pl).write_parquet(output.rel_output)
+            print(f"Successfully wrote selected columns to {output.rel_output}")
+
 
 
 
@@ -305,12 +370,13 @@ rule xgboost_binary_parts:
         path + "/xgboost/annotations{data}/{rel}.pkl"
     output:
         path + "/xgboost/annotations{data}/{rel}.pickle",
+    threads: 32
     resources:
-        slurm_partition="gpu_h100",
-        slurm_extra="--gres=gpu:1",
+        slurm_partition="cpu",
+        # slurm_extra="--gres=gpu:1",
         runtime=900,
         # tasks=5,
-        # mem_mb=30000,
+        mem_mb=50000,
     params:
         data=DATA,
         device=config["cuda_devices"],
@@ -318,7 +384,7 @@ rule xgboost_binary_parts:
     conda:
         "xgb"
     script:
-        "scripts/xgboost_binary_snakemake.py"
+        "scripts/xgboost_binary_snakemake_cpu.py"
 
 
 rule xgboost_binary_join:

@@ -89,7 +89,7 @@ rule run_all_models:
     conda:
         "torch"
     resources:
-        slurm_partition="gpu_4",
+        slurm_partition="gpu_h100",
         slurm_extra="--gres=gpu:1",
         runtime=500
     shell:
@@ -299,7 +299,13 @@ rule merge_preds:
             .str.replace("^plaques$","plaque",regex=True)
             .str.replace("^spore-$", "spore", regex=True)
             .str.replace("^gram- negative$", "gram negative", regex=True)
+            .str.replace("^gram negatives$", "gram negative", regex=True)
+            .str.replace("^gram positives$", "gram positive", regex=True)
+            .str.replace("^gram\^−$", "gram negative", regex=True)
             .str.replace("^gram- positive$", "gram positive", regex=True)
+            .str.replace("^g-positive$", "gram positive", regex=True)
+            .str.replace("^gram-positive$", "gram positive", regex=True)
+            .str.replace("^gram\+$", "gram positive", regex=True)
             .str.replace("^gram ‐ negative$", "gram negative", regex=True)
             .str.replace("^gram - stain - negative$", "gram negative", regex=True)
             .str.replace("^gram\^\+$", "gram positive", regex=True)
@@ -308,6 +314,7 @@ rule merge_preds:
             .str.replace("^gram \(-\)$", "gram negative", regex=True)
             .str.replace("^gram \(+$", "gram positive", regex=True)
             .str.replace("^gram \(-$", "gram negative", regex=True)
+            .str.replace("^gram \(−$", "gram negative", regex=True)
             .str.replace("^iron-reducing$", "iron - reducing", regex=True)
             .str.replace(
                 "^facultatively anaerobic$", "facultative anaerobic", regex=True
@@ -318,6 +325,16 @@ rule merge_preds:
             .str.replace("^n - fixing$", "nitrogen - fixing", regex=True)
             .str.replace("^fast-growing$", "fast - growing", regex=True)
             .str.replace("^anaerobically$", "anaerobic", regex=True)
+            .str.replace("^endophyte$", "endophytic", regex=True)
+            .str.replace("^endophytes$", "endophytic", regex=True)
+            .str.replace("^probiotics$", "probiotic", regex=True)
+            .str.replace("^sporulation$", "spore", regex=True)
+            .str.replace("^sporulated$", "spore", regex=True)
+            .str.replace("^non virulent$", "avirulent", regex=True)
+            .str.replace("^virulence$", "virulent", regex=True)
+            .str.replace("^mucoidy$", "mucoid", regex=True)
+            .str.replace("^aerobically$", "aerobic", regex=True)
+            .str.replace("^aerobes$", "aerobic", regex=True)
             # isolate
             .str.replace("^marine sediments$", "marine sediment", regex=True)
             .str.replace("^human faeces$", "human feces", regex=True)
@@ -495,11 +512,11 @@ rule match_batch_strainselect:
         batch_output=f"{preds}/batched_output_results/{{batch_id}}.parquet",
     resources:
         slurm_partition="cpu",
-        runtime=2000,
-        mem_mb=75000,
-        tasks=3
+        runtime=3000,
+        mem_mb=80000,
+        tasks=5
     run:
-        workers = 6
+        workers = 10
 
         df = pd.read_parquet(input[0])
         vertices = pd.read_csv(input[1], sep="\t",usecols = [0,1,2])
@@ -701,7 +718,7 @@ rule write_download_file:
         vertices = pd.read_csv(input[1],sep="\t",usecols = [0,1,2])
         v_rs = vertices[vertices["vertex_type"]=="rs_assembly"]
         merged = df.merge(v_rs, on ="StrainSelectID")
-        merged.loc[:,"assemblies"] = merged["StrainSelectID"] + "/" + merged["vertex_y"]
+        merged.loc[:,"assemblies"] = merged["StrainSelectID"] + "/" + merged["vertex"]
         assemblies = merged.drop_duplicates("assemblies").assemblies.to_list()
 
         with open(output[0],"w") as f:
