@@ -10,27 +10,10 @@ from concurrent.futures import ThreadPoolExecutor
 import polars as pl
 
 
-if "snakemake" in globals():                       # ← running inside a rule
-    PATH   = snakemake.params.path
-    DATA   = snakemake.params.data
-    DONE   = Path(snakemake.output[0])
-else:                                              # ← standalone run
-    PATH   = ".."
-    DATA   = "3103"
-    DONE   = None                                  # no flag-file
-OUTDIR = f"{PATH}/xgboos/seqfiles_{DATA}"
-
-
-def main() -> None:
-    df = load_pickle(PATH, DATA)
-    create_evolution_dataset(df, PATH, DATA, OUTDIR)
-    deduplicate_dataset(PATH, DATA)
-
-    # Touch the flag-file **only if everything succeeded**
-    if DONE is not None:
-        DONE.parent.mkdir(parents=True, exist_ok=True)
-        DONE.touch()
-
+PATH   = snakemake.params.path
+DATA   = snakemake.params.data
+DONE   = Path(snakemake.output[0])
+OUTDIR = f"{PATH}/xgboost/seqfiles_{DATA}"
 
 
 def load_pickle(path, data):
@@ -118,7 +101,8 @@ def create_evolution_dataset(df, path, data, outdir):
 
     df = pl.from_pandas(df)
     df = df.filter(pl.col("importance_ranking") == 1)
-
+    df = df.join(ip_names_pl, left_on="gene", right_on="ENTRY_NAME")
+    
     for rel in tqdm(df["rel"].unique().to_list()):
         filtered_df = df.filter(pl.col("rel") == rel)
 
@@ -132,7 +116,7 @@ def create_evolution_dataset(df, path, data, outdir):
             sa_ner_df = parq.filter(pl.col("word_qc_group") == row["ner"])
             if not sa_ner_df.is_empty():
                 strains = (
-                    sa_ner_df.filter(pl.col("InterPro_accession") == row["gene"])["sa_ner"].str.split("!").list.get(0).unique().to_list()
+                    sa_ner_df.filter(pl.col("InterPro_accession") == row["ENTRY_AC"])["sa_ner"].str.split("!").list.get(0).unique().to_list()
                 )
                 new_rel = row["rel"].replace(":", "_")
                 new_ner = (
@@ -143,10 +127,11 @@ def create_evolution_dataset(df, path, data, outdir):
                     .replace(")", "_")
                     .replace("/", "_")
                     .replace(":", "_")
+                    .replace("&", "_")
                 )
                 sa_ner = f"first_{new_rel}_{new_ner}"
                 protein_ids = set(
-                    parq.filter(pl.col("InterPro_accession") == row["gene"],
+                    parq.filter(pl.col("InterPro_accession") == row["ENTRY_AC"],
                                                     pl.col("word_qc_group") == row["ner"])[
                                             "Protein_accession"
                                         ]
@@ -157,7 +142,7 @@ def create_evolution_dataset(df, path, data, outdir):
                 output_faa = []
                 output_fna = []
 
-                with ThreadPoolExecutor(max_workers=80) as executor:
+                with ThreadPoolExecutor(max_workers=int(snakemake.threads)) as executor:
                     futures = {
                         executor.submit(
                             process_strain,
@@ -304,20 +289,27 @@ def deduplicate_dataset(path, data):
                 # Replace the original file with the deduplicated file
                 os.replace(temp_file, file_path)
 
-def main() -> None:
-    df = load_pickle(PATH, DATA)
-    create_evolution_dataset(df, PATH, DATA, OUTDIR)
-    deduplicate_dataset(PATH, DATA)
+ip_names = pd.read_csv(
+    "https://ftp.ebi.ac.uk/pub/databases/interpro/current_release/entry.list",
+    sep="\t",
+    header=0,
+)
+ip_names.set_index("ENTRY_AC", inplace=True)
 
-    # Touch the flag-file **only if everything succeeded**
-    if DONE is not None:
-        DONE.parent.mkdir(parents=True, exist_ok=True)
-        DONE.touch()
-        
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        # Propagate the error so Snakemake reports a proper failure
-        print(f"[create_evolution_dataset] ERROR: {e}", file=sys.stderr)
-        sys.exit(1)
+ip_names["ENTRY_NAME"] = (
+    ip_names["ENTRY_NAME"]
+    .str.replace("[", "_")
+    .str.replace("]", "_")
+    .str.replace("<", "_")
+)
+
+ip_names_pl = pl.from_pandas(ip_names.reset_index())
+
+df = load_pickle(PATH, DATA)
+create_evolution_dataset(df, PATH, DATA, OUTDIR)
+deduplicate_dataset(PATH, DATA)
+
+# Touch the flag-file **only if everything succeeded**
+if DONE is not None:
+    DONE.parent.mkdir(parents=True, exist_ok=True)
+    DONE.touch()

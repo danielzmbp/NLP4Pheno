@@ -25,9 +25,9 @@ rule align:
         path + "/{rel}/seq.faa",
     output:
         path + "/{rel}/seq.aln",
-    threads: 5
+    threads: 1
     shell:
-        "mafft --auto --thread 5 {input} > {output}"
+        "mafft --auto --thread {threads} {input} > {output}"
 
 
 rule fasttree:
@@ -35,10 +35,10 @@ rule fasttree:
         path + "/{rel}/seq.aln",
     output:
         path + "/{rel}/seq.tree",
-    threads: 10
+    threads: 2
     resources:
-        mem_mb=16 * 1024,
-        slurm_partition="single",
+        mem_mb= 2 * 1024,
+        slurm_partition="cpu",
         runtime=2000,
     shell:
         "fasttree -nosupport {input} > {output}"
@@ -72,12 +72,12 @@ rule busted:
         log=path + "/{rel}/seq.log",
     threads: 32
     resources:
-        mem_mb=64 * 1024,
-        slurm_partition="single",
+        mem_mb= 32 * 1024,
+        slurm_partition="cpu",
         runtime=4320,
     shell:
         """
         ENV=TOLERATE_NUMERICAL_ERRORS=1
-        CPU=32
+        CPU={threads}
         hyphy busted --alignment {input} --output {output.json} > {output.log}
         """
