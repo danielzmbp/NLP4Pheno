@@ -1,11 +1,26 @@
-# NLP4Pheno: a pipeline for phenotype prediction using natural language processing on the PubMed Corpus and genome analysis
+# NLP4Pheno: Bacterial Phenotype Prediction Pipeline
 
 This repository contains the code to reproduce the analyses from the paper: [Integrating natural language processing and genome analysis enables accurate bacterial phenotype prediction](https://doi.org/10.1101/2024.12.07.627346).
 
-The repository consists of a series of Snakemake pipelines, scripts and notebooks to download and process data, train models for Named Entity Recognition (NER) and Relation Extraction (RE), and analyze results. To reproduce, first adjust `config.yaml` to match your particular setup.
+The pipeline integrates Named Entity Recognition (NER), Relation Extraction (RE), and XGBoost-based phenotype prediction using Snakemake workflows. 
 
-## Install python environments
-To reproduce this analysis, first create the necessary Python environments:
+## Prerequisites
+
+- [Snakemake](https://snakemake.readthedocs.io/) (≥6.0)
+- [Mamba](https://mamba.readthedocs.io/) or Conda
+- NCBI API key (for genome downloads)
+- InterProScan installation (for protein annotation)
+
+## Configuration
+
+Before running any pipeline, adjust `config.yaml` to match your setup. Key parameters:
+- `dataset`: Corpus identifier (determines output directories)
+- `cuda_devices`: GPU devices for training
+- `input_file`: Path to manually annotated training data
+
+## Environment Setup
+
+Create the required Python environments:
 ```
 mamba env create -f envs/base.yml
 mamba env create -f envs/torch.yml
@@ -18,13 +33,14 @@ mamba env create -f envs/l.yml
 ```
 snakemake --cores 20 --use-conda -s snakemake_PMC/Snakefile
 ```
-- Prepare files with `scripts/make_test_corpus.py` script and save to the `corpus{dataset}/` directory, where dataset is defined in the `config.yaml`.
+- Prepare corpus files using the `scripts/make_test_corpus.py` script. Files are saved to `corpus{dataset}/` directory (where `{dataset}` is defined in `config.yaml`).
 
-## Training
-The manually annotated dataset is provided in `label/project-5-at-2025-04-03-15-30-d43aa787.json` in label-studio json format.
+## Model Training
 
-### NER finetuning
-First, we need to finetune the base model on the NER task for each of the entities. 
+The manually annotated dataset is provided in `label/project-5-at-2025-04-03-15-30-d43aa787.json` (Label Studio JSON format).
+
+### Named Entity Recognition (NER)
+Train NER models for each entity type (STRAIN, SPECIES, PHENOTYPE, etc.): 
 ```
 snakemake --cores 20 --use-conda -s ner.smk
 ```
@@ -40,10 +56,11 @@ python scripts/run_nervaluate.py
 ```
 They will be generated to the same output folder.
 
-### RE finetuning
-
-```
-rm -rf REL*; snakemake --cores 20 --use-conda -s rel.smk
+### Relation Extraction (RE)
+Train models to predict relationships between entities:
+```bash
+rm -rf REL*
+snakemake --cores 20 --use-conda -s rel.smk
 ```
 The output for this will be saved to the base directory. It includes:
 - `REL/`: directory with the data for the training and testing.
@@ -67,38 +84,33 @@ To predict the RE annotations in the sentences or paragraphs predicted to contai
 snakemake --cores 20 --use-conda -s rel_pred.smk
 ```
 
-## Download assemblies and annotate
+## Genome Analysis
 
-- Before running, create a `.ncbi_api_key` file in the root directory containing your NCBI API key.
-- Run `ip.smk` to download and annotate all representative assemblies from strains that have at least one relation using Pfam with InterProScan.
-  - You will need to adjust the path to your IP installation.
-- Run with `scripts/ip_slurm.sh` to run using slurm.
-- The output will be in `assemblies_{dataset}/` directory.
-
-### XGBoost importances
-
-- Run `xgboost.smk` Snakemake pipeline, config in `config.yaml` file.
-
+### Download and Annotate Assemblies
+1. Create a `.ncbi_api_key` file in the root directory with your NCBI API key
+2. Adjust InterProScan installation path in the pipeline
+3. Run genome download and annotation:
+```bash
+snakemake --cores 20 --use-conda -s ip.smk
 ```
+   
+Output will be saved to `assemblies_{dataset}/` directory.
+
+### Phenotype Prediction
+Run XGBoost models for phenotype prediction based on protein domains:
+```bash
 snakemake --cores 40 --use-conda -s xgboost.smk
 ```
 
-- This will first group all strains with the same phenotype relation, create the features and then run XGBoost models for each.
-
-- The results will be saved to the output directory as `xgboost/annotations{dataset}`. The main output containing all the results is a pickle file found in `xgboost/annotations{dataset}/binary/binary.pkl`.
-
-- This will also create `xgboost/seqfiles{dataset}` which contains the files for the evolution analysis.
-  - This consists of the collated sequences with the highest importance annotations grouped by phenotype relation. 
-
-- Then analyze with notebooks:
-  - `analyze_xgboost_tidy.ipynb`.
+**Output:**
+- `xgboost/annotations{dataset}/binary/binary.pkl`: Main results file
+- `xgboost/seqfiles{dataset}/`: Sequences for evolution analysis
+- Analysis notebook: `analyze_xgboost_tidy.ipynb`
 
 
-#### Pipeline for evolution analysis
-
-- Run `evolution.smk` to make alignments and calculate selective pressures.
-
-```
+### Evolution Analysis
+Analyze selective pressure on important protein domains:
+```bash
 snakemake --cores 20 --use-conda -s evolution.smk
 ```
-- Analyze with `analyze_evolution.ipynb`.
+Analysis notebook: `analyze_evolution.ipynb`
