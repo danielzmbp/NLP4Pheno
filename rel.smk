@@ -7,9 +7,7 @@ from itertools import permutations
 from sklearn.model_selection import train_test_split
 import jsonlines
 
-
 configfile: "config.yaml"
-
 
 labels = config["rel_labels"]
 model_sets = config["model_sets"]
@@ -17,19 +15,31 @@ input_file = config["input_file"]
 cuda = config["cuda_devices"]
 test_size = config["rel_test"]
 
+# Common resource configuration
+COMMON_RESOURCES = {
+    "slurm_partition": "single",
+    "runtime": 30,
+    "mem_mb": 8000
+}
+
+def extract_strain_catalog(json_data):
+    """Extract unique strain names from annotation data"""
+    strain_catalog = []
+    for item in json_data:
+        if item.get("annotations"):
+            for annotation in item["annotations"]:
+                if annotation.get("result"):
+                    for result in annotation["result"]:
+                        if ("value" in result and "labels" in result["value"] 
+                            and result["value"]["labels"][0] == "STRAIN"):
+                            strain_catalog.append(result["value"]["text"])
+    return list(set(strain_catalog))
+
 
 rule all:
     input:
         "REL_output/all_metrics.png",
 
-# rule make_input_json:
-#     resources:
-#         slurm_partition="single",
-#         runtime=10,
-#     output:
-#         input_file,
-#     run:
-#         "python scripts/convert_label.py"
 
 rule parse_rels:
     input:
@@ -41,7 +51,8 @@ rule parse_rels:
         runtime=100,
         mem_mb=8000,
     run:
-        data = json.load(open(input[0]))
+        with open(input[0]) as f:
+            data = json.load(f)
         ners = []
         rels = []
         for sentence in data:
@@ -108,14 +119,9 @@ rule split_labels:
     input:
         "REL/parsed_rels.txt",
     output:
-        expand(
-            "REL/{ENT}/all.tsv",
-            ENT=labels,
-        ),
+        expand("REL/{ENT}/all.tsv", ENT=labels),
     resources:
-        slurm_partition="single",
-        runtime=30,
-        mem_mb=8000,
+        **COMMON_RESOURCES,
     run:
         df = pd.read_csv(input[0], sep="\t")
         for label in labels:
@@ -127,37 +133,18 @@ rule split_labels:
 
 rule split_sets:
     input:
-        expand(
-            "REL/{ENT}/all.tsv",
-            ENT=labels,
-        ),
+        expand("REL/{ENT}/all.tsv", ENT=labels),
         input_file,
     output:
-        expand(
-            "REL/{ENT}/{SET}.json",
-            ENT=labels,
-            SET=model_sets,
-        ),
+        expand("REL/{ENT}/{SET}.json", ENT=labels, SET=model_sets),
     resources:
-        slurm_partition="single",
-        runtime=30,
-        mem_mb=8000,
+        **COMMON_RESOURCES,
     params:
         seed=config["seed"],
     run:
-        # Data Augmentation
         with open(input_file, "r") as file:
             data = json.load(file)
-        strain_catalog = []
-        for i in data:
-            if i["annotations"]:
-                for j in i["annotations"]:
-                    if j["result"]:
-                        for result in j["result"]:
-                            if "value" in result and "labels" in result["value"]:
-                                if result["value"]["labels"][0] == "STRAIN":
-                                    strain_catalog.append(result["value"]["text"])
-        strain_catalog = list(set(strain_catalog))
+        strain_catalog = extract_strain_catalog(data)
 
         for label in labels:
             rel_label = label.split(":")[1]
@@ -171,18 +158,22 @@ rule split_sets:
                 df, test_size=test_size, stratify=df.label, random_state=params.seed
             )
 
-            num_to_generate = (train[train["label"] ==0].shape[0] - train[train["label"] ==1].shape[0]) // 5
+            # Data augmentation for positive samples
+            positive_samples = train[train["label"] == 1]
+            negative_samples = train[train["label"] == 0]
+            num_to_generate = (len(negative_samples) - len(positive_samples)) // 5
 
             for _ in range(num_to_generate):
-                random_sentence = train[train["label"] ==1].sample(1).iloc[0]
-                s = random_sentence.sentence
+                random_sentence = positive_samples.sample(1).iloc[0]
+                sentence_text = random_sentence.sentence
                 for strain in strain_catalog:
-                    if strain in s:
+                    if strain in sentence_text:
                         new_strain = np.random.choice([x for x in strain_catalog if x != strain])
-                        augmented_sentence = s.replace(strain, new_strain)
+                        augmented_sentence = sentence_text.replace(strain, new_strain)
                         augmented_row = random_sentence.copy()
                         augmented_row.sentence = augmented_sentence
                         train = pd.concat([train, pd.DataFrame([augmented_row])], ignore_index=True)
+                        break
 
 
             test, evaluation = train_test_split(
@@ -209,16 +200,9 @@ rule split_sets:
 
 rule run_linkbert:
     input:
-        expand(
-            "REL/{ENT}/{SET}.json",
-            ENT=labels,
-            SET=model_sets,
-        ),
+        expand("REL/{ENT}/{SET}.json", ENT=labels, SET=model_sets),
     output:
-        expand(
-            "REL_output/{ENT}/all_results.json",
-            ENT=labels,
-        ),
+        expand("REL_output/{ENT}/all_results.json", ENT=labels),
     conda:
         "l"
     params:
@@ -256,30 +240,20 @@ rule run_linkbert:
 
 rule join_metrics:
     input:
-        mets=expand(
-            "REL_output/{ENT}/all_results.json",
-            ENT=labels,
-        ),
+        mets=expand("REL_output/{ENT}/all_results.json", ENT=labels),
     output:
         "REL_output/all_metrics.tsv",
     resources:
-        slurm_partition="single",
-        runtime=30,
-        mem_mb=8000,
+        **COMMON_RESOURCES,
     run:
-        import json
-        import pandas as pd
-
         dfs = []
         for f in input.mets:
             with open(f, "r") as file:
                 data = json.load(file)
-            relation = f.split("/")[1]  # f.rsplit("-", 1)[0].split("/")[1]
+            relation = f.split("/")[1]
             df = pd.DataFrame({relation: data})
-            dft = df.transpose()
-            dfs.append(dft)
-        result_df = pd.concat(dfs)
-        result_df.to_csv(output[0], sep="\t")
+            dfs.append(df.transpose())
+        pd.concat(dfs).to_csv(output[0], sep="\t")
 
 
 rule plot_metrics:
@@ -290,8 +264,6 @@ rule plot_metrics:
     params:
         labels=labels,
     resources:
-        slurm_partition="single",
-        runtime=30,
-        mem_mb=8000,
+        **COMMON_RESOURCES,
     script:
         "scripts/rel_plot_performance.py"

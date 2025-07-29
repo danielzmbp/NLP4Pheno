@@ -8,15 +8,43 @@ import copy
 from operator import itemgetter
 from sklearn.model_selection import train_test_split
 
-
 configfile: "config.yaml"
-
 
 labels = config["ner_labels"]
 model_sets = config["model_sets"]
 input_file = config["input_file"]
 cuda = config["cuda_devices"]
 test_size = config["ner_test"]
+
+# Common resource configuration
+COMMON_RESOURCES = {
+    "slurm_partition": "single",
+    "runtime": 30,
+    "mem_mb": 8000
+}
+
+def extract_strain_catalog(json_data):
+    """Extract unique strain names from annotation data"""
+    strain_catalog = []
+    for item in json_data:
+        if item.get("annotations"):
+            for annotation in item["annotations"]:
+                if annotation.get("result"):
+                    for result in annotation["result"]:
+                        if ("value" in result and "labels" in result["value"] 
+                            and result["value"]["labels"][0] == "STRAIN"):
+                            strain_catalog.append(result["value"]["text"])
+    return list(set(strain_catalog))
+
+def replace_hyphens_in_data(sentences):
+    """Replace hyphens in sentence data with spaces"""
+    for sentence in sentences:
+        for annotation in sentence["annotations"]:
+            for result in annotation["result"]:
+                if "value" in result and "text" in result["value"]:
+                    result["value"]["text"] = re.sub(r'(?<=\w)-(?=\w)', ' ', result["value"]["text"])
+        if "data" in sentence and "text" in sentence["data"]:
+            sentence["data"]["text"] = re.sub(r'(?<=\w)-(?=\w)', ' ', sentence["data"]["text"])
 
 
 rule all:
@@ -29,9 +57,7 @@ rule make_split:
     output:
         expand("NER/{ENT}/{SET}.jsonls", ENT=labels, SET=model_sets),
     resources:
-        slurm_partition="single",
-        runtime=30,
-        mem_mb=8000,
+        **COMMON_RESOURCES,
     params:
         seed=config["seed"],
     run:
@@ -62,23 +88,12 @@ rule make_split:
             count_positives = np.sum(ners)
             t = list(zip(sentences, ners))
             sort = sorted(t, key=itemgetter(1))
-            # get x times more negatives than positives
-            # sort = sort[-(count_positives * 10) :]
             random.seed(seed)
             random.shuffle(sort)
             sentences, ners = zip(*sort)
             sentences = list(sentences)
 
-            # replace all hyphens in the data by spaces
-            for sentence in sentences:
-                for annotation in sentence["annotations"]:
-                    for result in annotation["result"]:
-                        if "value" in result:
-                            if "text" in result["value"]:
-                                result["value"]["text"] = re.sub(r'(?<=\w)-(?=\w)', ' ', result["value"]["text"])
-                if "data" in sentence:
-                    if "text" in sentence["data"]:
-                        sentence["data"]["text"] = re.sub(r'(?<=\w)-(?=\w)', ' ', sentence["data"]["text"])
+            replace_hyphens_in_data(sentences)
             
             X_train, X_test_dev, _, y_test_dev = train_test_split(
                 sentences, ners, test_size=test_size, random_state=params.seed, stratify=ners
@@ -104,24 +119,13 @@ rule data_aug:
     output:
         expand("NER/{ENT}/{SET}.jsonla", ENT=labels, SET=model_sets),
     resources:
-        slurm_partition="single",
-        runtime=30,
-        mem_mb=8000,
+        **COMMON_RESOURCES,
     params:
         seed=config["seed"],
     run:
         with open(input_file) as f:
             json_file = json.load(f)
-        strain_catalog = []
-        for i in json_file:
-            if i["annotations"]:
-                for j in i["annotations"]:
-                    if j["result"]:
-                        for result in j["result"]:
-                            if "value" in result and "labels" in result["value"]:
-                                if result["value"]["labels"][0] == "STRAIN":
-                                    strain_catalog.append(result["value"]["text"])
-        strain_catalog = list(set(strain_catalog))
+        strain_catalog = extract_strain_catalog(json_file)
 
         for label in labels:
             if label == "STRAIN":
@@ -206,36 +210,18 @@ rule convert_splits:
     output:
         conll=expand("NER/{ENT}/{SET}.conll", ENT=labels, SET=model_sets),
     resources:
-        slurm_partition="single",
-        runtime=30,
-        mem_mb=8000,
+        **COMMON_RESOURCES,
     shell:
-        """
-        for f in NER/**/*.jsonla
-        do label-studio-converter export -i $f -c {input.config} -f CONLL2003 -o ${{f%.jsonla}}
-        cat ${{f%.jsonla}}/result.conll > ${{f%jsonla}}conll
-        rm -rf ${{f%.jsonla}}
-        done
-        """
+        "for f in NER/**/*.jsonla; do label-studio-converter export -i $f -c {input.config} -f CONLL2003 -o ${{f%.jsonla}}; cat ${{f%.jsonla}}/result.conll > ${{f%jsonla}}conll; rm -rf ${{f%.jsonla}}; done"
 
 
 rule convert_to_bio:
     input:
-        expand(
-            "NER/{ENT}/{SET}.conll",
-            ENT=labels,
-            SET=model_sets,
-        ),
+        expand("NER/{ENT}/{SET}.conll", ENT=labels, SET=model_sets),
     output:
-        expand(
-            "NER/{ENT}/{SET}.txt",
-            ENT=labels,
-            SET=model_sets,
-        ),
+        expand("NER/{ENT}/{SET}.txt", ENT=labels, SET=model_sets),
     resources:
-        slurm_partition="single",
-        runtime=30,
-        mem_mb=8000,
+        **COMMON_RESOURCES,
     run:
         for label in labels:
             for split in model_sets:
@@ -257,27 +243,13 @@ rule convert_to_bio:
 
 rule convert_to_json:
     input:
-        expand(
-            "NER/{ENT}/{SET}.txt",
-            ENT=labels,
-            SET=model_sets,
-        ),
-    resources:
-        slurm_partition="single",
-        runtime=30,
-        mem_mb=8000,
+        expand("NER/{ENT}/{SET}.txt", ENT=labels, SET=model_sets),
     output:
-        expand(
-            "NER/{ENT}/{SET}.json",
-            ENT=labels,
-            SET=model_sets,
-        ),
+        expand("NER/{ENT}/{SET}.json", ENT=labels, SET=model_sets),
+    resources:
+        **COMMON_RESOURCES,
     shell:
-        """
-        for f in NER/**/*.txt
-        do python scripts/conll2003_to_jsonl.py $f ${{f%.txt}}.json
-        done
-        """
+        "for f in NER/**/*.txt; do python scripts/conll2003_to_jsonl.py $f ${{f%.txt}}.json; done"
 
 
 rule run_linkbert:
@@ -350,8 +322,6 @@ rule plot:
     params:
         labels=labels,
     resources:
-        slurm_partition="single",
-        runtime=30,
-        mem_mb=8000,
+        **COMMON_RESOURCES,
     script:
         "scripts/ner_plot_performance.py"
