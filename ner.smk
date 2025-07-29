@@ -4,6 +4,7 @@ import json
 import numpy as np
 import re
 import random
+import copy
 from operator import itemgetter
 from sklearn.model_selection import train_test_split
 
@@ -49,7 +50,7 @@ rule make_split:
                             annotations.append(r["value"]["labels"][0])
                             if r["value"]["labels"][0] != label:
                                 indices_to_remove.append(ind)
-                        except:
+                        except (KeyError, IndexError):
                             pass
                 for index in sorted(indices_to_remove, reverse=True):
                     item["annotations"][0]["result"].pop(index)

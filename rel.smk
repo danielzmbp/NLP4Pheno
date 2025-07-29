@@ -131,7 +131,7 @@ rule split_sets:
             "REL/{ENT}/all.tsv",
             ENT=labels,
         ),
-        input_file
+        input_file,
     output:
         expand(
             "REL/{ENT}/{SET}.json",

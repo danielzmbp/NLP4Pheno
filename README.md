@@ -1,13 +1,16 @@
-# NLP4Pheno: a pipeline for phenotype prediction using natural languague processing on the PubMed Corpus and genome analysis
+# NLP4Pheno: a pipeline for phenotype prediction using natural language processing on the PubMed Corpus and genome analysis
 
 This repository contains the code to reproduce the analyses from the paper: [Integrating natural language processing and genome analysis enables accurate bacterial phenotype prediction](https://doi.org/10.1101/2024.12.07.627346).
 
-The repository consists of a series of Snakemake pipelines, scripts and notebooks to download and process data, train models for Named Entity Recognition (NER) and Relation Extration (RE), and analyze results. To reproduce, first adjust `config.yaml` to match your particular setup.
+The repository consists of a series of Snakemake pipelines, scripts and notebooks to download and process data, train models for Named Entity Recognition (NER) and Relation Extraction (RE), and analyze results. To reproduce, first adjust `config.yaml` to match your particular setup.
 
 ## Install python environments
 To reproduce this analysis, first create the necessary Python environments:
 ```
-mamba env create -n envs/*.yaml
+mamba env create -f envs/base.yml
+mamba env create -f envs/torch.yml
+mamba env create -f envs/xgb.yml
+mamba env create -f envs/l.yml
 ```
 ## Create PubMed Corpus (PMC)
 
@@ -55,7 +58,7 @@ To predict the NER annotations in the PMC corpus as produced earlier, run the fo
 snakemake --cores 20 --use-conda -s ner_pred.smk
 ```
 
-This wil first run the STRAIN model on all the PMC corpus, then apply the other NER models on sentences with strains. All of the sentences or paragraphs that include both a STRAIN entity and a phenotype entity will be kept for further analysis. The output will be saved in the directory specified in the `config.yaml` file.
+This will first run the STRAIN model on all the PMC corpus, then apply the other NER models on sentences with strains. All of the sentences or paragraphs that include both a STRAIN entity and a phenotype entity will be kept for further analysis. The output will be saved in the directory specified in the `config.yaml` file.
 
 ### RE prediction
 To predict the RE annotations in the sentences or paragraphs predicted to contain at least a STRAIN and another phenotype entity, run the following command:
@@ -66,7 +69,8 @@ snakemake --cores 20 --use-conda -s rel_pred.smk
 
 ## Download assemblies and annotate
 
-- Run `ip.smk`to download and annotate all representative assemblies from strains that have at least one relation using Pfam with InterProScan.
+- Before running, create a `.ncbi_api_key` file in the root directory containing your NCBI API key.
+- Run `ip.smk` to download and annotate all representative assemblies from strains that have at least one relation using Pfam with InterProScan.
   - You will need to adjust the path to your IP installation.
 - Run with `scripts/ip_slurm.sh` to run using slurm.
 - The output will be in `assemblies_{dataset}/` directory.
