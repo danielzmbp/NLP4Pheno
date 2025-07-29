@@ -8,17 +8,83 @@ from tqdm import tqdm
 
 configfile: "config.yaml"
 
-
 # Define constants
 DATA = config["dataset"]
 path = config["output_path"]
-
-
-# Helper function to get unique relationship types
 input_df = f"{path}/preds{DATA}/REL_output/preds_strainselect_grouped.pqt"
+
+# Common resource configurations
+COMMON_CPU_RESOURCES = {
+    "slurm_partition": "cpu",
+    "runtime": 60,
+    "mem_mb": 10000
+}
+
+HEAVY_CPU_RESOURCES = {
+    "slurm_partition": "cpu",
+    "runtime": 2000,
+    "mem_mb": 150000
+}
+
+XGBOOST_RESOURCES = {
+    "slurm_partition": "cpu",
+    "runtime": 900,
+    "mem_mb": 50000
+}
+
 def get_rels():
+    """Get unique relationship types from processed predictions"""
     df = pd.read_parquet(input_df)
     return df["rel"].unique()
+
+def load_and_process_annotation(args):
+    """Load and process a single annotation file"""
+    from pathlib import Path
+    
+    strain, assembly, base_path, cols_to_drop_list = args
+    annotation_file = Path(base_path) / strain / assembly / "annotation.parquet"
+
+    if not annotation_file.exists():
+        return None
+
+    annotation_df = pd.read_parquet(annotation_file)
+    # Drop unnecessary columns (handle missing columns gracefully)
+    cols_present = [col for col in cols_to_drop_list if col in annotation_df.columns]
+    if cols_present:
+        annotation_df.drop(columns=cols_present, inplace=True)
+
+    # Drop rows with missing InterPro accessions
+    annotation_df.dropna(subset=["InterPro_accession"], inplace=True)
+
+    if not annotation_df.empty:
+        # Add identifiers back for merging
+        annotation_df['strain'] = strain
+        annotation_df['assembly'] = assembly
+
+        essential_cols = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'strain', 'assembly']
+        cols_to_keep_final = [col for col in essential_cols if col in annotation_df.columns]
+        return annotation_df[cols_to_keep_final]
+    else:
+        return None
+
+def filter_by_genus_diversity(drel, strainselect_vertices):
+    """Filter relationships by genus diversity requirements"""
+    ss = strainselect_vertices[strainselect_vertices["vertex_type"] == "gss"].copy()
+    ss.loc[:, "genus"] = ss['vertex'].str.split('.', n=1, expand=True)[0].astype('category')
+    ss = ss[["StrainSelectID", "genus"]]
+
+    m = drel.merge(ss, on="StrainSelectID", how="left")
+    m['genus_count_in_group'] = m.groupby("word_qc_group")['genus'].transform('nunique')
+    m['genus_count'] = m.groupby(["word_qc_group", "genus"])['StrainSelectID'].transform('count')
+    m['total_strains_in_group'] = m.groupby("word_qc_group")['StrainSelectID'].transform('count')
+    m['genus_proportion'] = m['genus_count'] / m['total_strains_in_group']
+
+    # Filter groups where nunique > 4 and no single genus makes up > 30% of the group
+    m = m[m['genus_count_in_group'] > 4]
+    m = m[m['genus_proportion'] <= 0.3]
+
+    valid_groups = m['word_qc_group'].unique()
+    return drel[drel["word_qc_group"].isin(valid_groups)]
 
 
 rule all:
@@ -30,9 +96,7 @@ rule create_downloaded_strains_file:
     output:
         f"{path}/preds{DATA}/REL_output/strains_assemblies_downloaded.txt"
     resources:
-        slurm_partition="cpu",
-        runtime=60,
-        mem_mb=10000
+        **COMMON_CPU_RESOURCES,
     run:
         filtered_assemblies = []
         for strain in glob(f"{path}/assemblies_{DATA}/*/"):
@@ -63,41 +127,13 @@ rule process_rel:
         ]
     threads: 16
     resources:
-        slurm_partition="cpu",
-        runtime=2000,
-        mem_mb=150000,
+        **HEAVY_CPU_RESOURCES,
     run:
         from pathlib import Path
         import concurrent.futures
         import pyarrow as pa
 
-        # --- Helper function to load and process one annotation file ---
-        def load_and_process_annotation(args):
-            strain, assembly, base_path, cols_to_drop_list = args
-            annotation_file = Path(base_path) / strain / assembly / "annotation.parquet"
-
-            if not annotation_file.exists():
-                return None # Return None for missing files
-
-            annotation_df = pd.read_parquet(annotation_file) 
-            # Drop unnecessary columns (handle missing columns gracefully)
-            cols_present = [col for col in cols_to_drop_list if col in annotation_df.columns]
-            if cols_present:
-                annotation_df.drop(columns=cols_present, inplace=True)
-
-            # Drop rows with missing InterPro accessions
-            annotation_df.dropna(subset=["InterPro_accession"], inplace=True)
-
-            if not annotation_df.empty:
-                # Add identifiers back for merging
-                annotation_df['strain'] = strain
-                annotation_df['assembly'] = assembly
-
-                essential_cols = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'strain', 'assembly']
-                cols_to_keep_final = [col for col in essential_cols if col in annotation_df.columns]
-                return annotation_df[cols_to_keep_final]
-            else:
-                return None # Return None for empty or fully dropped dataframes
+        # Helper function is defined at module level
 
 
 
@@ -133,32 +169,8 @@ rule process_rel:
 
 
         # --- 3. Filter by Genus Diversity (Optimized) ---
-        ss = strainselect_vertices[strainselect_vertices["vertex_type"] == "gss"].copy()
+        drel = filter_by_genus_diversity(drel, strainselect_vertices)
         del strainselect_vertices 
-        ss.loc[:, "genus"] = ss['vertex'].str.split('.', n=1, expand=True)[0].astype('category') # Use category for genus
-        ss = ss[["StrainSelectID", "genus"]]
-
-        m = drel.merge(ss, on="StrainSelectID", how="left")
-        del ss
-
-        m['genus_count_in_group'] = m.groupby("word_qc_group")['genus'].transform('nunique')
-
-        # Calculate the proportion of strains with the same genus within each group
-        m['genus_count'] = m.groupby(["word_qc_group", "genus"])['StrainSelectID'].transform('count')
-        m['total_strains_in_group'] = m.groupby("word_qc_group")['StrainSelectID'].transform('count')
-        m['genus_proportion'] = m['genus_count'] / m['total_strains_in_group']
-
-        # Filter groups where nunique > 4 first 
-        # Filter out groups where any single genus makes up > 30% of the group
-        m = m[m['genus_count_in_group'] > 4]
-        m = m[m['genus_proportion'] <= 0.3]
-
-
-        # Get the remaining valid word_qc_groups
-        valid_groups = m['word_qc_group'].unique()
-        drel = drel[drel["word_qc_group"].isin(valid_groups)] # Filter original drel
-
-        del m 
 
         # --- 4. Prepare for Annotation Loading ---
 
@@ -372,11 +384,7 @@ rule xgboost_binary_parts:
         path + "/xgboost/annotations{data}/{rel}.pickle",
     threads: 32
     resources:
-        slurm_partition="cpu",
-        # slurm_extra="--gres=gpu:1",
-        runtime=900,
-        # tasks=5,
-        mem_mb=50000,
+        **XGBOOST_RESOURCES,
     params:
         data=DATA,
         device=config["cuda_devices"],

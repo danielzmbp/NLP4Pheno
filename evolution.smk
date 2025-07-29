@@ -1,13 +1,23 @@
 import pandas as pd
 
-
 configfile: "config.yaml"
 
-
 data = config["dataset"]
-
 path = f"/home/tu/tu_tu/tu_kmpaj01/link/xgboost/seqfiles_{data}"
 (R,) = glob_wildcards(path + "/{rel}/seq.faa")
+
+# Common resource configurations
+COMMON_RESOURCES = {
+    "slurm_partition": "cpu",
+    "runtime": 2000,
+    "mem_mb": 8192
+}
+
+HEAVY_RESOURCES = {
+    "slurm_partition": "cpu",
+    "runtime": 4320,
+    "mem_mb": 32768
+}
 
 localrules: align, codonaln, remove_dups, final
 
@@ -26,6 +36,10 @@ rule align:
     output:
         path + "/{rel}/seq.aln",
     threads: 1
+    resources:
+        slurm_partition="cpu",
+        runtime=600,
+        mem_mb=4096
     shell:
         "mafft --auto --thread {threads} {input} > {output}"
 
@@ -35,11 +49,9 @@ rule fasttree:
         path + "/{rel}/seq.aln",
     output:
         path + "/{rel}/seq.tree",
-    threads: 2
+    threads: 16
     resources:
-        mem_mb= 2 * 1024,
-        slurm_partition="cpu",
-        runtime=2000,
+        **COMMON_RESOURCES,
     shell:
         "fasttree -nosupport {input} > {output}"
 
@@ -50,6 +62,10 @@ rule codonaln:
         nucl_seq=path + "/{rel}/seq.fna",
     output:
         alignment=path + "/{rel}/seq.aln.codon",
+    resources:
+        slurm_partition="cpu",
+        runtime=600,
+        mem_mb=4096
     shell:
         "pal4nal.pl {input.pro_align} {input.nucl_seq} -output fasta -o {output.alignment}"
 
@@ -60,6 +76,10 @@ rule remove_dups:
         tree=path + "/{rel}/seq.tree",
     output:
         path + "/{rel}/seq.nxh",
+    resources:
+        slurm_partition="cpu",
+        runtime=1200,
+        mem_mb=8192
     shell:
         "hyphy /home/tu/tu_tu/tu_kmpaj01/hyphy-analyses/remove-duplicates/remove-duplicates.bf --msa {input.aln_codon} --tree {input.tree} --output {output}"
 
@@ -70,11 +90,9 @@ rule busted:
     output:
         json=path + "/{rel}/seq.json",
         log=path + "/{rel}/seq.log",
-    threads: 32
+    threads: 48
     resources:
-        mem_mb= 32 * 1024,
-        slurm_partition="cpu",
-        runtime=4320,
+        **HEAVY_RESOURCES,
     shell:
         """
         ENV=TOLERATE_NUMERICAL_ERRORS=1
