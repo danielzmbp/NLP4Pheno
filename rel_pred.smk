@@ -15,10 +15,22 @@ configfile: "config.yaml"
 
 cutoff = config["cutoff_prediction"]
 output_path = config["output_path"]
-
 preds = f"{output_path}/preds" + str(config["dataset"])
 labels = config["rel_labels"]
 cuda = config["cuda_devices"]
+
+# Common resource configurations
+COMMON_RESOURCES = {
+    "slurm_partition": "cpu",
+    "runtime": 30,
+    "mem_mb": 10000
+}
+
+GPU_RESOURCES = {
+    "slurm_partition": "gpu_h100",
+    "slurm_extra": "--gres=gpu:1",
+    "runtime": 500
+}
 
 
 rule all:
@@ -69,9 +81,7 @@ rule make_device_file:
     output:
         f"{preds}/REL_output/device_models.txt",
     resources:
-        slurm_partition="cpu",
-        runtime=30,
-        mem_mb=5000,
+        **COMMON_RESOURCES,
     run:
         dev = [str(x) for x in cuda]
         models = [x + " " + y for x, y in zip(itertools.cycle(dev), labels)]
@@ -89,9 +99,7 @@ rule run_all_models:
     conda:
         "torch"
     resources:
-        slurm_partition="gpu_h100",
-        slurm_extra="--gres=gpu:1",
-        runtime=500
+        **GPU_RESOURCES,
     shell:
         """
         while read -r d m; do
@@ -479,8 +487,7 @@ rule download_strainselect:
         f"{preds}/strainselect/StrainSelect21_edges.tab.txt",
         f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
     resources:
-        slurm_partition="cpu",
-        runtime=30,
+        **COMMON_RESOURCES,
     shell:
         "wget https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_edges.tab.txt -O {output[0]}; wget https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_vertices.tab.txt -O {output[1]}"
 
@@ -708,9 +715,7 @@ rule write_download_file:
     output:
         f"{preds}/REL_output/strains_assemblies.txt"
     resources:
-        slurm_partition="cpu",
-        runtime=30,
-        mem_mb=10000,
+        **COMMON_RESOURCES,
     run:
         df = pd.read_parquet(input[0])
 
@@ -765,9 +770,7 @@ rule create_network:
         # f"{preds}/network_assemblies.tsv",
         # f"{preds}/strains_assemblies.txt",
     resources:
-        slurm_partition="cpu",
-        runtime=30,
-        mem_mb=10000,
+        **COMMON_RESOURCES,
     params:
         data=str(config["dataset"]),
     run:
@@ -829,9 +832,7 @@ rule link_pmc_network:
     output:
         f"{preds}/network_pmc.tsv",
     resources:
-        slurm_partition="cpu",
-        runtime=30,
-        mem_mb=10000,
+        **COMMON_RESOURCES,
     run:
         df = pd.read_parquet(input[1])
         network = pd.read_csv(input[0], sep="\t")

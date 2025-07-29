@@ -8,8 +8,23 @@ from glob import glob
 import itertools
 import csv
 
+configfile: "config.yaml"
+
+labels_flat = config["ner_labels"][1:]
+cutoff = config["cutoff_prediction"]
+cuda = config["cuda_devices"]
+corpus = "corpus" + str(config["dataset"])
+preds = config["output_path"] + "/preds" + str(config["dataset"])
+
+# Common resource configurations
+COMMON_RESOURCES = {
+    "slurm_partition": "single",
+    "runtime": 30,
+    "mem_mb": 5000
+}
 
 def merge_entities(entity_list):
+    """Merge contiguous B-I entity sequences into single entities"""
     merged_list = []
     skip = False
 
@@ -20,6 +35,7 @@ def merge_entities(entity_list):
 
         current_entity = entity_list[i]
         current_entity.pop("word", None)  # Remove 'word' entry
+        
         if current_entity["entity_group"] == "B":
             scores = [current_entity["score"]]
             # Look ahead to find contiguous 'I' entities
@@ -30,7 +46,7 @@ def merge_entities(entity_list):
                 and (entity_list[next_idx]["start"] - current_entity["end"]) <= 4
             ):
                 scores.append(entity_list[next_idx]["score"])
-                current_entity["end"] = entity_list[next_idx]["end"]  # Update end value
+                current_entity["end"] = entity_list[next_idx]["end"]
                 skip = True
                 next_idx += 1
 
@@ -41,15 +57,25 @@ def merge_entities(entity_list):
 
     return merged_list
 
+def process_ner_predictions(file_paths, cutoff_score):
+    """Process NER prediction files and merge entities"""
+    dataframes = []
+    for file in file_paths:
+        df = pd.read_parquet(file).explode("ner").dropna()
+        grouped = df.groupby("text").agg({"ner": lambda x: list(x)}).reset_index()
+        grouped["ner"] = grouped["ner"].apply(merge_entities)
+        grouped = grouped.explode("ner")
+        grouped = pd.concat([grouped.drop(columns="ner"), grouped.ner.apply(pd.Series)], axis=1)
+        dataframes.append(grouped)
+    
+    result_df = pd.concat(dataframes)
+    result_df["word"] = result_df.apply(lambda row: row["text"][row["start"] : row["end"]], axis=1)
+    result_df["word"] = result_df["word"].str.lower()
+    return result_df[result_df["score"] > cutoff_score]
 
-configfile: "config.yaml"
-
-
-labels_flat = config["ner_labels"][1:]
-cutoff = config["cutoff_prediction"]
-cuda = config["cuda_devices"]
-corpus = "corpus" + str(config["dataset"])
-preds = config["output_path"] + "/preds" + str(config["dataset"])
+def create_device_model_mapping(device_list, model_list):
+    """Create device-model mapping for distributed processing"""
+    return [f"{device} {model}" for device, model in zip(itertools.cycle([str(x) for x in device_list]), model_list)]
 
 
 (PARTS,) = glob_wildcards(corpus + "/{part}.txt")
@@ -64,17 +90,13 @@ rule make_strain_file:
     output:
         preds + "/NER_output/device_strain.txt",
     resources:
-        slurm_partition="single",
-        runtime=30,
-        mem_mb=5000,
+        **COMMON_RESOURCES,
     run:
-        # add device to each strain
-        device = cuda
-        dev = [str(x) for x in device]
-        models = [x + " " + y for x, y in zip(itertools.cycle(dev), PARTS)]
+        # Create device-strain mapping
+        device_strain_pairs = create_device_model_mapping(cuda, PARTS)
         with open(output[0], "w") as f:
-            for i in models:
-                f.write(f"{i}\n")
+            for pair in device_strain_pairs:
+                f.write(f"{pair}\n")
 
 
 rule run_strain_prediction:
@@ -112,22 +134,9 @@ rule merge_strain_predictions:
         runtime=200,
         mem_mb=40000,
     run:
-        l = []
-        for file in glob(preds + "/NER_output/STRAIN/*.parquet"):
-            d = pd.read_parquet(file).explode("ner").dropna()
-            grouped = d.groupby("text").agg({"ner": lambda x: list(x)}).reset_index()
-            grouped["ner"] = grouped["ner"].apply(merge_entities)
-            grouped = grouped.explode("ner")
-            grouped = pd.concat(
-                [grouped.drop(columns="ner"), grouped.ner.apply(pd.Series)], axis=1
-            )
-            l.append(grouped)
-        df = pd.concat(l)
-        df["word"] = df.apply(
-            lambda row: row["text"][row["start"] : row["end"]], axis=1
-        )
-        df["word"] = df["word"].str.lower()
-        df[df["score"] > cutoff].to_parquet(output[0])
+        file_paths = glob(preds + "/NER_output/STRAIN/*.parquet")
+        df = process_ner_predictions(file_paths, cutoff)
+        df.to_parquet(output[0])
 
 
 rule make_sentence_file:
@@ -145,12 +154,12 @@ rule make_sentence_file:
         df.drop_duplicates(subset="text")["text"].to_csv(
             output[0], sep="\t", index=False, header=False, quoting=csv.QUOTE_NONE
         )
-        # add device to each strain
-        dev = [str(x) for x in cuda]
-        models = [x + " " + y for x, y in zip(itertools.cycle(dev), labels_flat)]
+        
+        # Create device-model mapping
+        device_model_pairs = create_device_model_mapping(cuda, labels_flat)
         with open(output[1], "w") as f:
-            for i in models:
-                f.write(f"{i}\n")
+            for pair in device_model_pairs:
+                f.write(f"{pair}\n")
 
 
 rule run_all_models:
@@ -186,22 +195,20 @@ rule agg_model_results:
         runtime=300,
         mem_mb=20000
     run:
-        l = []
-        for ner in input:
-            d = pd.read_parquet(ner).explode("ner").dropna()
-            grouped = d.groupby("text").agg({"ner": lambda x: list(x)}).reset_index()
+        dataframes = []
+        for ner_file in input:
+            df = pd.read_parquet(ner_file).explode("ner").dropna()
+            grouped = df.groupby("text").agg({"ner": lambda x: list(x)}).reset_index()
             grouped["ner"] = grouped["ner"].apply(merge_entities)
             grouped = grouped.explode("ner")
             grouped = pd.concat(
                 [grouped.drop(columns="ner"), grouped.ner.apply(pd.Series)], axis=1
             )
-            grouped["ner"] = ner.split("/")[-1].split(".")[0]
-            l.append(grouped)
+            grouped["ner"] = ner_file.split("/")[-1].split(".")[0]
+            dataframes.append(grouped)
 
-        df = pd.concat(l)
-        df["word"] = df.apply(
-            lambda row: row["text"][row["start"] : row["end"]], axis=1
-        )
+        df = pd.concat(dataframes)
+        df["word"] = df.apply(lambda row: row["text"][row["start"] : row["end"]], axis=1)
         df["word"] = df["word"].str.lower()
         df.to_parquet(output[0])
 
