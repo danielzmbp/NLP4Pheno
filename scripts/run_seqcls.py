@@ -13,12 +13,35 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Finetuning the library models for sequence classification.
-
-Adapted from
-https://github.com/huggingface/transformers/blob/72aee83ced5f31302c5e331d896412737287f976/examples/pytorch/text-classification/run_glue.py
 """
-# You can also adapt this script on your own text classification task. Pointers for this are left as comments.
+Fine-tuning BERT-based models for Relation Extraction (RE) in bacterial phenotype data.
+
+This script trains sequence classification models to identify 17 relationship types
+between entities in scientific literature. The relationships are primarily STRAIN-centered:
+
+- STRAIN-PHENOTYPE:PRESENTS - Strain exhibits a phenotype
+- STRAIN-COMPOUND:PRODUCES - Strain produces a compound
+- STRAIN-COMPOUND:RESISTS - Strain resists a compound (e.g., antibiotics)
+- STRAIN-COMPOUND:DEGRADES - Strain degrades/metabolizes a compound
+- STRAIN-MEDIUM:GROWS_ON - Strain grows on specific media
+- STRAIN-ORGANISM:INFECTS - Strain infects an organism
+- STRAIN-ORGANISM:INHABITS - Strain inhabits/colonizes an organism
+- STRAIN-ORGANISM:SYMBIONT_OF - Strain is symbiont of an organism
+- STRAIN-ORGANISM:INHIBITS - Strain inhibits an organism
+- STRAIN-ISOLATE:INHABITS - Strain inhabits a location/environment
+- STRAIN-EFFECT:PRESENTS - Strain presents an effect
+- STRAIN-EFFECT:PROMOTES - Strain promotes an effect
+- STRAIN-EFFECT:INHIBITS - Strain inhibits an effect
+- STRAIN-DISEASE:INHIBITS - Strain inhibits a disease
+- STRAIN-DISEASE:ASSOCIATED_WITH - Strain associated with disease
+- STRAIN-SPECIES:INHIBITS - Strain inhibits another species
+- COMPOUND-STRAIN:INHIBITS - Compound inhibits strain
+
+The script uses masked entity pairs in the input text and classifies the relationship
+between them using pre-trained language models fine-tuned for this task.
+
+Adapted from HuggingFace's text classification example.
+"""
 
 import logging
 import os
@@ -201,6 +224,21 @@ class ModelArguments:
 
 
 def main():
+    """
+    Main training function for Relation Extraction model fine-tuning.
+    
+    This function:
+    1. Parses command-line arguments for model, data, and training configuration
+    2. Loads the dataset containing entity pairs and their relationships
+    3. Tokenizes text with masked entity pairs (e.g., "The [MASK] produces [MASK]")
+    4. Initializes a sequence classification model with labels for each relation type
+    5. Trains the model to classify relationships (if --do_train)
+    6. Evaluates on validation set (if --do_eval)
+    7. Makes predictions on test set (if --do_predict)
+    
+    The model learns to classify the semantic relationship between masked entity
+    pairs based on the context provided in the sentence.
+    """
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
@@ -414,6 +452,19 @@ def main():
     max_seq_length = min(data_args.max_seq_length, tokenizer.model_max_length)
 
     def preprocess_function(examples):
+        """
+        Preprocess text examples for relation classification.
+        
+        Tokenizes input sentences containing masked entity pairs and prepares
+        them for the sequence classification model. Handles both single and
+        paired sentence inputs depending on the task configuration.
+        
+        Args:
+            examples: Dict containing sentence(s) and labels
+            
+        Returns:
+            Dict with tokenized inputs and mapped label IDs
+        """
         # Tokenize the texts
         args = (
             (examples[sentence1_key],) if sentence2_key is None else (examples[sentence1_key], examples[sentence2_key])
@@ -468,6 +519,20 @@ def main():
     # You can define your custom compute_metrics function. It takes an `EvalPrediction` object (a namedtuple with a
     # predictions and label_ids field) and has to return a dictionary string to float.
     def compute_metrics(p: EvalPrediction, eval_dataset):
+        """
+        Compute evaluation metrics for relation classification.
+        
+        Calculates accuracy, precision, recall, and F1-score for relation
+        extraction predictions. Supports multiple metric types including
+        standard accuracy, PRF1 for relation extraction, and task-specific metrics.
+        
+        Args:
+            p: EvalPrediction object containing predictions and labels
+            eval_dataset: Dataset used for evaluation (for accessing metadata)
+            
+        Returns:
+            Dict containing computed metrics (accuracy, precision, recall, F1)
+        """
         # Get the metric function
         if data_args.task_name is not None:
             metric = load_metric("glue", data_args.task_name)

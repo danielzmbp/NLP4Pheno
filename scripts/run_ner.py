@@ -14,10 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Fine-tuning the library models for token classification.
+Fine-tuning BERT-based models for Named Entity Recognition (NER) on bacterial phenotype data.
+
+This script trains token classification models to identify 9 entity types in scientific literature:
+- STRAIN: Bacterial strain names
+- SPECIES: Bacterial species names  
+- ISOLATE: Bacterial isolate identifiers
+- COMPOUND: Chemical compounds
+- MEDIUM: Growth media
+- ORGANISM: Other organisms (hosts, etc.)
+- PHENOTYPE: Phenotypic characteristics
+- EFFECT: Effects or outcomes
+- DISEASE: Disease names
+
+The script uses HuggingFace Transformers to fine-tune pre-trained language models
+for the NER task. It supports training, evaluation, and prediction modes.
 """
-# You can also adapt this script on your own token classification task and datasets. Pointers for this are left as
-# comments.
 
 import logging
 import os
@@ -190,6 +202,22 @@ class DataTrainingArguments:
 
 
 def main():
+    """
+    Main training function for NER model fine-tuning.
+    
+    This function:
+    1. Parses command-line arguments for model, data, and training configuration
+    2. Loads the dataset (either from HuggingFace Hub or local files)
+    3. Tokenizes text and aligns labels with subword tokens
+    4. Initializes the model and tokenizer
+    5. Trains the model (if --do_train)
+    6. Evaluates on validation set (if --do_eval)
+    7. Makes predictions on test set (if --do_predict)
+    8. Saves predictions in CoNLL format (word<tab>label)
+    
+    The function handles BERT's subword tokenization by aligning original word-level
+    labels with the tokenized subwords, ensuring proper label assignment.
+    """
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
@@ -292,6 +320,7 @@ def main():
     # In the event the labels are not a `Sequence[ClassLabel]`, we will need to go through the dataset to get the
     # unique labels.
     def get_label_list(labels):
+        """Extract unique labels from the dataset and return sorted list."""
         unique_labels = set()
         for label in labels:
             unique_labels = unique_labels | set(label)
@@ -369,6 +398,21 @@ def main():
 
     # Tokenize all texts and align the labels with them.
     def tokenize_and_align_labels(examples):
+        """
+        Tokenize input texts and align word-level labels with subword tokens.
+        
+        This function handles the alignment between original word-level annotations
+        and BERT's subword tokenization. For each word that gets split into multiple
+        subwords, it assigns labels according to the label_all_tokens flag:
+        - If True: all subwords get the same label as the original word
+        - If False: only the first subword gets the label, others get -100 (ignored)
+        
+        Args:
+            examples: Dict containing text and label columns from the dataset
+            
+        Returns:
+            Dict with tokenized inputs, labels aligned to subwords, and word IDs
+        """
         tokenized_inputs = tokenizer(
             examples[text_column_name],
             padding=padding,
@@ -455,6 +499,22 @@ def main():
     metric = load_metric("seqeval")
 
     def compute_metrics(p):
+        """
+        Compute NER evaluation metrics using seqeval.
+        
+        Calculates precision, recall, F1-score, and accuracy for NER predictions.
+        Supports both micro-averaged (overall) and macro-averaged metrics, as well
+        as entity-level metrics for each entity type.
+        
+        Args:
+            p: Prediction object containing predictions and label_ids
+            
+        Returns:
+            Dict containing evaluation metrics based on data_args flags:
+            - Default: micro-averaged precision, recall, F1, accuracy
+            - return_entity_level_metrics: metrics for each entity type
+            - return_macro_metrics: macro-averaged metrics across entity types
+        """
         predictions, labels = p
         predictions = np.argmax(predictions, axis=2)
 

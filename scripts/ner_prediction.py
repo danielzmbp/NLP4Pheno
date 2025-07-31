@@ -1,5 +1,20 @@
 #!/usr/bin/env python
 # coding=utf-8
+"""
+Apply trained NER models to scientific literature corpus.
+
+This script uses the fine-tuned BERT-based NER models to identify entities
+in large-scale text corpora. It processes text files and outputs predictions
+in Parquet format for efficient storage and downstream processing.
+
+The predictions include:
+- Entity tokens identified by the model
+- Entity types (STRAIN, SPECIES, COMPOUND, etc.)
+- Confidence scores for each prediction
+
+Output is used by the relation extraction pipeline to identify relationships
+between detected entities.
+"""
 
 import argparse
 import torch
@@ -11,7 +26,13 @@ from transformers import (
 )
 def load_model(model_dir):
 	"""
-	Load the model from the specified directory.
+	Load trained NER model and tokenizer from directory.
+	
+	Args:
+		model_dir: Path to directory containing model weights and tokenizer
+		
+	Returns:
+		tuple: (model, tokenizer) ready for inference
 	"""
 	model = AutoModelForTokenClassification.from_pretrained(model_dir)
 	tokenizer = AutoTokenizer.from_pretrained(model_dir)
@@ -19,7 +40,18 @@ def load_model(model_dir):
 
 def predict(model, tokenizer, sentence):
 	"""
-	Predict the tokens for a given sentence.
+	Predict entity labels for tokens in a sentence.
+	
+	Performs tokenization and NER inference on input text, returning
+	predicted entity labels for each token.
+	
+	Args:
+		model: Trained NER model
+		tokenizer: Corresponding tokenizer
+		sentence: Input text to analyze
+		
+	Returns:
+		Tensor: Predicted label IDs for each token
 	"""
 	inputs = tokenizer(sentence, return_tensors="pt")
 	outputs = model(**inputs)
@@ -28,7 +60,16 @@ def predict(model, tokenizer, sentence):
 
 def predict_on_file(model, tokenizer, file_path, output_file):
 	"""
-	Predict the tokens for each sentence in a given file and save the results to a Parquet file dataframe.
+	Process entire text file and save NER predictions.
+	
+	Reads sentences from input file, performs NER prediction on each,
+	and saves results in Parquet format for efficient storage.
+	
+	Args:
+		model: Trained NER model
+		tokenizer: Corresponding tokenizer
+		file_path: Path to input text file (one sentence per line)
+		output_file: Path for output Parquet file
 	"""
 	data = []
 	with open(file_path, 'r') as f:
@@ -40,6 +81,16 @@ def predict_on_file(model, tokenizer, file_path, output_file):
 	df.to_parquet(output_file)
 
 def main(model_dir, file_path, output_file):
+	"""
+	Main execution function for NER prediction pipeline.
+	
+	Loads model and processes input file to generate entity predictions.
+	
+	Args:
+		model_dir: Directory containing trained NER model
+		file_path: Input text file to process
+		output_file: Output path for Parquet predictions
+	"""
 	model, tokenizer = load_model(model_dir)
 	predict_on_file(model, tokenizer, file_path, output_file)
 
