@@ -5,117 +5,127 @@ from glob import glob
 import polars as pl
 from lingua import Language, LanguageDetectorBuilder
 import pyarrow as pa
+import re
 
 # Configuration
-PMC = ["PMC0" + str(x).zfill(2) for x in list(range(12))]
-BASELINE_DATE = "2024-12-18"
+PMC = ["PMC0" + str(x).zfill(2) for x in list(range(13))]
+BASELINE_DATE = "2025-06-26"
 
 # Common resource configurations
 COMMON_RESOURCES = {
-    "slurm_partition": "single",
-    "runtime": 300,
-    "mem_mb": 10000
+    "slurm_partition": "cpu",
+    "runtime": 360,  # 6 hours - some PMC datasets are very large
+    "mem_mb": 16000  # 16GB - more memory for very large dataframes with complex regex filtering
 }
 
 DOWNLOAD_RESOURCES = {
-    "slurm_partition": "single",
-    "runtime": 3000,
-    "mem_mb": 5000,
+    "slurm_partition": "cpu",
+    "runtime": 600,  # 10 hours instead of 50 hours
+    "mem_mb": 2000,  # 2GB instead of 5GB
     "tasks": 1
 }
 
 HEAVY_RESOURCES = {
-    "slurm_partition": "single",
-    "runtime": 2000,
-    "mem_mb": 40000
+    "slurm_partition": "cpu",
+    "runtime": 300,  # 5 hours instead of 33 hours
+    "mem_mb": 20000  # 20GB instead of 40GB
 }
 
 FILTER_RESOURCES = {
-    "slurm_partition": "single",
-    "runtime": 500,
-    "tasks": 20,
-    "mem_mb": 180000
+    "slurm_partition": "cpu",
+    "runtime": 600,  # 10 hours - some PMC datasets need extensive filtering time
+    "tasks": 20,  # 20 tasks for better parallelization
+    "mem_mb": 120000  # 120GB - PMC007 used 53GB and hit OOM at 60GB
 }
 
-# Keywords to filter out non-relevant journals (split for readability)
-FILTER_KEYWORDS = (
-    "Math|Phys|Psych|Hospital|Homeopath|Econ|Bus|Financ|Health|Trials|Sensors|Materials|"
-    "Nanomaterials|Polymers|machi|Educ|Alternat Med|Dent|Tex Med|Cancer|Surg|Chir|"
-    "Theranostics|Entropy|Pediatr|Endocrinol|Pregnancy|Onco|Nanoscale|Geriatr|South Med|"
-    "Care|Musculoskelet|Cardio|Altern Med|Fam Pract|Palliat|Orthop|Sport|Ophthalm|Depress|"
-    "Radiol|Acupunt|Transpl|Astro|Cosmo|Unterrichtswissenschaft|Alcohol|Breast|Behav|Hernia|"
-    "Sleep|Endosc|Pilot Feasibility|Harm|Urol|Gels|Thyroid|Head Neck|Ovarian|Artif Intell|"
-    "Pain|Nanomicro|J Funct Biomater|Light|Gynecol|Schizophr|Robot|Synchrotron|Arq Bras Cir Dig|"
-    "Cost Eff Resour Alloc|Bundesgesundheitsblatt|Anesthesiol|Rheumatol|Focus Video|"
-    "J Hous Built Environ|Smart Learn|J Atten Disord|Nanophotonics|Planets|Commun Netw|Geophys|"
-    "Demogr Res|Aten Primaria|Electron|Policy|Publizistik|Auton Agent|Law|Market|Anesth|"
-    "Knowl Inf Syst|Epilepsy|Traffic Inj Prev|Soc Epistemol|J Bank Regul|Cult Soc Hist|Polit|"
-    "Urban|J Labour Mark Res|J Common Mark Stud|J Market Anal|Int Rev Public Nonprofit Mark|"
-    "Electron Markets|Mark Lett|Build Cities|Buildings|Build Simul|Build Serv Eng Res Technol|"
-    "Soft Robot|Societ|Rehabil|Hypertens|Wirtschaftsdienst|Cogn|Archaeol|Polit|hautnah|Diabetes|"
-    "NTM|JTCVS Tech|Gambl|3D Print|MAGMA|Sarcoma|Rethink Hist|Cult Stud|Sociol|Anaesth|"
-    "Holz Roh Werkst|Iperception|Diabetol|Weld World|Postmedieval|Algebra|Comput Mech|Erkenntnis|"
-    "Sicherheitspolit|Linguist|Geogr|Welf|Living Rev Relativ|Ber Wiss|Arenas|Lang Test Asia|"
-    "Epilepsia|Hardware|Ultrasound|Quantum|Tourismus|Aerospace|World Futures|Wandel|Earthq|"
-    "Kardio|Gynakol|Onkolog|Bild|Lebens|Alloys|Graph|Prehist|Relig|Hum Rights|Autism|Informatik|"
-    "Sex Cult|AI Ethics|Ethics Inf Technol|TSG|Biospektrum|Writ|AI Soc|chirurg|Scoliosis|"
-    "Comput Sci|Judges|Social Protection|Governance|Prose|GDPR|Nonlinear Dyn|Big Data|Civility|"
-    "ZfDN|TechTrends|Soc Justice|Acupunct|Maltreat|Betriebswirtsch|Mach Learn|Reason|Stat Comput|"
-    "Hautarzt|HMD|Space Sci|Tools and Algorithms for the Construction and Analysis of Systems|"
-    "Cyborg|Computing|Energy|Child Abuse|Software Engineering|Programming|AIP|Resuscitation|"
-    "Appl Mech|Theory Decis|Negot|Decision|Judgm Decis Mak|IET Image Process|Softw Eng|"
-    "Ecancermedicalscience|Cities|Subjectivity|Batteries|Geoinfo|Wireless|Coop|Arbeitsschutz|"
-    "Philos Stu|Data Anal|Neurosci|Arthritis|Nurs|Neural|Neurol|Nephrol|Intell|Brain|Bone Miner|"
-    "Humanist|Eat Disord|Humanities|Subst Abuse|Neurooncol|Thought|Endokrinol|Heart|Gesundheitsf|"
-    "Deform|Cereb|Endocrine|Cachexia|Tob|Ethnobiol|SICOT J|Tomography|Osteoporos|Trauma|Childbirth|"
-    "Entropy|Aging|Audiol|Aging|Crystallogr|Angew Chem|Langmuir|ACS Nano|Sci Technol Adv Mater|"
-    "Chemphyschem|BMC Med Imaging|Endocr Disord|Cytojournal|Front Zool|J Med Internet Res|Malar J|"
-    "J Circadian Rhythms|Neuroimage|Geochem Trans|Addiction|J Affect Disord|J Automat Chem|"
-    "Indian Pacing Electrophysiol J|Eplasty|J Foot Ankle Res|J Hand Surg Am|Orthop Surg|"
-    "J Fluency Disord|Thromb Res|Philos Ethics Humanit Med|Soc Sci Med|J Law Med Ethics|"
-    "J Med Ethics|J Appl Philos|Comput Geosci|J Anal Methods Chem|Rev Lat Am Enfermagem|"
-    "Appl Bionics Biomech|Ultrason Sonochem|Soft Matter|Minerva|Eur J Oper Res|J Voice|"
-    "IEEE Trans Comput Soc Syst|Eur Account Rev|Landslides|Virtual Real|Intereconomics|Geom|"
-    "Soc Netw|J Happiness Stud|J Echocardiogr|Flow Turbul Combust|Technol Forecast Soc Change|"
-    "Manag Int Rev|Secur J|Comput Vis Media|Environ Justice|Instrum Sci|J Appl Comput Topol|"
-    "Tectonics|Fire Ecol|Technol Invest|Technol Forecast Soc Change|Eur Asia Stud|J Hazard Mater Lett|"
-    "Automot Innov|Opt Laser Technol|Photochem|Eng Struct|Curr Trends Clin Med Imaging|Inf Vis|"
-    "Gac Sanit|Fatigue|Acta Mech Solida Sin|Pattern Recognit|Soc Sci J|J Eur Stud|Thin Solid Films|"
-    "J Comput Assist Tomogr|ISPRS J Photogramm Remote Sens|Pharmacoeconomics|J Fam Ther|Scientometrics|"
-    "Q J R Meteorol Soc|Transportation|Schmerz|Oxf J Leg Stud|Ethik Med|Echo Res Pract|J Magn Reson|"
-    "Des Codes Cryptogr|J Soc Pers Relat|Datenbank Spektrum|New Bioeth|Womens Hist Rev|Calcolo|"
-    "Spektrum Augenheilkd|Can Stud Popul|Land|Space Cul|J Revenue Pricing Manag|"
-    "Prog Nucl Magn Reson Spectrosc|CEAS Space J|Saf Sci|ISPRS Int J Geoinf|J Grid Comput|"
-    "Data Sci Eng|Intermodal User|Crisis|Ment Illn|An Sist Sanit Navar|J Acad Mark Sci|Int J Geoeng|"
-    "Geotech Geol Eng|J Appl Geod|Adv Fiber Mater|Int J Engine Res|Antennas|PhotoniX|Ceram|"
-    "Engag Sci Technol Soc|Lat Stud|J Sustain Metall|Russ|J Veterans Stud|Asian J|Metaphor Symb|"
-    "Manag Decis|Food Cult Soc|Cross Cult Res|J Speech Pathol Ther|Water Int|Front Therm Eng|"
-    "Lang Semiot Stud|Intervention|Electromyogr|Int J Heat Mass Transf|Somnologie|Biodemography Soc Biol|"
-    "Soc Hist Med|J Am Stat Assoc|Trans R Hist Soc|J Philos Logic|Public Adm|Ecohydrology|"
-    "Veg Hist Archaeobot|Geoforum|Condens Matter|Lubricants|IEEE Trans Knowl Data Eng|Eur J Philos|"
-    "J Bioequivalence Bioavailab|Icarus|Folklore|Cryst Growth Des|J Curr Glaucoma Pract|"
-    "Des Monomers Polym|Stud Fam Plann|J Sep Sci|J Supercomput|Wirtsch|Comput Stat|Theor Appl Climatol|"
-    "Cryptograp|J Contemp Ethnogr|J Paleolimnol|J Public Aff|J Mari Arch|Numer Funct Anal Optim|"
-    "Nonprofit Volunt Sect Q|J Pseudodiffer Oper Appl|Stat (Int Stat Inst)|Xray Spectrom|Philos Q|"
-    "Soc Compass|Min Metall Explor|J Fam Theory Rev|Theol Sci|Stat Probab Lett|Int Reg Sci Rev|"
-    "Set Valued Var Anal|CSCW|Forces Mech|J Heat Transfer|Semigroup Forum|IEEE Trans Inf Theory|"
-    "Numer Funct Anal Optim|J Travel Res|Soc Sci|Public Manag Rev|Engl Hist Rev|J Comput Assist Learn|"
-    "Comput Netw|J Econ Surv|Transp Res Part C Emerg Technol|J Spectrosc|IEEE Trans Power Syst|"
-    "IEEE Trans Syst Man Cybern A Syst Hum|J Family Hist|J Appl Anim Ethics Res|IEEE Open J Circuits Syst|"
-    "IEEE J Microw|J Vis Impair Blind|J Eur Integr|J Clin Virol Plus|J Microencapsul|Mod Opt|"
-    "Br J Ind Relat|IEEE Trans Audio Speech Lang Process|J Fluid Mech|Xenotransplantation|Rural Stud|"
-    "ACS ES T Eng|Tumour Virus Res|Emerg Adulthood|User Model User-adapt Interact|Childhood|Soc Hist|"
-    "Qual User Exp|Complex Anal Oper Theory|Nanomanuf Metrol|Ital Stud|ISRN Opt|Desalination|"
-    "Asia Pac Viewp|J Am Soc Inf Sci Technol|Dev Neurorehabil|Int J Non Linear Mech|TOP|"
-    "J Parallel Distrib Comput|Languages|Humanit|Med Ethics|Synthese|Mindfulness|Philos|Inquiry|"
-    "Soc Work|Card Rhythm Manag|J Manag|Mov Disord|Stat Methods|World Dev|Rev Manag|Dyslexia|"
-    "Differ Equ|Found Sci|Comput Vis|Number|Appl Stat|Probab Theory|Empirica|Pastoralism|Anthropol|"
-    "Abuse|Topoi|Minds Mach|Planet Sci|Neuroanat|Angioge|Thromb|Diabet|Endocr|Ortho|Ultrason|Soci|"
-    "Hydrol|Spine|Criminol|List Forum|Software|Optica|Mater Sci|Sci Eng|Corp|Opt|Photon|Ethno|Justice|"
-    "Race|Circuit|Navig|Internet|Microsyst|JCPP|Pituitary|Cannabis|Laser|Chaos|Algorithmica|Adolesc|"
-    "Xray|Magn Reson|Radiat|Mech Eng|PDE|ZDM|Mat Pura|Stat Pap|Mind Soc|Stat Distrib|Infrastruct|"
-    "Tourism|Violence|Entrep|Marriage|Space|Radioanal|Netw Sci|Eng Sci|Calorim|Mt Sci|Arthroplas|"
-    "Product|Acust|GPS|Work|Ecography|Nous|Speech|Popul|Ing|Disabil|Ethn|Discret|Media Soc|Cult Soc"
+# Pre-compiled regex patterns for better performance
+FILTER_KEYWORDS_PATTERN = re.compile(
+    r"Math|Phys|Psych|Hospital|Homeopath|Econ|Bus|Financ|Health|Trials|Sensors|Materials|"
+    r"Nanomaterials|Polymers|machi|Educ|Alternat Med|Dent|Tex Med|Cancer|Surg|Chir|"
+    r"Theranostics|Entropy|Pediatr|Endocrinol|Pregnancy|Onco|Nanoscale|Geriatr|South Med|"
+    r"Care|Musculoskelet|Cardio|Altern Med|Fam Pract|Palliat|Orthop|Sport|Ophthalm|Depress|"
+    r"Radiol|Acupunt|Transpl|Astro|Cosmo|Unterrichtswissenschaft|Alcohol|Breast|Behav|Hernia|"
+    r"Sleep|Endosc|Pilot Feasibility|Harm|Urol|Gels|Thyroid|Head Neck|Ovarian|Artif Intell|"
+    r"Pain|Nanomicro|J Funct Biomater|Light|Gynecol|Schizophr|Robot|Synchrotron|Arq Bras Cir Dig|"
+    r"Cost Eff Resour Alloc|Bundesgesundheitsblatt|Anesthesiol|Rheumatol|Focus Video|"
+    r"J Hous Built Environ|Smart Learn|J Atten Disord|Nanophotonics|Planets|Commun Netw|Geophys|"
+    r"Demogr Res|Aten Primaria|Electron|Policy|Publizistik|Auton Agent|Law|Market|Anesth|"
+    r"Knowl Inf Syst|Epilepsy|Traffic Inj Prev|Soc Epistemol|J Bank Regul|Cult Soc Hist|Polit|"
+    r"Urban|J Labour Mark Res|J Common Mark Stud|J Market Anal|Int Rev Public Nonprofit Mark|"
+    r"Electron Markets|Mark Lett|Build Cities|Buildings|Build Simul|Build Serv Eng Res Technol|"
+    r"Soft Robot|Societ|Rehabil|Hypertens|Wirtschaftsdienst|Cogn|Archaeol|Polit|hautnah|Diabetes|"
+    r"NTM|JTCVS Tech|Gambl|3D Print|MAGMA|Sarcoma|Rethink Hist|Cult Stud|Sociol|Anaesth|"
+    r"Holz Roh Werkst|Iperception|Diabetol|Weld World|Postmedieval|Algebra|Comput Mech|Erkenntnis|"
+    r"Sicherheitspolit|Linguist|Geogr|Welf|Living Rev Relativ|Ber Wiss|Arenas|Lang Test Asia|"
+    r"Epilepsia|Hardware|Ultrasound|Quantum|Tourismus|Aerospace|World Futures|Wandel|Earthq|"
+    r"Kardio|Gynakol|Onkolog|Bild|Lebens|Alloys|Graph|Prehist|Relig|Hum Rights|Autism|Informatik|"
+    r"Sex Cult|AI Ethics|Ethics Inf Technol|TSG|Biospektrum|Writ|AI Soc|chirurg|Scoliosis|"
+    r"Comput Sci|Judges|Social Protection|Governance|Prose|GDPR|Nonlinear Dyn|Big Data|Civility|"
+    r"ZfDN|TechTrends|Soc Justice|Acupunct|Maltreat|Betriebswirtsch|Mach Learn|Reason|Stat Comput|"
+    r"Hautarzt|HMD|Space Sci|Tools and Algorithms for the Construction and Analysis of Systems|"
+    r"Cyborg|Computing|Energy|Child Abuse|Software Engineering|Programming|AIP|Resuscitation|"
+    r"Appl Mech|Theory Decis|Negot|Decision|Judgm Decis Mak|IET Image Process|Softw Eng|"
+    r"Ecancermedicalscience|Cities|Subjectivity|Batteries|Geoinfo|Wireless|Coop|Arbeitsschutz|"
+    r"Philos Stu|Data Anal|Neurosci|Arthritis|Nurs|Neural|Neurol|Nephrol|Intell|Brain|Bone Miner|"
+    r"Humanist|Eat Disord|Humanities|Subst Abuse|Neurooncol|Thought|Endokrinol|Heart|Gesundheitsf|"
+    r"Deform|Cereb|Endocrine|Cachexia|Tob|Ethnobiol|SICOT J|Tomography|Osteoporos|Trauma|Childbirth|"
+    r"Entropy|Aging|Audiol|Aging|Crystallogr|Angew Chem|Langmuir|ACS Nano|Sci Technol Adv Mater|"
+    r"Chemphyschem|BMC Med Imaging|Endocr Disord|Cytojournal|Front Zool|J Med Internet Res|Malar J|"
+    r"J Circadian Rhythms|Neuroimage|Geochem Trans|Addiction|J Affect Disord|J Automat Chem|"
+    r"Indian Pacing Electrophysiol J|Eplasty|J Foot Ankle Res|J Hand Surg Am|Orthop Surg|"
+    r"J Fluency Disord|Thromb Res|Philos Ethics Humanit Med|Soc Sci Med|J Law Med Ethics|"
+    r"J Med Ethics|J Appl Philos|Comput Geosci|J Anal Methods Chem|Rev Lat Am Enfermagem|"
+    r"Appl Bionics Biomech|Ultrason Sonochem|Soft Matter|Minerva|Eur J Oper Res|J Voice|"
+    r"IEEE Trans Comput Soc Syst|Eur Account Rev|Landslides|Virtual Real|Intereconomics|Geom|"
+    r"Soc Netw|J Happiness Stud|J Echocardiogr|Flow Turbul Combust|Technol Forecast Soc Change|"
+    r"Manag Int Rev|Secur J|Comput Vis Media|Environ Justice|Instrum Sci|J Appl Comput Topol|"
+    r"Tectonics|Fire Ecol|Technol Invest|Technol Forecast Soc Change|Eur Asia Stud|J Hazard Mater Lett|"
+    r"Automot Innov|Opt Laser Technol|Photochem|Eng Struct|Curr Trends Clin Med Imaging|Inf Vis|"
+    r"Gac Sanit|Fatigue|Acta Mech Solida Sin|Pattern Recognit|Soc Sci J|J Eur Stud|Thin Solid Films|"
+    r"J Comput Assist Tomogr|ISPRS J Photogramm Remote Sens|Pharmacoeconomics|J Fam Ther|Scientometrics|"
+    r"Q J R Meteorol Soc|Transportation|Schmerz|Oxf J Leg Stud|Ethik Med|Echo Res Pract|J Magn Reson|"
+    r"Des Codes Cryptogr|J Soc Pers Relat|Datenbank Spektrum|New Bioeth|Womens Hist Rev|Calcolo|"
+    r"Spektrum Augenheilkd|Can Stud Popul|Land|Space Cul|J Revenue Pricing Manag|"
+    r"Prog Nucl Magn Reson Spectrosc|CEAS Space J|Saf Sci|ISPRS Int J Geoinf|J Grid Comput|"
+    r"Data Sci Eng|Intermodal User|Crisis|Ment Illn|An Sist Sanit Navar|J Acad Mark Sci|Int J Geoeng|"
+    r"Geotech Geol Eng|J Appl Geod|Adv Fiber Mater|Int J Engine Res|Antennas|PhotoniX|Ceram|"
+    r"Engag Sci Technol Soc|Lat Stud|J Sustain Metall|Russ|J Veterans Stud|Asian J|Metaphor Symb|"
+    r"Manag Decis|Food Cult Soc|Cross Cult Res|J Speech Pathol Ther|Water Int|Front Therm Eng|"
+    r"Lang Semiot Stud|Intervention|Electromyogr|Int J Heat Mass Transf|Somnologie|Biodemography Soc Biol|"
+    r"Soc Hist Med|J Am Stat Assoc|Trans R Hist Soc|J Philos Logic|Public Adm|Ecohydrology|"
+    r"Veg Hist Archaeobot|Geoforum|Condens Matter|Lubricants|IEEE Trans Knowl Data Eng|Eur J Philos|"
+    r"J Bioequivalence Bioavailab|Icarus|Folklore|Cryst Growth Des|J Curr Glaucoma Pract|"
+    r"Des Monomers Polym|Stud Fam Plann|J Sep Sci|J Supercomput|Wirtsch|Comput Stat|Theor Appl Climatol|"
+    r"Cryptograp|J Contemp Ethnogr|J Paleolimnol|J Public Aff|J Mari Arch|Numer Funct Anal Optim|"
+    r"Nonprofit Volunt Sect Q|J Pseudodiffer Oper Appl|Stat \(Int Stat Inst\)|Xray Spectrom|Philos Q|"
+    r"Soc Compass|Min Metall Explor|J Fam Theory Rev|Theol Sci|Stat Probab Lett|Int Reg Sci Rev|"
+    r"Set Valued Var Anal|CSCW|Forces Mech|J Heat Transfer|Semigroup Forum|IEEE Trans Inf Theory|"
+    r"Numer Funct Anal Optim|J Travel Res|Soc Sci|Public Manag Rev|Engl Hist Rev|J Comput Assist Learn|"
+    r"Comput Netw|J Econ Surv|Transp Res Part C Emerg Technol|J Spectrosc|IEEE Trans Power Syst|"
+    r"IEEE Trans Syst Man Cybern A Syst Hum|J Family Hist|J Appl Anim Ethics Res|IEEE Open J Circuits Syst|"
+    r"IEEE J Microw|J Vis Impair Blind|J Eur Integr|J Clin Virol Plus|J Microencapsul|Mod Opt|"
+    r"Br J Ind Relat|IEEE Trans Audio Speech Lang Process|J Fluid Mech|Xenotransplantation|Rural Stud|"
+    r"ACS ES T Eng|Tumour Virus Res|Emerg Adulthood|User Model User-adapt Interact|Childhood|Soc Hist|"
+    r"Qual User Exp|Complex Anal Oper Theory|Nanomanuf Metrol|Ital Stud|ISRN Opt|Desalination|"
+    r"Asia Pac Viewp|J Am Soc Inf Sci Technol|Dev Neurorehabil|Int J Non Linear Mech|TOP|"
+    r"J Parallel Distrib Comput|Languages|Humanit|Med Ethics|Synthese|Mindfulness|Philos|Inquiry|"
+    r"Soc Work|Card Rhythm Manag|J Manag|Mov Disord|Stat Methods|World Dev|Rev Manag|Dyslexia|"
+    r"Differ Equ|Found Sci|Comput Vis|Number|Appl Stat|Probab Theory|Empirica|Pastoralism|Anthropol|"
+    r"Abuse|Topoi|Minds Mach|Planet Sci|Neuroanat|Angioge|Thromb|Diabet|Endocr|Ortho|Ultrason|Soci|"
+    r"Hydrol|Spine|Criminol|List Forum|Software|Optica|Mater Sci|Sci Eng|Corp|Opt|Photon|Ethno|Justice|"
+    r"Race|Circuit|Navig|Internet|Microsyst|JCPP|Pituitary|Cannabis|Laser|Chaos|Algorithmica|Adolesc|"
+    r"Xray|Magn Reson|Radiat|Mech Eng|PDE|ZDM|Mat Pura|Stat Pap|Mind Soc|Stat Distrib|Infrastruct|"
+    r"Tourism|Violence|Entrep|Marriage|Space|Radioanal|Netw Sci|Eng Sci|Calorim|Mt Sci|Arthroplas|"
+    r"Product|Acust|GPS|Work|Ecography|Nous|Speech|Popul|Ing|Disabil|Ethn|Discret|Media Soc|Cult Soc"
+)
+
+SECTION_FILTER_PATTERN = re.compile(
+    r"Declaration|Contribut|Author|AUTHOR|Title|Conflict|Data sharing|Competing|CONFLICT|ethic|contributions|abbreviation|Funding|interest|data availability|acknowledgement|ACKNOWLEDGMENT|contribution statement|Reviewers|Family|publisher|Consent|Disclosure|contributor|credit author|Software availability|Pre-publication history|Checklist|Availability|Documentation|financial|cancer",
+    re.IGNORECASE
+)
+
+TEXT_FILTER_PATTERN = re.compile(
+    r'- Reply|- Line|• Line|Please|" "|""|--|-Comment|\\* I|- I|-I |\\* L|- L'
 )
 
 def merge_sentences_polars(df: pl.DataFrame) -> pl.DataFrame:
@@ -242,9 +252,13 @@ rule concat_lists:
             .str.strip()
             .str.split(" ", expand=True)[0]
         )
+        # Handle None values in journal and year columns
+        df["journal"] = df["journal"].fillna("")
+        df["year"] = df["year"].fillna("")
+        
         filtered_df = df[
-            (~df.journal.str.contains(FILTER_KEYWORDS))
-            & (~df.year.str.contains("18\d\d|190\d|191\d|192\d|193\d|194\d|195\d|196\d"))
+            (~df.journal.str.contains(FILTER_KEYWORDS_PATTERN, na=False))
+            & (~df.year.str.contains("18\d\d|190\d|191\d|192\d|193\d|194\d|195\d|196\d", na=False))
         ]
         filtered_df.drop(columns=["year", "journal"], inplace=True)
         filtered_df.to_csv(output[0], index=False, sep="\t")
@@ -255,9 +269,11 @@ rule xml_csv:
         "{pmc}_filelist.tsv",
     output:
         temp("{pmc}_csv.txt"),
+    conda:
+        "envs/r_env.yml"
     resources:
-        slurm_partition="single",
-        tasks=10,
+        slurm_partition="cpu",
+        tasks=20,
         runtime=2000,
         mem_mb=50000,
     script:
@@ -304,35 +320,41 @@ rule filter_parquet:
     resources:
         **FILTER_RESOURCES,
     run:
-        df = pl.read_parquet(input)
-#        df = df.drop(["paragraph", "sentence"])
-      #  df = df.drop(["paragraph", "sentence", "__index_level_0__"])
-        df = merge_sentences_polars(df)
-
-        df = df.unique("text")
-        df = df.filter( 
-            (
-                ~pl.col("section").str.contains(
-                    "Declaration|Contribut|Author|AUTHOR|Title|Conflict|Data sharing|Competing|CONFLICT|(?i)ethic|(?i)contributions|(?i)abbreviation|(?i)Funding|(?i)interest|(?i)data availability|(?i)acknowledgement|(?i)ACKNOWLEDGMENT|(?i)contribution statement|(?i)Reviewers|(?i)Family|(?i)publisher|(?i)Consent|(?i)Disclosure|(?i)contributor|(?i)credit author|(?i)Software availability|(?i)Pre-publication history|(?i)Checklist|(?i)Availability|(?i)Documentation|(?i)financial|(?i)cancer"
-                )
-            )
-            & (
-                ~pl.col("text").str.contains(
-                    '- Reply|- Line|• Line|Please|" "|""|--|-Comment|\\* I|- I|-I |\\* L|- L'
-                )
-            )
-        )
+        import time
+        start_time = time.time()
         
+        print(f"Reading parquet file: {input[0]}")
+        df = pl.read_parquet(input[0])
+        print(f"Loaded {df.shape[0]:,} rows in {time.time() - start_time:.1f} seconds")
+        
+        print("Merging sentences...")
+        merge_start = time.time()
+        df = merge_sentences_polars(df)
+        print(f"Merged sentences in {time.time() - merge_start:.1f} seconds")
+
+        print("Removing duplicates...")
+        df = df.unique("text")
+        print(f"After deduplication: {df.shape[0]:,} rows")
+        
+        # Early length filtering to reduce processing overhead
         before_filtering = df.shape 
         df = df.filter(            
             (pl.col("text").str.len_chars().cast(pl.UInt32) >= 40)
             & (pl.col("text").str.len_chars().cast(pl.UInt32) <= 512)
             )
+        after_length_filtering = df.shape
+        
+        # Combined content filtering using regex patterns
+        df = df.filter( 
+            (~pl.col("section").str.contains(SECTION_FILTER_PATTERN.pattern))
+            & (~pl.col("text").str.contains(TEXT_FILTER_PATTERN.pattern))
+        )
         after_filtering = df.shape
 
         with open(output[1],"w") as f:
             f.write(f"Before filtering: {before_filtering[0]} rows\n")
-            f.write(f"After filtering: {after_filtering[0]} rows\n")
+            f.write(f"After length filtering: {after_length_filtering[0]} rows\n")
+            f.write(f"After content filtering: {after_filtering[0]} rows\n")
 
         languages = [
             Language.ENGLISH,
@@ -346,8 +368,11 @@ rule filter_parquet:
         ]
         detector = LanguageDetectorBuilder.from_languages(*languages).build()
         confidences = []
-        # Process in chunks to avoid memory issues
-        chunk_size = 1000000 // 3
+        # Process in chunks to avoid memory issues - dynamic chunk size based on available memory
+        import psutil
+        available_gb = psutil.virtual_memory().available / (1024**3)
+        chunk_size = min(500000, max(50000, int(available_gb * 80000)))  # Scale with available memory
+        
         for i in range(0, df.height, chunk_size):
             chunk = df[i : i + chunk_size].select(pl.col("text"))
             confidences_chunk = detector.compute_language_confidence_values_in_parallel(
@@ -384,7 +409,7 @@ rule merge_parquets:
     output:
         "pmc.parquet",
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=200,
         mem_mb=180000,
     run:
@@ -393,4 +418,4 @@ rule merge_parquets:
             df = pl.read_parquet(i)
             dfs.append(df)
         out = pl.concat(dfs)
-        out.write_parquet(output[0])
+        out.write_parquet(output[0], use_pyarrow=True)
