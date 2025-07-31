@@ -97,7 +97,7 @@ rule run_all_models:
     output:
         preds + "/REL_output/{l}.parquet",
     conda:
-        "torch"
+        "pytorch"
     resources:
         **GPU_RESOURCES,
     shell:

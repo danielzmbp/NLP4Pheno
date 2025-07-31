@@ -106,7 +106,7 @@ rule run_strain_prediction:
     output:
         preds + "/NER_output/STRAIN/{strain}.parquet",
     conda:
-        "torch"
+        "pytorch"
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",
@@ -169,7 +169,7 @@ rule run_all_models:
     output:
         preds + "/NER_output/{l,[A-Z]+}.parquet",
     conda:
-        "torch"
+        "pytorch"
     resources:
         slurm_partition="gpu_4",
         slurm_extra="--gres=gpu:1",

@@ -22,10 +22,9 @@ Before running any pipeline, adjust `config.yaml` to match your setup. Key param
 
 Create the required Python environments:
 ```
-mamba env create -f envs/base.yml
-mamba env create -f envs/torch.yml
+mamba env create -f envs/nlp4pheno.yml
+mamba env create -f envs/pytorch.yml
 mamba env create -f envs/xgb.yml
-mamba env create -f envs/l.yml
 ```
 ## Create PubMed Corpus (PMC)
 

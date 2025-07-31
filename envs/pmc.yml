@@ -1,0 +1,24 @@
+name: pmc
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # Core Python
+  - python=3.11
+  - pip
+  
+  # Snakemake core
+  - snakemake
+  - snakemake-executor-plugin-slurm
+  
+  # Data processing packages (from imports)
+  - pandas
+  - polars
+  - pyarrow
+  - tqdm
+  - psutil
+  
+  # Additional packages from pip
+  - pip:
+      - lingua-language-detector==2.0.2

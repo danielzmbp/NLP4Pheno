@@ -258,7 +258,7 @@ rule run_linkbert:
     output:
         expand("NER_output/{ENT}/all_results.json", ENT=labels),
     conda:
-        "l"
+        "pytorch"
     params:
         epochs=config["ner_epochs"],
         cuda=lambda w: ",".join([str(i) for i in cuda]),

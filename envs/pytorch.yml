@@ -1,4 +1,4 @@
-name: l
+name: pytorch
 channels:
   - nvidia
   - pytorch
