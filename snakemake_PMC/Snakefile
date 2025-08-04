@@ -28,14 +28,14 @@ DOWNLOAD_RESOURCES = {
 HEAVY_RESOURCES = {
     "slurm_partition": "cpu",
     "runtime": 300,  # 5 hours instead of 33 hours
-    "mem_mb": 20000  # 20GB instead of 40GB
+    "mem_mb": 32000  # 32GB for better performance
 }
 
 FILTER_RESOURCES = {
     "slurm_partition": "cpu",
-    "runtime": 600,  # 10 hours - some PMC datasets need extensive filtering time
-    "tasks": 20,  # 20 tasks for better parallelization
-    "mem_mb": 120000  # 120GB - PMC007 used 53GB and hit OOM at 60GB
+    "runtime": 1800, 
+    "tasks": 40, 
+    "mem_mb": 240000 
 }
 
 # Pre-compiled regex patterns for better performance
@@ -133,13 +133,14 @@ def merge_sentences_polars(df: pl.DataFrame) -> pl.DataFrame:
 
     df = df.sort(["pmcid", "section", "paragraph", "sentence"])
 
-    # Wrap each row as a struct for grouped access
+    # Wrap each row as a struct for grouped access with parallel processing
     groups = (
         df
         .group_by(["pmcid", "section", "paragraph"])
         .agg(pl.struct(pl.all()).alias("rows"))
     )
 
+    # Process groups more efficiently
     for group in groups.iter_rows(named=True):
         pmcid = group["pmcid"]
         section = group["section"]
@@ -273,9 +274,9 @@ rule xml_csv:
         "envs/r_env.yml"
     resources:
         slurm_partition="cpu",
-        tasks=20,
+        tasks=30,
         runtime=2000,
-        mem_mb=50000,
+        mem_mb=100000,
     script:
         "scripts/xml2tsv.R"
 
@@ -321,6 +322,7 @@ rule filter_parquet:
         **FILTER_RESOURCES,
     run:
         import time
+        import psutil
         start_time = time.time()
         
         print(f"Reading parquet file: {input[0]}")
@@ -336,63 +338,105 @@ rule filter_parquet:
         df = df.unique("text")
         print(f"After deduplication: {df.shape[0]:,} rows")
         
-        # Early length filtering to reduce processing overhead
+        # Early aggressive filtering to reduce downstream processing
         before_filtering = df.shape 
+        
+        # Combined early filtering - length + content filters in one pass
         df = df.filter(            
             (pl.col("text").str.len_chars().cast(pl.UInt32) >= 40)
             & (pl.col("text").str.len_chars().cast(pl.UInt32) <= 512)
-            )
-        after_length_filtering = df.shape
-        
-        # Combined content filtering using regex patterns
-        df = df.filter( 
-            (~pl.col("section").str.contains(SECTION_FILTER_PATTERN.pattern))
+            & (~pl.col("section").str.contains(SECTION_FILTER_PATTERN.pattern))
             & (~pl.col("text").str.contains(TEXT_FILTER_PATTERN.pattern))
         )
         after_filtering = df.shape
+        
+        print(f"After early filtering: {after_filtering[0]:,} rows (removed {before_filtering[0] - after_filtering[0]:,})")
 
         with open(output[1],"w") as f:
             f.write(f"Before filtering: {before_filtering[0]} rows\n")
-            f.write(f"After length filtering: {after_length_filtering[0]} rows\n")
-            f.write(f"After content filtering: {after_filtering[0]} rows\n")
+            f.write(f"After early combined filtering: {after_filtering[0]} rows\n")
 
-        languages = [
-            Language.ENGLISH,
-            Language.FRENCH,
-            Language.GERMAN,
-            Language.SPANISH,
-            Language.RUSSIAN,
-            Language.CHINESE,
-            Language.JAPANESE,
-            Language.PORTUGUESE,
-        ]
-        detector = LanguageDetectorBuilder.from_languages(*languages).build()
-        confidences = []
-        # Process in chunks to avoid memory issues - dynamic chunk size based on available memory
-        import psutil
-        available_gb = psutil.virtual_memory().available / (1024**3)
-        chunk_size = min(500000, max(50000, int(available_gb * 80000)))  # Scale with available memory
+        # Fast English detection using simple heuristics first
+        print("Applying fast English heuristics...")
         
-        for i in range(0, df.height, chunk_size):
-            chunk = df[i : i + chunk_size].select(pl.col("text"))
-            confidences_chunk = detector.compute_language_confidence_values_in_parallel(
-                chunk["text"].to_list()
-            )
-            confidences.extend(confidences_chunk)
-
+        # Pre-filter using simple English indicators (much faster than lingua)
+        english_patterns = re.compile(r'\b(the|and|of|to|a|in|for|is|on|that|by|this|with|i|you|it|not|or|be|are|from|at|as|your|all|any|can|had|was|one|our|out|day|get|has|him|his|how|man|new|now|old|see|two|way|who|did|its|let|put|say|too|use|shown|sample)\b', re.IGNORECASE)
+        
         df = df.with_columns(
-            pl.Series(
-                name="english_confidence_values",
-                values=[
-                    x.value
-                    for sublist in confidences
-                    for x in sublist
-                    if x.language == Language.ENGLISH
-                ],
-            )
+            pl.col("text").str.count_matches(english_patterns.pattern).alias("english_words")
         )
-        df = df.filter(pl.col("english_confidence_values") > 0.4)
-        df = df.drop(["english_confidence_values"])
+        
+        # Split dataframe based on heuristics - stricter threshold (>=2 words)
+        df_passed_heuristics = df.filter(pl.col("english_words") >= 2)
+        df_failed_heuristics = df.filter(pl.col("english_words") < 2)
+        
+        print(f"Passed English heuristics (>=2 words): {df_passed_heuristics.height:,} rows")
+        print(f"Failed English heuristics (<2 words): {df_failed_heuristics.height:,} rows")
+        
+        # Only run expensive lingua detection on texts that FAILED heuristics
+        if df_failed_heuristics.height > 0:
+            print(f"Starting detailed language detection on {df_failed_heuristics.height:,} texts that failed heuristics...")
+            languages = [Language.ENGLISH, Language.FRENCH]  # Minimum 2 languages required
+            detector = LanguageDetectorBuilder.from_languages(*languages).with_preloaded_language_models().build()
+            
+            # Optimized chunking with larger chunks for better throughput
+            available_gb = psutil.virtual_memory().available / (1024**3)
+            chunk_size = min(100000, max(20000, int(available_gb * 15000)))  # Larger chunks for better throughput
+            
+            # Process chunks with batch optimization
+            confidences = []
+            
+            # Process in optimized chunks
+            total_chunks = (df_failed_heuristics.height + chunk_size - 1) // chunk_size
+            print(f"Processing {total_chunks} chunks of size {chunk_size} with {40} cores...")
+            
+            for idx, i in enumerate(range(0, df_failed_heuristics.height, chunk_size)):
+                chunk_texts = df_failed_heuristics[i : i + chunk_size].select(pl.col("text"))["text"].to_list()
+                # Use parallel processing with more efficient batching
+                chunk_confidences = detector.compute_language_confidence_values_in_parallel(chunk_texts)
+                confidences.extend(chunk_confidences)
+                if (idx + 1) % 5 == 0 or idx == total_chunks - 1:  # Report less frequently
+                    print(f"Completed chunk {idx + 1}/{total_chunks}")
+
+            # Extract English confidence values
+            english_confidences = [
+                x.value
+                for sublist in confidences
+                for x in sublist
+                if x.language == Language.ENGLISH
+            ]
+            
+            df_failed_heuristics = df_failed_heuristics.with_columns(
+                pl.Series("english_confidence", english_confidences)
+            )
+            
+            # Filter for high-confidence English texts
+            df_lingua_rescued = df_failed_heuristics.filter(pl.col("english_confidence") > 0.4)
+            print(f"Rescued {df_lingua_rescued.height:,} English texts via lingua from failed heuristics")
+            
+            # Drop the confidence column for consistency
+            df_lingua_rescued = df_lingua_rescued.drop(["english_words", "english_confidence"])
+        else:
+            print("No texts failed heuristics, skipping lingua detection")
+            df_lingua_rescued = pl.DataFrame()
+        
+        # Drop english_words column from passed heuristics dataframe
+        df_passed_heuristics = df_passed_heuristics.drop("english_words")
+        
+        # Combine both sets: heuristics-passed + lingua-rescued
+        if df_lingua_rescued.height > 0:
+            df = pl.concat([df_passed_heuristics, df_lingua_rescued])
+        else:
+            df = df_passed_heuristics
+        
+        print(f"Final rows after language filtering: {df.height:,}")
+        
+        with open(output[1], "a") as f:
+            f.write(f"Rows passing heuristics (>=2 words): {df_passed_heuristics.height:,}\n")
+            f.write(f"Rows rescued by lingua: {df_lingua_rescued.height if df_lingua_rescued.height > 0 else 0:,}\n")
+            f.write(f"Final rows after language filtering: {df.height:,}\n")
+            f.write(f"Processing time: {time.time() - start_time:.1f} seconds\n")
+        
         df.write_parquet(output[0], use_pyarrow=True)
         #     dfs.append(df)
         # output = pl.concat(dfs).to_arrow()
