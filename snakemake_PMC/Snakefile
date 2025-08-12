@@ -1,465 +1,777 @@
-from tqdm.autonotebook import tqdm
 import pyarrow.parquet as pq
 import pandas as pd
-from glob import glob
 import polars as pl
 from lingua import Language, LanguageDetectorBuilder
 import pyarrow as pa
 import re
+import time
+import psutil
+import os
+from datetime import datetime
 
 # Configuration
-PMC = ["PMC0" + str(x).zfill(2) for x in list(range(13))]
+PMC = [f"PMC0{str(x).zfill(2)}" for x in range(13)]
 BASELINE_DATE = "2025-06-26"
+CHUNK_ROWS = 20_000_000  # 20 million rows per chunk for final filtering
+XML_CHUNKS = 200  # Number of chunks to split XML processing into
+FILES_PER_CHUNK = 20000  # Approximate files per XML processing chunk - smaller for more parallelization
+
+# Directory structure
+OUTPUT_DIR = "output"
+TEMP_DIR = "temp"
+DATA_DIR = os.path.join(OUTPUT_DIR, "data")
+LOGS_DIR = os.path.join(OUTPUT_DIR, "logs")
+STATS_DIR = os.path.join(OUTPUT_DIR, "stats")
+XML_CHUNKS_DIR = os.path.join(TEMP_DIR, "xml_chunks")  # For XML processing chunks
+FILTER_CHUNKS_DIR = os.path.join(TEMP_DIR, "filter_chunks")  # For filtering chunks
+LISTS_DIR = os.path.join(TEMP_DIR, "filelists")
+CSV_DIR = os.path.join(TEMP_DIR, "csv")
+PARQUET_DIR = os.path.join(TEMP_DIR, "parquet")
+
+# Create directories
+for dir_path in [
+    DATA_DIR,
+    LOGS_DIR,
+    STATS_DIR,
+    XML_CHUNKS_DIR,
+    FILTER_CHUNKS_DIR,
+    LISTS_DIR,
+    CSV_DIR,
+    PARQUET_DIR,
+]:
+    os.makedirs(dir_path, exist_ok=True)
+
+# Performance settings
+os.environ["POLARS_MAX_THREADS"] = str(min(32, os.cpu_count() or 16))
+os.environ["POLARS_VERBOSE"] = "0"  # Reduce logging overhead
+os.environ["POLARS_PREFETCH_SIZE"] = "100"  # Optimize prefetching
 
 # Common resource configurations
 COMMON_RESOURCES = {
     "slurm_partition": "cpu",
     "runtime": 360,  # 6 hours - some PMC datasets are very large
-    "mem_mb": 16000  # 16GB - more memory for very large dataframes with complex regex filtering
+    "mem_mb": 16000,  # 16GB - more memory for very large dataframes with complex regex filtering
 }
 
 DOWNLOAD_RESOURCES = {
     "slurm_partition": "cpu",
-    "runtime": 600,  # 10 hours instead of 50 hours
-    "mem_mb": 2000,  # 2GB instead of 5GB
-    "tasks": 1
+    "runtime": 1200,  # 20 hours - some very large PMC datasets need more time
+    "mem_mb": 2000,  # 2GB
+    "tasks": 1,
 }
 
 HEAVY_RESOURCES = {
     "slurm_partition": "cpu",
     "runtime": 300,  # 5 hours instead of 33 hours
-    "mem_mb": 32000  # 32GB for better performance
+    "mem_mb": 32000,  # 32GB for better performance
 }
 
 FILTER_RESOURCES = {
     "slurm_partition": "cpu",
-    "runtime": 1800, 
-    "tasks": 40, 
-    "mem_mb": 240000 
+    "runtime": 1800,  # Keep original 30 minutes
+    "tasks": 8,  # 8 cores should be sufficient for smaller chunks
+    "mem_mb": 48000,  # 48GB for smaller chunks
 }
 
-# Pre-compiled regex patterns for better performance
-FILTER_KEYWORDS_PATTERN = re.compile(
-    r"Math|Phys|Psych|Hospital|Homeopath|Econ|Bus|Financ|Health|Trials|Sensors|Materials|"
-    r"Nanomaterials|Polymers|machi|Educ|Alternat Med|Dent|Tex Med|Cancer|Surg|Chir|"
-    r"Theranostics|Entropy|Pediatr|Endocrinol|Pregnancy|Onco|Nanoscale|Geriatr|South Med|"
-    r"Care|Musculoskelet|Cardio|Altern Med|Fam Pract|Palliat|Orthop|Sport|Ophthalm|Depress|"
-    r"Radiol|Acupunt|Transpl|Astro|Cosmo|Unterrichtswissenschaft|Alcohol|Breast|Behav|Hernia|"
-    r"Sleep|Endosc|Pilot Feasibility|Harm|Urol|Gels|Thyroid|Head Neck|Ovarian|Artif Intell|"
-    r"Pain|Nanomicro|J Funct Biomater|Light|Gynecol|Schizophr|Robot|Synchrotron|Arq Bras Cir Dig|"
-    r"Cost Eff Resour Alloc|Bundesgesundheitsblatt|Anesthesiol|Rheumatol|Focus Video|"
-    r"J Hous Built Environ|Smart Learn|J Atten Disord|Nanophotonics|Planets|Commun Netw|Geophys|"
-    r"Demogr Res|Aten Primaria|Electron|Policy|Publizistik|Auton Agent|Law|Market|Anesth|"
-    r"Knowl Inf Syst|Epilepsy|Traffic Inj Prev|Soc Epistemol|J Bank Regul|Cult Soc Hist|Polit|"
-    r"Urban|J Labour Mark Res|J Common Mark Stud|J Market Anal|Int Rev Public Nonprofit Mark|"
-    r"Electron Markets|Mark Lett|Build Cities|Buildings|Build Simul|Build Serv Eng Res Technol|"
-    r"Soft Robot|Societ|Rehabil|Hypertens|Wirtschaftsdienst|Cogn|Archaeol|Polit|hautnah|Diabetes|"
-    r"NTM|JTCVS Tech|Gambl|3D Print|MAGMA|Sarcoma|Rethink Hist|Cult Stud|Sociol|Anaesth|"
-    r"Holz Roh Werkst|Iperception|Diabetol|Weld World|Postmedieval|Algebra|Comput Mech|Erkenntnis|"
-    r"Sicherheitspolit|Linguist|Geogr|Welf|Living Rev Relativ|Ber Wiss|Arenas|Lang Test Asia|"
-    r"Epilepsia|Hardware|Ultrasound|Quantum|Tourismus|Aerospace|World Futures|Wandel|Earthq|"
-    r"Kardio|Gynakol|Onkolog|Bild|Lebens|Alloys|Graph|Prehist|Relig|Hum Rights|Autism|Informatik|"
-    r"Sex Cult|AI Ethics|Ethics Inf Technol|TSG|Biospektrum|Writ|AI Soc|chirurg|Scoliosis|"
-    r"Comput Sci|Judges|Social Protection|Governance|Prose|GDPR|Nonlinear Dyn|Big Data|Civility|"
-    r"ZfDN|TechTrends|Soc Justice|Acupunct|Maltreat|Betriebswirtsch|Mach Learn|Reason|Stat Comput|"
-    r"Hautarzt|HMD|Space Sci|Tools and Algorithms for the Construction and Analysis of Systems|"
-    r"Cyborg|Computing|Energy|Child Abuse|Software Engineering|Programming|AIP|Resuscitation|"
-    r"Appl Mech|Theory Decis|Negot|Decision|Judgm Decis Mak|IET Image Process|Softw Eng|"
-    r"Ecancermedicalscience|Cities|Subjectivity|Batteries|Geoinfo|Wireless|Coop|Arbeitsschutz|"
-    r"Philos Stu|Data Anal|Neurosci|Arthritis|Nurs|Neural|Neurol|Nephrol|Intell|Brain|Bone Miner|"
-    r"Humanist|Eat Disord|Humanities|Subst Abuse|Neurooncol|Thought|Endokrinol|Heart|Gesundheitsf|"
-    r"Deform|Cereb|Endocrine|Cachexia|Tob|Ethnobiol|SICOT J|Tomography|Osteoporos|Trauma|Childbirth|"
-    r"Entropy|Aging|Audiol|Aging|Crystallogr|Angew Chem|Langmuir|ACS Nano|Sci Technol Adv Mater|"
-    r"Chemphyschem|BMC Med Imaging|Endocr Disord|Cytojournal|Front Zool|J Med Internet Res|Malar J|"
-    r"J Circadian Rhythms|Neuroimage|Geochem Trans|Addiction|J Affect Disord|J Automat Chem|"
-    r"Indian Pacing Electrophysiol J|Eplasty|J Foot Ankle Res|J Hand Surg Am|Orthop Surg|"
-    r"J Fluency Disord|Thromb Res|Philos Ethics Humanit Med|Soc Sci Med|J Law Med Ethics|"
-    r"J Med Ethics|J Appl Philos|Comput Geosci|J Anal Methods Chem|Rev Lat Am Enfermagem|"
-    r"Appl Bionics Biomech|Ultrason Sonochem|Soft Matter|Minerva|Eur J Oper Res|J Voice|"
-    r"IEEE Trans Comput Soc Syst|Eur Account Rev|Landslides|Virtual Real|Intereconomics|Geom|"
-    r"Soc Netw|J Happiness Stud|J Echocardiogr|Flow Turbul Combust|Technol Forecast Soc Change|"
-    r"Manag Int Rev|Secur J|Comput Vis Media|Environ Justice|Instrum Sci|J Appl Comput Topol|"
-    r"Tectonics|Fire Ecol|Technol Invest|Technol Forecast Soc Change|Eur Asia Stud|J Hazard Mater Lett|"
-    r"Automot Innov|Opt Laser Technol|Photochem|Eng Struct|Curr Trends Clin Med Imaging|Inf Vis|"
-    r"Gac Sanit|Fatigue|Acta Mech Solida Sin|Pattern Recognit|Soc Sci J|J Eur Stud|Thin Solid Films|"
-    r"J Comput Assist Tomogr|ISPRS J Photogramm Remote Sens|Pharmacoeconomics|J Fam Ther|Scientometrics|"
-    r"Q J R Meteorol Soc|Transportation|Schmerz|Oxf J Leg Stud|Ethik Med|Echo Res Pract|J Magn Reson|"
-    r"Des Codes Cryptogr|J Soc Pers Relat|Datenbank Spektrum|New Bioeth|Womens Hist Rev|Calcolo|"
-    r"Spektrum Augenheilkd|Can Stud Popul|Land|Space Cul|J Revenue Pricing Manag|"
-    r"Prog Nucl Magn Reson Spectrosc|CEAS Space J|Saf Sci|ISPRS Int J Geoinf|J Grid Comput|"
-    r"Data Sci Eng|Intermodal User|Crisis|Ment Illn|An Sist Sanit Navar|J Acad Mark Sci|Int J Geoeng|"
-    r"Geotech Geol Eng|J Appl Geod|Adv Fiber Mater|Int J Engine Res|Antennas|PhotoniX|Ceram|"
-    r"Engag Sci Technol Soc|Lat Stud|J Sustain Metall|Russ|J Veterans Stud|Asian J|Metaphor Symb|"
-    r"Manag Decis|Food Cult Soc|Cross Cult Res|J Speech Pathol Ther|Water Int|Front Therm Eng|"
-    r"Lang Semiot Stud|Intervention|Electromyogr|Int J Heat Mass Transf|Somnologie|Biodemography Soc Biol|"
-    r"Soc Hist Med|J Am Stat Assoc|Trans R Hist Soc|J Philos Logic|Public Adm|Ecohydrology|"
-    r"Veg Hist Archaeobot|Geoforum|Condens Matter|Lubricants|IEEE Trans Knowl Data Eng|Eur J Philos|"
-    r"J Bioequivalence Bioavailab|Icarus|Folklore|Cryst Growth Des|J Curr Glaucoma Pract|"
-    r"Des Monomers Polym|Stud Fam Plann|J Sep Sci|J Supercomput|Wirtsch|Comput Stat|Theor Appl Climatol|"
-    r"Cryptograp|J Contemp Ethnogr|J Paleolimnol|J Public Aff|J Mari Arch|Numer Funct Anal Optim|"
-    r"Nonprofit Volunt Sect Q|J Pseudodiffer Oper Appl|Stat \(Int Stat Inst\)|Xray Spectrom|Philos Q|"
-    r"Soc Compass|Min Metall Explor|J Fam Theory Rev|Theol Sci|Stat Probab Lett|Int Reg Sci Rev|"
-    r"Set Valued Var Anal|CSCW|Forces Mech|J Heat Transfer|Semigroup Forum|IEEE Trans Inf Theory|"
-    r"Numer Funct Anal Optim|J Travel Res|Soc Sci|Public Manag Rev|Engl Hist Rev|J Comput Assist Learn|"
-    r"Comput Netw|J Econ Surv|Transp Res Part C Emerg Technol|J Spectrosc|IEEE Trans Power Syst|"
-    r"IEEE Trans Syst Man Cybern A Syst Hum|J Family Hist|J Appl Anim Ethics Res|IEEE Open J Circuits Syst|"
-    r"IEEE J Microw|J Vis Impair Blind|J Eur Integr|J Clin Virol Plus|J Microencapsul|Mod Opt|"
-    r"Br J Ind Relat|IEEE Trans Audio Speech Lang Process|J Fluid Mech|Xenotransplantation|Rural Stud|"
-    r"ACS ES T Eng|Tumour Virus Res|Emerg Adulthood|User Model User-adapt Interact|Childhood|Soc Hist|"
-    r"Qual User Exp|Complex Anal Oper Theory|Nanomanuf Metrol|Ital Stud|ISRN Opt|Desalination|"
-    r"Asia Pac Viewp|J Am Soc Inf Sci Technol|Dev Neurorehabil|Int J Non Linear Mech|TOP|"
-    r"J Parallel Distrib Comput|Languages|Humanit|Med Ethics|Synthese|Mindfulness|Philos|Inquiry|"
-    r"Soc Work|Card Rhythm Manag|J Manag|Mov Disord|Stat Methods|World Dev|Rev Manag|Dyslexia|"
-    r"Differ Equ|Found Sci|Comput Vis|Number|Appl Stat|Probab Theory|Empirica|Pastoralism|Anthropol|"
-    r"Abuse|Topoi|Minds Mach|Planet Sci|Neuroanat|Angioge|Thromb|Diabet|Endocr|Ortho|Ultrason|Soci|"
-    r"Hydrol|Spine|Criminol|List Forum|Software|Optica|Mater Sci|Sci Eng|Corp|Opt|Photon|Ethno|Justice|"
-    r"Race|Circuit|Navig|Internet|Microsyst|JCPP|Pituitary|Cannabis|Laser|Chaos|Algorithmica|Adolesc|"
-    r"Xray|Magn Reson|Radiat|Mech Eng|PDE|ZDM|Mat Pura|Stat Pap|Mind Soc|Stat Distrib|Infrastruct|"
-    r"Tourism|Violence|Entrep|Marriage|Space|Radioanal|Netw Sci|Eng Sci|Calorim|Mt Sci|Arthroplas|"
-    r"Product|Acust|GPS|Work|Ecography|Nous|Speech|Popul|Ing|Disabil|Ethn|Discret|Media Soc|Cult Soc"
-)
+# Simplified regex patterns - combine similar patterns
+FILTER_KEYWORDS = [
+    # Medical/Health journals
+    "Cancer",
+    "Surg",
+    "Med",
+    "Health",
+    "Hospital",
+    "Clinic",
+    "Therap",
+    "Diabet",
+    "Cardio",
+    "Neuro",
+    "Psych",
+    "Pediatr",
+    "Geriatr",
+    "Oncol",
+    "Radiol",
+    "Anesth",
+    "Ortho",
+    "Ophthalm",
+    # Technical/Engineering
+    "Comput",
+    "Software",
+    "Hardware",
+    "Electron",
+    "Quantum",
+    "Robot",
+    "Cyber",
+    "Program",
+    # Social Sciences/Humanities
+    "Sociol",
+    "Philos",
+    "Polit",
+    "Law",
+    "Ethics",
+    "Humanit",
+    "Cultur",
+    "Relig",
+    "Hist",
+    # Physical Sciences
+    "Phys",
+    "Math",
+    "Chem",
+    "Crystallogr",
+    "Astro",
+    "Cosmo",
+    "Geophys",
+    # Business/Economics
+    "Econ",
+    "Financ",
+    "Market",
+    "Business",
+    "Manag",
+    "Account",
+    # Materials/Engineering
+    "Material",
+    "Polymer",
+    "Nano",
+    "Alloy",
+    "Mech",
+    "Eng Struct",
+    # Other
+    "Educ",
+    "Sport",
+    "Tourism",
+    "Transport",
+    "Urban",
+    "Build",
+    "Energy",
+]
+FILTER_KEYWORDS_PATTERN = re.compile("|".join(FILTER_KEYWORDS), re.IGNORECASE)
 
 SECTION_FILTER_PATTERN = re.compile(
-    r"Declaration|Contribut|Author|AUTHOR|Title|Conflict|Data sharing|Competing|CONFLICT|ethic|contributions|abbreviation|Funding|interest|data availability|acknowledgement|ACKNOWLEDGMENT|contribution statement|Reviewers|Family|publisher|Consent|Disclosure|contributor|credit author|Software availability|Pre-publication history|Checklist|Availability|Documentation|financial|cancer",
-    re.IGNORECASE
+    r"(?i)(?:declaration|contribut|author|conflict|compet|ethic|funding|interest|"
+    r"acknowledg|consent|disclosure|availabil|financial|cancer)",
+    re.IGNORECASE,
 )
+
+
+def get_filtered_chunks(wildcards):
+    """Dynamically determine filtered chunk names from XML chunks"""
+    chunks = get_xml_chunks(wildcards)
+    return expand(
+        os.path.join(PARQUET_DIR, "{xmlchunk}_filtered.parquet"), xmlchunk=chunks
+    )
+
+
+def get_chunk_stats(wildcards):
+    """Get stats files for all chunks"""
+    chunks = get_xml_chunks(wildcards)
+    return expand(
+        os.path.join(STATS_DIR, "chunks", "{xmlchunk}_stats.json"), xmlchunk=chunks
+    )
+
 
 TEXT_FILTER_PATTERN = re.compile(
     r'- Reply|- Line|• Line|Please|" "|""|--|-Comment|\\* I|- I|-I |\\* L|- L'
 )
 
+
 def merge_sentences_polars(df: pl.DataFrame) -> pl.DataFrame:
-    grouped_rows = []
+    """Optimized sentence merging using vectorized operations"""
+    if df.is_empty():
+        return pl.DataFrame()
 
-    df = df.sort(["pmcid", "section", "paragraph", "sentence"])
+    # Single pass: clean, sort, and calculate lengths
+    df = df.lazy().filter(pl.col("text").is_not_null())
 
-    # Wrap each row as a struct for grouped access with parallel processing
-    groups = (
-        df
-        .group_by(["pmcid", "section", "paragraph"])
-        .agg(pl.struct(pl.all()).alias("rows"))
-    )
+    # Add length column and partition by threshold in one go
+    df_with_length = (
+        df.group_by(["pmcid", "section", "paragraph"]).agg(
+            [
+                pl.col("text").str.concat(" ").alias("merged_text"),
+                pl.col("text").str.len_chars().sum().alias("total_length"),
+                pl.col("sentence").min().alias("min_sent"),
+                pl.col("sentence").max().alias("max_sent"),
+                pl.struct([pl.col("sentence"), pl.col("text")]).alias("sentences"),
+            ]
+        )
+    ).collect(streaming=True)
 
-    # Process groups more efficiently
-    for group in groups.iter_rows(named=True):
-        pmcid = group["pmcid"]
-        section = group["section"]
-        paragraph = group["paragraph"]
-        rows = group["rows"]
+    # Split by length and process
+    long_mask = df_with_length["total_length"] > 512
 
-        total_len = sum(len(r["text"]) if r["text"] else 0 for r in rows)
+    # For long paragraphs, explode back to individual sentences
+    long_df = df_with_length.filter(long_mask)
+    if long_df.height > 0:
+        long_result = (
+            long_df.select(["pmcid", "section", "paragraph", "sentences"])
+            .explode("sentences")
+            .with_columns(
+                [
+                    pl.col("sentences")
+                    .struct.field("sentence")
+                    .cast(pl.Utf8)
+                    .alias("sentence_range"),
+                    pl.col("sentences").struct.field("text").alias("text"),
+                ]
+            )
+            .select(["pmcid", "section", "paragraph", "sentence_range", "text"])
+        )
+    else:
+        long_result = None
 
-        # Rule: if full paragraph text > 512, return individual sentences
-        if total_len > 512:
-            for r in rows:
-                if not r["text"]:
-                    continue
-                grouped_rows.append({
-                    "pmcid": pmcid,
-                    "section": section,
-                    "paragraph": paragraph,
-                    "sentence_range": str(r["sentence"]),
-                    "text": r["text"]
-                })
-        else:
-            current_text = ""
-            current_sentences = []
+    # For short paragraphs, use merged text
+    short_df = df_with_length.filter(~long_mask)
+    if short_df.height > 0:
+        short_result = (
+            short_df.with_columns(
+                pl.when(pl.col("min_sent") == pl.col("max_sent"))
+                .then(pl.col("min_sent").cast(pl.Utf8))
+                .otherwise(
+                    pl.col("min_sent").cast(pl.Utf8)
+                    + "-"
+                    + pl.col("max_sent").cast(pl.Utf8)
+                )
+                .alias("sentence_range")
+            )
+            .rename({"merged_text": "text"})
+            .select(["pmcid", "section", "paragraph", "sentence_range", "text"])
+        )
+    else:
+        short_result = None
 
-            for r in rows:
-                sentence = r["sentence"]
-                text = r["text"]
+    # Combine results
+    results = [r for r in [long_result, short_result] if r is not None]
+    return pl.concat(results) if results else pl.DataFrame()
 
-                if text is None:
-                    continue
 
-                candidate = (current_text + " " + text).strip() if current_text else text
-
-                if len(candidate) <= 512:
-                    current_text = candidate
-                    current_sentences.append(sentence)
-                else:
-                    if current_text:
-                        grouped_rows.append({
-                            "pmcid": pmcid,
-                            "section": section,
-                            "paragraph": paragraph,
-                            "sentence_range": f"{current_sentences[0]}-{current_sentences[-1]}" if len(current_sentences) > 1 else f"{current_sentences[0]}",
-                            "text": current_text
-                        })
-                    current_text = text
-                    current_sentences = [sentence]
-
-            if current_text:
-                grouped_rows.append({
-                    "pmcid": pmcid,
-                    "section": section,
-                    "paragraph": paragraph,
-                    "sentence_range": f"{current_sentences[0]}-{current_sentences[-1]}" if len(current_sentences) > 1 else f"{current_sentences[0]}",
-                    "text": current_text
-                })
-
-    return pl.DataFrame(grouped_rows)
-    
 rule all:
     input:
-        "pmc.parquet",
+        os.path.join(DATA_DIR, "pmc_filtered.parquet"),
+        os.path.join(STATS_DIR, "processing_summary.json"),
 
 
 rule bulk_download:
     output:
-        tar=temp(f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"),
-        filelist=temp(f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt"),
-    resources:
-        **DOWNLOAD_RESOURCES,
-    shell:
-        "wget https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/{output.tar}; tar -xvzf {output.tar};wget https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/{output.filelist}"
-
-
-rule bulk_download_noncomm:
-    output:
-        tar=temp(f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"),
-        filelist=temp(f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt"),
+        tar=temp(
+            os.path.join(
+                TEMP_DIR, f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+            )
+        ),
+        filelist=temp(
+            os.path.join(
+                TEMP_DIR,
+                f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
+            )
+        ),
+    params:
+        tar_name=f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
+        filelist_name=f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
     resources:
         **DOWNLOAD_RESOURCES,
     shell:
         """
-        wget https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/{output.tar} || touch {output.tar}
-        wget https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/{output.filelist} || touch {output.filelist}
+        # Download filelist first
+        wget --timeout=300 --tries=3 -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/{params.filelist_name}
+        
+        # Download tar file with resume capability  
+        wget --timeout=7200 --tries=3 --continue -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/{params.tar_name}
+        
+        echo "Downloaded {output.tar} - will process directly from archive without full extraction"
+        """
+
+
+rule bulk_download_noncomm:
+    output:
+        tar=temp(
+            os.path.join(
+                TEMP_DIR,
+                f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
+            )
+        ),
+        filelist=temp(
+            os.path.join(
+                TEMP_DIR,
+                f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
+            )
+        ),
+    params:
+        tar_name=f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
+        filelist_name=f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
+    resources:
+        **DOWNLOAD_RESOURCES,
+    shell:
+        """
+        # Try to download filelist first
+        wget --timeout=300 --tries=3 -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/{params.filelist_name} || touch {output.filelist}
+        
+        # Try to download tar file (may not exist for all PMC datasets)
+        wget --timeout=7200 --tries=3 --continue -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/{params.tar_name} || touch {output.tar}
+        
         if [ -s {output.tar} ]; then
-            tar -xvzf {output.tar}
-        fi 
+            echo "Downloaded non-commercial {output.tar} - will process directly from archive"
+        else
+            echo "No non-commercial data available for this PMC dataset"
+        fi
         """
 
 
 rule concat_lists:
     input:
-        lists=f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
-        lists_nc=f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
+        lists=os.path.join(
+            TEMP_DIR,
+            f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
+        ),
+        lists_nc=os.path.join(
+            TEMP_DIR,
+            f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
+        ),
     output:
-        "{pmc}_filelist.tsv",
+        os.path.join(LISTS_DIR, "{pmc}_filelist.tsv"),
     resources:
         **COMMON_RESOURCES,
     run:
-        try:
-            df_nc = pd.read_csv(input.lists_nc, sep="\t")
-        except pd.errors.EmptyDataError:
-            df_nc = pd.DataFrame()
+        import os
+
+        # Read commercial list
         df = pd.read_csv(input.lists, sep="\t")
-        df = pd.concat([df, df_nc])
-        df.loc[:, "journal"] = df["Article Citation"].str.split(".", expand=True)[0]
-        df.loc[:, "year"] = (
-            df["Article Citation"]
-            .str.split(".", expand=True)[1]
-            .str.strip()
-            .str.split(" ", expand=True)[0]
-        )
-        # Handle None values in journal and year columns
-        df["journal"] = df["journal"].fillna("")
-        df["year"] = df["year"].fillna("")
-        
+
+        # Try to read non-commercial list - handle various error cases
+        try:
+            # Check if file exists and has content
+            if os.path.exists(input.lists_nc) and os.path.getsize(input.lists_nc) > 0:
+                df_nc = pd.read_csv(input.lists_nc, sep="\t")
+                # Only concat if df_nc has data and same columns
+                if not df_nc.empty and list(df_nc.columns) == list(df.columns):
+                    df = pd.concat([df, df_nc], ignore_index=True)
+                    print(
+                        f"Combined {len(df)} records from both commercial and non-commercial lists"
+                    )
+                else:
+                    print(
+                        "Non-commercial list empty or has different columns, using only commercial list"
+                    )
+            else:
+                print(
+                    "Non-commercial list file is empty or doesn't exist, using only commercial list"
+                )
+        except (
+            pd.errors.EmptyDataError,
+            pd.errors.ParserError,
+            FileNotFoundError,
+        ) as e:
+            print(
+                f"Could not read non-commercial list: {e}, using only commercial list"
+            )
+
+            # Extract journal and year efficiently
+        article_parts = df["Article Citation"].str.split(".", n=2, expand=True)
+        df["journal"] = article_parts[0].fillna("")
+        df["year"] = article_parts[1].str.extract(r"(\d{4})", expand=False).fillna("")
+
+        # Apply filters
+        year_pattern = r"18\d{2}|19[0-5]\d"
         filtered_df = df[
-            (~df.journal.str.contains(FILTER_KEYWORDS_PATTERN, na=False))
-            & (~df.year.str.contains("18\d\d|190\d|191\d|192\d|193\d|194\d|195\d|196\d", na=False))
-        ]
-        filtered_df.drop(columns=["year", "journal"], inplace=True)
+            ~df.journal.str.contains(FILTER_KEYWORDS_PATTERN, na=False)
+            & ~df.year.str.contains(year_pattern, na=False)
+        ].drop(columns=["year", "journal"])
+
+        print(f"Filtered from {len(df)} to {len(filtered_df)} records")
         filtered_df.to_csv(output[0], index=False, sep="\t")
 
 
-rule xml_csv:
+rule concatenate_all_lists:
     input:
-        "{pmc}_filelist.tsv",
+        expand(os.path.join(LISTS_DIR, "{pmc}_filelist.tsv"), pmc=PMC),
     output:
-        temp("{pmc}_csv.txt"),
+        os.path.join(LISTS_DIR, "all_pmc_filelist.tsv"),
+    resources:
+        slurm_partition="cpu",
+        runtime=60,
+        mem_mb=8000,
+    run:
+        import pandas as pd
+
+        # Read and concatenate all filelists
+        all_dfs = []
+        for file in input:
+            df = pd.read_csv(file, sep="\t")
+            # Add PMC identifier from filename
+            pmc_id = os.path.basename(file).replace("_filelist.tsv", "")
+            df["pmc_dataset"] = pmc_id
+            all_dfs.append(df)
+
+        combined_df = pd.concat(all_dfs, ignore_index=True)
+        print(f"Combined {len(combined_df)} total files from {len(input)} PMC datasets")
+
+        # Save combined list
+        combined_df.to_csv(output[0], index=False, sep="\t")
+
+
+checkpoint split_into_chunks:
+    input:
+        os.path.join(LISTS_DIR, "all_pmc_filelist.tsv"),
+    output:
+        os.path.join(XML_CHUNKS_DIR, "xml_chunks.txt"),
+    params:
+        chunk_size=FILES_PER_CHUNK,
+    resources:
+        slurm_partition="cpu",
+        runtime=60,
+        mem_mb=8000,
+    run:
+        import pandas as pd
+        import math
+        import os
+
+        # Create the XML chunks directory
+        os.makedirs(XML_CHUNKS_DIR, exist_ok=True)
+
+        # Read the combined filelist
+        df = pd.read_csv(input[0], sep="\t")
+        total_files = len(df)
+        chunk_size = params.chunk_size
+        num_chunks = math.ceil(total_files / chunk_size)
+
+        print(
+            f"Splitting {total_files} files into {num_chunks} chunks of ~{chunk_size} files each"
+        )
+
+        # Create chunk files
+        chunk_names = []
+        for i in range(num_chunks):
+            start_idx = i * chunk_size
+            end_idx = min((i + 1) * chunk_size, total_files)
+            chunk_df = df.iloc[start_idx:end_idx]
+
+            chunk_name = f"xmlchunk_{i:04d}"
+            chunk_file = os.path.join(XML_CHUNKS_DIR, f"{chunk_name}_filelist.tsv")
+            chunk_df.to_csv(chunk_file, index=False, sep="\t")
+            chunk_names.append(chunk_name)
+
+            if i % 10 == 0:
+                print(f"Created chunk {i}/{num_chunks}: {len(chunk_df)} files")
+
+                # Write list of chunks
+        with open(output[0], "w") as f:
+            for name in chunk_names:
+                f.write(f"{name}\n")
+
+        print(f"Created {len(chunk_names)} chunks")
+
+
+def get_xml_chunks(wildcards):
+    """Get list of XML chunks from checkpoint"""
+    checkpoint_output = checkpoints.split_into_chunks.get(**wildcards).output[0]
+    with open(checkpoint_output) as f:
+        chunks = [line.strip() for line in f if line.strip()]
+    return chunks
+
+
+rule process_xml_chunk:
+    input:
+        filelist=os.path.join(XML_CHUNKS_DIR, "{xmlchunk}_filelist.tsv"),
+        comm_tars=expand(
+            os.path.join(
+                TEMP_DIR, f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+            ),
+            pmc=PMC,
+        ),
+        noncomm_tars=expand(
+            os.path.join(
+                TEMP_DIR, f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+            ),
+            pmc=PMC,
+        ),
+        chunk_list=os.path.join(XML_CHUNKS_DIR, "xml_chunks.txt"),  # Dependency on checkpoint
+    output:
+        temp(os.path.join(CSV_DIR, "{xmlchunk}.csv")),
     conda:
         "envs/r_env.yml"
     resources:
         slurm_partition="cpu",
-        tasks=30,
-        runtime=2000,
-        mem_mb=100000,
+        tasks=12,  # Reduced since chunks are smaller (20k files instead of 40k)
+        runtime=1440,  # Increased to 24 hours to prevent timeouts
+        mem_mb=12000,  # 12GB per chunk should be sufficient for smaller chunks
     script:
-        "scripts/xml2tsv.R"
+        "scripts/xml2tsv_chunk.R"
 
 
-rule csv_parquet:
+rule chunk_csv_parquet:
     input:
-        "{pmc}_csv.txt",
+        os.path.join(CSV_DIR, "{xmlchunk}.csv"),
     output:
-        "{pmc}_parquet.txt",
+        temp(os.path.join(PARQUET_DIR, "{xmlchunk}.parquet")),
+    wildcard_constraints:
+        xmlchunk="xmlchunk_\d{4}"  # Only match xmlchunk_0000 format, not xmlchunk_0000_filtered
     resources:
-        **DOWNLOAD_RESOURCES,
+        slurm_partition="cpu",
+        runtime=120,  # Keep original runtime
+        mem_mb=8000,  # 8GB should be enough for smaller chunks
     script:
-        "scripts/tsv2parquet.py"
+        "scripts/tsv2parquet_chunk.py"
 
 
-rule aggregate:
+rule filter_chunk:
     input:
-        "{pmc}_parquet.txt",
+        os.path.join(PARQUET_DIR, "{xmlchunk}.parquet"),
     output:
-        "{pmc}.parquet",
-    resources:
-        **HEAVY_RESOURCES,
-    run:
-        df = pd.read_csv(input[0], header=None)
-        parquets = df.iloc[:, 0].to_list()
-        with pq.ParquetWriter(
-            output[0], schema=pq.ParquetFile(parquets[0]).schema_arrow
-        ) as writer:
-            for parquet in parquets:
-                try:
-                    writer.write_table(pq.read_table(parquet))
-                except Exception as e:
-                    print(f"Error processing {parquet}: {e}")
-
-
-rule filter_parquet:
-    input:
-        "{pmc}.parquet",
-    output:
-        "{pmc}.pqt",
-        "{pmc}_stats.txt"
+        filtered=temp(os.path.join(PARQUET_DIR, "{xmlchunk}_filtered.parquet")),
+        stats=os.path.join(STATS_DIR, "chunks", "{xmlchunk}_stats.json"),
+    wildcard_constraints:
+        xmlchunk="xmlchunk_\d{4}"  # Only match xmlchunk_0000 format
     resources:
         **FILTER_RESOURCES,
     run:
-        import time
-        import psutil
         start_time = time.time()
-        
-        print(f"Reading parquet file: {input[0]}")
-        df = pl.read_parquet(input[0])
-        print(f"Loaded {df.shape[0]:,} rows in {time.time() - start_time:.1f} seconds")
-        
-        print("Merging sentences...")
-        merge_start = time.time()
+
+        # Always use scan_parquet for consistency and memory efficiency
+        df = pl.scan_parquet(input[0]).collect(streaming=True)
+
+        initial_rows = df.shape[0]
+        print(f"Processing {wildcards.xmlchunk}: {initial_rows:,} rows")
+
+        # Step 1: Merge sentences
         df = merge_sentences_polars(df)
-        print(f"Merged sentences in {time.time() - merge_start:.1f} seconds")
 
-        print("Removing duplicates...")
-        df = df.unique("text")
-        print(f"After deduplication: {df.shape[0]:,} rows")
-        
-        # Early aggressive filtering to reduce downstream processing
-        before_filtering = df.shape 
-        
-        # Combined early filtering - length + content filters in one pass
-        df = df.filter(            
-            (pl.col("text").str.len_chars().cast(pl.UInt32) >= 40)
-            & (pl.col("text").str.len_chars().cast(pl.UInt32) <= 512)
-            & (~pl.col("section").str.contains(SECTION_FILTER_PATTERN.pattern))
-            & (~pl.col("text").str.contains(TEXT_FILTER_PATTERN.pattern))
-        )
-        after_filtering = df.shape
-        
-        print(f"After early filtering: {after_filtering[0]:,} rows (removed {before_filtering[0] - after_filtering[0]:,})")
-
-        with open(output[1],"w") as f:
-            f.write(f"Before filtering: {before_filtering[0]} rows\n")
-            f.write(f"After early combined filtering: {after_filtering[0]} rows\n")
-
-        # Fast English detection using simple heuristics first
-        print("Applying fast English heuristics...")
-        
-        # Pre-filter using simple English indicators (much faster than lingua)
-        english_patterns = re.compile(r'\b(the|and|of|to|a|in|for|is|on|that|by|this|with|i|you|it|not|or|be|are|from|at|as|your|all|any|can|had|was|one|our|out|day|get|has|him|his|how|man|new|now|old|see|two|way|who|did|its|let|put|say|too|use|shown|sample)\b', re.IGNORECASE)
-        
-        df = df.with_columns(
-            pl.col("text").str.count_matches(english_patterns.pattern).alias("english_words")
-        )
-        
-        # Split dataframe based on heuristics - stricter threshold (>=2 words)
-        df_passed_heuristics = df.filter(pl.col("english_words") >= 2)
-        df_failed_heuristics = df.filter(pl.col("english_words") < 2)
-        
-        print(f"Passed English heuristics (>=2 words): {df_passed_heuristics.height:,} rows")
-        print(f"Failed English heuristics (<2 words): {df_failed_heuristics.height:,} rows")
-        
-        # Only run expensive lingua detection on texts that FAILED heuristics
-        if df_failed_heuristics.height > 0:
-            print(f"Starting detailed language detection on {df_failed_heuristics.height:,} texts that failed heuristics...")
-            languages = [Language.ENGLISH, Language.FRENCH]  # Minimum 2 languages required
-            detector = LanguageDetectorBuilder.from_languages(*languages).with_preloaded_language_models().build()
-            
-            # Optimized chunking with larger chunks for better throughput
-            available_gb = psutil.virtual_memory().available / (1024**3)
-            chunk_size = min(100000, max(20000, int(available_gb * 15000)))  # Larger chunks for better throughput
-            
-            # Process chunks with batch optimization
-            confidences = []
-            
-            # Process in optimized chunks
-            total_chunks = (df_failed_heuristics.height + chunk_size - 1) // chunk_size
-            print(f"Processing {total_chunks} chunks of size {chunk_size} with {40} cores...")
-            
-            for idx, i in enumerate(range(0, df_failed_heuristics.height, chunk_size)):
-                chunk_texts = df_failed_heuristics[i : i + chunk_size].select(pl.col("text"))["text"].to_list()
-                # Use parallel processing with more efficient batching
-                chunk_confidences = detector.compute_language_confidence_values_in_parallel(chunk_texts)
-                confidences.extend(chunk_confidences)
-                if (idx + 1) % 5 == 0 or idx == total_chunks - 1:  # Report less frequently
-                    print(f"Completed chunk {idx + 1}/{total_chunks}")
-
-            # Extract English confidence values
-            english_confidences = [
-                x.value
-                for sublist in confidences
-                for x in sublist
-                if x.language == Language.ENGLISH
-            ]
-            
-            df_failed_heuristics = df_failed_heuristics.with_columns(
-                pl.Series("english_confidence", english_confidences)
+        # Step 2-3: Combine deduplication and filtering in one pass
+        df = (
+            df.lazy()
+            .unique("text")
+            .with_columns(pl.col("text").str.len_chars().alias("text_len"))
+            .filter(
+                (pl.col("text_len") >= 40)
+                & (pl.col("text_len") <= 512)
+                & ~pl.col("section").str.contains(SECTION_FILTER_PATTERN.pattern)
+                & ~pl.col("text").str.contains(TEXT_FILTER_PATTERN.pattern)
             )
-            
-            # Filter for high-confidence English texts
-            df_lingua_rescued = df_failed_heuristics.filter(pl.col("english_confidence") > 0.4)
-            print(f"Rescued {df_lingua_rescued.height:,} English texts via lingua from failed heuristics")
-            
-            # Drop the confidence column for consistency
-            df_lingua_rescued = df_lingua_rescued.drop(["english_words", "english_confidence"])
-        else:
-            print("No texts failed heuristics, skipping lingua detection")
-            df_lingua_rescued = pl.DataFrame()
-        
-        # Drop english_words column from passed heuristics dataframe
-        df_passed_heuristics = df_passed_heuristics.drop("english_words")
-        
-        # Combine both sets: heuristics-passed + lingua-rescued
-        if df_lingua_rescued.height > 0:
+            .drop("text_len")
+            .collect()
+        )
+
+        before_lingua = df.shape[0]
+
+        # Step 4: English detection with heuristics + lingua
+        print(f"Step 4: English detection on {df.height:,} texts...")
+
+        # First apply heuristic filter - use precompiled pattern
+        english_pattern = r"(?i)\b(?:the|and|of|to|a|in|for)\b"
+        df_passed_heuristics = df.filter(pl.col("text").str.contains(english_pattern))
+        df_failed_heuristics = df.filter(~pl.col("text").str.contains(english_pattern))
+
+        print(
+            f"  Heuristics: {df_passed_heuristics.height:,} passed, {df_failed_heuristics.height:,} failed"
+        )
+
+        # Always use lingua on texts that failed heuristics
+        if df_failed_heuristics.height > 0:
+            print(f"  Running lingua on {df_failed_heuristics.height:,} texts...")
+
+            detector = (
+                LanguageDetectorBuilder.from_languages(
+                    Language.ENGLISH, Language.FRENCH
+                )
+                .with_preloaded_language_models()
+                .build()
+            )
+
+            # Adaptive chunk size based on dataset size
+            chunk_size = min(200000, max(50000, df_failed_heuristics.height // 10))
+
+            confidences = []
+            total_chunks = (df_failed_heuristics.height + chunk_size - 1) // chunk_size
+
+            for idx, i in enumerate(range(0, df_failed_heuristics.height, chunk_size)):
+                chunk_texts = df_failed_heuristics[i : i + chunk_size]["text"].to_list()
+                chunk_confidences = (
+                    detector.compute_language_confidence_values_in_parallel(chunk_texts)
+                )
+                confidences.extend(chunk_confidences)
+
+                if (idx + 1) % 5 == 0 or (idx + 1) == total_chunks:
+                    print(f"    Processed {idx+1}/{total_chunks} chunks")
+
+                    # Extract English confidence scores efficiently
+            english_confidences = [
+                next((c.value for c in conf_list if c.language == Language.ENGLISH), 0)
+                for conf_list in confidences
+            ]
+
+            # Filter for high-confidence English texts - use mask for efficiency
+            english_mask = [conf > 0.4 for conf in english_confidences]
+            df_lingua_rescued = df_failed_heuristics.filter(pl.Series(english_mask))
+
+            print(
+                f"  Lingua rescued {df_lingua_rescued.height:,} additional English texts"
+            )
+
+            # Combine results
             df = pl.concat([df_passed_heuristics, df_lingua_rescued])
         else:
             df = df_passed_heuristics
-        
-        print(f"Final rows after language filtering: {df.height:,}")
-        
-        with open(output[1], "a") as f:
-            f.write(f"Rows passing heuristics (>=2 words): {df_passed_heuristics.height:,}\n")
-            f.write(f"Rows rescued by lingua: {df_lingua_rescued.height if df_lingua_rescued.height > 0 else 0:,}\n")
-            f.write(f"Final rows after language filtering: {df.height:,}\n")
-            f.write(f"Processing time: {time.time() - start_time:.1f} seconds\n")
-        
-        df.write_parquet(output[0], use_pyarrow=True)
-        #     dfs.append(df)
-        # output = pl.concat(dfs).to_arrow()
-        # # output.write_parquet(output[0])
-        # # output = pa.Table.from_pandas(output)
-        # # Write the PyArrow table to a Parquet file
-        # pq.write_table(output, output[0])
+
+            # Write output
+        df.write_parquet(
+            output.filtered,
+            compression="snappy",  # Faster compression
+            statistics=False,
+            use_pyarrow=True,
+            row_group_size=100000,  # Optimize row group size
+        )
+
+        # Write stats as JSON for better parsing
+        elapsed = time.time() - start_time
+        stats = {
+            "chunk": wildcards.xmlchunk,
+            "processing_time_seconds": round(elapsed, 2),
+            "rows": {
+                "input": initial_rows,
+                "after_filters": before_lingua,
+                "final": df.height,
+                "reduction_percent": round((1 - df.height / initial_rows) * 100, 2),
+            },
+            "english_detection": {
+                "heuristics_passed": df_passed_heuristics.height,
+                "lingua_rescued": (
+                    df_lingua_rescued.height if "df_lingua_rescued" in locals() else 0
+                ),
+                "lingua_processed": df_failed_heuristics.height,
+            },
+        }
+
+        import json
+
+        os.makedirs(os.path.dirname(output.stats), exist_ok=True)
+        with open(output.stats, "w") as f:
+            json.dump(stats, f, indent=2)
 
 
-
-rule merge_parquets:
+rule merge_filtered:
     input:
-        pmc=expand("{pmc}.pqt", pmc=PMC),
+        chunks=get_filtered_chunks,
+        stats=get_chunk_stats,
     output:
-        "pmc.parquet",
+        os.path.join(DATA_DIR, "pmc_filtered.parquet"),
     resources:
-        slurm_partition="cpu",
-        runtime=200,
-        mem_mb=180000,
+        slurm_partition="cpu", 
+        runtime=1440,  # Increased to 24 hours for merging 192 chunks
+        mem_mb=350000,  # Increased to 350GB for merging 192 chunks
     run:
-        dfs = []
-        for i in input.pmc:
-            df = pl.read_parquet(i)
-            dfs.append(df)
-        out = pl.concat(dfs)
-        out.write_parquet(output[0], use_pyarrow=True)
+        # FAST VERSION: Simple concatenation without deduplication
+        # Each chunk is already deduplicated internally, so we just concatenate
+        print(f"Merging {len(input.chunks)} filtered chunks (fast mode - no global deduplication)...")
+        
+        # Process in batches for memory efficiency
+        batch_size = 50  # Can use larger batches since no deduplication
+        all_dfs = []
+        
+        for i in range(0, len(input.chunks), batch_size):
+            batch_chunks = input.chunks[i:i+batch_size]
+            batch_num = i // batch_size + 1
+            total_batches = (len(input.chunks) + batch_size - 1) // batch_size
+            
+            print(f"Loading batch {batch_num}/{total_batches} ({len(batch_chunks)} chunks)...")
+            
+            # Use lazy loading and streaming
+            lazy_dfs = [pl.scan_parquet(chunk_file) for chunk_file in batch_chunks]
+            batch_df = pl.concat(lazy_dfs, how="vertical_relaxed").collect(streaming=True)
+            all_dfs.append(batch_df)
+            
+            print(f"  Batch {batch_num}: {batch_df.height:,} rows loaded")
+        
+        # Final concatenation
+        print("Performing final concatenation...")
+        result = pl.concat(all_dfs, how="vertical_relaxed")
+        
+        total_rows = result.height
+        print(f"Total rows before deduplication: {total_rows:,}")
+        
+        # Optional: Add hash-based deduplication if needed (much faster than text comparison)
+        if total_rows < 100_000_000:  # Only deduplicate if dataset is manageable
+            print("Performing hash-based deduplication...")
+            # Create hash of text for faster comparison
+            result = result.with_columns(
+                pl.col("text").hash().alias("text_hash")
+            ).unique("text_hash").drop("text_hash")
+            print(f"Total rows after deduplication: {result.height:,}")
+        else:
+            print("Skipping deduplication due to large dataset size")
+        
+        print(f"Writing final dataset: {result.height:,} rows")
+        result.write_parquet(
+            output[0], 
+            compression="snappy", 
+            use_pyarrow=True, 
+            row_group_size=500000
+        )
+
+
+rule create_summary:
+    input:
+        data=os.path.join(DATA_DIR, "pmc_filtered.parquet"),
+        stats=get_chunk_stats,
+    output:
+        os.path.join(STATS_DIR, "processing_summary.json"),
+    resources:
+        **COMMON_RESOURCES
+    run:
+        import json
+        from datetime import datetime
+
+        # Load all chunk stats
+        all_stats = []
+        for stats_file in input.stats:
+            with open(stats_file) as f:
+                all_stats.append(json.load(f))
+
+        # Calculate aggregated statistics
+        total_input = sum(s["rows"]["input"] for s in all_stats)
+        total_output = sum(s["rows"]["final"] for s in all_stats)
+        total_time = sum(s["processing_time_seconds"] for s in all_stats)
+
+        # Create summary
+        summary = {
+            "timestamp": datetime.now().isoformat(),
+            "pipeline_config": {
+                "baseline_date": BASELINE_DATE,
+                "chunk_rows": CHUNK_ROWS,
+                "pmc_datasets": len(PMC),
+                "total_chunks": len(all_stats),
+            },
+            "overall_statistics": {
+                "total_input_rows": total_input,
+                "total_output_rows": total_output,
+                "overall_reduction_percent": round(
+                    (1 - total_output / total_input) * 100, 2
+                ),
+                "total_processing_time_seconds": round(total_time, 2),
+                "average_chunk_time_seconds": round(total_time / len(all_stats), 2),
+            },
+            "filtering_statistics": {
+                "total_heuristics_passed": sum(
+                    s["english_detection"]["heuristics_passed"] for s in all_stats
+                ),
+                "total_lingua_rescued": sum(
+                    s["english_detection"]["lingua_rescued"] for s in all_stats
+                ),
+                "total_lingua_processed": sum(
+                    s["english_detection"]["lingua_processed"] for s in all_stats
+                ),
+            },
+            "output_location": str(output[0]),
+            "data_location": str(input.data),
+        }
+
+        # Write summary
+        with open(output[0], "w") as f:
+            json.dump(summary, f, indent=2)
+
+        # Print summary to console
+        print("\n" + "=" * 60)
+        print("PROCESSING COMPLETE")
+        print("=" * 60)
+        print(f"Total rows processed: {total_input:,}")
+        print(f"Final dataset size: {total_output:,}")
+        print(f"Reduction: {summary['overall_statistics']['overall_reduction_percent']:.1f}%")
+        print(f"Processing time: {total_time/60:.1f} minutes")
+        print(f"Output saved to: {input.data}")
+        print(f"Summary saved to: {output[0]}")
+        print("=" * 60)
