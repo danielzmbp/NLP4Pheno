@@ -16,13 +16,17 @@
 A subclass of `Trainer` specific to Question-Answering tasks
 """
 
-from transformers import Trainer, is_torch_tpu_available
+from transformers import Trainer
 from transformers.trainer_utils import PredictionOutput
 
-
-if is_torch_tpu_available():
-    import torch_xla.core.xla_model as xm
-    import torch_xla.debug.metrics as met
+try:
+    from transformers import is_torch_tpu_available
+    if is_torch_tpu_available():
+        import torch_xla.core.xla_model as xm
+        import torch_xla.debug.metrics as met
+except ImportError:
+    # is_torch_tpu_available is deprecated/removed in newer transformers
+    pass
 
 
 class SeqClsTrainer(Trainer):

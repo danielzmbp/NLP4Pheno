@@ -39,7 +39,8 @@ from typing import Optional
 
 import datasets
 import numpy as np
-from datasets import ClassLabel, load_dataset, load_metric
+from datasets import ClassLabel, load_dataset
+import evaluate
 
 import transformers
 from transformers import (
@@ -496,7 +497,7 @@ def main():
     data_collator = DataCollatorForTokenClassification(tokenizer, pad_to_multiple_of=8 if training_args.fp16 else None)
 
     # Metrics
-    metric = load_metric("seqeval")
+    metric = evaluate.load("seqeval")
 
     def compute_metrics(p):
         """
@@ -684,7 +685,7 @@ def main():
         {
             "predictions": results.predictions.tolist(),
             "label_ids": results.label_ids.tolist(),
-            "word_ids": predict_dataset["word_ids"],
+            "word_ids": predict_dataset["word_ids"].to_list() if hasattr(predict_dataset["word_ids"], 'to_list') else list(predict_dataset["word_ids"]),
         },
         open(f"{output_dir}/test_outputs.json", "w"),
         ensure_ascii=False,
