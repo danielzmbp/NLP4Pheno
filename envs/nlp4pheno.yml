@@ -71,4 +71,6 @@ dependencies:
   
   - pip:
       - label-studio-tools==0.0.3
+      - label-studio-converter
       - get-assemblies==0.11.3
+      - nervaluate
