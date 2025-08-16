@@ -6,7 +6,6 @@ ner_labels:
   - MEDIUM
   - ORGANISM
   - PHENOTYPE
-  - EFFECT
   - DISEASE
 rel_labels:
   - STRAIN-ISOLATE:INHABITS
@@ -14,16 +13,15 @@ rel_labels:
   - STRAIN-PHENOTYPE:PRESENTS
   - STRAIN-ORGANISM:INHABITS
   - STRAIN-COMPOUND:RESISTS
-  - STRAIN-EFFECT:PROMOTES
+  - STRAIN-PHENOTYPE:PROMOTES
   - STRAIN-ORGANISM:INFECTS
   - COMPOUND-STRAIN:INHIBITS
-  - STRAIN-EFFECT:PRESENTS
   - STRAIN-DISEASE:ASSOCIATED_WITH
   - STRAIN-COMPOUND:DEGRADES
   - STRAIN-ORGANISM:SYMBIONT_OF
   - STRAIN-SPECIES:INHIBITS
   - STRAIN-ORGANISM:INHIBITS
-  - STRAIN-EFFECT:INHIBITS
+  - STRAIN-PHENOTYPE:INHIBITS
   - STRAIN-COMPOUND:PRODUCES
   - STRAIN-DISEASE:INHIBITS
 model_sets:
@@ -32,13 +30,14 @@ model_sets:
   - test
 ner_epochs: 15
 rel_epochs: 25
-input_file: label/project-5-at-2025-04-03-15-30-d43aa787.json
+input_file: label/project-10-at-2025-08-12-12-58-599fecc8.json
 cutoff_prediction: 0.50
 # cuda_devices: [1,2,3]
 cuda_devices: [0]
 ner_test: 0.2
 rel_test: 0.3
-dataset: "3103"
+dataset: 1108
 model: "large"
-seed: 30
-output_path: /home/tu/tu_tu/tu_kmpaj01/link
+seed: 97
+output_path: /pfs/work9/workspace/scratch/tu_kmpaj01-link
+pmc_parquet_file: snakemake_PMC/output/data/pmc_filtered.parquet
