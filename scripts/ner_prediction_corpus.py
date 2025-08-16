@@ -49,7 +49,7 @@ texts = [re.sub(r'(?<=\w)-(?=\w)', ' ', sentence) for sentence in texts]
 dataset = ListDataset(texts)
 result = []
 
-for out in tqdm(nlp(dataset, batch_size=32), total=len(dataset)):
+for out in tqdm(nlp(dataset, batch_size=64), total=len(dataset)):
     result.append(out)
 
 df = pd.DataFrame({"text": texts, "ner": result})
