@@ -51,8 +51,9 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 import datasets
+import evaluate
 import numpy as np
-from datasets import load_dataset, load_metric
+from datasets import load_dataset
 
 import transformers
 from transformers import (
@@ -535,9 +536,9 @@ def main():
         """
         # Get the metric function
         if data_args.task_name is not None:
-            metric = load_metric("glue", data_args.task_name)
+            metric = evaluate.load("glue", data_args.task_name)
         else:
-            metric = load_metric("accuracy")
+            metric = evaluate.load("accuracy")
 
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
         if data_args.metric_name == "hoc":
@@ -633,7 +634,8 @@ def main():
 
         if os.environ.get('USE_CODALAB', 0):
             import json
-            json.dump(metrics, open("dev_stats.json", "w"))
+            output_path = os.path.join(training_args.output_dir, "dev_stats.json")
+            json.dump(metrics, open(output_path, "w"))
 
     if training_args.do_predict:
         logger.info("*** Predict ***")
@@ -680,7 +682,8 @@ def main():
 
         if os.environ.get('USE_CODALAB', 0):
             import json
-            json.dump(metrics, open("test_stats.json", "w"))
+            output_path = os.path.join(training_args.output_dir, "test_stats.json")
+            json.dump(metrics, open(output_path, "w"))
 
     if training_args.push_to_hub:
         kwargs = {"finetuned_from": model_args.model_name_or_path, "tasks": "text-classification"}

@@ -105,11 +105,11 @@ def radar_factory(num_vars, frame='circle'):
 
 
 m = pd.read_csv(snakemake.input[0], sep="\t", index_col=0)
-m = m.transpose().reset_index()
+m = m.reset_index()
 m = m.rename(columns={"index": "metric"})
 columns = ["eval_F1", "eval_precision", "eval_recall", "test_F1", 
            "test_precision", "test_recall"]
-mf = m[m["metric"].isin(columns)]
+mf = m[m["metric"].isin(columns)].copy()
 mf["group"] = mf["metric"].str.split("_").str[0]
 mf["metric"] = mf["metric"].str.replace("eval_", "", regex=True).str.replace(
     "test_", "", regex=True).str.replace("train_", "", regex=True)
