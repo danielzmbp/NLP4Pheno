@@ -8,40 +8,45 @@ from glob import glob
 import itertools
 import csv
 
+
 configfile: "config.yaml"
+
 
 labels_flat = config["ner_labels"][1:]
 cutoff = config["cutoff_prediction"]
 cuda = config["cuda_devices"]
 corpus = "corpus" + str(config["dataset"])
-preds = config["output_path"] + "/preds" + str(config["dataset"])
+preds = config["output_path"].rstrip("/") + "/preds" + str(config["dataset"])
+parquet_file = config["pmc_parquet_file"]
 
-# Common resource configurations
-COMMON_RESOURCES = {
-    "slurm_partition": "single",
-    "runtime": 30,
-    "mem_mb": 5000
-}
+COMMON_RESOURCES = {"slurm_partition": "cpu", "runtime": 30, "mem_mb": 3000, "cpus_per_task": 2}
+PROCESSED_FILES_CACHE = {}
+MERGED_ENTITIES_CACHE = {}
+
 
 def merge_entities(entity_list):
-    """Merge contiguous B-I entity sequences into single entities"""
+    """Merge contiguous B-I entity sequences"""
+    cache_key = str(entity_list)
+    if cache_key in MERGED_ENTITIES_CACHE:
+        return MERGED_ENTITIES_CACHE[cache_key]
+
     merged_list = []
     skip = False
+    entity_len = len(entity_list)
 
-    for i in range(len(entity_list)):
+    for i in range(entity_len):
         if skip:
             skip = False
             continue
 
-        current_entity = entity_list[i]
-        current_entity.pop("word", None)  # Remove 'word' entry
-        
+        current_entity = entity_list[i].copy()
+        current_entity.pop("word", None)
+
         if current_entity["entity_group"] == "B":
             scores = [current_entity["score"]]
-            # Look ahead to find contiguous 'I' entities
             next_idx = i + 1
             while (
-                next_idx < len(entity_list)
+                next_idx < entity_len
                 and entity_list[next_idx]["entity_group"] == "I"
                 and (entity_list[next_idx]["start"] - current_entity["end"]) <= 4
             ):
@@ -50,35 +55,57 @@ def merge_entities(entity_list):
                 skip = True
                 next_idx += 1
 
-            # Average the scores
-            current_entity["score"] = sum(scores) / len(scores)
+            current_entity["score"] = np.mean(scores)
 
         merged_list.append(current_entity)
 
+    MERGED_ENTITIES_CACHE[cache_key] = merged_list
     return merged_list
+
 
 def process_ner_predictions(file_paths, cutoff_score):
     """Process NER prediction files and merge entities"""
     dataframes = []
     for file in file_paths:
-        df = pd.read_parquet(file).explode("ner").dropna()
-        grouped = df.groupby("text").agg({"ner": lambda x: list(x)}).reset_index()
-        grouped["ner"] = grouped["ner"].apply(merge_entities)
-        grouped = grouped.explode("ner")
-        grouped = pd.concat([grouped.drop(columns="ner"), grouped.ner.apply(pd.Series)], axis=1)
-        dataframes.append(grouped)
-    
-    result_df = pd.concat(dataframes)
-    result_df["word"] = result_df.apply(lambda row: row["text"][row["start"] : row["end"]], axis=1)
-    result_df["word"] = result_df["word"].str.lower()
+        if file in PROCESSED_FILES_CACHE:
+            df = PROCESSED_FILES_CACHE[file]
+        else:
+            df = pd.read_parquet(file).explode("ner").dropna()
+            grouped = df.groupby("text").agg({"ner": lambda x: list(x)}).reset_index()
+            grouped["ner"] = grouped["ner"].apply(merge_entities)
+            grouped = grouped.explode("ner")
+            grouped = pd.concat(
+                [grouped.drop(columns="ner"), grouped.ner.apply(pd.Series)], axis=1
+            )
+            PROCESSED_FILES_CACHE[file] = grouped
+            df = grouped
+        dataframes.append(df)
+
+    result_df = pd.concat(dataframes, ignore_index=True)
+    # Handle non-string values in text column
+    result_df = result_df.dropna(subset=["text", "start", "end"])
+    result_df["text"] = result_df["text"].astype(str)
+    result_df["start"] = pd.to_numeric(result_df["start"], errors="coerce")
+    result_df["end"] = pd.to_numeric(result_df["end"], errors="coerce")
+    result_df = result_df.dropna(subset=["start", "end"])
+    result_df["start"] = result_df["start"].astype(int)
+    result_df["end"] = result_df["end"].astype(int)
+    result_df["word"] = result_df.apply(
+        lambda row: str(row["text"])[int(row["start"]):int(row["end"])].lower(), axis=1
+    )
     return result_df[result_df["score"] > cutoff_score]
+
 
 def create_device_model_mapping(device_list, model_list):
     """Create device-model mapping for distributed processing"""
-    return [f"{device} {model}" for device, model in zip(itertools.cycle([str(x) for x in device_list]), model_list)]
+    return [
+        f"{device} {model}"
+        for device, model in zip(
+            itertools.cycle([str(x) for x in device_list]), model_list
+        )
+    ]
 
-
-(PARTS,) = glob_wildcards(corpus + "/{part}.txt")
+PARTS = [f"{i:04d}" for i in range(1000)]
 
 
 rule all:
@@ -86,14 +113,33 @@ rule all:
         preds + "/NER_output/preds.parquet",
 
 
+rule generate_corpus:
+    input:
+        parquet_file,
+    output:
+        expand(corpus + "/{part}.txt", part=PARTS),
+    params:
+        corpus_size=1000,
+        corpus_dir=corpus,
+    resources:
+        slurm_partition="cpu",
+        runtime=1440,
+        mem_mb=64000,
+        cpus_per_task=4,
+    shell:
+        "python scripts/generate_corpus_optimized.py {input} {params.corpus_dir} {params.corpus_size}"
+
+
 rule make_strain_file:
+    input:
+        expand(corpus + "/{part}.txt", part=PARTS),
     output:
         preds + "/NER_output/device_strain.txt",
     resources:
         **COMMON_RESOURCES,
     run:
-        # Create device-strain mapping
         device_strain_pairs = create_device_model_mapping(cuda, PARTS)
+        os.makedirs(os.path.dirname(output[0]), exist_ok=True)
         with open(output[0], "w") as f:
             for pair in device_strain_pairs:
                 f.write(f"{pair}\n")
@@ -101,23 +147,27 @@ rule make_strain_file:
 
 rule run_strain_prediction:
     input:
-        corpus_file=corpus + "/{strain}.txt",
+        corpus_file=corpus + "/{part}.txt",
         dev=preds + "/NER_output/device_strain.txt",
     output:
-        preds + "/NER_output/STRAIN/{strain}.parquet",
+        preds + "/NER_output/STRAIN/{part}.parquet",
     conda:
-        "pytorch"
+        "envs/pytorch.yml"
+    retries:
+        3
     resources:
-        slurm_partition="gpu_4",
+        slurm_partition="gpu_h100,gpu_a100_il,gpu_h100_il",
         slurm_extra="--gres=gpu:1",
-        runtime=70,
-        mem_mb=5000
+        runtime=65,
+        mem_mb=8000,
     shell:
         """
+        mkdir -p {preds}/NER_output/STRAIN
         while read -r d s; do
-            if [ "$s" == "{wildcards.strain}" ]; then
+            if [ "$s" == "{wildcards.part}" ]; then
                 export MODEL=NER_output/STRAIN
-                python scripts/ner_prediction_corpus.py --model $MODEL --device $d --output {output} --corpus {input.corpus_file}
+                export CUDA_VISIBLE_DEVICES=$d
+                python scripts/ner_prediction_corpus.py --model $MODEL --device 0 --output {output} --corpus {input.corpus_file}
                 break
             fi
         done < {input.dev}
@@ -130,13 +180,16 @@ rule merge_strain_predictions:
     output:
         preds + "/NER_output/STRAIN/strains.parquet",
     resources:
-        slurm_partition="single",
-        runtime=200,
-        mem_mb=40000,
+        slurm_partition="cpu",
+        runtime=120,
+        mem_mb=32000,
+        cpus_per_task=8,
     run:
-        file_paths = glob(preds + "/NER_output/STRAIN/*.parquet")
+        import os
+        strain_dir = preds + "/NER_output/STRAIN/"
+        file_paths = [os.path.join(strain_dir, f"{i:04d}.parquet") for i in range(1000)]
         df = process_ner_predictions(file_paths, cutoff)
-        df.to_parquet(output[0])
+        df.to_parquet(output[0], compression="snappy")
 
 
 rule make_sentence_file:
@@ -146,16 +199,15 @@ rule make_sentence_file:
         preds + "/NER_output/strains.txt",
         preds + "/NER_output/device_models.txt",
     resources:
-        slurm_partition="single",
+        slurm_partition="cpu",
         runtime=300,
-        mem_mb=10000,
+        mem_mb=8000,
+        cpus_per_task=4,
     run:
         df = pd.read_parquet(input[0])
         df.drop_duplicates(subset="text")["text"].to_csv(
             output[0], sep="\t", index=False, header=False, quoting=csv.QUOTE_NONE
         )
-        
-        # Create device-model mapping
         device_model_pairs = create_device_model_mapping(cuda, labels_flat)
         with open(output[1], "w") as f:
             for pair in device_model_pairs:
@@ -169,17 +221,19 @@ rule run_all_models:
     output:
         preds + "/NER_output/{l,[A-Z]+}.parquet",
     conda:
-        "pytorch"
+        "envs/pytorch.yml"
     resources:
-        slurm_partition="gpu_4",
+        slurm_partition="gpu_h100,gpu_a100_il,gpu_h100_il",
         slurm_extra="--gres=gpu:1",
-        runtime=800,
+        runtime=1000,
+        mem_mb=8000,
     shell:
         """
         while read -r d m; do
            if [ "$m" = "{wildcards.l}" ]; then
                export MODEL=NER_output/${{m}}
-               python scripts/ner_prediction_corpus.py --model $MODEL --device ${{d}} --output {preds}/$MODEL.parquet --corpus {input[0]} 
+               export CUDA_VISIBLE_DEVICES=${{d}}
+               python scripts/ner_prediction_corpus.py --model $MODEL --device 0 --output {output} --corpus {input[0]} 
            fi
         done < {input[1]} 
         """
@@ -191,26 +245,43 @@ rule agg_model_results:
     output:
         preds + "/NER_output/strain_preds.parquet",
     resources:
-        slurm_partition="single",
-        runtime=300,
-        mem_mb=20000
+        slurm_partition="cpu",
+        runtime=180,
+        mem_mb=48000,
+        cpus_per_task=12,
     run:
         dataframes = []
         for ner_file in input:
-            df = pd.read_parquet(ner_file).explode("ner").dropna()
-            grouped = df.groupby("text").agg({"ner": lambda x: list(x)}).reset_index()
-            grouped["ner"] = grouped["ner"].apply(merge_entities)
-            grouped = grouped.explode("ner")
-            grouped = pd.concat(
-                [grouped.drop(columns="ner"), grouped.ner.apply(pd.Series)], axis=1
-            )
-            grouped["ner"] = ner_file.split("/")[-1].split(".")[0]
+            if ner_file in PROCESSED_FILES_CACHE:
+                grouped = PROCESSED_FILES_CACHE[ner_file]
+            else:
+                df = pd.read_parquet(ner_file).explode("ner").dropna()
+                grouped = (
+                    df.groupby("text").agg({"ner": lambda x: list(x)}).reset_index()
+                )
+                grouped["ner"] = grouped["ner"].apply(merge_entities)
+                grouped = grouped.explode("ner")
+                grouped = pd.concat(
+                    [grouped.drop(columns="ner"), grouped.ner.apply(pd.Series)], axis=1
+                )
+                PROCESSED_FILES_CACHE[ner_file] = grouped
+
+            grouped["ner"] = os.path.basename(ner_file).split(".")[0]
             dataframes.append(grouped)
 
-        df = pd.concat(dataframes)
-        df["word"] = df.apply(lambda row: row["text"][row["start"] : row["end"]], axis=1)
-        df["word"] = df["word"].str.lower()
-        df.to_parquet(output[0])
+        df = pd.concat(dataframes, ignore_index=True)
+        # Handle non-string values in text column
+        df = df.dropna(subset=["text", "start", "end"])
+        df["text"] = df["text"].astype(str)
+        df["start"] = pd.to_numeric(df["start"], errors="coerce")
+        df["end"] = pd.to_numeric(df["end"], errors="coerce")
+        df = df.dropna(subset=["start", "end"])
+        df["start"] = df["start"].astype(int)
+        df["end"] = df["end"].astype(int)
+        df["word"] = df.apply(
+            lambda row: str(row["text"])[int(row["start"]):int(row["end"])].lower(), axis=1
+        )
+        df.to_parquet(output[0], compression="snappy")
 
 
 rule merge_preds:
@@ -220,16 +291,21 @@ rule merge_preds:
     output:
         preds + "/NER_output/preds.parquet",
     resources:
-        slurm_partition="single",
-        runtime=300,
-        mem_mb=20000
+        slurm_partition="cpu",
+        runtime=180,
+        mem_mb=32000,
+        cpus_per_task=8,
     run:
         strains = pd.read_parquet(input[0])
         others = pd.read_parquet(input[1])
         others = others[others["score"] > cutoff]
-
-        suff = strains.iloc[:, 1:].add_suffix("_strain")
-        strains = pd.concat([strains.iloc[:, 0], suff], axis=1)
-        df = strains.merge(others, on="text", how="left")
-        df = df.dropna(subset="word")
-        df.to_parquet(output[0])
+        
+        strain_cols = strains.columns[1:]
+        strain_renamed = strains[strain_cols].add_suffix("_strain")
+        strains_processed = pd.concat([strains.iloc[:, [0]], strain_renamed], axis=1)
+        
+        df = strains_processed.merge(
+            others.dropna(subset=["word"]), on="text", how="left"
+        )
+        df = df.dropna(subset=["word"])
+        df.to_parquet(output[0], compression="snappy")
