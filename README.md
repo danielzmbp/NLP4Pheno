@@ -15,7 +15,7 @@ The pipeline integrates Named Entity Recognition (NER), Relation Extraction (RE)
 - 16GB+ RAM recommended
 
 ### External Dependencies
-- NCBI API key (for genome downloads)
+- NCBI API key (optional, speeds up genome downloads)
 - [InterProScan](https://interproscan-docs.readthedocs.io/) ≥5.0 (for protein annotation)
   - Download and extract to your system
   - Update the path in `ip.smk` at line containing `interproscan.sh`
@@ -54,7 +54,7 @@ rel_labels:
   - STRAIN-PHENOTYPE:PRESENTS
   - STRAIN-ORGANISM:INHABITS
   - STRAIN-COMPOUND:RESISTS
-  # ... (17 total relationship types)
+  # ... (16 total relationship types)
 ```
 
 ## Installation
@@ -105,11 +105,11 @@ snakemake --cores 20 --use-conda --executor slurm -s snakemake_PMC/Snakefile
 ## Data Preparation
 
 ### Annotation Data
-The manually annotated dataset is provided in `label/project-5-at-2025-04-03-15-30-d43aa787.json` (Label Studio JSON format).
+The manually annotated dataset is provided in `label/project-10-at-2025-08-12-12-58-599fecc8.json` (Label Studio JSON format).
 
 **Format Requirements:**
 - Label Studio JSON export format
-- Must contain annotations for all 9 entity types: `STRAIN`, `SPECIES`, `ISOLATE`, `COMPOUND`, `MEDIUM`, `ORGANISM`, `PHENOTYPE`, `DISEASE`
+- Must contain annotations for all 8 entity types: `STRAIN`, `SPECIES`, `ISOLATE`, `COMPOUND`, `MEDIUM`, `ORGANISM`, `PHENOTYPE`, `DISEASE`
 - Annotations should include entity spans and relationship labels
 
 ### Corpus Files
@@ -172,7 +172,7 @@ snakemake --cores 20 --use-conda -s rel_pred.smk
 ## Genome Analysis
 
 ### Download and Annotate Assemblies
-1. Create a `.ncbi_api_key` file in the root directory with your NCBI API key
+1. Optionally create a `.ncbi_api_key` file in the root directory with your NCBI API key (recommended to speed up downloads)
 2. Adjust InterProScan installation path in the pipeline
 3. Run genome download and annotation:
 ```bash
@@ -258,23 +258,21 @@ Analysis notebook: `analyze_evolution.ipynb`
 ```
 PMC Corpus Creation
 │
-│   Manual Annotations (Label Studio)
+├── Manual Annotations (Label Studio)
 │   │
-│   │
-│   └───────────────────────────────────────────────────────
-│                                                                   │
-└─── 1. NER Training (ner.smk) ──────────────────────────── 2. RE Training (rel.smk)
-      │                                                         │
-      │   ┌──────────────────────────────────────────────────────┐ │
-      └── 3. NER Prediction (ner_pred.smk) ─────────────────────────────────────────────┘
-           │
-           └── 4. RE Prediction (rel_pred.smk)
-                │
-                ├── 5. Genome Download & Annotation (ip.smk)
-                │
-                └── 6. XGBoost Phenotype Prediction (xgboost.smk)
-                     │
-                     └── 7. Evolution Analysis (evolution.smk)
+│   ├── 1. NER Training (ner.smk) ────────────┐
+│   │                                         │
+│   └── 2. RE Training (rel.smk)              │
+│       │                                     │
+│       └── 3. NER Prediction (ner_pred.smk) ─┴─┐
+│           │                                   │
+│           └── 4. RE Prediction (rel_pred.smk) │
+│               │                               │
+│               ├── 5. Genome Download & Annotation (ip.smk)
+│               │   │
+│               └── 6. XGBoost Phenotype Prediction (xgboost.smk)
+│                   │
+│                   └── 7. Evolution Analysis (evolution.smk)
 ```
 
 **Dependencies:**
