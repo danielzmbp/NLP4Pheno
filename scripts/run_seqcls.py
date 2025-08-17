@@ -358,7 +358,6 @@ def main():
             num_labels = 1
         elif is_multiclass_binary:
             print ('is_multiclass_binary')
-            assert data_args.metric_name.startswith("hoc")
             num_labels = len(raw_datasets["train"][0]["label"])
             label_list = list(range(num_labels))
         else:
@@ -541,13 +540,6 @@ def main():
             metric = evaluate.load("accuracy")
 
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
-        if data_args.metric_name == "hoc":
-            from utils_hoc import eval_hoc
-            labels = np.array(p.label_ids).astype(int) #[num_ex, num_class]
-            preds = (np.array(preds) > 0).astype(int)  #[num_ex, num_class]
-            ids = eval_dataset["id"]
-            return eval_hoc(labels.tolist(), preds.tolist(), list(ids))
-
         preds = np.squeeze(preds) if is_regression else np.argmax(preds, axis=1)
         if data_args.task_name is not None:
             result = metric.compute(predictions=preds, references=p.label_ids)
