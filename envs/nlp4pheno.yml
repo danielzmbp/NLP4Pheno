@@ -57,6 +57,7 @@ dependencies:
   - biopython=1.83
   - samtools=1.19
   - htslib=1.19
+  - ncbi-datasets-cli
   
 
   - pyyaml=6.0.1
