@@ -366,7 +366,7 @@ rule run_linkbert:
         model_type=config["model"],
         entities=" ".join(labels),
     resources:
-        slurm_partition="gpu_a100_il",
+        slurm_partition="gpu_a100_il,gpu_h100_il,gpu_a100",
         slurm_extra="--gres=gpu:1",
         runtime=120,
         mem_mb=32000,
