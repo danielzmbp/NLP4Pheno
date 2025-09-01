@@ -1,0 +1,14 @@
+name: evolution
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - mafft
+  - fasttree
+  - perl
+  - hyphy
+  - python>=3.8
+  - pip
+  - pip:
+    - biopython
