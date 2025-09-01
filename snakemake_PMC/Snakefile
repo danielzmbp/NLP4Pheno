@@ -13,8 +13,8 @@ from datetime import datetime
 PMC = [f"PMC0{str(x).zfill(2)}" for x in range(13)]
 BASELINE_DATE = "2025-06-26"
 CHUNK_ROWS = 20_000_000  # 20 million rows per chunk for final filtering
-XML_CHUNKS = 200  # Number of chunks to split XML processing into
-FILES_PER_CHUNK = 20000  # Approximate files per XML processing chunk - smaller for more parallelization
+XML_CHUNKS = 1000  # Number of chunks to split XML processing into
+FILES_PER_CHUNK = 3000  # Approximate files per XML processing chunk - smaller for more parallelization
 
 # Directory structure
 OUTPUT_DIR = "output"
@@ -43,34 +43,34 @@ for dir_path in [
 
 # Performance settings
 os.environ["POLARS_MAX_THREADS"] = str(min(32, os.cpu_count() or 16))
-os.environ["POLARS_VERBOSE"] = "0"  # Reduce logging overhead
-os.environ["POLARS_PREFETCH_SIZE"] = "100"  # Optimize prefetching
+os.environ["POLARS_VERBOSE"] = "0"
+os.environ["POLARS_PREFETCH_SIZE"] = "100"
 
 # Common resource configurations
 COMMON_RESOURCES = {
     "slurm_partition": "cpu",
-    "runtime": 360,  # 6 hours - some PMC datasets are very large
-    "mem_mb": 16000,  # 16GB - more memory for very large dataframes with complex regex filtering
+    "runtime": 360,
+    "mem_mb": 16000,
 }
 
 DOWNLOAD_RESOURCES = {
     "slurm_partition": "cpu",
-    "runtime": 1200,  # 20 hours - some very large PMC datasets need more time
-    "mem_mb": 2000,  # 2GB
+    "runtime": 1200,
+    "mem_mb": 2000,
     "tasks": 1,
 }
 
 HEAVY_RESOURCES = {
     "slurm_partition": "cpu",
-    "runtime": 300,  # 5 hours instead of 33 hours
-    "mem_mb": 32000,  # 32GB for better performance
+    "runtime": 300,
+    "mem_mb": 32000,
 }
 
 FILTER_RESOURCES = {
     "slurm_partition": "cpu",
-    "runtime": 1800,  # Keep original 30 minutes
-    "tasks": 8,  # 8 cores should be sufficient for smaller chunks
-    "mem_mb": 48000,  # 48GB for smaller chunks
+    "runtime": 440,
+    "tasks": 4,
+    "mem_mb": 8000,
 }
 
 # Simplified regex patterns - combine similar patterns
@@ -193,7 +193,7 @@ def merge_sentences_polars(df: pl.DataFrame) -> pl.DataFrame:
                 pl.struct([pl.col("sentence"), pl.col("text")]).alias("sentences"),
             ]
         )
-    ).collect(streaming=True)
+    ).collect(engine="streaming")
 
     # Split by length and process
     long_mask = df_with_length["total_length"] > 512
@@ -271,10 +271,10 @@ rule bulk_download:
         """
         # Download filelist first
         wget --timeout=300 --tries=3 -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/{params.filelist_name}
-        
-        # Download tar file with resume capability  
+
+        # Download tar file with resume capability
         wget --timeout=7200 --tries=3 --continue -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/{params.tar_name}
-        
+
         echo "Downloaded {output.tar} - will process directly from archive without full extraction"
         """
 
@@ -302,10 +302,10 @@ rule bulk_download_noncomm:
         """
         # Try to download filelist first
         wget --timeout=300 --tries=3 -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/{params.filelist_name} || touch {output.filelist}
-        
+
         # Try to download tar file (may not exist for all PMC datasets)
         wget --timeout=7200 --tries=3 --continue -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/{params.tar_name} || touch {output.tar}
-        
+
         if [ -s {output.tar} ]; then
             echo "Downloaded non-commercial {output.tar} - will process directly from archive"
         else
@@ -327,55 +327,114 @@ rule concat_lists:
     output:
         os.path.join(LISTS_DIR, "{pmc}_filelist.tsv"),
     resources:
-        **COMMON_RESOURCES,
+        slurm_partition="cpu",
+        runtime=60,
+        mem_mb=2000,
+        tasks=1,
     run:
         import os
+        import time
+        import polars as pl
+
+        start_time = time.time()
+        pmc_id = wildcards.pmc
+
+        print(f"=== Processing {pmc_id} filelist ===")
+
+        # Check input file sizes first
+        comm_size = os.path.getsize(input.lists) if os.path.exists(input.lists) else 0
+        nc_size = os.path.getsize(input.lists_nc) if os.path.exists(input.lists_nc) else 0
+
+        print(f"Commercial list: {comm_size:,} bytes")
+        print(f"Non-commercial list: {nc_size:,} bytes")
+
+        if comm_size == 0:
+            print("ERROR: Commercial filelist is empty!")
+            raise ValueError(f"Empty commercial filelist for {pmc_id}")
 
         # Read commercial list
-        df = pd.read_csv(input.lists, sep="\t")
-
-        # Try to read non-commercial list - handle various error cases
+        print("Reading commercial filelist...")
         try:
-            # Check if file exists and has content
-            if os.path.exists(input.lists_nc) and os.path.getsize(input.lists_nc) > 0:
-                df_nc = pd.read_csv(input.lists_nc, sep="\t")
-                # Only concat if df_nc has data and same columns
-                if not df_nc.empty and list(df_nc.columns) == list(df.columns):
-                    df = pd.concat([df, df_nc], ignore_index=True)
-                    print(
-                        f"Combined {len(df)} records from both commercial and non-commercial lists"
-                    )
+            df = pl.read_csv(input.lists, separator="\t", ignore_errors=True)
+            print(f"Loaded {df.height:,} records from commercial list")
+        except Exception as e:
+            print(f"ERROR reading commercial list: {e}")
+            # Fallback to pandas
+            df = pd.read_csv(input.lists, sep="\t")
+            df = pl.from_pandas(df)
+            print(f"Fallback: Loaded {df.height:,} records from commercial list")
+
+        # Try to read non-commercial list
+        df_nc = None
+        if os.path.exists(input.lists_nc) and nc_size > 0:
+            print("Reading non-commercial filelist...")
+            try:
+                df_nc = pl.read_csv(input.lists_nc, separator="\t", ignore_errors=True)
+
+                # Validate columns match
+                if df_nc.height > 0 and set(df_nc.columns) == set(df.columns):
+                    df = pl.concat([df, df_nc], how="vertical")
+                    print(f"Combined: {df_nc.height:,} additional records from non-commercial list")
+                elif df_nc.height == 0:
+                    print("Non-commercial list is empty, using only commercial list")
                 else:
-                    print(
-                        "Non-commercial list empty or has different columns, using only commercial list"
-                    )
-            else:
-                print(
-                    "Non-commercial list file is empty or doesn't exist, using only commercial list"
-                )
-        except (
-            pd.errors.EmptyDataError,
-            pd.errors.ParserError,
-            FileNotFoundError,
-        ) as e:
-            print(
-                f"Could not read non-commercial list: {e}, using only commercial list"
+                    print("Column mismatch in non-commercial list, using only commercial list")
+                    print(f"Commercial cols: {df.columns}")
+                    print(f"Non-commercial cols: {df_nc.columns}")
+            except Exception as e:
+                print(f"WARNING: Could not read non-commercial list: {e}")
+        else:
+            print("Non-commercial list file is empty or doesn't exist")
+
+        print(f"Total records before filtering: {df.height:,}")
+
+        # Apply filtering
+        print("Extracting journal and year information...")
+
+        # Split Article Citation and extract components
+        df_filtered = (
+            df.lazy()
+            .with_columns([
+                # Extract journal
+                pl.col("Article Citation")
+                .str.split(".")
+                .list.first()
+                .fill_null("")
+                .alias("journal"),
+
+                # Extract year using regex
+                pl.col("Article Citation")
+                .str.extract(r"(\d{4})", 1)
+                .fill_null("")
+                .alias("year")
+            ])
+            .filter(
+                # Filter out unwanted journals
+                ~pl.col("journal").str.to_lowercase().str.contains("|".join(keyword.lower() for keyword in FILTER_KEYWORDS)) &
+                # Filter out old years
+                ~pl.col("year").str.contains(r"^(18\d{2}|19[0-5]\d)$")
             )
+            .drop(["journal", "year"])
+            .collect()
+        )
 
-            # Extract journal and year efficiently
-        article_parts = df["Article Citation"].str.split(".", n=2, expand=True)
-        df["journal"] = article_parts[0].fillna("")
-        df["year"] = article_parts[1].str.extract(r"(\d{4})", expand=False).fillna("")
+        print(f"Filtered from {df.height:,} to {df_filtered.height:,} records")
+        reduction_pct = (1 - df_filtered.height / df.height) * 100 if df.height > 0 else 0
+        print(f"Reduction: {reduction_pct:.1f}%")
 
-        # Apply filters
-        year_pattern = r"18\d{2}|19[0-5]\d"
-        filtered_df = df[
-            ~df.journal.str.contains(FILTER_KEYWORDS_PATTERN, na=False)
-            & ~df.year.str.contains(year_pattern, na=False)
-        ].drop(columns=["year", "journal"])
+        # Write output
+        print("Writing filtered results...")
+        df_filtered.write_csv(output[0], separator="\t")
 
-        print(f"Filtered from {len(df)} to {len(filtered_df)} records")
-        filtered_df.to_csv(output[0], index=False, sep="\t")
+        elapsed = time.time() - start_time
+        print(f"=== {pmc_id} completed in {elapsed:.1f} seconds ===")
+
+        # Verify output file
+        output_size = os.path.getsize(output[0])
+        print(f"Output file size: {output_size:,} bytes")
+
+        if output_size == 0:
+            raise ValueError(f"Output file is empty for {pmc_id}!")
 
 
 rule concatenate_all_lists:
@@ -386,7 +445,8 @@ rule concatenate_all_lists:
     resources:
         slurm_partition="cpu",
         runtime=60,
-        mem_mb=8000,
+        mem_mb=2000,
+        tasks=1,
     run:
         import pandas as pd
 
@@ -488,9 +548,9 @@ rule process_xml_chunk:
         "envs/r_env.yml"
     resources:
         slurm_partition="cpu",
-        tasks=12,  # Reduced since chunks are smaller (20k files instead of 40k)
-        runtime=1440,  # Increased to 24 hours to prevent timeouts
-        mem_mb=12000,  # 12GB per chunk should be sufficient for smaller chunks
+        tasks=8,
+        runtime=2880,
+        mem_mb=16000,
     script:
         "scripts/xml2tsv_chunk.R"
 
@@ -501,11 +561,12 @@ rule chunk_csv_parquet:
     output:
         temp(os.path.join(PARQUET_DIR, "{xmlchunk}.parquet")),
     wildcard_constraints:
-        xmlchunk="xmlchunk_\d{4}"  # Only match xmlchunk_0000 format, not xmlchunk_0000_filtered
+        xmlchunk="xmlchunk_\d{4}"
     resources:
         slurm_partition="cpu",
-        runtime=120,  # Keep original runtime
-        mem_mb=8000,  # 8GB should be enough for smaller chunks
+        runtime=320,
+        mem_mb=2000,
+        tasks=1,
     script:
         "scripts/tsv2parquet_chunk.py"
 
@@ -524,7 +585,7 @@ rule filter_chunk:
         start_time = time.time()
 
         # Always use scan_parquet for consistency and memory efficiency
-        df = pl.scan_parquet(input[0]).collect(streaming=True)
+        df = pl.scan_parquet(input[0]).collect(engine="streaming")
 
         initial_rows = df.shape[0]
         print(f"Processing {wildcards.xmlchunk}: {initial_rows:,} rows")
@@ -538,9 +599,7 @@ rule filter_chunk:
             .unique("text")
             .with_columns(pl.col("text").str.len_chars().alias("text_len"))
             .filter(
-                (pl.col("text_len") >= 40)
-                & (pl.col("text_len") <= 512)
-                & ~pl.col("section").str.contains(SECTION_FILTER_PATTERN.pattern)
+                ~pl.col("section").str.contains(SECTION_FILTER_PATTERN.pattern)
                 & ~pl.col("text").str.contains(TEXT_FILTER_PATTERN.pattern)
             )
             .drop("text_len")
@@ -651,55 +710,41 @@ rule merge_filtered:
     output:
         os.path.join(DATA_DIR, "pmc_filtered.parquet"),
     resources:
-        slurm_partition="cpu", 
-        runtime=1440,  # Increased to 24 hours for merging 192 chunks
-        mem_mb=350000,  # Increased to 350GB for merging 192 chunks
+        slurm_partition="cpu",
+        runtime=1440, 
+        mem_mb=256 * 1024,
+        tasks=48, 
     run:
-        # FAST VERSION: Simple concatenation without deduplication
-        # Each chunk is already deduplicated internally, so we just concatenate
-        print(f"Merging {len(input.chunks)} filtered chunks (fast mode - no global deduplication)...")
-        
-        # Process in batches for memory efficiency
-        batch_size = 50  # Can use larger batches since no deduplication
+        import os
+        os.environ["POLARS_MAX_THREADS"] = "48"
+        os.environ["POLARS_PREFETCH_SIZE"] = "200"
+        os.environ["POLARS_FORCE_ASYNC"] = "1"
+                
+        batch_size = 100
         all_dfs = []
-        
+
         for i in range(0, len(input.chunks), batch_size):
             batch_chunks = input.chunks[i:i+batch_size]
             batch_num = i // batch_size + 1
             total_batches = (len(input.chunks) + batch_size - 1) // batch_size
-            
+
             print(f"Loading batch {batch_num}/{total_batches} ({len(batch_chunks)} chunks)...")
-            
+
             # Use lazy loading and streaming
             lazy_dfs = [pl.scan_parquet(chunk_file) for chunk_file in batch_chunks]
-            batch_df = pl.concat(lazy_dfs, how="vertical_relaxed").collect(streaming=True)
-            all_dfs.append(batch_df)
-            
+            batch_df = pl.concat(lazy_dfs, how="vertical_relaxed").collect(engine="streaming")
+            all_dfs.append(batch_df.unique("text"))
+
             print(f"  Batch {batch_num}: {batch_df.height:,} rows loaded")
-        
+
         # Final concatenation
-        print("Performing final concatenation...")
         result = pl.concat(all_dfs, how="vertical_relaxed")
-        
-        total_rows = result.height
-        print(f"Total rows before deduplication: {total_rows:,}")
-        
-        # Optional: Add hash-based deduplication if needed (much faster than text comparison)
-        if total_rows < 100_000_000:  # Only deduplicate if dataset is manageable
-            print("Performing hash-based deduplication...")
-            # Create hash of text for faster comparison
-            result = result.with_columns(
-                pl.col("text").hash().alias("text_hash")
-            ).unique("text_hash").drop("text_hash")
-            print(f"Total rows after deduplication: {result.height:,}")
-        else:
-            print("Skipping deduplication due to large dataset size")
-        
-        print(f"Writing final dataset: {result.height:,} rows")
+
+        del all_dfs
         result.write_parquet(
-            output[0], 
-            compression="snappy", 
-            use_pyarrow=True, 
+            output[0],
+            compression="snappy",
+            use_pyarrow=True,
             row_group_size=500000
         )
 
