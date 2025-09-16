@@ -1,5 +1,7 @@
 import json
 import os
+import argparse
+import yaml
 
 def extract_unique_entities(input_file, output_file, label_filter):
 	"""
@@ -35,39 +37,58 @@ def extract_unique_entities(input_file, output_file, label_filter):
 	except Exception as e:
 		print(f"An error occurred: {e}")
 
-def process_entities():
+def load_config(config_path):
 	"""
-	Process entities based on hardcoded labels and input file.
+	Load configuration from YAML file.
+	"""
+	with open(config_path, 'r') as f:
+		return yaml.safe_load(f)
+
+def process_entities(input_file, output_dir, labels):
+	"""
+	Process entities based on provided labels and input file.
 	"""
 	try:
-		# Hardcoded input file and entities
-		input_file = "label/project-5-at-2025-03-26-15-24-95adf201.json"  # Hardcoded input file path
-		output_dir = "./notebooks/entities"
 		os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
 
-		# Hardcoded entities and their output files
-		entities = [
-			{"label": "STRAIN", "output_file": "strain.txt"},
-			{"label": "SPECIES", "output_file": "species.txt"},
-			{"label": "ISOLATE", "output_file": "isolate.txt"},
-			{"label": "COMPOUND", "output_file": "compound.txt"},
-			{"label": "MEDIUM", "output_file": "medium.txt"},
-			{"label": "ORGANISM", "output_file": "organism.txt"},
-			{"label": "PHENOTYPE", "output_file": "phenotype.txt"},
-			{"label": "EFFECT", "output_file": "effect.txt"},
-			{"label": "DISEASE", "output_file": "disease.txt"},
-		]
-
-		for entity in entities:
-			label = entity["label"]
-			output_file = entity["output_file"]
-			# Prepend the output directory to the output file
+		for label in labels:
+			output_file = f"{label.lower()}.txt"
 			output_file_path = os.path.join(output_dir, output_file)
 			extract_unique_entities(input_file, output_file_path, label)
 
 	except Exception as e:
 		print(f"An error occurred while processing entities: {e}")
 
+def main():
+	parser = argparse.ArgumentParser(description='Extract unique entities from Label Studio annotations')
+	parser.add_argument('--input', type=str, help='Path to Label Studio JSON file')
+	parser.add_argument('--output-dir', type=str, default='notebooks/entities', 
+						help='Output directory for entity files (default: notebooks/entities)')
+	parser.add_argument('--config', type=str, default='config.yaml',
+						help='Path to config.yaml file (default: config.yaml)')
+	
+	args = parser.parse_args()
+	
+	# Load config
+	config = load_config(args.config)
+	
+	# Use input from args or config
+	input_file = args.input if args.input else config.get('input_file')
+	if not input_file:
+		print("Error: No input file specified. Use --input or set input_file in config.yaml")
+		return
+	
+	# Get NER labels from config
+	labels = config.get('ner_labels', [])
+	if not labels:
+		print("Error: No ner_labels found in config.yaml")
+		return
+	
+	print(f"Processing entities from: {input_file}")
+	print(f"Output directory: {args.output_dir}")
+	print(f"Entity types: {', '.join(labels)}")
+	
+	process_entities(input_file, args.output_dir, labels)
+
 if __name__ == "__main__":
-	# Example usage
-	process_entities()
+	main()

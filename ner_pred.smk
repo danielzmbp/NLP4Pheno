@@ -19,7 +19,12 @@ corpus = "corpus" + str(config["dataset"])
 preds = config["output_path"].rstrip("/") + "/preds" + str(config["dataset"])
 parquet_file = config["pmc_parquet_file"]
 
-COMMON_RESOURCES = {"slurm_partition": "cpu", "runtime": 30, "mem_mb": 3000, "cpus_per_task": 2}
+COMMON_RESOURCES = {
+    "slurm_partition": "cpu",
+    "runtime": 30,
+    "mem_mb": 3000,
+    "cpus_per_task": 2,
+}
 PROCESSED_FILES_CACHE = {}
 MERGED_ENTITIES_CACHE = {}
 
@@ -91,7 +96,8 @@ def process_ner_predictions(file_paths, cutoff_score):
     result_df["start"] = result_df["start"].astype(int)
     result_df["end"] = result_df["end"].astype(int)
     result_df["word"] = result_df.apply(
-        lambda row: str(row["text"])[int(row["start"]):int(row["end"])].lower(), axis=1
+        lambda row: str(row["text"])[int(row["start"]) : int(row["end"])].lower(),
+        axis=1,
     )
     return result_df[result_df["score"] > cutoff_score]
 
@@ -104,6 +110,7 @@ def create_device_model_mapping(device_list, model_list):
             itertools.cycle([str(x) for x in device_list]), model_list
         )
     ]
+
 
 PARTS = [f"{i:04d}" for i in range(1000)]
 
@@ -153,12 +160,11 @@ rule run_strain_prediction:
         preds + "/NER_output/STRAIN/{part}.parquet",
     conda:
         "envs/pytorch.yml"
-    retries:
-        3
+    retries: 3
     resources:
         slurm_partition="gpu_h100,gpu_a100_il,gpu_h100_il",
         slurm_extra="--gres=gpu:1",
-        runtime=65,
+        runtime=105,
         mem_mb=8000,
     shell:
         """
@@ -186,6 +192,7 @@ rule merge_strain_predictions:
         cpus_per_task=8,
     run:
         import os
+
         strain_dir = preds + "/NER_output/STRAIN/"
         file_paths = [os.path.join(strain_dir, f"{i:04d}.parquet") for i in range(1000)]
         df = process_ner_predictions(file_paths, cutoff)
@@ -279,7 +286,8 @@ rule agg_model_results:
         df["start"] = df["start"].astype(int)
         df["end"] = df["end"].astype(int)
         df["word"] = df.apply(
-            lambda row: str(row["text"])[int(row["start"]):int(row["end"])].lower(), axis=1
+            lambda row: str(row["text"])[int(row["start"]) : int(row["end"])].lower(),
+            axis=1,
         )
         df.to_parquet(output[0], compression="snappy")
 
@@ -299,11 +307,11 @@ rule merge_preds:
         strains = pd.read_parquet(input[0])
         others = pd.read_parquet(input[1])
         others = others[others["score"] > cutoff]
-        
+
         strain_cols = strains.columns[1:]
         strain_renamed = strains[strain_cols].add_suffix("_strain")
         strains_processed = pd.concat([strains.iloc[:, [0]], strain_renamed], axis=1)
-        
+
         df = strains_processed.merge(
             others.dropna(subset=["word"]), on="text", how="left"
         )
