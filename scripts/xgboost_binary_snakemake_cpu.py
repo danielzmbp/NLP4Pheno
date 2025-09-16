@@ -33,7 +33,7 @@ def calculate_acc(dtest, bst, enc, y_test_binary):
     return acc
 
 
-def process_rel(filepath, ip_names): # Removed device from parameters
+def process_rel(filepath, ip_names, device=None):
     d_rel = []
     # Read the pickle file
     with open(filepath, "rb") as f:
@@ -42,7 +42,6 @@ def process_rel(filepath, ip_names): # Removed device from parameters
     X = dat[0]
     y = dat[1]
     ind = dat[2]
-    # vc = vc[vc >= 10] #cutoff here!
 
     ind_names = [ip_names[ip_names.index == i]["ENTRY_NAME"].values[0] for i in ind]
 
@@ -62,16 +61,21 @@ def process_rel(filepath, ip_names): # Removed device from parameters
             X_test, label=enc.transform(y_test), feature_names=ind_names
         )
 
+        # Configure parameters with optional GPU support
         param = {
             "max_depth": 6,
             "eta": 0.3,
             "objective": "binary:logistic",
-            # "device": f"cuda:{device}", # Removed for CPU
             "eval_metric": ["logloss"],
             "colsample_bylevel": 1,
             "booster": "gbtree",
-            "nthread": -1,  # Use all available CPU cores
         }
+        
+        # Always use CPU for this script (since it's designed for CPU)
+        param["device"] = "cpu"
+        param["tree_method"] = "hist"
+        param["nthread"] = -1  # Use all available CPU cores
+        print("Using CPU for training")
 
         evallist = [(dtrain, "train"), (dtest, "eval")]
         bst = xgb.train(
@@ -85,11 +89,16 @@ def process_rel(filepath, ip_names): # Removed device from parameters
 
         accuracy = calculate_acc(dtest, bst, enc, y_test)
         d_rel.append([i, accuracy, bst])
-        print(f"{filepath.split("/")[-1]} {i} {accuracy} {vc[i]}")
+        print(f"{filepath.split('/')[-1]} {i} {accuracy} {vc[i]}")
     return d_rel
 
 print(snakemake.input)
-result = process_rel(str(snakemake.input), ip_names) # Removed device argument
+# Check if GPU devices are configured
+device = None
+if hasattr(snakemake.params, 'device') and snakemake.params.device:
+    device = snakemake.params.device[0] if isinstance(snakemake.params.device, list) else snakemake.params.device
+
+result = process_rel(str(snakemake.input), ip_names, device)
 
 with open(snakemake.output[0], "wb") as f:
     pickle.dump(result, f)
