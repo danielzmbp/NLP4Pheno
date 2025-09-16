@@ -60,9 +60,10 @@ path = f"REL_output/{m}/"
 tokenizer = AutoTokenizer.from_pretrained(path)
 model = AutoModelForSequenceClassification.from_pretrained(path)
 
-# Create inference pipeline
+# Create inference pipeline with truncation enabled
 nlp = pipeline(task='text-classification', model=model,
-               tokenizer=tokenizer, device=args.device)
+               tokenizer=tokenizer, device=args.device,
+               truncation=True, max_length=512)
 
 # Extract entity types from relation name
 # e.g., "STRAIN-COMPOUND:RESISTS" -> ["STRAIN", "COMPOUND"]
