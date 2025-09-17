@@ -6,6 +6,7 @@ import os
 from glob import glob
 from Bio import SeqIO
 import pickle
+import subprocess
 from concurrent.futures import ThreadPoolExecutor
 import polars as pl
 
@@ -61,109 +62,225 @@ def load_pickle(path, data):
 def process_strain(strain, folder_path, protein_ids):
     output_faa = []
     output_fna = []
-    protein_ids_seen = set()  # Keep track of protein IDs already seen
-    cds_ids_seen = set()  # Keep track of CDS IDs already seen
+    protein_ids_seen = set()
+    cds_ids_seen = set()
+    
+    # Convert to set for faster lookup
+    protein_ids_set = set(protein_ids)
 
-    if os.path.exists(folder_path):
+    if not os.path.exists(folder_path):
+        return output_faa, output_fna
+
+    try:
         for assembly in os.listdir(folder_path):
-            faa_files = glob(f"{folder_path}/{assembly}/*.faa")
-            fna_files = glob(f"{folder_path}/{assembly}/*.cds")
-
+            assembly_path = f"{folder_path}/{assembly}"
+            
+            # Process FAA files
+            faa_files = glob(f"{assembly_path}/*.faa")
             if faa_files:
                 faa_file = faa_files[0]
-                for record in SeqIO.parse(faa_file, "fasta"):
-                    if record.id in protein_ids and record.id not in protein_ids_seen:
-                        record.description = ""
-                        output_faa.append(record)
-                        protein_ids_seen.add(record.id)
+                try:
+                    for record in SeqIO.parse(faa_file, "fasta"):
+                        if record.id in protein_ids_set and record.id not in protein_ids_seen:
+                            record.description = ""
+                            output_faa.append(record)
+                            protein_ids_seen.add(record.id)
+                            # Early termination if we have all proteins
+                            if len(protein_ids_seen) == len(protein_ids_set):
+                                break
+                except Exception as e:
+                    print(f"Error processing FAA file {faa_file}: {e}")
 
+            # Process FNA files
+            fna_files = glob(f"{assembly_path}/*.cds")
             if fna_files:
                 fna_file = fna_files[0]
-                for record in SeqIO.parse(fna_file, "fasta"):
-                    if "protein_id=" in record.description:
-                        protein_id = record.description.split("protein_id=")[1].split(
-                            "]"
-                        )[0]
-                        if (
-                            protein_id in protein_ids and protein_id not in cds_ids_seen
-                        ):
-                            record.id = protein_id
-                            record.description = ""
-                            output_fna.append(record)
-                            cds_ids_seen.add(record.id)
+                try:
+                    for record in SeqIO.parse(fna_file, "fasta"):
+                        if "protein_id=" in record.description:
+                            protein_id = record.description.split("protein_id=")[1].split("]")[0]
+                            if protein_id in protein_ids_set and protein_id not in cds_ids_seen:
+                                record.id = protein_id
+                                record.description = ""
+                                output_fna.append(record)
+                                cds_ids_seen.add(protein_id)
+                                # Early termination if we have all proteins
+                                if len(cds_ids_seen) == len(protein_ids_set):
+                                    break
+                except Exception as e:
+                    print(f"Error processing FNA file {fna_file}: {e}")
+
+    except Exception as e:
+        print(f"Error processing strain {strain}: {e}")
 
     return output_faa, output_fna
 
 
+def select_best_entry_prioritizing_families(df_group, ip_names_pl, max_rank=10):
+    """
+    Select the best InterPro entry prioritizing Family entries over other types.
+    
+    Args:
+        df_group: DataFrame group with same rel/ner combination
+        ip_names_pl: Polars DataFrame with InterPro entry information including ENTRY_TYPE
+        max_rank: Maximum importance ranking to consider (default: 10)
+    
+    Returns:
+        Single row with the best entry (preferring Family types)
+    """
+    # Join with InterPro entry types
+    df_with_types = df_group.join(ip_names_pl, left_on="gene", right_on="ENTRY_NAME", how="left")
+    
+    # Filter to reasonable importance rankings
+    df_filtered = df_with_types.filter(pl.col("importance_ranking") <= max_rank)
+    
+    if df_filtered.is_empty():
+        # Fallback to original logic if no entries within max_rank
+        return df_group.filter(pl.col("importance_ranking") == df_group["importance_ranking"].min()).head(1)
+    
+    # First, try to find Family entries, ordered by importance_ranking
+    family_entries = df_filtered.filter(pl.col("ENTRY_TYPE") == "Family").sort("importance_ranking")
+    
+    if not family_entries.is_empty():
+        return family_entries.head(1)
+    
+    # If no Family entries, fallback to best importance ranking
+    return df_filtered.sort("importance_ranking").head(1)
+
+
 # @profile
 def create_evolution_dataset(df, path, data, outdir):
+    """Create evolution dataset with optimized processing"""
     os.makedirs(outdir, exist_ok=True)
 
     df = pl.from_pandas(df)
-    df = df.filter(pl.col("importance_ranking") == 1)
-    df = df.join(ip_names_pl, left_on="gene", right_on="ENTRY_NAME")
     
-    for rel in tqdm(df["rel"].unique().to_list()):
-        filtered_df = df.filter(pl.col("rel") == rel)
+    # Apply family prioritization logic instead of just taking rank 1
+    # Group by rel and ner, then select best entry per group prioritizing families
+    grouped_results = []
+    unique_combinations = df.select(["rel", "ner"]).unique()
+    
+    for row in unique_combinations.iter_rows(named=True):
+        rel, ner = row["rel"], row["ner"]
+        group_df = df.filter((pl.col("rel") == rel) & (pl.col("ner") == ner))
+        
+        # Select best entry for this rel/ner combination, prioritizing families
+        best_entry = select_best_entry_prioritizing_families(group_df, ip_names_pl)
+        grouped_results.append(best_entry)
+    
+    # Combine all selected entries
+    if grouped_results:
+        df = pl.concat(grouped_results)
+        # The helper function already joins with InterPro data, no need to join again
+    else:
+        # Fallback to empty dataframe with proper schema
+        df = pl.DataFrame(schema=df.schema)
+    
+    # Process relationships in batches for better memory management
+    unique_rels = df["rel"].unique().to_list()
+    print(f"Processing {len(unique_rels)} relationships")
+    
+    for rel in tqdm(unique_rels, desc="Processing relationships"):
+        try:
+            filtered_df = df.filter(pl.col("rel") == rel)
+            
+            # Load the parquet file once per relationship
+            parquet_path = f"{path}/xgboost/annotations{data}/{rel}.parquet"
+            if not os.path.exists(parquet_path):
+                print(f"Parquet file not found: {parquet_path}")
+                continue
+                
+            parq = pl.read_parquet(parquet_path)
+            
+            for row in tqdm(
+                filtered_df.iter_rows(named=True), 
+                total=len(filtered_df), 
+                leave=False,
+                desc=f"Processing {rel} entries"
+            ):
+                try:
+                    # Filter data for this specific entry
+                    sa_ner_df = parq.filter(pl.col("word_qc_group") == row["ner"])
+                    if sa_ner_df.is_empty():
+                        continue
+                        
+                    strain_filter = parq.filter(
+                        (pl.col("InterPro_accession") == row["ENTRY_AC"]) &
+                        (pl.col("word_qc_group") == row["ner"])
+                    )
+                    
+                    if strain_filter.is_empty():
+                        continue
+                        
+                    strains = (strain_filter["sa_ner"]
+                              .str.split("!")
+                              .list.get(0)
+                              .unique()
+                              .to_list())
+                    
+                    if not strains:
+                        continue
+                        
+                    # Create sanitized names
+                    new_rel = row["rel"].replace(":", "_")
+                    new_ner = (row["ner"]
+                              .replace(" ", "_").replace("'", "").replace("(", "_")
+                              .replace(")", "_").replace("/", "_").replace(":", "_")
+                              .replace("&", "_").replace(",", "_")
+                              .replace("[", "_").replace("]", "_").replace("^", "_")
+                              .replace("½", "half").replace("¼", "quarter").replace("¾", "three_quarters")
+                              .replace("⅓", "one_third").replace("⅔", "two_thirds").replace("⅛", "one_eighth"))
+                    sa_ner = f"first_{new_rel}_{new_ner}"
+                    
+                    protein_ids = set(strain_filter["Protein_accession"].unique().to_list())
+                    
+                    if not protein_ids:
+                        continue
 
-#        filtered_df = filtered_df.sample(n=10, with_replacement=True)
+                    output_faa = []
+                    output_fna = []
 
-        parq = pl.read_parquet(f"{path}/xgboost/annotations{data}/{rel}.parquet")
+                    # Process strains in parallel with controlled batch size
+                    batch_size = min(len(strains), int(snakemake.threads))
+                    with ThreadPoolExecutor(max_workers=batch_size) as executor:
+                        futures = {
+                            executor.submit(
+                                process_strain,
+                                s,
+                                f"{path}/assemblies_{data}/{s}",
+                                protein_ids,
+                            ): s
+                            for s in strains
+                        }
 
-        for row in tqdm(
-            filtered_df.iter_rows(named=True), total=len(filtered_df), leave=False
-        ):
-            sa_ner_df = parq.filter(pl.col("word_qc_group") == row["ner"])
-            if not sa_ner_df.is_empty():
-                strains = (
-                    sa_ner_df.filter(pl.col("InterPro_accession") == row["ENTRY_AC"])["sa_ner"].str.split("!").list.get(0).unique().to_list()
-                )
-                new_rel = row["rel"].replace(":", "_")
-                new_ner = (
-                    row["ner"]
-                    .replace(" ", "_")
-                    .replace("'", "")
-                    .replace("(", "_")
-                    .replace(")", "_")
-                    .replace("/", "_")
-                    .replace(":", "_")
-                    .replace("&", "_")
-                )
-                sa_ner = f"first_{new_rel}_{new_ner}"
-                protein_ids = set(
-                    parq.filter(pl.col("InterPro_accession") == row["ENTRY_AC"],
-                                                    pl.col("word_qc_group") == row["ner"])[
-                                            "Protein_accession"
-                                        ]
-                    .unique()
-                    .to_list()
-                )
+                        for future in futures:
+                            try:
+                                faa, fna = future.result(timeout=60)  # 1 minute timeout per strain
+                                output_faa.extend(faa)
+                                output_fna.extend(fna)
+                            except Exception as e:
+                                print(f"Error processing strain {futures[future]}: {e}")
 
-                output_faa = []
-                output_fna = []
-
-                with ThreadPoolExecutor(max_workers=int(snakemake.threads)) as executor:
-                    futures = {
-                        executor.submit(
-                            process_strain,
-                            s,
-                            f"{path}/assemblies_{data}/{s}",
-                            protein_ids,
-                        ): s
-                        for s in strains
-                    }
-
-                    for future in futures:
-                        faa, fna = future.result()
-                        output_faa.extend(faa)
-                        output_fna.extend(fna)
-
-                if output_faa and output_fna:
-                    os.makedirs(f"{outdir}/{sa_ner}", exist_ok=True)
-                    with open(f"{outdir}/{sa_ner}/seq.faa", "w") as f:
-                        SeqIO.write(output_faa, f, "fasta")
-                    with open(f"{outdir}/{sa_ner}/seq.fna", "w") as f:
-                        SeqIO.write(output_fna, f, "fasta")
+                    # Write output files if we have sequences
+                    if output_faa and output_fna:
+                        output_dir = f"{outdir}/{sa_ner}"
+                        os.makedirs(output_dir, exist_ok=True)
+                        
+                        try:
+                            with open(f"{output_dir}/seq.faa", "w") as f:
+                                SeqIO.write(output_faa, f, "fasta")
+                            with open(f"{output_dir}/seq.fna", "w") as f:
+                                SeqIO.write(output_fna, f, "fasta")
+                        except Exception as e:
+                            print(f"Error writing sequences for {sa_ner}: {e}")
+                            
+                except Exception as e:
+                    print(f"Error processing row in {rel}: {e}")
+                    continue
+                    
+        except Exception as e:
+            print(f"Error processing relationship {rel}: {e}")
+            continue
 
 
 # def create_evolution_dataset(df, path, data, outdir):
@@ -265,29 +382,54 @@ def create_evolution_dataset(df, path, data, outdir):
 
 
 def deduplicate_dataset(path, data):
-    # Set the directory where the files are located
+    """Deduplicate FASTA sequences using seqkit with better error handling"""
     directory = f"{path}/xgboost/seqfiles_{data}"
+    
+    if not os.path.exists(directory):
+        print(f"Directory {directory} does not exist, skipping deduplication")
+        return
 
-    # Iterate over all files in the directory
-    for root, dirs, files in tqdm(os.walk(directory)):
+    fasta_files = []
+    for root, dirs, files in os.walk(directory):
         for file in files:
-            # Check if the file is a fasta file
-            if file.endswith(".faa") or file.endswith(".fna"):
-                # Get the full path of the file
-                file_path = os.path.join(root, file)
-
-                # Create a temporary file to store the deduplicated sequences
-                temp_file = file_path + ".temp"
-
-                # Check if the file exists
-                if not os.path.exists(file_path):
-                    continue
-
-                # Run seqkit rmdup command to delete duplicate sequences
-                os.system(f"seqkit rmdup -n -o {temp_file} {file_path}")
-
-                # Replace the original file with the deduplicated file
+            if file.endswith((".faa", ".fna")):
+                fasta_files.append(os.path.join(root, file))
+    
+    print(f"Found {len(fasta_files)} FASTA files to deduplicate")
+    
+    for file_path in tqdm(fasta_files, desc="Deduplicating FASTA files"):
+        if not os.path.exists(file_path):
+            continue
+            
+        temp_file = file_path + ".temp"
+        
+        try:
+            # Use subprocess for better error handling
+            result = subprocess.run(
+                ["seqkit", "rmdup", "-n", "-o", temp_file, file_path],
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minute timeout per file
+            )
+            
+            if result.returncode == 0:
                 os.replace(temp_file, file_path)
+            else:
+                print(f"Error deduplicating {file_path}: {result.stderr}")
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+                    
+        except subprocess.TimeoutExpired:
+            print(f"Timeout deduplicating {file_path}")
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
+        except FileNotFoundError:
+            print("seqkit not found, skipping deduplication")
+            break
+        except Exception as e:
+            print(f"Error deduplicating {file_path}: {e}")
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
 
 ip_names = pd.read_csv(
     "https://ftp.ebi.ac.uk/pub/databases/interpro/current_release/entry.list",
@@ -303,6 +445,7 @@ ip_names["ENTRY_NAME"] = (
     .str.replace("<", "_")
 )
 
+# Keep entry types for family prioritization
 ip_names_pl = pl.from_pandas(ip_names.reset_index())
 
 df = load_pickle(PATH, DATA)

@@ -15,19 +15,19 @@ input_df = f"{path}/preds{DATA}/REL_output/preds_strainselect_grouped.pqt"
 
 # Common resource configurations
 COMMON_CPU_RESOURCES = {
-    "slurm_partition": "cpu",
+    "slurm_partition": "cpu,cpu_il",
     "runtime": 60,
     "mem_mb": 10000
 }
 
 HEAVY_CPU_RESOURCES = {
-    "slurm_partition": "cpu",
-    "runtime": 2000,
-    "mem_mb": 150000
+    "slurm_partition": "cpu,cpu_il",
+    "runtime": 1500,
+    "mem_mb": 100000
 }
 
 XGBOOST_RESOURCES = {
-    "slurm_partition": "cpu",
+    "slurm_partition": "cpu,cpu_il",
     "runtime": 900,
     "mem_mb": 50000
 }
@@ -38,7 +38,7 @@ def get_rels():
     return df["rel"].unique()
 
 def load_and_process_annotation(args):
-    """Load and process a single annotation file"""
+    """Load and process a single annotation file with optimized memory usage"""
     from pathlib import Path
     
     strain, assembly, base_path, cols_to_drop_list = args
@@ -47,36 +47,45 @@ def load_and_process_annotation(args):
     if not annotation_file.exists():
         return None
 
-    annotation_df = pd.read_parquet(annotation_file)
-    # Drop unnecessary columns (handle missing columns gracefully)
-    cols_present = [col for col in cols_to_drop_list if col in annotation_df.columns]
-    if cols_present:
-        annotation_df.drop(columns=cols_present, inplace=True)
+    try:
+        # Use Polars for more efficient loading and processing
+        annotation_df = pl.read_parquet(annotation_file)
+        
+        # Drop unnecessary columns if they exist
+        cols_present = [col for col in cols_to_drop_list if col in annotation_df.columns]
+        if cols_present:
+            annotation_df = annotation_df.drop(cols_present)
 
-    # Drop rows with missing InterPro accessions
-    annotation_df.dropna(subset=["InterPro_accession"], inplace=True)
+        # Drop rows with missing InterPro accessions
+        annotation_df = annotation_df.filter(pl.col("InterPro_accession").is_not_null())
 
-    if not annotation_df.empty:
-        # Add identifiers back for merging
-        annotation_df['strain'] = strain
-        annotation_df['assembly'] = assembly
+        if not annotation_df.is_empty():
+            # Add identifiers back for merging
+            annotation_df = annotation_df.with_columns([
+                pl.lit(strain).alias("strain"),
+                pl.lit(assembly).alias("assembly")
+            ])
 
-        essential_cols = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'strain', 'assembly']
-        cols_to_keep_final = [col for col in essential_cols if col in annotation_df.columns]
-        return annotation_df[cols_to_keep_final]
-    else:
+            essential_cols = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'strain', 'assembly']
+            cols_to_keep_final = [col for col in essential_cols if col in annotation_df.columns]
+            return annotation_df.select(cols_to_keep_final).to_pandas()
+        else:
+            return None
+    except Exception as e:
+        print(f"Error processing {annotation_file}: {e}")
         return None
 
 def filter_by_genus_diversity(drel, strainselect_vertices):
     """Filter relationships by genus diversity requirements"""
     ss = strainselect_vertices[strainselect_vertices["vertex_type"] == "gss"].copy()
-    ss.loc[:, "genus"] = ss['vertex'].str.split('.', n=1, expand=True)[0].astype('category')
+    ss = ss.copy()
+    ss["genus"] = ss['vertex'].str.split('.', n=1, expand=True)[0].astype('category')
     ss = ss[["StrainSelectID", "genus"]]
 
     m = drel.merge(ss, on="StrainSelectID", how="left")
-    m['genus_count_in_group'] = m.groupby("word_qc_group")['genus'].transform('nunique')
-    m['genus_count'] = m.groupby(["word_qc_group", "genus"])['StrainSelectID'].transform('count')
-    m['total_strains_in_group'] = m.groupby("word_qc_group")['StrainSelectID'].transform('count')
+    m['genus_count_in_group'] = m.groupby("word_qc_group", observed=False)['genus'].transform('nunique')
+    m['genus_count'] = m.groupby(["word_qc_group", "genus"], observed=False)['StrainSelectID'].transform('count')
+    m['total_strains_in_group'] = m.groupby("word_qc_group", observed=False)['StrainSelectID'].transform('count')
     m['genus_proportion'] = m['genus_count'] / m['total_strains_in_group']
 
     # Filter groups where nunique > 4 and no single genus makes up > 30% of the group
@@ -92,21 +101,8 @@ rule all:
         f"{path}/xgboost/annotations{DATA}/binary/binary.pkl",
         f"{path}/xgboost/seqfiles_{DATA}/.EVOLUTION_DATASET_COMPLETE"
 
-rule create_downloaded_strains_file:
-    output:
-        f"{path}/preds{DATA}/REL_output/strains_assemblies_downloaded.txt"
-    resources:
-        **COMMON_CPU_RESOURCES,
-    run:
-        filtered_assemblies = []
-        for strain in glob(f"{path}/assemblies_{DATA}/*/"):
-            for assembly in glob(f"{strain}/*/"):
-                if len(os.listdir(assembly)) == 5:
-                    ass = assembly.split("/")[-3] + "/" + assembly.split("/")[-2]
-                    filtered_assemblies.append(ass)
-        with open(output[0],"w") as f:
-            for line in filtered_assemblies:
-                f.write(line + "\n")
+# NOTE: strains_assemblies_downloaded.txt is now created by ip.smk checkpoint
+# This rule has been removed to avoid duplication
 
         
 # Rule for processing relationship files for all the assemblies
@@ -137,182 +133,176 @@ rule process_rel:
 
 
 
-        # --- 1. Load Initial Data Efficiently ---
-        # Load only required columns immediately
+        # --- 1. Load Initial Data ---
+        # Use Polars lazy evaluation for better memory management
+        df = pl.read_parquet(input.rel_file).select([
+            "StrainSelectID", "word_qc_group", "rel"
+        ]).lazy()
 
-        df = pd.read_parquet(input.rel_file, columns=["StrainSelectID", "word_qc_group", "rel"])
+        # Load strain/assembly data efficiently
+        das = pl.read_csv(input.downloaded_strains, separator="/", 
+                         has_header=False, new_columns=["strain", "assembly"])
+        downloaded_strains_set = set(das["strain"].unique())
 
-
-        # Use read_csv for potentially faster parsing, handle empty file
-        das = pd.read_csv(input.downloaded_strains, sep="/", header=None, names=["strain", "assembly"])
-        downloaded_strains_set = set(das['strain'].unique())
-
-        # Specify columns to load
-        strainselect_vertices = pd.read_csv(
+        # Load strain vertices data
+        strainselect_vertices = pl.read_csv(
             input.strainselect_vertices,
-            sep="\t",
-            usecols=["StrainSelectID", "vertex_type", "vertex"]
-        )
+            separator="\t"
+        ).select(["StrainSelectID", "vertex_type", "vertex"])
  
 
         # --- 2. Initial Filtering of Relation Data ---
-        df.dropna(subset=["StrainSelectID"], inplace=True)
-        df.drop_duplicates(inplace=True) 
-
-        drel = df[(df.rel == wildcards.rel) & (df.StrainSelectID.isin(downloaded_strains_set))].copy()
-        del df 
-
-
+        # Apply all filters using lazy evaluation
+        drel = (df
+                .filter(pl.col("StrainSelectID").is_not_null())
+                .unique()
+                .filter(
+                    (pl.col("rel") == wildcards.rel) & 
+                    (pl.col("StrainSelectID").is_in(downloaded_strains_set))
+                )
+                .collect()  # Materialize only when needed
+        )
+        
         # Keep only word_qc_groups appearing more than 2 times
-        word_counts = drel["word_qc_group"].value_counts()
-        drel = drel[drel["word_qc_group"].isin(word_counts[word_counts > 2].index)]
+        word_counts = drel.group_by("word_qc_group").agg(pl.count().alias("count"))
+        valid_groups = word_counts.filter(pl.col("count") > 2)["word_qc_group"]
+        drel = drel.filter(pl.col("word_qc_group").is_in(valid_groups))
 
-
-        # --- 3. Filter by Genus Diversity (Optimized) ---
-        drel = filter_by_genus_diversity(drel, strainselect_vertices)
+        # --- 3. Filter by Genus Diversity ---
+        drel = filter_by_genus_diversity(drel.to_pandas(), strainselect_vertices.to_pandas())
         del strainselect_vertices 
 
         # --- 4. Prepare for Annotation Loading ---
-
-        # Merge drel with available assemblies (das)
-        drel_expanded = drel.merge(das, left_on="StrainSelectID", right_on="strain", how="inner")
-        del drel
-        del das
-
-        # Identify unique strain/assembly pairs for which we need to load annotations
-        unique_sa_to_load = drel_expanded[['strain', 'assembly']].drop_duplicates().reset_index(drop=True)
-
-
-        # --- 5. Load and Process Annotations in Parallel ---
-        all_processed_annotations = []
-        # Prepare arguments for the parallel function
-        tasks_args = [
-            (row['strain'], row['assembly'], params.base_annotation_path, params.cols_to_drop)
-            for _, row in unique_sa_to_load.iterrows()
-        ]
-        del unique_sa_to_load 
-
-        # Use ThreadPoolExecutor for parallel I/O
-        processed_results = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
-            future_to_sa = {executor.submit(load_and_process_annotation, arg): arg for arg in tasks_args}
-            for i, future in enumerate(concurrent.futures.as_completed(future_to_sa)):
-                sa = future_to_sa[future]
-                result_df = future.result()
-                if result_df is not None and not result_df.empty:
-                    processed_results.append(result_df)
-
-
-
-        # Filter out potential None results if submit was used or errors occurred
-        all_processed_annotations = [df for df in processed_results if df is not None]
-
-
-        # --- 6. Combine Annotations and Merge ---
-        # Concatenate all loaded annotation dataframes into one
-
-        df_annotations_combined = pd.concat(all_processed_annotations, ignore_index=True)
-        del all_processed_annotations 
-
-        # Merge the combined annotations back to the expanded relation data
-        # Ensure correct merge keys
-        # Perform merge in chunks if df_annotations_combined or drel_expanded are massive to save memory
-        final_df = drel_expanded.merge(
-            df_annotations_combined,
-            on=['strain', 'assembly'], # Corresponds to StrainSelectID and assembly
-            how="inner" # Keep only rows where annotation data was successfully loaded and processed
-        )
-        del drel_expanded 
-        del df_annotations_combined 
-
-
-        # --- 7. Final Processing and Output ---
-        # Add the combined identifier column 
-        # Ensure columns exist before concatenation
-
-        final_df.drop(columns=["rel","StrainSelectID"], inplace=True) 
-
-        for col in final_df.columns:
-            if final_df[col].dtype == 'object':
-                # Attempt to convert to Pandas' Arrow-backed string type
-                try:
-                    # if final_df[col].dropna().apply(type).eq(str).all():
-                    print(f"Converting column '{col}' to pd.StringDtype()...")
-                    final_df[col] = final_df[col].astype(pd.StringDtype())
-                except Exception as e:
-                    print(f"Could not convert column '{col}' to pd.StringDtype(): {e}")
-
         
-        final_df_pl = pl.from_pandas(final_df)
+        # Convert back to Polars for merging
+        drel_pl = pl.from_pandas(drel)
+        
+        # Merge with available assemblies
+        drel_expanded = drel_pl.join(das, left_on="StrainSelectID", right_on="strain", how="inner")
+        del drel, drel_pl, das
 
-        final_df_pl = final_df_pl.with_columns(
-            pl.concat_str(
-                [
-                    pl.col("strain").cast(pl.Utf8),
-                    pl.lit("!"), # Literal string
-                    pl.col("assembly").cast(pl.Utf8),
-                    pl.lit("!"),
-                    pl.col("word_qc_group").cast(pl.Utf8)
-                ],
-                separator=""
-            ).alias("sa_ner")
+        # Check if join was successful
+        if drel_expanded.is_empty():
+            print(f"Warning: No matching assemblies found for {wildcards.rel}")
+            # Create empty output file with proper schema
+            empty_schema = {
+                'InterPro_accession': pl.Utf8,
+                'Protein_ID': pl.Utf8,
+                'Length': pl.Int64,
+                'Protein_accession': pl.Utf8,
+                'sa_ner': pl.Utf8,
+                'word_qc_group': pl.Utf8
+            }
+            pl.DataFrame(schema=empty_schema).write_parquet(output.rel_output)
+            return
+
+        unique_sa_to_load = drel_expanded.select(['StrainSelectID', 'assembly']).unique().rename({'StrainSelectID': 'strain'})
+
+        # --- 5. Load and Process Annotations in Chunked Batches ---
+        CHUNK_SIZE = max(1, min(100, len(unique_sa_to_load)))  # Process in chunks to manage memory
+        
+        all_processed_annotations = []
+        unique_sa_pandas = unique_sa_to_load.to_pandas()
+        
+        for chunk_start in range(0, len(unique_sa_pandas), CHUNK_SIZE):
+            chunk_end = min(chunk_start + CHUNK_SIZE, len(unique_sa_pandas))
+            chunk_data = unique_sa_pandas.iloc[chunk_start:chunk_end]
+            
+            # Prepare arguments for the parallel function
+            tasks_args = [
+                (row['strain'], row['assembly'], params.base_annotation_path, params.cols_to_drop)
+                for _, row in chunk_data.iterrows()
+            ]
+
+            # Process chunk in parallel
+            chunk_results = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=min(threads, len(tasks_args))) as executor:
+                future_to_sa = {executor.submit(load_and_process_annotation, arg): arg for arg in tasks_args}
+                for future in concurrent.futures.as_completed(future_to_sa):
+                    try:
+                        result_df = future.result()
+                        if result_df is not None and not result_df.empty:
+                            chunk_results.append(result_df)
+                    except Exception as e:
+                        print(f"Error processing annotation: {e}")
+
+            # Combine chunk results
+            if chunk_results:
+                chunk_combined = pd.concat(chunk_results, ignore_index=True)
+                all_processed_annotations.append(chunk_combined)
+                del chunk_results, chunk_combined
+
+            print(f"Processed chunk {chunk_start//CHUNK_SIZE + 1}/{(len(unique_sa_pandas) + CHUNK_SIZE - 1)//CHUNK_SIZE}")
+
+        del unique_sa_to_load, unique_sa_pandas
+
+        # --- 6. Combine All Annotations ---
+        if all_processed_annotations:
+            df_annotations_combined = pd.concat(all_processed_annotations, ignore_index=True)
+            del all_processed_annotations
+            
+            # Check if the combined dataframe is empty
+            if df_annotations_combined.empty:
+                print("Warning: Combined annotation dataframe is empty")
+                return
+        else:
+            print("Warning: No annotation data was successfully loaded")
+            return 
+
+        # --- 7. Final Merging and Processing ---
+        # Convert annotations to Polars for merging
+        annotations_pl = pl.from_pandas(df_annotations_combined)
+        del df_annotations_combined
+
+        final_df_pl = drel_expanded.join(
+            annotations_pl,
+            left_on=['StrainSelectID', 'assembly'],
+            right_on=['strain', 'assembly'],
+            how="inner"
+        )
+        del drel_expanded, annotations_pl
+
+        cols_to_drop = ["rel"]
+        if "strain" in final_df_pl.columns:
+            cols_to_drop.append("strain")
+        
+        final_df_pl = (final_df_pl
+                      .drop(cols_to_drop)
+                      .with_columns(
+                          pl.concat_str([
+                              pl.col("StrainSelectID").cast(pl.Utf8),
+                              pl.lit("!"),
+                              pl.col("assembly").cast(pl.Utf8),
+                              pl.lit("!"),
+                              pl.col("word_qc_group").cast(pl.Utf8)
+                          ], separator="").alias("sa_ner")
+                      )
+                      .drop("StrainSelectID"))
+
+        # --- 8. Final Filtering and Output ---
+        # Apply final filter for word_qc_groups with more than 2 entries
+        final_df_pl = (final_df_pl
+                      .with_columns(pl.col("word_qc_group").count().over("word_qc_group").alias("temp_wqc_count"))
+                      .filter(pl.col("temp_wqc_count") > 2)
+                      .drop("temp_wqc_count")
         )
 
-        # if 'strain' in final_df.columns and 'assembly' in final_df.columns and 'word_qc_group' in final_df.columns:
-        #      final_df['sa_ner'] = final_df['strain'] + "!" + final_df['assembly'] + "!" + final_df['word_qc_group']
-        # else:
-        #      final_df['sa_ner'] = pd.NA
-
-
-        # Final filter: ensure word_qc_groups still have more than two entry *after* merging with annotations
-        # final_word_counts = final_df["word_qc_group"].value_counts()
-        # final_df = final_df[final_df["word_qc_group"].isin(final_word_counts[final_word_counts > 2].index)]
-
-        # # Select and order final columns for clarity and efficiency
-        # # Define the exact columns needed in the output parquet file
-        # output_columns = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'sa_ner', 'word_qc_group']
-        # # Ensure all expected columns exist, handle missing ones if necessary
-        # final_output_columns = [col for col in output_columns if col in final_df.columns]
-
-
-        # # Write only selected columns
-        # final_df[final_output_columns].to_parquet(output.rel_output, index=False)
-        # Final filter: ensure word_qc_groups still have more than two entries
-        if "word_qc_group" in final_df_pl.columns:
-            final_df_pl = final_df_pl.with_columns(
-                pl.col("word_qc_group").count().over("word_qc_group").alias("temp_wqc_count")
-            ).filter(
-                pl.col("temp_wqc_count") > 2
-            ).drop("temp_wqc_count") # Remove the temporary count column
-        else:
-            print("Warning: 'word_qc_group' column not found. Skipping group count filter.")
-
-
-        # Select and order final columns for clarity and efficiency
-        # Define the exact columns needed in the output parquet file
+        # Define and select output columns
         output_columns_desired = ['InterPro_accession', 'Protein_ID', 'Length', 'Protein_accession', 'sa_ner', 'word_qc_group']
+        final_output_columns_pl = [col for col in output_columns_desired if col in final_df_pl.columns]
 
-        # Ensure all expected columns exist in the Polars DataFrame
-        current_polars_columns = final_df_pl.columns
-        final_output_columns_pl = [col for col in output_columns_desired if col in current_polars_columns]
-
-        # If no columns are selected (e.g., if final_df_pl became empty or desired columns don't exist),
-        # handle this to avoid errors.
+        # Write output with error handling
         if not final_output_columns_pl:
-            print(f"Warning: No columns from '{output_columns_desired}' found in the DataFrame after processing. Parquet file will not be written or will be empty.")
+            print(f"Warning: No required columns found. Expected: {output_columns_desired}")
+            return
         elif final_df_pl.is_empty():
-            print(f"Warning: DataFrame is empty after filtering. Writing an empty Parquet file with selected columns: {final_output_columns_pl}")
-            try:
-                # Attempt to get schema from the (potentially empty) DataFrame for the selected columns
-                schema_for_empty_df = {col: final_df_pl.schema[col] for col in final_output_columns_pl}
-                pl.DataFrame(schema=schema_for_empty_df).write_parquet(output.rel_output)
-            except Exception as e:
-                print(f"Could not write empty parquet, possibly due to schema issues with an empty dataframe: {e}")
+            print(f"Warning: Empty DataFrame after filtering. Writing empty file.")
+            schema_for_empty_df = {col: final_df_pl.schema[col] for col in final_output_columns_pl}
+            pl.DataFrame(schema=schema_for_empty_df).write_parquet(output.rel_output)
         else:
-            # Select the columns and write to Parquet
-            # Polars' write_parquet does not write an index by default.
+            # Write using Polars
             final_df_pl.select(final_output_columns_pl).write_parquet(output.rel_output)
-            print(f"Successfully wrote selected columns to {output.rel_output}")
+            print(f"Successfully wrote {len(final_df_pl)} rows to {output.rel_output}")
 
 
 
@@ -324,7 +314,7 @@ rule process_file:
     output:
         pickle_file=path + "/xgboost/annotations{data}/{rel}.pkl",
     resources:
-        slurm_partition="cpu",
+        slurm_partition="cpu,cpu_il",
         runtime=1000,
         mem_mb=140000,
     run:
@@ -361,14 +351,20 @@ rule process_file:
         tt = t.transpose()
 
         # Extract the third part of the index after splitting by '!'
-        temp = tt.reset_index()["index"].str.split("!", expand=True)[2]
+        index_parts = tt.reset_index()["index"].str.split("!", expand=True)
+        if index_parts.shape[1] < 3:
+            raise ValueError("Index format error: Expected at least 3 parts separated by '!'")
+        temp = index_parts[2]
         tempdf = pd.concat([tt.reset_index(), temp], axis=1)
         tempdf = tempdf[tempdf[2].duplicated(keep=False)]
         tempdf.set_index("index", inplace=True)
         tempdf.drop(columns=[2], inplace=True)
 
         X = tempdf.to_numpy()
-        y = tempdf.reset_index()["index"].str.split("!", expand=True)[2].to_numpy()
+        y_index_parts = tempdf.reset_index()["index"].str.split("!", expand=True)
+        if y_index_parts.shape[1] < 3:
+            raise ValueError("Index format error for y extraction: Expected at least 3 parts separated by '!'")
+        y = y_index_parts[2].to_numpy()
 
         # Save the results
         with open(output.pickle_file, "wb") as f:
@@ -390,7 +386,7 @@ rule xgboost_binary_parts:
         device=config["cuda_devices"],
         path=path
     conda:
-        "xgb"
+        "envs/xgb.yml"
     script:
         "scripts/xgboost_binary_snakemake_cpu.py"
 
@@ -405,7 +401,7 @@ rule xgboost_binary_join:
     output:
         path + f"/xgboost/annotations{DATA}/binary/binary.pkl",
     resources:
-        slurm_partition="cpu",
+        slurm_partition="cpu,cpu_il",
         runtime=30,
         tasks=2,
         mem_mb=40000,
@@ -413,19 +409,10 @@ rule xgboost_binary_join:
         data=DATA,
         device=config["cuda_devices"],
         path=path
-    run:
-        results = []
-        for rel_file in input:
-            with open(rel_file, "rb") as f:
-                result = pickle.load(f)
-                rel = rel_file.split("/")[-1].split(".")[0]
-                results.append((rel, result))
-        d = {}
-        for rel, result in results:
-            d[rel] = result
-
-        with open(output[0], "wb") as f:
-            pickle.dump(d, f)
+    conda:
+        "envs/xgb.yml"
+    script:
+        "scripts/join_xgboost_results.py"
 
 rule evolution_dataset:
     input:
@@ -439,10 +426,12 @@ rule evolution_dataset:
     params:
         path = path,
         data = DATA
-    threads: 32
+    threads: 4
     resources:
-        slurm_partition = "cpu",
-        runtime         = 4300,
-        mem_mb          = 250000
+        slurm_partition = "cpu,cpu_il",
+        runtime         = 500,
+        mem_mb          = 35000
+    conda:
+        "envs/xgb.yml"
     script:
         "scripts/create_evolution_dataset_snakemake.py"
