@@ -15,6 +15,7 @@ dependencies:
   - tqdm
   - pyarrow
   - biopython
+  - seqkit
   - pip
   - pip:
       - xgboost==2.0.0
