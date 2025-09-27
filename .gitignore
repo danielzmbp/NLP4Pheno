@@ -31,3 +31,6 @@ notebooks/.ipynb_checkpoints
 .ncbi_api_key
 snakemake_PMC/output/
 snakemake_PMC/temp/
+notebooks/.bacdive_config.py
+snakemake_PMC/output_previous/*
+snakemake_PMC/CLAUDE.md
