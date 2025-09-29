@@ -9,6 +9,8 @@ import psutil
 import os
 from datetime import datetime
 
+localrules: bulk_download, bulk_download_noncomm, chunk_csv_parquet, filter_chunk
+
 # Configuration
 PMC = [f"PMC0{str(x).zfill(2)}" for x in range(13)]
 BASELINE_DATE = "2025-06-26"
@@ -48,26 +50,13 @@ os.environ["POLARS_PREFETCH_SIZE"] = "100"
 
 # Common resource configurations
 COMMON_RESOURCES = {
-    "slurm_partition": "cpu",
+    "slurm_partition": "cpu,cpu_il",
     "runtime": 360,
     "mem_mb": 16000,
 }
 
-DOWNLOAD_RESOURCES = {
-    "slurm_partition": "cpu",
-    "runtime": 1200,
-    "mem_mb": 2000,
-    "tasks": 1,
-}
-
-HEAVY_RESOURCES = {
-    "slurm_partition": "cpu",
-    "runtime": 300,
-    "mem_mb": 32000,
-}
-
 FILTER_RESOURCES = {
-    "slurm_partition": "cpu",
+    "slurm_partition": "cpu,cpu_il",
     "runtime": 440,
     "tasks": 4,
     "mem_mb": 8000,
@@ -265,8 +254,6 @@ rule bulk_download:
     params:
         tar_name=f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
         filelist_name=f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
-    resources:
-        **DOWNLOAD_RESOURCES,
     shell:
         """
         # Download filelist first
@@ -296,8 +283,6 @@ rule bulk_download_noncomm:
     params:
         tar_name=f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
         filelist_name=f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
-    resources:
-        **DOWNLOAD_RESOURCES,
     shell:
         """
         # Try to download filelist first
@@ -327,7 +312,7 @@ rule concat_lists:
     output:
         os.path.join(LISTS_DIR, "{pmc}_filelist.tsv"),
     resources:
-        slurm_partition="cpu",
+        slurm_partition="cpu,cpu_il",
         runtime=60,
         mem_mb=2000,
         tasks=1,
@@ -443,7 +428,7 @@ rule concatenate_all_lists:
     output:
         os.path.join(LISTS_DIR, "all_pmc_filelist.tsv"),
     resources:
-        slurm_partition="cpu",
+        slurm_partition="cpu,cpu_il",
         runtime=60,
         mem_mb=2000,
         tasks=1,
@@ -474,7 +459,7 @@ checkpoint split_into_chunks:
     params:
         chunk_size=FILES_PER_CHUNK,
     resources:
-        slurm_partition="cpu",
+        slurm_partition="cpu,cpu_il",
         runtime=60,
         mem_mb=8000,
     run:
@@ -547,7 +532,7 @@ rule process_xml_chunk:
     conda:
         "envs/r_env.yml"
     resources:
-        slurm_partition="cpu",
+        slurm_partition="cpu,cpu_il",
         tasks=8,
         runtime=2880,
         mem_mb=16000,
@@ -563,8 +548,8 @@ rule chunk_csv_parquet:
     wildcard_constraints:
         xmlchunk="xmlchunk_\d{4}"
     resources:
-        slurm_partition="cpu",
-        runtime=320,
+        slurm_partition="cpu,cpu_il",
+        runtime=500,
         mem_mb=2000,
         tasks=1,
     script:
@@ -612,7 +597,8 @@ rule filter_chunk:
         print(f"Step 4: English detection on {df.height:,} texts...")
 
         # First apply heuristic filter - use precompiled pattern
-        english_pattern = r"(?i)\b(?:the|and|of|to|a|in|for)\b"
+        # Slightly broaden the quick heuristics so short English sentences pass more often
+        english_pattern = r"(?i)\b(?:the|and|of|to|a|in|for|with|this|that|is|was|are|were|we|results|study|can|will|an|as|at|by|or)\b"
         df_passed_heuristics = df.filter(pl.col("text").str.contains(english_pattern))
         df_failed_heuristics = df.filter(~pl.col("text").str.contains(english_pattern))
 
@@ -655,7 +641,8 @@ rule filter_chunk:
             ]
 
             # Filter for high-confidence English texts - use mask for efficiency
-            english_mask = [conf > 0.4 for conf in english_confidences]
+            # Lower the lingua confidence threshold to rescue more borderline sentences
+            english_mask = [conf >= 0.1 for conf in english_confidences]
             df_lingua_rescued = df_failed_heuristics.filter(pl.Series(english_mask))
 
             print(
@@ -710,42 +697,29 @@ rule merge_filtered:
     output:
         os.path.join(DATA_DIR, "pmc_filtered.parquet"),
     resources:
-        slurm_partition="cpu",
-        runtime=1440, 
-        mem_mb=256 * 1024,
-        tasks=48, 
+        slurm_partition="cpu,cpu_il",
+        runtime=600, 
+        mem_mb=128 * 1024,
+        tasks=32, 
     run:
         import os
-        os.environ["POLARS_MAX_THREADS"] = "48"
-        os.environ["POLARS_PREFETCH_SIZE"] = "200"
+        import polars as pl
+
+        # Let Polars manage threading (don’t hard-pin unless you must)
+        os.environ["POLARS_MAX_THREADS"] = str(resources.tasks)
         os.environ["POLARS_FORCE_ASYNC"] = "1"
-                
-        batch_size = 100
-        all_dfs = []
 
-        for i in range(0, len(input.chunks), batch_size):
-            batch_chunks = input.chunks[i:i+batch_size]
-            batch_num = i // batch_size + 1
-            total_batches = (len(input.chunks) + batch_size - 1) // batch_size
+        # Instead of batching → one global lazy scan
+        lazy_dfs = [pl.scan_parquet(f) for f in input.chunks]
 
-            print(f"Loading batch {batch_num}/{total_batches} ({len(batch_chunks)} chunks)...")
+        # Concatenate lazily, collect once with streaming
+        result = pl.concat(lazy_dfs, how="vertical_relaxed")
 
-            # Use lazy loading and streaming
-            lazy_dfs = [pl.scan_parquet(chunk_file) for chunk_file in batch_chunks]
-            batch_df = pl.concat(lazy_dfs, how="vertical_relaxed").collect(engine="streaming")
-            all_dfs.append(batch_df.unique("text"))
-
-            print(f"  Batch {batch_num}: {batch_df.height:,} rows loaded")
-
-        # Final concatenation
-        result = pl.concat(all_dfs, how="vertical_relaxed")
-
-        del all_dfs
-        result.write_parquet(
+        # Write directly — avoid holding all_dfs in memory
+        result.sink_parquet(
             output[0],
             compression="snappy",
-            use_pyarrow=True,
-            row_group_size=500000
+            row_group_size=1_000_000,   # Bigger row groups = faster writes
         )
 
 
