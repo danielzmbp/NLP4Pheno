@@ -92,3 +92,4 @@ except Exception as e:
     pq.write_table(empty_table, snakemake.output[0])
     print("Created empty parquet file as fallback")
     sys.exit(1)
+

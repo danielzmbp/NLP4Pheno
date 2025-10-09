@@ -7,60 +7,19 @@ options(editor = "vi")
 library(data.table)
 library(xml2)
 
-# Install tidypmc if not already installed (with lock protection and timeout)
-if (!require(tidypmc, quietly = TRUE)) {
-    lock_file <- "/tmp/tidypmc_install.lock"
-    max_wait <- 120  # Maximum wait time in seconds
-    wait_time <- 0
-    
-    # Check for stale lock file (older than 5 minutes)
-    if (file.exists(lock_file)) {
-        lock_age <- difftime(Sys.time(), file.info(lock_file)$mtime, units = "secs")
-        if (lock_age > 300) {
-            cat("Removing stale lock file (age:", lock_age, "seconds)\n")
-            file.remove(lock_file)
-        }
-    }
-    
-    # Use flock for atomic package installation
-    if (!file.exists(lock_file)) {
-        cat("Installing tidypmc...\n")
-        file.create(lock_file)
-        tryCatch({
-            # Try installing from GitHub directly (CRAN may not have it)
-            if (!require(remotes, quietly = TRUE)) {
-                install.packages("remotes", repos = "https://cran.r-project.org/")
-            }
-            library(remotes)
-            remotes::install_github("ropensci/tidypmc", quiet = FALSE, upgrade = "never")
-        }, error = function(e) {
-            cat("Installation failed with error:", e$message, "\n")
-            stop("Failed to install tidypmc")
-        }, finally = {
-            if (file.exists(lock_file)) file.remove(lock_file)
-        })
-    } else {
-        # Wait for other process to finish installation with timeout
-        cat("Waiting for tidypmc installation to complete...\n")
-        while (file.exists(lock_file) && wait_time < max_wait) {
-            Sys.sleep(5)
-            wait_time <- wait_time + 5
-        }
-        if (wait_time >= max_wait) {
-            cat("Timeout waiting for installation, removing lock file and retrying\n")
-            file.remove(lock_file)
-            # Recursive call to retry installation
-            source(commandArgs()[length(commandArgs())])
-            quit(save = "no")
-        }
-    }
-    library(tidypmc)
+# Ensure tidypmc is available from the preinstalled user library
+conda_prefix <- Sys.getenv("CONDA_PREFIX", unset = "")
+user_lib <- file.path(conda_prefix, "user-library")
+if (nzchar(user_lib) && dir.exists(user_lib)) {
+  .libPaths(c(user_lib, .libPaths()))
 }
+
+suppressPackageStartupMessages(library(tidypmc))
 
 library(doParallel)
 
 # Setup parallel processing with random port to avoid conflicts
-n_cores <- 16  # Reduced from 60 since chunks are smaller
+n_cores <- snakemake@threads
 cat(sprintf("Using %d cores for parallel processing\n", n_cores))
 
 # Try to create cluster with random port, retry if needed
@@ -110,191 +69,187 @@ if (!dir.exists(csv_output_dir)) {
   dir.create(csv_output_dir, recursive = TRUE, showWarnings = FALSE)
 }
 
-# Initialize combined data frame
-all_data <- list()
-temp_extract_dir <- file.path("temp", "batch_extract", sprintf("chunk_%s_%d", snakemake@wildcards$xmlchunk, Sys.getpid()))
+# Prepare extraction workspace and output tracking
+chunk_extract_root <- file.path("temp", "batch_extract", sprintf("chunk_%s_%d", snakemake@wildcards$xmlchunk, Sys.getpid()))
+dir.create(chunk_extract_root, recursive = TRUE, showWarnings = FALSE)
+on.exit({
+  if (dir.exists(chunk_extract_root)) {
+    unlink(chunk_extract_root, recursive = TRUE)
+  }
+}, add = TRUE)
+
+if (file.exists(csv_output_file)) {
+  file.remove(csv_output_file)
+}
+
+written_rows <- 0L
+successful_pmcids <- character()
+
+extract_selected <- function(tar_path, list_path, dest_dir) {
+  if (length(tar_path) == 0) {
+    return(invisible(NULL))
+  }
+  tar_path <- tar_path[1]
+  if (!file.exists(tar_path) || file.size(tar_path) == 0) {
+    return(invisible(NULL))
+  }
+  res <- system2("tar", args = c("-xzf", tar_path, "-C", dest_dir, "-T", list_path), stdout = NULL, stderr = NULL)
+  if (!identical(res, 0L)) {
+    warning(sprintf("Extraction exited with status %s for %s", res, basename(tar_path)))
+  }
+  invisible(NULL)
+}
 
 for (pmc_id in names(files_by_pmc)) {
   pmc_files <- files_by_pmc[[pmc_id]]
-  
-  # Find the corresponding tar files - need to match PMC012 to PMC012xxxxxx pattern
-  # The pmc_id is like "PMC012", but tar files are named like "PMC012xxxxxx"
-  pmc_number <- gsub("PMC", "", pmc_id)  # Extract just the number part
+
+  pmc_number <- gsub("PMC", "", pmc_id)
   tar_pattern <- sprintf("PMC%sxxxxxx", pmc_number)
-  
-  # Get commercial tar file
+
   comm_tar <- comm_tar_files[grep(tar_pattern, comm_tar_files)]
-  if (length(comm_tar) == 0) {
-    cat(sprintf("WARNING: No commercial tar file found for %s (pattern: %s)\n", pmc_id, tar_pattern))
+  noncomm_tar <- noncomm_tar_files[grep(tar_pattern, noncomm_tar_files)]
+
+  cat(sprintf("Processing %d files from %s\n", nrow(pmc_files), pmc_id))
+  if (length(comm_tar) > 0 && file.exists(comm_tar[1]) && file.size(comm_tar[1]) > 0) {
+    cat(sprintf("  Using commercial tar: %s\n", basename(comm_tar[1])))
+  }
+  if (length(noncomm_tar) > 0 && file.exists(noncomm_tar[1]) && file.size(noncomm_tar[1]) > 0) {
+    cat(sprintf("  Using non-commercial tar: %s\n", basename(noncomm_tar[1])))
+  }
+
+  pmc_extract_dir <- file.path(chunk_extract_root, pmc_id)
+  dir.create(pmc_extract_dir, recursive = TRUE, showWarnings = FALSE)
+
+  pmc_file_list <- unique(pmc_files$`Article File`)
+  if (length(pmc_file_list) == 0) {
+    cat(sprintf("  WARNING: No article files listed for %s\n", pmc_id))
+    unlink(pmc_extract_dir, recursive = TRUE)
     next
   }
-  
-  # Get non-commercial tar file  
-  noncomm_tar <- noncomm_tar_files[grep(tar_pattern, noncomm_tar_files)]
-  
-  cat(sprintf("Processing %d files from %s\n", nrow(pmc_files), pmc_id))
-  if (length(comm_tar) > 0 && file.exists(comm_tar) && file.size(comm_tar) > 0) {
-    cat(sprintf("  Using commercial tar: %s\n", basename(comm_tar)))
+
+  list_path <- tempfile(pattern = "pmc_files_", tmpdir = "/tmp")
+  writeLines(pmc_file_list, list_path)
+  extract_selected(comm_tar, list_path, pmc_extract_dir)
+  unlink(list_path)
+
+  path_lookup <- file.path(pmc_extract_dir, pmc_file_list)
+  remaining_files <- pmc_file_list[!file.exists(path_lookup)]
+
+  if (length(remaining_files) > 0 && length(noncomm_tar) > 0 && file.exists(noncomm_tar[1]) && file.size(noncomm_tar[1]) > 0) {
+    remaining_path <- tempfile(pattern = "pmc_remaining_", tmpdir = "/tmp")
+    writeLines(remaining_files, remaining_path)
+    extract_selected(noncomm_tar, remaining_path, pmc_extract_dir)
+    unlink(remaining_path)
   }
-  if (length(noncomm_tar) > 0 && file.exists(noncomm_tar) && file.size(noncomm_tar) > 0) {
-    cat(sprintf("  Using non-commercial tar: %s\n", basename(noncomm_tar)))
+
+  available_mask <- file.exists(file.path(pmc_extract_dir, pmc_file_list))
+  available_files <- pmc_file_list[available_mask]
+
+  if (length(available_files) == 0) {
+    cat(sprintf("  WARNING: No files could be extracted for %s\n", pmc_id))
+    unlink(pmc_extract_dir, recursive = TRUE)
+    next
   }
-  
-  # Process in smaller batches
+
+  pmc_files <- pmc_files[pmc_files$`Article File` %in% available_files, ]
+  if (nrow(pmc_files) == 0) {
+    cat(sprintf("  WARNING: No available files remain for %s after filtering\n", pmc_id))
+    unlink(pmc_extract_dir, recursive = TRUE)
+    next
+  }
+
   BATCH_SIZE <- 500
   n_batches <- ceiling(nrow(pmc_files) / BATCH_SIZE)
-  
-  for (batch_idx in 1:n_batches) {
+
+  for (batch_idx in seq_len(n_batches)) {
     start_idx <- (batch_idx - 1) * BATCH_SIZE + 1
     end_idx <- min(batch_idx * BATCH_SIZE, nrow(pmc_files))
-    
+
     batch_files <- pmc_files$`Article File`[start_idx:end_idx]
-    
-    # Create temp directory for this batch
-    dir.create(temp_extract_dir, showWarnings = FALSE, recursive = TRUE)
-    
-    # Extract files from tar archives
-    # Write file list to temp file to avoid command line length limits
-    temp_file_list <- tempfile(pattern = "extract_list_", tmpdir = "/tmp")
-    writeLines(batch_files, temp_file_list)
-    
-    # Track which files were successfully extracted
-    extracted_files <- character(0)
-    
-    # Try commercial tar first (if it exists and has content)
-    if (length(comm_tar) > 0 && file.exists(comm_tar) && file.size(comm_tar) > 0) {
-      # Extract and get list of successfully extracted files
-      extract_cmd <- sprintf("tar -xzf %s -C %s -T %s 2>/dev/null && tar -tzf %s -T %s 2>/dev/null", 
-                           comm_tar, temp_extract_dir, temp_file_list,
-                           comm_tar, temp_file_list)
-      extracted_from_comm <- system(extract_cmd, intern = TRUE, ignore.stderr = TRUE)
-      if (length(extracted_from_comm) > 0) {
-        extracted_files <- c(extracted_files, extracted_from_comm)
-        cat(sprintf("    Extracted %d files from commercial tar\n", length(extracted_from_comm)))
+    batch_paths <- file.path(pmc_extract_dir, batch_files)
+    exists_mask <- file.exists(batch_paths)
+
+    if (!all(exists_mask)) {
+      missing <- batch_files[!exists_mask]
+      if (length(missing) > 0) {
+        cat(sprintf("    WARNING: Missing %d files in batch %d for %s\n", length(missing), batch_idx, pmc_id))
       }
+      batch_files <- batch_files[exists_mask]
+      batch_paths <- batch_paths[exists_mask]
     }
-    
-    # For non-commercial, only try files not already extracted
-    if (length(noncomm_tar) > 0 && file.exists(noncomm_tar) && file.size(noncomm_tar) > 0) {
-      # Create list of files not yet extracted
-      remaining_files <- setdiff(batch_files, basename(extracted_files))
-      
-      if (length(remaining_files) > 0) {
-        temp_remaining_list <- tempfile(pattern = "remaining_list_", tmpdir = "/tmp")
-        writeLines(remaining_files, temp_remaining_list)
-        
-        extract_cmd <- sprintf("tar -xzf %s -C %s -T %s 2>/dev/null && tar -tzf %s -T %s 2>/dev/null", 
-                             noncomm_tar, temp_extract_dir, temp_remaining_list,
-                             noncomm_tar, temp_remaining_list)
-        extracted_from_noncomm <- system(extract_cmd, intern = TRUE, ignore.stderr = TRUE)
-        
-        if (length(extracted_from_noncomm) > 0) {
-          extracted_files <- c(extracted_files, extracted_from_noncomm)
-          cat(sprintf("    Extracted %d additional files from non-commercial tar\n", length(extracted_from_noncomm)))
-        }
-        
-        unlink(temp_remaining_list)
-      }
-    }
-    
-    # Clean up temp file list
-    unlink(temp_file_list)
-    
-    if (length(extracted_files) == 0) {
-      cat(sprintf("    WARNING: No files extracted for batch %d\n", batch_idx))
+
+    if (length(batch_files) == 0) {
       next
     }
-    
-    # Process this batch in parallel and return data frames
-    batch_data <- foreach(f = batch_files, .errorhandling = 'pass', .packages = c('xml2', 'tidypmc')) %dopar% {
-      tryCatch({
-        xml_path <- file.path(temp_extract_dir, f)
-        
-        # Check if file exists
-        if (!file.exists(xml_path)) {
-          xml_path_alt <- file.path(temp_extract_dir, basename(f))
-          if (!file.exists(xml_path_alt)) {
-            return(NULL)
-          }
-          xml_path <- xml_path_alt
-        }
-        
-        # Extract PMCID from filename
-        pmcid <- gsub("\\.xml$", "", basename(f))
-        
-        # Convert XML to data frame
-        xml_file <- tryCatch({
-          read_xml(xml_path)
-        }, error = function(e) {
-          return(NULL)
-        })
-        
-        if (is.null(xml_file)) {
-          return(NULL)
-        }
-        
-        pmc_data <- tryCatch({
-          pmc_text(xml_file)
-        }, error = function(e) {
-          return(NULL)
-        })
-        
-        # Check if pmc_text returned valid data
-        if (!is.null(pmc_data) && nrow(pmc_data) > 0) {
-          # Add pmcid column
-          pmc_data$pmcid <- pmcid
-          return(pmc_data)
-        } else {
-          return(NULL)
-        }
-      }, error = function(err) {
+
+    batch_results <- foreach(i = seq_along(batch_paths), .errorhandling = 'pass', .packages = c('xml2', 'tidypmc', 'data.table')) %dopar% {
+      xml_path <- batch_paths[i]
+      article_name <- batch_files[i]
+
+      if (!file.exists(xml_path)) {
+        return(NULL)
+      }
+
+      pmcid_value <- gsub('\\.xml$', '', basename(article_name))
+
+      xml_file <- tryCatch({
+        read_xml(xml_path)
+      }, error = function(e) {
         return(NULL)
       })
+
+      if (is.null(xml_file)) {
+        return(NULL)
+      }
+
+      pmc_data <- tryCatch({
+        pmc_text(xml_file)
+      }, error = function(e) {
+        return(NULL)
+      })
+
+      if (is.null(pmc_data) || nrow(pmc_data) == 0) {
+        return(NULL)
+      }
+
+      pmc_dt <- as.data.table(pmc_data)
+      pmc_dt[, pmcid := pmcid_value]
+      pmc_dt
     }
-    
-    # Filter out NULLs and errors before adding to results
-    valid_batch_data <- batch_data[!sapply(batch_data, is.null)]
-    valid_batch_data <- valid_batch_data[!sapply(valid_batch_data, function(x) inherits(x, "error"))]
-    
-    # Add to combined results
-    if (length(valid_batch_data) > 0) {
-      all_data <- c(all_data, valid_batch_data)
+
+    batch_results <- Filter(function(x) !is.null(x) && is.data.table(x) && nrow(x) > 0, batch_results)
+
+    if (length(batch_results) > 0) {
+      batch_data <- rbindlist(batch_results, use.names = TRUE, fill = TRUE)
+      fwrite(batch_data, file = csv_output_file, append = written_rows > 0, col.names = written_rows == 0)
+      written_rows <- written_rows + nrow(batch_data)
+      successful_pmcids <- union(successful_pmcids, unique(batch_data$pmcid))
     }
-    
-    # Clean up this batch's extracted files
-    unlink(temp_extract_dir, recursive = TRUE)
-    
-    # Force garbage collection
-    gc()
-    
     if (batch_idx %% 10 == 0) {
       cat(sprintf("  Completed %d/%d batches for %s\n", batch_idx, n_batches, pmc_id))
     }
   }
-}
 
-# Combine all data frames and write to single CSV
+  unlink(pmc_extract_dir, recursive = TRUE)
+}
+# Combine batch results (already streamed) and emit summary
 cat(sprintf("\n=== CHUNK SUMMARY ===\n"))
 cat(sprintf("Total files attempted: %d\n", nrow(chunk_files)))
-cat(sprintf("Successfully converted: %d\n", length(all_data)))
-cat(sprintf("Failed conversions: %d\n", nrow(chunk_files) - length(all_data)))
+cat(sprintf("Successfully converted: %d\n", length(successful_pmcids)))
+cat(sprintf("Failed conversions: %d\n", nrow(chunk_files) - length(successful_pmcids)))
 
-if (length(all_data) > 0) {
-  # Combine all data frames into one
-  combined_df <- rbindlist(all_data, fill = TRUE)
-  
-  # Write to single CSV file
-  fwrite(combined_df, file = csv_output_file, row.names = FALSE)
+if (written_rows > 0 && file.exists(csv_output_file)) {
   cat(sprintf("Combined data written to: %s\n", csv_output_file))
-  cat(sprintf("Total rows in combined CSV: %d\n", nrow(combined_df)))
+  cat(sprintf("Total rows in combined CSV: %d\n", written_rows))
 } else {
   warning("No files were successfully converted!")
-  # Write empty CSV with expected columns
-  empty_df <- data.frame(pmcid = character(),
-                         section = character(),
-                         paragraph = integer(),
-                         sentence = integer(),
-                         text = character())
+  empty_df <- data.frame(
+    pmcid = character(),
+    section = character(),
+    paragraph = integer(),
+    sentence = integer(),
+    text = character()
+  )
   fwrite(empty_df, file = csv_output_file, row.names = FALSE)
 }
 
@@ -302,3 +257,4 @@ if (length(all_data) > 0) {
 if (!is.null(cl)) {
   stopCluster(cl)
 }
+

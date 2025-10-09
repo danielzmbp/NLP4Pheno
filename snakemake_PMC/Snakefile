@@ -1,15 +1,13 @@
 import pyarrow.parquet as pq
 import pandas as pd
 import polars as pl
-from lingua import Language, LanguageDetectorBuilder
 import pyarrow as pa
 import re
 import time
-import psutil
 import os
 from datetime import datetime
 
-localrules: bulk_download, bulk_download_noncomm, chunk_csv_parquet, filter_chunk
+localrules: bulk_download, bulk_download_noncomm, chunk_csv_parquet
 
 # Configuration
 PMC = [f"PMC0{str(x).zfill(2)}" for x in range(13)]
@@ -25,7 +23,6 @@ DATA_DIR = os.path.join(OUTPUT_DIR, "data")
 LOGS_DIR = os.path.join(OUTPUT_DIR, "logs")
 STATS_DIR = os.path.join(OUTPUT_DIR, "stats")
 XML_CHUNKS_DIR = os.path.join(TEMP_DIR, "xml_chunks")  # For XML processing chunks
-FILTER_CHUNKS_DIR = os.path.join(TEMP_DIR, "filter_chunks")  # For filtering chunks
 LISTS_DIR = os.path.join(TEMP_DIR, "filelists")
 CSV_DIR = os.path.join(TEMP_DIR, "csv")
 PARQUET_DIR = os.path.join(TEMP_DIR, "parquet")
@@ -36,7 +33,6 @@ for dir_path in [
     LOGS_DIR,
     STATS_DIR,
     XML_CHUNKS_DIR,
-    FILTER_CHUNKS_DIR,
     LISTS_DIR,
     CSV_DIR,
     PARQUET_DIR,
@@ -53,13 +49,6 @@ COMMON_RESOURCES = {
     "slurm_partition": "cpu,cpu_il",
     "runtime": 360,
     "mem_mb": 16000,
-}
-
-FILTER_RESOURCES = {
-    "slurm_partition": "cpu,cpu_il",
-    "runtime": 440,
-    "tasks": 4,
-    "mem_mb": 8000,
 }
 
 # Simplified regex patterns - combine similar patterns
@@ -133,105 +122,6 @@ FILTER_KEYWORDS = [
     "Build",
     "Energy",
 ]
-FILTER_KEYWORDS_PATTERN = re.compile("|".join(FILTER_KEYWORDS), re.IGNORECASE)
-
-SECTION_FILTER_PATTERN = re.compile(
-    r"(?i)(?:declaration|contribut|author|conflict|compet|ethic|funding|interest|"
-    r"acknowledg|consent|disclosure|availabil|financial|cancer)",
-    re.IGNORECASE,
-)
-
-
-def get_filtered_chunks(wildcards):
-    """Dynamically determine filtered chunk names from XML chunks"""
-    chunks = get_xml_chunks(wildcards)
-    return expand(
-        os.path.join(PARQUET_DIR, "{xmlchunk}_filtered.parquet"), xmlchunk=chunks
-    )
-
-
-def get_chunk_stats(wildcards):
-    """Get stats files for all chunks"""
-    chunks = get_xml_chunks(wildcards)
-    return expand(
-        os.path.join(STATS_DIR, "chunks", "{xmlchunk}_stats.json"), xmlchunk=chunks
-    )
-
-
-TEXT_FILTER_PATTERN = re.compile(
-    r'- Reply|- Line|• Line|Please|" "|""|--|-Comment|\\* I|- I|-I |\\* L|- L'
-)
-
-
-def merge_sentences_polars(df: pl.DataFrame) -> pl.DataFrame:
-    """Optimized sentence merging using vectorized operations"""
-    if df.is_empty():
-        return pl.DataFrame()
-
-    # Single pass: clean, sort, and calculate lengths
-    df = df.lazy().filter(pl.col("text").is_not_null())
-
-    # Add length column and partition by threshold in one go
-    df_with_length = (
-        df.group_by(["pmcid", "section", "paragraph"]).agg(
-            [
-                pl.col("text").str.concat(" ").alias("merged_text"),
-                pl.col("text").str.len_chars().sum().alias("total_length"),
-                pl.col("sentence").min().alias("min_sent"),
-                pl.col("sentence").max().alias("max_sent"),
-                pl.struct([pl.col("sentence"), pl.col("text")]).alias("sentences"),
-            ]
-        )
-    ).collect(engine="streaming")
-
-    # Split by length and process
-    long_mask = df_with_length["total_length"] > 512
-
-    # For long paragraphs, explode back to individual sentences
-    long_df = df_with_length.filter(long_mask)
-    if long_df.height > 0:
-        long_result = (
-            long_df.select(["pmcid", "section", "paragraph", "sentences"])
-            .explode("sentences")
-            .with_columns(
-                [
-                    pl.col("sentences")
-                    .struct.field("sentence")
-                    .cast(pl.Utf8)
-                    .alias("sentence_range"),
-                    pl.col("sentences").struct.field("text").alias("text"),
-                ]
-            )
-            .select(["pmcid", "section", "paragraph", "sentence_range", "text"])
-        )
-    else:
-        long_result = None
-
-    # For short paragraphs, use merged text
-    short_df = df_with_length.filter(~long_mask)
-    if short_df.height > 0:
-        short_result = (
-            short_df.with_columns(
-                pl.when(pl.col("min_sent") == pl.col("max_sent"))
-                .then(pl.col("min_sent").cast(pl.Utf8))
-                .otherwise(
-                    pl.col("min_sent").cast(pl.Utf8)
-                    + "-"
-                    + pl.col("max_sent").cast(pl.Utf8)
-                )
-                .alias("sentence_range")
-            )
-            .rename({"merged_text": "text"})
-            .select(["pmcid", "section", "paragraph", "sentence_range", "text"])
-        )
-    else:
-        short_result = None
-
-    # Combine results
-    results = [r for r in [long_result, short_result] if r is not None]
-    return pl.concat(results) if results else pl.DataFrame()
-
-
 rule all:
     input:
         os.path.join(DATA_DIR, "pmc_filtered.parquet"),
@@ -511,21 +401,50 @@ def get_xml_chunks(wildcards):
     return chunks
 
 
+
+# Helper to narrow tar inputs per chunk
+def _chunk_pmcs(xmlchunk):
+    filelist_path = os.path.join(XML_CHUNKS_DIR, f"{xmlchunk}_filelist.tsv")
+    if not os.path.exists(filelist_path):
+        return []
+    df = pd.read_csv(filelist_path, sep="	", usecols=["pmc_dataset"])
+    pmcs = df["pmc_dataset"].dropna().astype(str).unique().tolist()
+    return sorted(pmcs)
+
+
+def get_comm_tars(wildcards):
+    pmcs = _chunk_pmcs(wildcards.xmlchunk)
+    return [
+        os.path.join(
+            TEMP_DIR,
+            f"oa_comm_xml.{pmc}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
+        )
+        for pmc in pmcs
+    ]
+
+
+def get_noncomm_tars(wildcards):
+    pmcs = _chunk_pmcs(wildcards.xmlchunk)
+    return [
+        os.path.join(
+            TEMP_DIR,
+            f"oa_noncomm_xml.{pmc}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
+        )
+        for pmc in pmcs
+    ]
+
+def get_parquet_chunks(wildcards):
+    """Get parquet chunk paths for downstream merging"""
+    chunks = get_xml_chunks(wildcards)
+    return [os.path.join(PARQUET_DIR, f"{chunk}.parquet") for chunk in chunks]
+
+
 rule process_xml_chunk:
+    threads: 4
     input:
         filelist=os.path.join(XML_CHUNKS_DIR, "{xmlchunk}_filelist.tsv"),
-        comm_tars=expand(
-            os.path.join(
-                TEMP_DIR, f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
-            ),
-            pmc=PMC,
-        ),
-        noncomm_tars=expand(
-            os.path.join(
-                TEMP_DIR, f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
-            ),
-            pmc=PMC,
-        ),
+        comm_tars=get_comm_tars,
+        noncomm_tars=get_noncomm_tars,
         chunk_list=os.path.join(XML_CHUNKS_DIR, "xml_chunks.txt"),  # Dependency on checkpoint
     output:
         temp(os.path.join(CSV_DIR, "{xmlchunk}.csv")),
@@ -533,9 +452,9 @@ rule process_xml_chunk:
         "envs/r_env.yml"
     resources:
         slurm_partition="cpu,cpu_il",
-        tasks=8,
+        tasks=4,
         runtime=2880,
-        mem_mb=16000,
+        mem_mb=8000,
     script:
         "scripts/xml2tsv_chunk.R"
 
@@ -544,7 +463,7 @@ rule chunk_csv_parquet:
     input:
         os.path.join(CSV_DIR, "{xmlchunk}.csv"),
     output:
-        temp(os.path.join(PARQUET_DIR, "{xmlchunk}.parquet")),
+        os.path.join(PARQUET_DIR, "{xmlchunk}.parquet"),
     wildcard_constraints:
         xmlchunk="xmlchunk_\d{4}"
     resources:
@@ -555,150 +474,14 @@ rule chunk_csv_parquet:
     script:
         "scripts/tsv2parquet_chunk.py"
 
-
-rule filter_chunk:
-    input:
-        os.path.join(PARQUET_DIR, "{xmlchunk}.parquet"),
-    output:
-        filtered=temp(os.path.join(PARQUET_DIR, "{xmlchunk}_filtered.parquet")),
-        stats=os.path.join(STATS_DIR, "chunks", "{xmlchunk}_stats.json"),
-    wildcard_constraints:
-        xmlchunk="xmlchunk_\d{4}"  # Only match xmlchunk_0000 format
-    resources:
-        **FILTER_RESOURCES,
-    run:
-        start_time = time.time()
-
-        # Always use scan_parquet for consistency and memory efficiency
-        df = pl.scan_parquet(input[0]).collect(engine="streaming")
-
-        initial_rows = df.shape[0]
-        print(f"Processing {wildcards.xmlchunk}: {initial_rows:,} rows")
-
-        # Step 1: Merge sentences
-        df = merge_sentences_polars(df)
-
-        # Step 2-3: Combine deduplication and filtering in one pass
-        df = (
-            df.lazy()
-            .unique("text")
-            .with_columns(pl.col("text").str.len_chars().alias("text_len"))
-            .filter(
-                ~pl.col("section").str.contains(SECTION_FILTER_PATTERN.pattern)
-                & ~pl.col("text").str.contains(TEXT_FILTER_PATTERN.pattern)
-            )
-            .drop("text_len")
-            .collect()
-        )
-
-        before_lingua = df.shape[0]
-
-        # Step 4: English detection with heuristics + lingua
-        print(f"Step 4: English detection on {df.height:,} texts...")
-
-        # First apply heuristic filter - use precompiled pattern
-        # Slightly broaden the quick heuristics so short English sentences pass more often
-        english_pattern = r"(?i)\b(?:the|and|of|to|a|in|for|with|this|that|is|was|are|were|we|results|study|can|will|an|as|at|by|or)\b"
-        df_passed_heuristics = df.filter(pl.col("text").str.contains(english_pattern))
-        df_failed_heuristics = df.filter(~pl.col("text").str.contains(english_pattern))
-
-        print(
-            f"  Heuristics: {df_passed_heuristics.height:,} passed, {df_failed_heuristics.height:,} failed"
-        )
-
-        # Always use lingua on texts that failed heuristics
-        if df_failed_heuristics.height > 0:
-            print(f"  Running lingua on {df_failed_heuristics.height:,} texts...")
-
-            detector = (
-                LanguageDetectorBuilder.from_languages(
-                    Language.ENGLISH, Language.FRENCH
-                )
-                .with_preloaded_language_models()
-                .build()
-            )
-
-            # Adaptive chunk size based on dataset size
-            chunk_size = min(200000, max(50000, df_failed_heuristics.height // 10))
-
-            confidences = []
-            total_chunks = (df_failed_heuristics.height + chunk_size - 1) // chunk_size
-
-            for idx, i in enumerate(range(0, df_failed_heuristics.height, chunk_size)):
-                chunk_texts = df_failed_heuristics[i : i + chunk_size]["text"].to_list()
-                chunk_confidences = (
-                    detector.compute_language_confidence_values_in_parallel(chunk_texts)
-                )
-                confidences.extend(chunk_confidences)
-
-                if (idx + 1) % 5 == 0 or (idx + 1) == total_chunks:
-                    print(f"    Processed {idx+1}/{total_chunks} chunks")
-
-                    # Extract English confidence scores efficiently
-            english_confidences = [
-                next((c.value for c in conf_list if c.language == Language.ENGLISH), 0)
-                for conf_list in confidences
-            ]
-
-            # Filter for high-confidence English texts - use mask for efficiency
-            # Lower the lingua confidence threshold to rescue more borderline sentences
-            english_mask = [conf >= 0.1 for conf in english_confidences]
-            df_lingua_rescued = df_failed_heuristics.filter(pl.Series(english_mask))
-
-            print(
-                f"  Lingua rescued {df_lingua_rescued.height:,} additional English texts"
-            )
-
-            # Combine results
-            df = pl.concat([df_passed_heuristics, df_lingua_rescued])
-        else:
-            df = df_passed_heuristics
-
-            # Write output
-        df.write_parquet(
-            output.filtered,
-            compression="snappy",  # Faster compression
-            statistics=False,
-            use_pyarrow=True,
-            row_group_size=100000,  # Optimize row group size
-        )
-
-        # Write stats as JSON for better parsing
-        elapsed = time.time() - start_time
-        stats = {
-            "chunk": wildcards.xmlchunk,
-            "processing_time_seconds": round(elapsed, 2),
-            "rows": {
-                "input": initial_rows,
-                "after_filters": before_lingua,
-                "final": df.height,
-                "reduction_percent": round((1 - df.height / initial_rows) * 100, 2),
-            },
-            "english_detection": {
-                "heuristics_passed": df_passed_heuristics.height,
-                "lingua_rescued": (
-                    df_lingua_rescued.height if "df_lingua_rescued" in locals() else 0
-                ),
-                "lingua_processed": df_failed_heuristics.height,
-            },
-        }
-
-        import json
-
-        os.makedirs(os.path.dirname(output.stats), exist_ok=True)
-        with open(output.stats, "w") as f:
-            json.dump(stats, f, indent=2)
-
-
 rule merge_filtered:
     input:
-        chunks=get_filtered_chunks,
-        stats=get_chunk_stats,
+        chunks=get_parquet_chunks,
     output:
         os.path.join(DATA_DIR, "pmc_filtered.parquet"),
     resources:
         slurm_partition="cpu,cpu_il",
-        runtime=600, 
+        runtime=600,
         mem_mb=128 * 1024,
         tasks=32, 
     run:
@@ -718,7 +501,7 @@ rule merge_filtered:
         # Write directly — avoid holding all_dfs in memory
         result.sink_parquet(
             output[0],
-            compression="snappy",
+            compression="zstd",
             row_group_size=1_000_000,   # Bigger row groups = faster writes
         )
 
@@ -726,7 +509,6 @@ rule merge_filtered:
 rule create_summary:
     input:
         data=os.path.join(DATA_DIR, "pmc_filtered.parquet"),
-        stats=get_chunk_stats,
     output:
         os.path.join(STATS_DIR, "processing_summary.json"),
     resources:
@@ -734,17 +516,13 @@ rule create_summary:
     run:
         import json
         from datetime import datetime
+        import os
+        import polars as pl
 
-        # Load all chunk stats
-        all_stats = []
-        for stats_file in input.stats:
-            with open(stats_file) as f:
-                all_stats.append(json.load(f))
-
-        # Calculate aggregated statistics
-        total_input = sum(s["rows"]["input"] for s in all_stats)
-        total_output = sum(s["rows"]["final"] for s in all_stats)
-        total_time = sum(s["processing_time_seconds"] for s in all_stats)
+        chunk_paths = get_parquet_chunks({})
+        rows_df = pl.scan_parquet(input.data).select(pl.len().alias("rows")).collect()
+        total_rows = rows_df[0, "rows"] if rows_df.height else 0
+        output_bytes = os.path.getsize(input.data) if os.path.exists(input.data) else 0
 
         # Create summary
         summary = {
@@ -753,27 +531,15 @@ rule create_summary:
                 "baseline_date": BASELINE_DATE,
                 "chunk_rows": CHUNK_ROWS,
                 "pmc_datasets": len(PMC),
-                "total_chunks": len(all_stats),
+                "total_chunks": len(chunk_paths),
             },
             "overall_statistics": {
-                "total_input_rows": total_input,
-                "total_output_rows": total_output,
-                "overall_reduction_percent": round(
-                    (1 - total_output / total_input) * 100, 2
-                ),
-                "total_processing_time_seconds": round(total_time, 2),
-                "average_chunk_time_seconds": round(total_time / len(all_stats), 2),
+                "total_rows": total_rows,
+                "chunks_merged": len(chunk_paths),
+                "output_file_bytes": output_bytes,
             },
             "filtering_statistics": {
-                "total_heuristics_passed": sum(
-                    s["english_detection"]["heuristics_passed"] for s in all_stats
-                ),
-                "total_lingua_rescued": sum(
-                    s["english_detection"]["lingua_rescued"] for s in all_stats
-                ),
-                "total_lingua_processed": sum(
-                    s["english_detection"]["lingua_processed"] for s in all_stats
-                ),
+                "english_filtering_enabled": False,
             },
             "output_location": str(output[0]),
             "data_location": str(input.data),
@@ -787,10 +553,11 @@ rule create_summary:
         print("\n" + "=" * 60)
         print("PROCESSING COMPLETE")
         print("=" * 60)
-        print(f"Total rows processed: {total_input:,}")
-        print(f"Final dataset size: {total_output:,}")
-        print(f"Reduction: {summary['overall_statistics']['overall_reduction_percent']:.1f}%")
-        print(f"Processing time: {total_time/60:.1f} minutes")
+        print(f"Total rows processed: {total_rows:,}")
+        print(f"Combined chunks: {len(chunk_paths)}")
+        print(f"Output size (bytes): {output_bytes:,}")
         print(f"Output saved to: {input.data}")
         print(f"Summary saved to: {output[0]}")
         print("=" * 60)
+
+

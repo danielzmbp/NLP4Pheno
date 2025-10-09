@@ -19,8 +19,10 @@ corpus = "corpus" + str(config["dataset"])
 preds = config["output_path"].rstrip("/") + "/preds" + str(config["dataset"])
 parquet_file = config["pmc_parquet_file"]
 
+STRAIN_PART_COUNT = 250
+
 COMMON_RESOURCES = {
-    "slurm_partition": "cpu",
+    "slurm_partition": "cpu,cpu_il",
     "runtime": 30,
     "mem_mb": 3000,
     "cpus_per_task": 2,
@@ -112,7 +114,7 @@ def create_device_model_mapping(device_list, model_list):
     ]
 
 
-PARTS = [f"{i:04d}" for i in range(1000)]
+PARTS = [f"{i:04d}" for i in range(STRAIN_PART_COUNT)]
 
 
 rule all:
@@ -125,16 +127,13 @@ rule generate_corpus:
         parquet_file,
     output:
         expand(corpus + "/{part}.txt", part=PARTS),
-    params:
-        corpus_size=1000,
-        corpus_dir=corpus,
     resources:
-        slurm_partition="cpu",
-        runtime=1440,
+        slurm_partition="cpu,cpu_il",
+        runtime=200,
         mem_mb=64000,
         cpus_per_task=4,
-    shell:
-        "python scripts/generate_corpus_optimized.py {input} {params.corpus_dir} {params.corpus_size}"
+    script:
+        "scripts/generate_corpus_optimized.py"
 
 
 rule make_strain_file:
@@ -157,15 +156,16 @@ rule run_strain_prediction:
         corpus_file=corpus + "/{part}.txt",
         dev=preds + "/NER_output/device_strain.txt",
     output:
-        preds + "/NER_output/STRAIN/{part}.parquet",
+        temp(preds + "/NER_output/STRAIN/{part}.parquet"),
     conda:
         "envs/pytorch.yml"
     retries: 3
     resources:
         slurm_partition="gpu_h100,gpu_a100_il,gpu_h100_il",
         slurm_extra="--gres=gpu:1",
-        runtime=105,
+        runtime=80,
         mem_mb=8000,
+        cpus_per_task=4,
     shell:
         """
         mkdir -p {preds}/NER_output/STRAIN
@@ -186,7 +186,7 @@ rule merge_strain_predictions:
     output:
         preds + "/NER_output/STRAIN/strains.parquet",
     resources:
-        slurm_partition="cpu",
+        slurm_partition="cpu,cpu_il",
         runtime=120,
         mem_mb=32000,
         cpus_per_task=8,
@@ -194,7 +194,7 @@ rule merge_strain_predictions:
         import os
 
         strain_dir = preds + "/NER_output/STRAIN/"
-        file_paths = [os.path.join(strain_dir, f"{i:04d}.parquet") for i in range(1000)]
+        file_paths = [os.path.join(strain_dir, f"{i:04d}.parquet") for i in range(STRAIN_PART_COUNT)]
         df = process_ner_predictions(file_paths, cutoff)
         df.to_parquet(output[0], compression="snappy")
 
@@ -232,7 +232,7 @@ rule run_all_models:
     resources:
         slurm_partition="gpu_h100,gpu_a100_il,gpu_h100_il",
         slurm_extra="--gres=gpu:1",
-        runtime=1000,
+        runtime=STRAIN_PART_COUNT,
         mem_mb=8000,
     shell:
         """
@@ -252,7 +252,7 @@ rule agg_model_results:
     output:
         preds + "/NER_output/strain_preds.parquet",
     resources:
-        slurm_partition="cpu",
+        slurm_partition="cpu,cpu_il",
         runtime=180,
         mem_mb=48000,
         cpus_per_task=12,
@@ -299,7 +299,7 @@ rule merge_preds:
     output:
         preds + "/NER_output/preds.parquet",
     resources:
-        slurm_partition="cpu",
+        slurm_partition="cpu,cpu_il",
         runtime=180,
         mem_mb=32000,
         cpus_per_task=8,

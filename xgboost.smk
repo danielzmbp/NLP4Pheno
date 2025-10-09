@@ -402,7 +402,7 @@ rule xgboost_binary_join:
         path + f"/xgboost/annotations{DATA}/binary/binary.pkl",
     resources:
         slurm_partition="cpu,cpu_il",
-        runtime=30,
+        runtime=300,
         tasks=2,
         mem_mb=40000,
     params:
@@ -426,7 +426,7 @@ rule evolution_dataset:
     params:
         path = path,
         data = DATA
-    threads: 4
+    threads: 16
     resources:
         slurm_partition = "cpu,cpu_il",
         runtime         = 500,

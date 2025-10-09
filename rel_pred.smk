@@ -207,10 +207,14 @@ rule split_batches_strainselect:
         import sys
 
         sys.path.append("scripts")
-        from entity_normalization import create_vertex_dot_column
+        from entity_normalization import create_vertex_dot_column, extract_genus_hint
 
         # Use polars for efficient processing
         df = pl.read_parquet(input[0])
+
+        # Add genus hints from sentence context (CRITICAL for improved matching)
+        df = extract_genus_hint(df)
+
         df = create_vertex_dot_column(df)
 
         # Filter out short matches that are likely noise
@@ -235,217 +239,155 @@ rule match_batch_strainselect:
         batch_output=f"{preds}/batched_output_results/{{batch_id}}.parquet",
     resources:
         slurm_partition="cpu,cpu_il",
-        runtime=3000,
-        mem_mb=80000,
-        tasks=20,
+        runtime=1000,
+        mem_mb=10000,
+    threads: 8
     run:
-        workers = 20
-        
-        # Extract batch ID for progress tracking
-        batch_id = wildcards.batch_id
-        print(f"[BATCH {batch_id}] Starting strain matching process...")
+        import sys
+        sys.path.append("scripts")
+        from improved_strain_matching import match_strains_improved, filter_ambiguous_matches
+        from rapidfuzz import process, fuzz
 
+        workers = threads
+
+        batch_id = wildcards.batch_id
+        print(f"[BATCH {batch_id}] Starting HYBRID strain matching process...")
+
+        # Load batch data (now includes genus_hint column)
         df = pd.read_parquet(input[0])
-        vertices = pd.read_csv(input[1], sep="\t", usecols=[0, 1, 2])
+
+        # Load vertices database
+        vertices = pd.read_csv(input[1], sep="\t", usecols=[0, 1, 2], low_memory=False)
         vertices["vertex_dot"] = vertices.vertex.str.replace("_", ".").str.lower()
 
-        strains = (
+        # Clean strain names
+        strains_series = (
             df.vertex_dot.str.replace("\.$", "", regex=True)
             .str.replace("^\.", "", regex=True)
-            .unique()
         )
-        strains = [strain for strain in strains if len(strain.replace(".", "")) > 2]
 
-        vertices_noass = vertices[
-            (vertices.vertex_type.str.endswith("_assembly") == False)
-            & (vertices.vertex_type != "gold_org")
-            & (vertices.vertex_type != "patric_genome")
-            & (vertices.vertex_type != "kegg_genome")
-            & (vertices.vertex.str.contains("GCF_") == False)
-            & (vertices.vertex.str.contains("GCA_") == False)
-        ].vertex_dot.to_list()  # Remove assembly accessions
-        
-        print(f"[BATCH {batch_id}] Data loaded: {len(df)} rows, {len(strains)} unique strains, {len(vertices_noass)} vertices for matching")
+        # Filter out very short strains (likely noise)
+        mask = strains_series.str.replace(".", "", regex=False).str.len() > 2
+        strains_series = strains_series[mask]
 
+        # Get genus hints aligned with strains
+        genus_hints_series = df.loc[strains_series.index, 'genus_hint'] if 'genus_hint' in df.columns else None
 
-        def all_combinations(text):
-            for length in range(len(text) + 1):
-                for combo in itertools.combinations(text.split("."), length):
-                    yield ".".join(combo)
+        # Get unique strains (but keep genus hints)
+        strain_genus_df = pd.DataFrame({
+            'strain': strains_series,
+            'genus_hint': genus_hints_series if genus_hints_series is not None else None
+        }).drop_duplicates(subset=['strain'])
 
+        print(f"[BATCH {batch_id}] Data loaded: {len(df)} rows, {len(strain_genus_df)} unique strains")
+        if genus_hints_series is not None:
+            n_with_genus = strain_genus_df['genus_hint'].notna().sum()
+            print(f"[BATCH {batch_id}] Genus hints: {n_with_genus} / {len(strain_genus_df)} ({100*n_with_genus/len(strain_genus_df):.1f}%)")
 
-        def filter_strains(df):
-            def check_strainselectid(group):
-                return len(group["StrainSelectID"].unique()) == 1
-
-            filtered = df.groupby("strain").filter(check_strainselectid)
-
-            return filtered.groupby("strain").head(1)
-
-
-        def g(df):
-            return df[
-                df.groupby("strain")["score_partial"].transform("max")
-                == df["score_partial"]
-            ]
-
-
-        def gf(df):
-            return df[
-                df.groupby("strain")["score_full"].transform("max") == df["score_full"]
-            ]
-
-
-        def to_sparse(chunk):
-            return csr_matrix(chunk)
-
-        print(f"[BATCH {batch_id}] Starting partial fuzzy matching (score cutoff: 95)...")
-        all_matches_partial = process.cdist(
-            strains,
-            vertices_noass,
-            scorer=fuzz.partial_ratio,
+        # STEP 1: Try NEW (improved) matching algorithm
+        print(f"[BATCH {batch_id}] STEP 1/2: Running improved context-aware matching...")
+        new_matches = match_strains_improved(
+            strains=strain_genus_df['strain'],
+            vertices=vertices,
+            genus_hints=strain_genus_df['genus_hint'] if 'genus_hint' in strain_genus_df.columns else None,
             workers=workers,
-            score_cutoff=95,
+            verbose=False
         )
-        print(f"[BATCH {batch_id}] Partial fuzzy matching completed, matrix shape: {all_matches_partial.shape}")
+        new_matches = filter_ambiguous_matches(new_matches, score_threshold=5.0)
 
-        dask_array = da.from_array(
-            all_matches_partial,
-            chunks=(
-                all_matches_partial.shape[0],
-                all_matches_partial.shape[1] // (workers - 1),
-            ),
-        )
-        del all_matches_partial
-        sparse_matrix_dask = dask_array.map_blocks(to_sparse, dtype=csr_matrix)
-        all_matches_partial_sparse = sparse_matrix_dask.compute()
-        del sparse_matrix_dask
+        # STEP 2: Fallback to OLD strategy for unmatched strains
+        matched_by_new = set(new_matches['strain'].tolist()) if len(new_matches) > 0 else set()
+        unmatched_strains = [s for s in strain_genus_df['strain'] if s not in matched_by_new]
 
-        nonzero_row_indices, nonzero_col_indices = all_matches_partial_sparse.nonzero()
-        nonzero_values = all_matches_partial_sparse.data
+        print(f"[BATCH {batch_id}] NEW matched: {len(matched_by_new)}/{len(strain_genus_df)}")
+        print(f"[BATCH {batch_id}] STEP 2/2: Running OLD strategy on {len(unmatched_strains)} unmatched strains...")
 
-        df_all_matches_partial = pd.DataFrame(
-            {
-                "strain": nonzero_row_indices,
-                "strainselect": nonzero_col_indices,
-                "score_partial": nonzero_values,
-            }
-        )
+        if len(unmatched_strains) > 0:
+            # OLD strategy: simple fuzzy matching without genus filtering
+            vertices_noass = vertices[vertices.vertex_type == 'gss'].copy()
+            vertices_list = vertices_noass.vertex_dot.to_list()
 
-        df_all_matches_partial["strain"] = df_all_matches_partial["strain"].map(
-            lambda x: strains[x]
-        )
-        df_all_matches_partial["strainselect"] = df_all_matches_partial[
-            "strainselect"
-        ].map(lambda x: vertices_noass[x])
-
-        print(f"[BATCH {batch_id}] Processing partial matches: {len(df_all_matches_partial)} initial matches found")
-        
-        high_abundant = (
-            df_all_matches_partial.groupby("strain").size().sort_values(ascending=False)
-        )
-        high_abundant = high_abundant[high_abundant < 2000].index.to_list()
-        filtered_df_all_matches_partial = df_all_matches_partial[
-            df_all_matches_partial["strain"].isin(high_abundant)
-        ].copy()
-
-        print(f"[BATCH {batch_id}] Filtered to {len(filtered_df_all_matches_partial)} matches (removed high-abundance strains)")
-        
-        del high_abundant, df_all_matches_partial
-        def get_score_parts(row):
-            choices = list(all_combinations(row["strainselect"]))[1:]
-            if not choices:  # Handle empty choice list
-                return 0
-            result = process.extractOne(row["strain"], choices, score_cutoff=60)
-            return result[1] if result else 0
-
-        print(f"[BATCH {batch_id}] Calculating score_parts for {len(filtered_df_all_matches_partial)} matches...")
-        filtered_df_all_matches_partial["score_parts"] = [
-            get_score_parts(row) for _, row in tqdm(filtered_df_all_matches_partial.iterrows(), 
-                                                   total=len(filtered_df_all_matches_partial),
-                                                   desc=f"Batch {batch_id} score_parts")
-        ]
-
-        filtered_df_all_matches_partial = filtered_df_all_matches_partial.merge(
-            vertices, left_on="strainselect", right_on="vertex_dot"
-        )
-
-        df_matches_partial = filter_strains(g(filtered_df_all_matches_partial))
-        del filtered_df_all_matches_partial
-        df_matches_partial = df_matches_partial[
-            df_matches_partial["score_partial"] > 70
-        ]
-        df_matches_partial = df_matches_partial[
-            ~(
-                (df_matches_partial["score_parts"] <= 90)
-                & (df_matches_partial["vertex_type"] == "biocyc_pgdb")
+            partial_matches = process.cdist(
+                unmatched_strains,
+                vertices_list,
+                scorer=fuzz.partial_ratio,
+                workers=workers,
+                score_cutoff=90
             )
-        ]
-        
-        print(f"[BATCH {batch_id}] Partial matching results: {len(df_matches_partial)} final matches")
 
-        # Full matches
-        strains_left = list(set(strains) - set(df_matches_partial["strain"].unique()))
-        print(f"[BATCH {batch_id}] Starting full fuzzy matching for {len(strains_left)} remaining strains (score cutoff: 90)...")
+            old_matches_list = []
+            for i, strain in enumerate(unmatched_strains):
+                strain_scores = partial_matches[i]
+                if strain_scores.max() > 0:
+                    best_idx = strain_scores.argmax()
+                    best_match = vertices_list[best_idx]
+                    best_score = strain_scores[best_idx]
 
-        all_matches_full = process.cdist(
-            strains_left, vertices_noass, workers=workers, score_cutoff=90
-        )
-        print(f"[BATCH {batch_id}] Full fuzzy matching completed, matrix shape: {all_matches_full.shape}")
+                    old_matches_list.append({
+                        'strain': strain,
+                        'strainselect': best_match,
+                        'score_weighted': best_score,
+                        'score_partial': best_score
+                    })
 
-        dask_array = da.from_array(
-            all_matches_full,
-            chunks=(
-                all_matches_full.shape[0],
-                all_matches_full.shape[1] // (workers - 1),
-            ),
-        )
-        del all_matches_full
-        sparse_matrix_dask = dask_array.map_blocks(to_sparse, dtype=csr_matrix)
-        all_matches_full_sparse = sparse_matrix_dask.compute()
-        del sparse_matrix_dask
+            if len(old_matches_list) > 0:
+                old_fallback = pd.DataFrame(old_matches_list)
+                old_fallback = old_fallback.merge(
+                    vertices_noass[['vertex_dot', 'vertex', 'vertex_type', 'StrainSelectID']],
+                    left_on='strainselect',
+                    right_on='vertex_dot',
+                    how='left'
+                )
+                # Combine NEW + OLD
+                matches = pd.concat([new_matches, old_fallback], ignore_index=True)
+                print(f"[BATCH {batch_id}] OLD matched: {len(old_fallback)} additional strains")
+            else:
+                matches = new_matches
+                print(f"[BATCH {batch_id}] OLD matched: 0 additional strains")
+        else:
+            matches = new_matches
 
+        print(f"[BATCH {batch_id}] HYBRID TOTAL: {len(matches)}/{len(strain_genus_df)} unique strains matched")
 
-        nonzero_row_indices, nonzero_col_indices = all_matches_full_sparse.nonzero()
-        nonzero_values = all_matches_full_sparse.data
-
-        df_all_matches_full = pd.DataFrame(
-            {
-                "strain": nonzero_row_indices,
-                "strainselect": nonzero_col_indices,
-                "score_full": nonzero_values,
-            }
-        )
-
-        df_all_matches_full["strain"] = df_all_matches_full["strain"].map(
-            lambda x: strains_left[x]
-        )
-        df_all_matches_full["strainselect"] = df_all_matches_full["strainselect"].map(
-            lambda x: vertices_noass[x]
-        )
-
-        filtered_df_all_matches_full = df_all_matches_full.merge(
-            vertices, left_on="strainselect", right_on="vertex_dot"
+        # Merge matches back to original df
+        # Clean vertex_dot in df for matching
+        df_clean = df.copy()
+        df_clean['vertex_dot_clean'] = (
+            df_clean.vertex_dot.str.replace("\.$", "", regex=True)
+            .str.replace("^\.", "", regex=True)
         )
 
-        df_matches_full = filter_strains(gf(filtered_df_all_matches_full))
-        print(f"[BATCH {batch_id}] Full matching results: {len(df_matches_full)} matches")
+        # Drop score_partial from matches to avoid duplicate after rename
+        if 'score_partial' in matches.columns:
+            matches = matches.drop(columns=['score_partial'])
 
-        matches = pd.concat([df_matches_full, df_matches_partial], ignore_index=True)
-        print(f"[BATCH {batch_id}] Combined matches: {len(matches)} total matches from {len(strains)} strains")
+        final = df_clean.merge(
+            matches,
+            left_on='vertex_dot_clean',
+            right_on='strain',
+            how='left'
+        )
 
-        final = df.merge(matches, left_on="vertex_dot", right_on="strain", how="left")
-        final = final.drop(
-            columns=["vertex_dot_x", "vertex_dot_y", "strainselect", "strain"]
+        # Rename columns to match expected output format
+        final = final.drop(columns=['vertex_dot_clean', 'vertex_dot_y', 'strainselect', 'strain'], errors='ignore')
+        if 'vertex_dot_x' in final.columns:
+            final = final.rename(columns={'vertex_dot_x': 'vertex_dot'})
+
+        final = final.rename(
+            columns={
+                "vertex": "strainselect_vertex",
+                "score_weighted": "score_partial"
+            },
+            errors='ignore'
         )
-        final.rename(
-            columns={"score": "ner_score", "vertex": "strainselect_vertex"},
-            inplace=True,
-        )
-        
+
+        # Add score_full as NaN (not used in improved matching)
+        if 'score_full' not in final.columns:
+            final['score_full'] = np.nan
+
         # Final statistics
-        matched_rows = (~final['score_partial'].isna()).sum() + (~final['score_full'].isna()).sum()
-        print(f"[BATCH {batch_id}] COMPLETED: {matched_rows}/{len(final)} rows have strain matches ({100*matched_rows/len(final):.1f}%)")
+        matched_rows = final['StrainSelectID'].notna().sum()
+        print(f"[BATCH {batch_id}] FINAL RESULTS: {matched_rows}/{len(final)} rows have strain matches ({100*matched_rows/len(final):.1f}%)")
 
         final.to_parquet(output[0])
 
