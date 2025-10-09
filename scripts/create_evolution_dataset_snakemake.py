@@ -116,58 +116,71 @@ def process_strain(strain, folder_path, protein_ids):
     return output_faa, output_fna
 
 
-def select_best_entry_prioritizing_families(df_group, ip_names_pl, max_rank=10):
+def select_rank_1_entry(df_group, ip_names_pl):
     """
-    Select the best InterPro entry prioritizing Family entries over other types.
-    
+    Select the rank 1 entry and join with InterPro information.
+
     Args:
         df_group: DataFrame group with same rel/ner combination
         ip_names_pl: Polars DataFrame with InterPro entry information including ENTRY_TYPE
-        max_rank: Maximum importance ranking to consider (default: 10)
-    
+
     Returns:
-        Single row with the best entry (preferring Family types)
+        Single row with rank 1 entry including ENTRY_TYPE and ENTRY_AC
     """
-    # Join with InterPro entry types
-    df_with_types = df_group.join(ip_names_pl, left_on="gene", right_on="ENTRY_NAME", how="left")
-    
-    # Filter to reasonable importance rankings
-    df_filtered = df_with_types.filter(pl.col("importance_ranking") <= max_rank)
-    
-    if df_filtered.is_empty():
-        # Fallback to original logic if no entries within max_rank
-        return df_group.filter(pl.col("importance_ranking") == df_group["importance_ranking"].min()).head(1)
-    
-    # First, try to find Family entries, ordered by importance_ranking
-    family_entries = df_filtered.filter(pl.col("ENTRY_TYPE") == "Family").sort("importance_ranking")
-    
-    if not family_entries.is_empty():
-        return family_entries.head(1)
-    
-    # If no Family entries, fallback to best importance ranking
-    return df_filtered.sort("importance_ranking").head(1)
+    # Get rank 1 entry
+    rank_1_entry = df_group.filter(pl.col("importance_ranking") == 1).head(1)
+
+    if rank_1_entry.is_empty():
+        # Fallback to best available ranking
+        rank_1_entry = df_group.filter(pl.col("importance_ranking") == df_group["importance_ranking"].min()).head(1)
+
+    # Join with InterPro entry types to get ENTRY_TYPE and ENTRY_AC
+    entry_with_types = rank_1_entry.join(ip_names_pl, left_on="gene", right_on="ENTRY_NAME", how="left")
+
+    return entry_with_types
 
 
 # @profile
-def create_evolution_dataset(df, path, data, outdir):
+def create_evolution_dataset(df, path, data, outdir, ip_names_pl):
     """Create evolution dataset with optimized processing"""
     os.makedirs(outdir, exist_ok=True)
 
     df = pl.from_pandas(df)
-    
-    # Apply family prioritization logic instead of just taking rank 1
-    # Group by rel and ner, then select best entry per group prioritizing families
+
+    # Initialize summary tracking
+    summary_records = []
+
+    # Select rank 1 entries only
+    # Group by rel and ner, then select rank 1 entry per group
     grouped_results = []
     unique_combinations = df.select(["rel", "ner"]).unique()
-    
+
+    print(f"Processing {len(unique_combinations)} unique rel-ner combinations")
+
     for row in unique_combinations.iter_rows(named=True):
         rel, ner = row["rel"], row["ner"]
         group_df = df.filter((pl.col("rel") == rel) & (pl.col("ner") == ner))
-        
-        # Select best entry for this rel/ner combination, prioritizing families
-        best_entry = select_best_entry_prioritizing_families(group_df, ip_names_pl)
-        grouped_results.append(best_entry)
-    
+
+        print(f"Processing {rel} - {ner} ({len(group_df)} candidates)")
+
+        # Select rank 1 entry for this rel/ner combination
+        rank_1_entry = select_rank_1_entry(group_df, ip_names_pl)
+        grouped_results.append(rank_1_entry)
+
+        # Track selection for summary
+        if len(rank_1_entry) > 0:
+            entry_data = rank_1_entry.row(0, named=True)
+            summary_records.append({
+                "rel": rel,
+                "ner": ner,
+                "selected_gene": entry_data.get("gene", "Unknown"),
+                "entry_type": entry_data.get("ENTRY_TYPE", "Unknown"),
+                "entry_ac": entry_data.get("ENTRY_AC", "Unknown"),
+                "importance_ranking": entry_data.get("importance_ranking", "Unknown"),
+                "importance_value": entry_data.get("importance_values", "Unknown"),
+                "accuracy": entry_data.get("accuracy", "Unknown")
+            })
+
     # Combine all selected entries
     if grouped_results:
         df = pl.concat(grouped_results)
@@ -175,6 +188,24 @@ def create_evolution_dataset(df, path, data, outdir):
     else:
         # Fallback to empty dataframe with proper schema
         df = pl.DataFrame(schema=df.schema)
+
+    # Save selection summary
+    if summary_records:
+        summary_df = pd.DataFrame(summary_records)
+        summary_path = f"{outdir}/selection_summary.csv"
+        summary_df.to_csv(summary_path, index=False)
+        print(f"Saved selection summary to {summary_path}")
+
+        # Print summary statistics
+        family_count = sum(1 for r in summary_records if r["entry_type"] == "Family")
+        total_count = len(summary_records)
+        print(f"Rank 1 Selection Summary: {family_count}/{total_count} ({family_count/total_count*100:.1f}%) Family entries at rank 1")
+
+        # Print entry type distribution
+        type_counts = summary_df["entry_type"].value_counts()
+        print("Entry type distribution (rank 1 entries):")
+        for entry_type, count in type_counts.items():
+            print(f"  {entry_type}: {count} ({count/total_count*100:.1f}%)")
     
     # Process relationships in batches for better memory management
     unique_rels = df["rel"].unique().to_list()
@@ -203,14 +234,27 @@ def create_evolution_dataset(df, path, data, outdir):
                     sa_ner_df = parq.filter(pl.col("word_qc_group") == row["ner"])
                     if sa_ner_df.is_empty():
                         continue
-                        
+
+                    # Use the ENTRY_AC from the selected entry (now properly preserved)
+                    entry_ac = row.get("ENTRY_AC")
+                    if entry_ac is None:
+                        print(f"  Warning: No ENTRY_AC found for {row['gene']}, skipping")
+                        continue
+
                     strain_filter = parq.filter(
-                        (pl.col("InterPro_accession") == row["ENTRY_AC"]) &
+                        (pl.col("InterPro_accession") == entry_ac) &
                         (pl.col("word_qc_group") == row["ner"])
                     )
-                    
+
                     if strain_filter.is_empty():
+                        print(f"  Warning: No data found for InterPro {entry_ac} with NER {row['ner']}")
                         continue
+
+                    # Log what we're processing
+                    entry_type = row.get("ENTRY_TYPE", "Unknown")
+                    gene_name = row.get("gene", "Unknown")
+                    ranking = row.get("importance_ranking", "Unknown")
+                    print(f"  Processing rank 1 {entry_type} entry '{gene_name}' ({entry_ac})")
                         
                     strains = (strain_filter["sa_ner"]
                               .str.split("!")
@@ -449,8 +493,36 @@ ip_names["ENTRY_NAME"] = (
 ip_names_pl = pl.from_pandas(ip_names.reset_index())
 
 df = load_pickle(PATH, DATA)
-create_evolution_dataset(df, PATH, DATA, OUTDIR)
+create_evolution_dataset(df, PATH, DATA, OUTDIR, ip_names_pl)
 deduplicate_dataset(PATH, DATA)
+
+# Print final summary if selection_summary.csv was created
+summary_path = f"{OUTDIR}/selection_summary.csv"
+if os.path.exists(summary_path):
+    print("\n" + "="*60)
+    print("FINAL SELECTION SUMMARY")
+    print("="*60)
+
+    summary_df = pd.read_csv(summary_path)
+    total_selections = len(summary_df)
+    family_selections = len(summary_df[summary_df["entry_type"] == "Family"])
+
+    print(f"Total rank 1 selections made: {total_selections}")
+    print(f"Family entries at rank 1: {family_selections} ({family_selections/total_selections*100:.1f}%)")
+    print(f"Non-family entries at rank 1: {total_selections - family_selections} ({(total_selections - family_selections)/total_selections*100:.1f}%)")
+
+    print("\nEntry type breakdown (rank 1 entries):")
+    type_counts = summary_df["entry_type"].value_counts().sort_values(ascending=False)
+    for entry_type, count in type_counts.items():
+        print(f"  {entry_type}: {count} ({count/total_selections*100:.1f}%)")
+
+    print(f"\nRanking verification (should all be 1):")
+    ranking_counts = summary_df["importance_ranking"].value_counts().sort_index()
+    for ranking, count in ranking_counts.items():
+        print(f"  Rank {ranking}: {count} entries")
+
+    print(f"\nDetailed summary saved to: {summary_path}")
+    print("="*60)
 
 # Touch the flag-file **only if everything succeeded**
 if DONE is not None:
