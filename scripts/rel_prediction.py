@@ -23,6 +23,7 @@ import pandas as pd
 from tqdm import tqdm
 from torch.utils.data import Dataset
 import argparse
+import torch
 
 
 class ListDataset(Dataset):
@@ -51,6 +52,9 @@ parser.add_argument('--model', type=str, help='Relation type (e.g., STRAIN-COMPO
 parser.add_argument('--device', type=int, default=0, help='GPU device ID')
 parser.add_argument('--input', type=str, help='Input Parquet file with NER predictions')
 parser.add_argument('--output', type=str, help='Output Parquet file for RE predictions')
+parser.add_argument('--no-half-precision', dest='half_precision', action='store_false',
+                    help='run inference in float32 on GPU')
+parser.set_defaults(half_precision=True)
 
 args = parser.parse_args()
 m = args.model  # Relation type identifier
@@ -58,12 +62,31 @@ m = args.model  # Relation type identifier
 # Load trained RE model and tokenizer
 path = f"REL_output/{m}/"
 tokenizer = AutoTokenizer.from_pretrained(path)
-model = AutoModelForSequenceClassification.from_pretrained(path)
+model_kwargs = {}
+if args.half_precision:
+    if args.device < 0:
+        raise ValueError('Half precision requires a GPU device (device index >= 0). Use --no-half-precision for CPU runs.')
+    model_kwargs['torch_dtype'] = torch.float16
+
+model = AutoModelForSequenceClassification.from_pretrained(path, **model_kwargs)
+
+if args.half_precision:
+    model = model.to(f"cuda:{args.device}")
+
+pipeline_kwargs = dict(
+    task='text-classification',
+    model=model,
+    tokenizer=tokenizer,
+    device=args.device,
+    truncation=True,
+    max_length=512,
+)
+
+if args.half_precision:
+    pipeline_kwargs['torch_dtype'] = torch.float16
 
 # Create inference pipeline with truncation enabled
-nlp = pipeline(task='text-classification', model=model,
-               tokenizer=tokenizer, device=args.device,
-               truncation=True, max_length=512)
+nlp = pipeline(**pipeline_kwargs)
 
 # Extract entity types from relation name
 # e.g., "STRAIN-COMPOUND:RESISTS" -> ["STRAIN", "COMPOUND"]
@@ -92,10 +115,12 @@ result = []
 
 # Apply RE model to classify relationships
 print(f"Processing {len(dataset)} entity pairs for relation {m}")
-for out in tqdm(nlp(dataset, batch_size=32), total=len(dataset)):
-    result.append(out)
+with torch.inference_mode():
+    for out in tqdm(nlp(dataset, batch_size=256), total=len(dataset)):
+        result.append(out)
 
 # Add RE predictions to dataframe
+dfn = dfn.copy()
 dfn.loc[:, "re_result"] = result
 
 # Expand RE results into separate columns

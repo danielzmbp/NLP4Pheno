@@ -36,3 +36,4 @@ snakemake_PMC/output_previous/*
 snakemake_PMC/CLAUDE.md
 notebooks/__pycache__/
 CLAUDE.md
+notebooks/bacdive_config.py
