@@ -1,149 +1,201 @@
-#!/usr/bin/env python
-"""Generate corpus from parquet file for NER prediction - Optimized version."""
+#!/usr/bin/env python3
+"""Generate corpus shards from a Parquet file using a single streaming pass."""
 
-import os
-import sys
-import polars as pl
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+from typing import List, Sequence
+
+import pyarrow.compute as pc
+import pyarrow.dataset as ds
 import pyarrow.parquet as pq
-import time
-from datetime import datetime
-import gc
 
 
-def main():
-    start_time = time.time()
-    
-    # Get command line arguments
-    input_file = sys.argv[1]
-    output_dir = sys.argv[2]
-    corpus_size = int(sys.argv[3])
-    
-    # Convert to absolute path
-    output_dir = os.path.abspath(output_dir)
-    
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting optimized corpus generation")
-    print(f"Input file: {input_file}")
-    print(f"Output directory: {output_dir}")
-    print(f"Target corpus size: {corpus_size} files")
-    
-    # Get file size for progress estimation
-    file_size = os.path.getsize(input_file) / (1024**3)  # GB
-    print(f"Input file size: {file_size:.2f} GB")
-    
-    pfile = pq.ParquetFile(input_file)
-    
-    # Create output directory
-    try:
-        os.makedirs(output_dir, exist_ok=True)
-        print(f"Created/verified output directory: {output_dir}")
-    except Exception as e:
-        print(f"Error creating directory {output_dir}: {e}")
-        sys.exit(1)
-    
-    # First pass: count total lines
-    print("First pass: Counting total lines...")
-    total_lines = 0
-    for batch in pfile.iter_batches(columns=["text"], batch_size=3000000):
-        df = pl.from_arrow(batch)
-        df = df.filter(pl.col("text").is_not_null())
-        total_lines += len(df)
-    
-    print(f"Total lines in dataset: {total_lines:,}")
-    lines_per_file = total_lines // corpus_size
-    extra_lines = total_lines % corpus_size
-    print(f"Each file will contain approximately {lines_per_file:,} lines")
-    print(f"{extra_lines} files will have one extra line")
-    
-    # Initialize tracking variables
-    file_index = 0
-    buffer_of_lines = []
-    total_lines_processed = 0
-    files_written = []
-    current_file_target = lines_per_file + (1 if file_index < extra_lines else 0)
-    
-    # Optimized parameters for 68GB file
-    batch_size = 3000000  # Process 3M rows at a time for better throughput
-    
-    print(f"Processing in batches of {batch_size:,} rows...")
-    print(f"Distributing {total_lines:,} lines across {corpus_size} files")
-    
-    # Process batches
-    for batch_num, batch in enumerate(pfile.iter_batches(columns=["text"], batch_size=batch_size)):
-        batch_start = time.time()
-        
-        if file_index >= corpus_size:
-            print(f"\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Reached target corpus size. Stopping.")
-            break
-        
-        # Process batch efficiently
-        df = pl.from_arrow(batch)
-        df = df.filter(pl.col("text").is_not_null())  # More efficient than drop_nulls
-        
-        # Process in chunks to avoid memory issues
-        texts = df["text"].to_list()
-        
-        for i, line in enumerate(texts):
-            buffer_of_lines.append(line)
-            total_lines_processed += 1
-            
-            # Write file when buffer reaches target size for current file
-            if len(buffer_of_lines) >= current_file_target:
-                if file_index < corpus_size:
-                    output_file = f"{output_dir}/{file_index:04d}.txt"
-                    
-                    # Write with optimized I/O
-                    content = "\n".join(buffer_of_lines)
-                    with open(output_file, "w", buffering=131072) as f:  # 128KB buffer
-                        f.write(content)
-                    
-                    files_written.append(output_file)
-                    
-                    # Progress logging every 50 files  
-                    if file_index % 50 == 0:
-                        elapsed = time.time() - start_time
-                        progress_pct = (file_index / corpus_size) * 100
-                        print(f"File {file_index:04d}/{corpus_size} | Lines: {total_lines_processed:,} ({progress_pct:.1f}%)")
-                    
-                    file_index += 1
-                    
-                    # Update target for next file
-                    current_file_target = lines_per_file + (1 if file_index < extra_lines else 0)
-                    
-                buffer_of_lines = []  # Clear buffer
-                
-                if file_index >= corpus_size:
-                    break
-        
-        # Batch progress update (reduced verbosity)
-        if batch_num % 10 == 0:
-            elapsed = time.time() - start_time
-            progress_pct = (file_index / corpus_size) * 100 if corpus_size > 0 else 0
-            print(f"Progress: {file_index}/{corpus_size} files ({progress_pct:.1f}%) | {elapsed/60:.1f} min")
-            
-            # Force garbage collection periodically to free memory
-            if batch_num % 10 == 0:
-                gc.collect()
-    
-    # Write remaining lines to final file
-    if buffer_of_lines and file_index < corpus_size:
-        output_file = f"{output_dir}/{file_index:04d}.txt"
-        with open(output_file, "w", buffering=131072) as f:
-            f.write("\n".join(buffer_of_lines))
-        files_written.append(output_file)
-        print(f"Written final file {file_index:04d}.txt with {len(buffer_of_lines)} lines")
-        file_index += 1
-    
-    # Final summary
-    total_time = time.time() - start_time
-    print(f"\n{'='*60}")
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] CORPUS GENERATION COMPLETE")
-    print(f"{'='*60}")
-    print(f"Files created: {len(files_written)}")
-    print(f"Total lines processed: {total_lines_processed:,}")
-    print(f"Total time: {total_time/60:.1f} minutes ({total_time/3600:.2f} hours)")
-    print(f"Average rate: {total_lines_processed/total_time:.0f} lines/sec")
-    print(f"Output directory: {output_dir}")
+def _parse_cli_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Shard a Parquet `text` column into flat text files"
+    )
+    parser.add_argument("input", help="Path to the source Parquet file")
+    parser.add_argument("output_dir", help="Directory to emit corpus shards")
+    parser.add_argument("parts", type=int, help="Number of shards to create")
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=1_000_000,
+        help="Rows to read per Arrow batch",
+    )
+    parser.add_argument(
+        "--encoding",
+        default="utf-8",
+        help="Text encoding for output files",
+    )
+    parser.add_argument(
+        "--buffer-bytes",
+        type=int,
+        default=256 * 1024,
+        help="Buffered writer size to use while flushing shard files",
+    )
+    return parser.parse_args()
 
 
-if __name__ == "__main__":
-    main()
+def _partition_sizes(total_rows: int, parts: int) -> List[int]:
+    if parts <= 0:
+        return []
+    base = total_rows // parts
+    remainder = total_rows % parts
+    return [base + (1 if idx < remainder else 0) for idx in range(parts)]
+
+
+def _write_shard(path: Path, lines: List[str], *, encoding: str, buffer_bytes: int) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not lines:
+        path.write_text("", encoding=encoding)
+        return
+    with path.open("w", encoding=encoding, buffering=buffer_bytes) as handle:
+        handle.write("\n".join(lines))
+
+
+def generate_corpus(
+    input_parquet: Path,
+    output_paths: Sequence[Path],
+    *,
+    batch_size: int = 1_000_000,
+    encoding: str = "utf-8",
+    buffer_bytes: int = 256 * 1024,
+) -> None:
+    if not output_paths:
+        print("No output shards requested; exiting.")
+        return
+
+    parquet_file = pq.ParquetFile(str(input_parquet))
+    metadata = parquet_file.metadata
+    if metadata is not None and metadata.num_rows is not None:
+        total_rows = metadata.num_rows
+    elif metadata is not None:
+        total_rows = 0
+        for i in range(metadata.num_row_groups):
+            total_rows += metadata.row_group(i).num_rows
+    else:
+        # Fallback: stream once just to count rows (should rarely happen)
+        total_rows = 0
+        for batch in parquet_file.iter_batches(columns=["text"], batch_size=batch_size):
+            total_rows += len(batch.column(0))
+
+    shard_sizes = _partition_sizes(total_rows, len(output_paths))
+
+    print(f"Total rows: {total_rows:,}")
+    print(f"Shards requested: {len(output_paths)}")
+    if shard_sizes:
+        preview = ", ".join(
+            f"{idx:04d}:{size:,}" for idx, size in enumerate(shard_sizes[:5])
+        )
+        suffix = " …" if len(shard_sizes) > 5 else ""
+        print(f"First shards: {preview}{suffix}")
+
+    dataset = ds.dataset(str(input_parquet), format="parquet")
+    scanner = dataset.scanner(columns=["text"], batch_size=batch_size, use_threads=True)
+
+    current_part = 0
+    buffer: List[str] = []
+    filled = 0
+
+    for batch in scanner.to_batches():
+        column = batch.column(0)
+        if column.null_count:
+            column = pc.drop_null(column)
+        if len(column) == 0:
+            continue
+
+        values = column.to_pylist()
+        idx = 0
+
+        while idx < len(values) and current_part < len(output_paths):
+            target = shard_sizes[current_part] if shard_sizes else 0
+
+            if target == 0:
+                _write_shard(
+                    output_paths[current_part],
+                    [],
+                    encoding=encoding,
+                    buffer_bytes=buffer_bytes,
+                )
+                current_part += 1
+                filled = 0
+                buffer.clear()
+                continue
+
+            remaining = target - filled
+            take = min(remaining, len(values) - idx)
+            buffer.extend(values[idx : idx + take])
+            filled += take
+            idx += take
+
+            if filled == target:
+                _write_shard(
+                    output_paths[current_part],
+                    buffer,
+                    encoding=encoding,
+                    buffer_bytes=buffer_bytes,
+                )
+                current_part += 1
+                buffer = []
+                filled = 0
+
+    if buffer and current_part < len(output_paths):
+        _write_shard(
+            output_paths[current_part],
+            buffer,
+            encoding=encoding,
+            buffer_bytes=buffer_bytes,
+        )
+        current_part += 1
+
+    while current_part < len(output_paths):
+        _write_shard(
+            output_paths[current_part],
+            [],
+            encoding=encoding,
+            buffer_bytes=buffer_bytes,
+        )
+        current_part += 1
+
+    print("Done.")
+
+
+def _run_from_snakemake() -> None:
+    smk = globals()["snakemake"]
+    input_parquet = Path(str(smk.input[0]))
+    output_paths = [Path(p) for p in smk.output]
+    params = getattr(smk, "params", {})
+    batch_size = int(params.get("batch_size", 1_000_000))
+    encoding = params.get("encoding", "utf-8")
+    buffer_bytes = int(params.get("buffer_bytes", 256 * 1024))
+
+    generate_corpus(
+        input_parquet=input_parquet,
+        output_paths=output_paths,
+        batch_size=batch_size,
+        encoding=encoding,
+        buffer_bytes=buffer_bytes,
+    )
+
+
+def _run_from_cli() -> None:
+    args = _parse_cli_args()
+    output_paths = [
+        Path(args.output_dir) / f"{idx:04d}.txt" for idx in range(args.parts)
+    ]
+    generate_corpus(
+        input_parquet=Path(args.input),
+        output_paths=output_paths,
+        batch_size=args.batch_size,
+        encoding=args.encoding,
+        buffer_bytes=args.buffer_bytes,
+    )
+
+
+if "snakemake" in globals():
+    _run_from_snakemake()
+elif __name__ == "__main__":
+    _run_from_cli()
