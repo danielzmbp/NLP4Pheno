@@ -30,7 +30,7 @@ Before running any pipeline, adjust `config.yaml` to match your setup.
 |-----------|-------------|----------------|
 | `dataset` | Corpus identifier (determines output directories) | `1108` |
 | `cuda_devices` | GPU devices for training | `[0]` |
-| `input_file` | Path to manually annotated training data | `label/project-10-at-2025-08-12-12-58-599fecc8.json` |
+| `input_file` | Path to manually annotated training data | `label/project-10-at-2025-08-21-21-08-cb43bf25.json` |
 | `ner_epochs` | Training epochs for NER models | `15` |
 | `rel_epochs` | Training epochs for RE models | `25` |
 | `ner_test` | Test split ratio for NER | `0.2` |
@@ -43,7 +43,7 @@ Before running any pipeline, adjust `config.yaml` to match your setup.
 
 ### Entity Types
 ```yaml
-ner_labels: [STRAIN, SPECIES, ISOLATE, COMPOUND, MEDIUM, ORGANISM, PHENOTYPE, DISEASE]
+ner_labels: [STRAIN, SPECIES, ISOLATE, COMPOUND, MEDIUM, ORGANISM, PHENOTYPE, EFFECT, DISEASE]
 ```
 
 ### Relationship Types
@@ -105,11 +105,11 @@ snakemake --cores 20 --use-conda --executor slurm -s snakemake_PMC/Snakefile
 ## Data Preparation
 
 ### Annotation Data
-The manually annotated dataset is provided in `label/project-10-at-2025-08-12-12-58-599fecc8.json` (Label Studio JSON format).
+The manually annotated dataset is provided in `label/project-10-at-2025-08-21-21-08-cb43bf25.json` (Label Studio JSON format).
 
 **Format Requirements:**
 - Label Studio JSON export format
-- Must contain annotations for all 8 entity types: `STRAIN`, `SPECIES`, `ISOLATE`, `COMPOUND`, `MEDIUM`, `ORGANISM`, `PHENOTYPE`, `DISEASE`
+- Must contain annotations for all 9 entity types: `STRAIN`, `SPECIES`, `ISOLATE`, `COMPOUND`, `MEDIUM`, `ORGANISM`, `PHENOTYPE`, `EFFECT`, `DISEASE`
 - Annotations should include entity spans and relationship labels
 
 ### Corpus Files
