@@ -1,5 +1,7 @@
 # NLP4Pheno: Bacterial Phenotype Prediction Pipeline
 
+[![DOI](https://zenodo.org/badge/736778244.svg)](https://doi.org/10.5281/zenodo.17473326)
+
 This repository contains the code to reproduce the analyses from the paper: [Integrating natural language processing and genome analysis enables accurate bacterial phenotype prediction](https://doi.org/10.1101/2024.12.07.627346).
 
 The pipeline integrates Named Entity Recognition (NER), Relation Extraction (RE), and XGBoost-based phenotype prediction using Snakemake workflows. 
