@@ -279,19 +279,19 @@ rule align:
         """
         set +e  # Disable exit on error for grep checks
         # Check if we have sufficient sequences
-        MARKER_FILE={path}/{wildcards.rel}/seq.sufficient
+        MARKER_FILE="{path}/{wildcards.rel}/seq.sufficient"
         if [ -f "$MARKER_FILE" ] && grep -q "insufficient" "$MARKER_FILE"; then
             echo "Skipping alignment for {wildcards.rel}: insufficient sequences"
-            echo "" > {output}
-        elif grep -q ">" {input} 2>/dev/null; then
+            echo "" > "{output}"
+        elif grep -q ">" "{input}" 2>/dev/null; then
             set -e  # Re-enable exit on error
-            mafft --auto --thread {threads} {input} > {output} 2>/dev/null || {{
+            mafft --auto --thread {threads} "{input}" > "{output}" 2>/dev/null || {{
                 echo "MAFFT failed for {wildcards.rel}, creating empty alignment"
-                echo "" > {output}
+                echo "" > "{output}"
             }}
         else
             echo "Skipping alignment for {wildcards.rel}: empty input"
-            echo "" > {output}
+            echo "" > "{output}"
         fi
         """
 
@@ -312,16 +312,16 @@ rule fasttree:
         """
         set +e  # Disable exit on error for grep checks
         # Check if we have sufficient sequences
-        MARKER_FILE={path}/{wildcards.rel}/seq.sufficient
+        MARKER_FILE="{path}/{wildcards.rel}/seq.sufficient"
         if [ -f "$MARKER_FILE" ] && grep -q "insufficient" "$MARKER_FILE"; then
             echo "Skipping FastTree for {wildcards.rel}: insufficient sequences"
-            echo "# Insufficient sequences for tree construction" > {output}
-        elif grep -q ">" {input} 2>/dev/null; then
+            echo "# Insufficient sequences for tree construction" > "{output}"
+        elif grep -q ">" "{input}" 2>/dev/null; then
             set -e  # Re-enable exit on error
-            fasttree -nosupport {input} > {output}
+            fasttree -nosupport "{input}" > "{output}"
         else
             echo "Skipping FastTree for {wildcards.rel}: empty alignment"
-            echo "# Empty alignment file" > {output}
+            echo "# Empty alignment file" > "{output}"
         fi
         """
 
@@ -342,19 +342,19 @@ rule codonaln:
         """
         set +e  # Disable exit on error for grep checks
         # Check if we have sufficient sequences
-        MARKER_FILE={path}/{wildcards.rel}/seq.sufficient
+        MARKER_FILE="{path}/{wildcards.rel}/seq.sufficient"
         if [ -f "$MARKER_FILE" ] && grep -q "insufficient" "$MARKER_FILE"; then
             echo "Skipping pal2nal for {wildcards.rel}: insufficient sequences"
-            echo "# Insufficient sequences for codon alignment" > {output.alignment}
-        elif grep -q ">" {input.pro_align} 2>/dev/null && grep -q ">" {input.nucl_seq} 2>/dev/null; then
+            echo "# Insufficient sequences for codon alignment" > "{output.alignment}"
+        elif grep -q ">" "{input.pro_align}" 2>/dev/null && grep -q ">" "{input.nucl_seq}" 2>/dev/null; then
             set -e  # Re-enable exit on error
-            pal4nal.pl {input.pro_align} {input.nucl_seq} -output fasta -nomismatch -o {output.alignment} || {{
+            pal4nal.pl "{input.pro_align}" "{input.nucl_seq}" -output fasta -nomismatch -o "{output.alignment}" || {{
                 echo "pal2nal failed for {wildcards.rel}, creating placeholder"
-                echo "# pal2nal failed due to sequence mismatches" > {output.alignment}
+                echo "# pal2nal failed due to sequence mismatches" > "{output.alignment}"
             }}
         else
             echo "Skipping pal2nal for {wildcards.rel}: empty input files"
-            echo "# Empty input files" > {output.alignment}
+            echo "# Empty input files" > "{output.alignment}"
         fi
         """
 
@@ -375,18 +375,18 @@ rule remove_dups:
         """
         set +e  # Disable exit on error for grep checks
         # Check if we have sufficient sequences
-        MARKER_FILE={path}/{wildcards.rel}/seq.sufficient
+        MARKER_FILE="{path}/{wildcards.rel}/seq.sufficient"
         if [ -f "$MARKER_FILE" ] && grep -q "insufficient" "$MARKER_FILE"; then
             echo "Skipping remove_dups for {wildcards.rel}: insufficient sequences"
-            echo "# Insufficient sequences for duplicate removal" > {output}
-        elif grep -q "^#" {input.aln_codon} || grep -q "^#" {input.tree}; then
+            echo "# Insufficient sequences for duplicate removal" > "{output}"
+        elif grep -q "^#" "{input.aln_codon}" || grep -q "^#" "{input.tree}"; then
             echo "Skipping remove_dups for {wildcards.rel}: invalid input files"
-            echo "# Invalid input files" > {output}
+            echo "# Invalid input files" > "{output}"
         else
             set -e  # Re-enable exit on error
-            hyphy /home/tu/tu_tu/tu_kmpaj01/hyphy-analyses/remove-duplicates/remove-duplicates.bf --msa {input.aln_codon} --tree {input.tree} --output {output} || {{
+            hyphy /home/tu/tu_tu/tu_kmpaj01/hyphy-analyses/remove-duplicates/remove-duplicates.bf --msa "{input.aln_codon}" --tree "{input.tree}" --output "{output}" || {{
                 echo "HyPhy remove_dups failed for {wildcards.rel}"
-                echo "# HyPhy remove_dups failed" > {output}
+                echo "# HyPhy remove_dups failed" > "{output}"
             }}
         fi
         """
@@ -428,21 +428,21 @@ rule busted:
         set +e  # Disable exit on error for grep checks
         if grep -q "NTAX = 1" "{input}" 2>/dev/null; then
             echo "Skipping BUSTED for {wildcards.rel}: only 1 taxon (insufficient)"
-            echo '{{"analysis": {{"info": "Only 1 taxon - insufficient for BUSTED analysis"}}}}' > {output.json}
-            echo "# Only 1 taxon - insufficient for BUSTED analysis" > {output.log}
+            echo '{{"analysis": {{"info": "Only 1 taxon - insufficient for BUSTED analysis"}}}}' > "{output.json}"
+            echo "# Only 1 taxon - insufficient for BUSTED analysis" > "{output.log}"
         elif grep -q -v "^#" "{input}" 2>/dev/null && [ -s "{input}" ]; then
             set -e  # Re-enable exit on error
             ENV=TOLERATE_NUMERICAL_ERRORS=1
             CPU={threads}
-            hyphy busted --alignment {input} --output {output.json} > {output.log} || {{
+            hyphy busted --alignment "{input}" --output "{output.json}" > "{output.log}" || {{
                 echo "BUSTED failed for {wildcards.rel}"
-                echo '{{"analysis": {{"info": "BUSTED analysis failed"}}}}' > {output.json}
-                echo "# BUSTED analysis failed" > {output.log}
+                echo '{{"analysis": {{"info": "BUSTED analysis failed"}}}}' > "{output.json}"
+                echo "# BUSTED analysis failed" > "{output.log}"
             }}
         else
             echo "Skipping BUSTED for {wildcards.rel}: insufficient sequences"
-            echo '{{"analysis": {{"info": "Insufficient sequences for BUSTED analysis"}}}}' > {output.json}
-            echo "# Insufficient sequences for BUSTED analysis" > {output.log}
+            echo '{{"analysis": {{"info": "Insufficient sequences for BUSTED analysis"}}}}' > "{output.json}"
+            echo "# Insufficient sequences for BUSTED analysis" > "{output.log}"
         fi
         """
 
