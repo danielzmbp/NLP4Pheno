@@ -32,7 +32,7 @@ GPU_PARTITION = config.get(
     "slurm_gpu_partition", "gpu_h100,gpu_h100_il,gpu_a100_il"
 )
 DOWNLOAD_PARTITION = config.get("slurm_download_partition", "cpu_il,cpu")
-GPU_GRES = config.get("slurm_gpu_gres", "--gres=gpu:1")
+GPU_GRES = config.get("slurm_gpu_gres", "gpu:1")
 
 # Common resource configurations
 COMMON_RESOURCES = {
@@ -45,7 +45,7 @@ COMMON_RESOURCES = {
 
 GPU_RESOURCES = {
     "slurm_partition": GPU_PARTITION,
-    "slurm_extra": GPU_GRES,
+    "gres": GPU_GRES,
     "runtime": 600,
     "mem_mb": 24000,
 }

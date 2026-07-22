@@ -29,7 +29,7 @@ CPU_PARTITION = config.get("slurm_cpu_partition", "cpu")
 GPU_PARTITION = config.get(
     "slurm_gpu_partition", "gpu_a100_il,gpu_h100_il,gpu_a100"
 )
-GPU_GRES = config.get("slurm_gpu_gres", "--gres=gpu:1")
+GPU_GRES = config.get("slurm_gpu_gres", "gpu:1")
 PRETRAINED_MODEL = config.get("pretrained_model_path") or (
     f"michiyasunaga/BioLinkBERT-{config['model']}"
 )
@@ -343,7 +343,7 @@ rule run_linkbert:
         entities=" ".join(labels),
     resources:
         slurm_partition=GPU_PARTITION,
-        slurm_extra=GPU_GRES,
+        gres=GPU_GRES,
         runtime=int(config.get("ner_training_runtime", 120)),
         mem_mb=32000,
         cpus_per_task=4,

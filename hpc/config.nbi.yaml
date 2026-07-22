@@ -3,7 +3,7 @@
 slurm_cpu_partition: nbi-medium
 slurm_gpu_partition: ei-gpu
 slurm_download_partition: nbi-download
-slurm_gpu_gres: "--gres=gpu:a100:1"
+slurm_gpu_gres: "gpu:a100:1"
 
 # Each training rule currently trains its label-specific models sequentially
 # inside one A100 allocation. These limits are minutes and deliberately leave

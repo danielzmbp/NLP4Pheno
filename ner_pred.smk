@@ -26,7 +26,7 @@ CPU_PARTITION = config.get("slurm_cpu_partition", "cpu,cpu_il")
 GPU_PARTITION = config.get(
     "slurm_gpu_partition", "gpu_h100,gpu_a100_il,gpu_h100_il"
 )
-GPU_GRES = config.get("slurm_gpu_gres", "--gres=gpu:1")
+GPU_GRES = config.get("slurm_gpu_gres", "gpu:1")
 
 STRAIN_PART_COUNT = 250
 
@@ -144,7 +144,7 @@ rule run_strain_prediction:
     retries: 3
     resources:
         slurm_partition=GPU_PARTITION,
-        slurm_extra=GPU_GRES,
+        gres=GPU_GRES,
         runtime=80,
         mem_mb=8000,
         cpus_per_task=4,
@@ -213,7 +213,7 @@ rule run_all_models:
         "envs/pytorch.yml"
     resources:
         slurm_partition=GPU_PARTITION,
-        slurm_extra=GPU_GRES,
+        gres=GPU_GRES,
         runtime=STRAIN_PART_COUNT,
         mem_mb=8000,
     shell:
