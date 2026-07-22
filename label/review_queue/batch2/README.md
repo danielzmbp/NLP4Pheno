@@ -9,6 +9,7 @@ It contains 21 tasks and 22 conservative suggestions:
 - 2 strongly repeated relation omissions
 - no surface-only entity relabeling suggestions
 
-The suggestions remain predictions until submitted by a reviewer. Export and
-merge this project separately; do not overwrite either the 2025 source export
-or the first reviewed ground-truth version.
+All 21 tasks were submitted by a reviewer on 2026-07-22. The Label Studio export
+is retained as `reviewed-export-2026-07-22.json` and was merged into the
+versioned ground truth `label/project-10-reviewed-2026-07-22.json`. The 2025
+source export and first reviewed version remain unchanged for auditability.

@@ -33,7 +33,7 @@ Before running any pipeline, adjust `config.yaml` to match your setup.
 |-----------|-------------|----------------|
 | `dataset` | Corpus identifier (determines output directories) | `1108` |
 | `cuda_devices` | GPU devices for training | `[0]` |
-| `input_file` | Path to manually annotated training data | `label/project-10-reviewed-2026-07-21.json` |
+| `input_file` | Path to manually annotated training data | `label/project-10-reviewed-2026-07-22.json` |
 | `ner_epochs` | Training epochs for NER models | `15` |
 | `rel_epochs` | Training epochs for RE models | `25` |
 | `ner_test` | Test split ratio for NER | `0.2` |
@@ -126,8 +126,9 @@ artifacts.
 
 ### Annotation Data
 The current manually reviewed dataset is provided in
-`label/project-10-reviewed-2026-07-21.json` (Label Studio JSON format). The
-2025 export is retained unchanged as its auditable source.
+`label/project-10-reviewed-2026-07-22.json` (Label Studio JSON format). The
+2025 export and intermediate 2026-07-21 review are retained unchanged as
+auditable sources.
 When a task has multiple active annotations, preprocessing selects a marked
 ground-truth record or otherwise the most recently updated record.
 
@@ -136,7 +137,7 @@ Audit the raw exports and their agreement with `config.yaml` before training:
 ```bash
 python scripts/audit_annotations.py \
   label/project-10-at-2025-08-21-21-08-cb43bf25.json \
-  label/project-10-reviewed-2026-07-21.json \
+  label/project-10-reviewed-2026-07-22.json \
   --config config.yaml \
   --json-output label/annotation_audit_reviewed.json \
   --markdown-output label/annotation_audit_reviewed.md
@@ -155,7 +156,7 @@ corpus, recover only verifiable literal matches and retain ambiguous sources:
 
 ```bash
 python scripts/link_annotations_to_pmc.py \
-  label/project-10-reviewed-2026-07-21.json \
+  label/project-10-reviewed-2026-07-22.json \
   snakemake_PMC/output/data/pmc_filtered.parquet \
   --matches-output label/annotation_pmc_matches.parquet \
   --summary-output label/annotation_pmc_summary.json
@@ -242,7 +243,7 @@ in prediction:
 
 ```bash
 python scripts/audit_straininfo_matches.py \
-  label/project-10-reviewed-2026-07-21.json \
+  label/project-10-reviewed-2026-07-22.json \
   resources/straininfo/designations.parquet \
   --output label/straininfo_match_audit.json
 ```
