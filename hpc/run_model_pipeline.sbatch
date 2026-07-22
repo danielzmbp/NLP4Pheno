@@ -66,6 +66,7 @@ common_args=(
     "output_path=${NLP4PHENO_OUTPUT_PATH}"
     "pmc_parquet_file=${NLP4PHENO_CORPUS}"
     "pretrained_model_path=${NLP4PHENO_MODEL_DIR}"
+    "hf_home=${NLP4PHENO_HF_HOME}"
     "straininfo_strains_file=${NLP4PHENO_PROJECT}/resources/straininfo/strains.parquet"
     "straininfo_designations_file=${NLP4PHENO_PROJECT}/resources/straininfo/designations_union.parquet"
 )

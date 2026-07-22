@@ -15,6 +15,22 @@ from relation_prediction_utils import add_formatted_text
 configfile: "config.yaml"
 
 
+HF_HOME = config.get("hf_home")
+if HF_HOME:
+    os.environ.update(
+        {
+            "HF_HOME": HF_HOME,
+            "HF_DATASETS_CACHE": f"{HF_HOME}/datasets",
+            "HF_MODULES_CACHE": f"{HF_HOME}/modules",
+            "TRANSFORMERS_CACHE": f"{HF_HOME}/transformers",
+            "HF_HUB_OFFLINE": "1",
+            "TRANSFORMERS_OFFLINE": "1",
+            "HF_DATASETS_OFFLINE": "1",
+            "HF_HUB_DISABLE_TELEMETRY": "1",
+        }
+    )
+
+
 cutoff = config["cutoff_prediction"]
 output_path = config["output_path"]
 preds = f"{output_path}/preds" + str(config["dataset"])
