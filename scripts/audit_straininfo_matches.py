@@ -23,7 +23,9 @@ def strain_mentions(annotation_file: Path) -> list[str]:
         for annotation in task.get("annotations", []):
             for result in annotation.get("result", []):
                 value = result.get("value", {})
-                if result.get("type") == "labels" and "STRAIN" in value.get("labels", []):
+                if result.get("type") == "labels" and "STRAIN" in value.get(
+                    "labels", []
+                ):
                     text = value.get("text")
                     if text:
                         mentions.add(str(text))
@@ -32,9 +34,7 @@ def strain_mentions(annotation_file: Path) -> list[str]:
 
 def audit(annotation_file: Path, designations_file: Path) -> dict:
     mentions = strain_mentions(annotation_file)
-    aliases = pl.read_parquet(designations_file).select(
-        "designation_key", "designation", "si_id", "taxon", "type_strain"
-    )
+    aliases = pl.read_parquet(designations_file)
     resolved = resolve_mentions(mentions, aliases)
     resolutions = [
         {
@@ -59,9 +59,10 @@ def audit(annotation_file: Path, designations_file: Path) -> dict:
         "annotation_file": str(annotation_file),
         "designations_file": str(designations_file),
         "policy": {
-            "exact": "uppercase alphanumeric equality",
+            "exact": "uppercase alphanumeric equality; weak aliases require taxonomy support",
             "contained": "complete token-bounded alias, alphanumeric length >=4, contains letters and digits",
-            "taxonomy": "reject a candidate when an explicit binomial hint contradicts the catalog taxon",
+            "taxonomy": "reject contradictions and prefer explicit genus/species support",
+            "provenance": "prefer compact-catalog assertions over detailed cross-references",
             "fuzzy_fallback": False,
         },
         "unique_mentions": len(mentions),
@@ -86,7 +87,11 @@ def main() -> None:
     temporary = args.output.with_suffix(args.output.suffix + ".tmp")
     temporary.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     temporary.replace(args.output)
-    print(json.dumps({key: value for key, value in result.items() if key != "matches"}, indent=2))
+    print(
+        json.dumps(
+            {key: value for key, value in result.items() if key != "matches"}, indent=2
+        )
+    )
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ cd "${NLP4PHENO_PROJECT}"
 for required in \
     "${NLP4PHENO_CORPUS}" \
     "${NLP4PHENO_MODEL_DIR}/config.json" \
-    resources/straininfo/designations.parquet; do
+    resources/straininfo/designations_union.parquet; do
     if [[ ! -s "${required}" ]]; then
         echo "Required offline input is missing or empty: ${required}" >&2
         exit 1
@@ -67,7 +67,7 @@ common_args=(
     "pmc_parquet_file=${NLP4PHENO_CORPUS}"
     "pretrained_model_path=${NLP4PHENO_MODEL_DIR}"
     "straininfo_strains_file=${NLP4PHENO_PROJECT}/resources/straininfo/strains.parquet"
-    "straininfo_designations_file=${NLP4PHENO_PROJECT}/resources/straininfo/designations.parquet"
+    "straininfo_designations_file=${NLP4PHENO_PROJECT}/resources/straininfo/designations_union.parquet"
 )
 
 if [[ "${NLP4PHENO_DRY_RUN:-0}" == "1" ]]; then

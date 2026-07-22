@@ -51,3 +51,4 @@ CLAUDE.md
 notebooks/bacdive_config.py
 resources/straininfo/*.parquet
 /resources/straininfo/runtime_summary.json
+/resources/straininfo/union_runtime_summary.json

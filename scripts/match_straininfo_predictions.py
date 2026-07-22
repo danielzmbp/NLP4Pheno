@@ -23,9 +23,7 @@ def match_predictions(
     if mention_column not in predictions.columns:
         raise ValueError(f"Predictions are missing {mention_column!r}")
     aliases = pl.read_parquet(designations_file)
-    mentions = (
-        predictions.get_column(mention_column).drop_nulls().unique().to_list()
-    )
+    mentions = predictions.get_column(mention_column).drop_nulls().unique().to_list()
     resolved = resolve_mentions(mentions, aliases)
     output = predictions.join(
         resolved,
@@ -51,7 +49,10 @@ def match_predictions(
     }
     matched_rows = output.filter(pl.col("straininfo_si_id").is_not_null()).height
     summary = {
-        "policy": "exact or token-bounded alias; taxonomy contradictions rejected; no fuzzy fallback",
+        "policy": (
+            "strong exact or token-bounded alias; weak exact aliases require taxonomy; "
+            "taxonomy and compact provenance resolve collisions; no fuzzy fallback"
+        ),
         "prediction_rows": predictions.height,
         "matched_prediction_rows": matched_rows,
         "unique_mentions": len(mentions),

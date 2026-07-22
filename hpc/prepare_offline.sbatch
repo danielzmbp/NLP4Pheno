@@ -16,6 +16,7 @@ set -euo pipefail
 
 NLP4PHENO_MODEL_ID="${NLP4PHENO_MODEL_ID:-michiyasunaga/BioLinkBERT-large}"
 NLP4PHENO_STRAININFO_VERSION="${NLP4PHENO_STRAININFO_VERSION:-2025.10}"
+NLP4PHENO_STRAININFO_DETAILED_CSV="${NLP4PHENO_STRAININFO_DETAILED_CSV:-${NLP4PHENO_PROJECT}/resources/straininfo/straininfo_synonyms.csv}"
 
 cd "${NLP4PHENO_PROJECT}"
 
@@ -88,6 +89,18 @@ if [[ ! -s resources/straininfo/strains.parquet \
         --summary-output resources/straininfo/runtime_summary.json
 fi
 
+if [[ -s "${NLP4PHENO_STRAININFO_DETAILED_CSV}" ]]; then
+    python scripts/build_straininfo_union.py \
+        --compact resources/straininfo/designations.parquet \
+        --detailed "${NLP4PHENO_STRAININFO_DETAILED_CSV}" \
+        --output resources/straininfo/designations_union.parquet \
+        --summary-output resources/straininfo/union_runtime_summary.json
+elif [[ ! -s resources/straininfo/designations_union.parquet ]]; then
+    echo "Detailed StrainInfo CSV not found: ${NLP4PHENO_STRAININFO_DETAILED_CSV}" >&2
+    echo "Upload it or prebuild resources/straininfo/designations_union.parquet." >&2
+    exit 1
+fi
+
 # Prove that the assets needed by offline GPU jobs resolve without network.
 HF_HUB_OFFLINE=1 \
 TRANSFORMERS_OFFLINE=1 \
@@ -112,6 +125,7 @@ import pyarrow.parquet as pq
 for path in (
     "resources/straininfo/strains.parquet",
     "resources/straininfo/designations.parquet",
+    "resources/straininfo/designations_union.parquet",
 ):
     metadata = pq.read_metadata(path)
     if metadata.num_rows == 0:

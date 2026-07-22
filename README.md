@@ -43,7 +43,7 @@ Before running any pipeline, adjust `config.yaml` to match your setup.
 | `seed` | Random seed for reproducibility | `97` |
 | `output_path` | Base output directory | `/pfs/work9/workspace/scratch/tu_kmpaj01-link` |
 | `pmc_parquet_file` | PMC corpus data file | `snakemake_PMC/output/data/pmc_filtered.parquet` |
-| `straininfo_designations_file` | Versioned local StrainInfo alias snapshot | `resources/straininfo/designations.parquet` |
+| `straininfo_designations_file` | Cleaned compact + detailed StrainInfo alias union | `resources/straininfo/designations_union.parquet` |
 
 ### Entity Types
 ```yaml
@@ -254,20 +254,39 @@ Exact normalized designations can be resolved locally to persistent SI-IDs;
 ambiguous aliases remain explicit. Detailed StrainInfo API records should be
 requested only for resolved SI-IDs that need genome assemblies.
 
+Build the cleaned union after obtaining a detailed StrainInfo synonym CSV. The
+compact snapshot remains unchanged and supplies authoritative aliases plus any
+SI-IDs missed by the detailed download:
+
+```bash
+python scripts/build_straininfo_union.py \
+  --compact resources/straininfo/designations.parquet \
+  --detailed /path/to/straininfo_synonyms.csv \
+  --output resources/straininfo/designations_union.parquet \
+  --summary-output resources/straininfo/union_summary.json
+```
+
+The union records whether each alias came from the compact catalog, a detailed
+deposit designation, or a detailed cross-reference. Matching prefers compact
+assertions when a detailed cross-reference creates a collision. Weak aliases
+(purely numeric or shorter than four normalized characters) are not resolved
+without supporting taxonomy.
+
 Audit matching against the annotated STRAIN mentions before using the catalog
 in prediction:
 
 ```bash
 python scripts/audit_straininfo_matches.py \
   label/project-10-reviewed-2026-07-22.json \
-  resources/straininfo/designations.parquet \
+  resources/straininfo/designations_union.parquet \
   --output label/straininfo_match_audit.json
 ```
 
-The audit accepts exact aliases and complete token-bounded identifiers inside a
-longer mention. It rejects taxonomy contradictions and has no fuzzy fallback;
-unmatched and ambiguous mentions remain unresolved rather than receiving a
-plausible-looking but unsupported genome identifier.
+The audit accepts strong exact aliases and complete token-bounded identifiers
+inside a longer mention. It rejects weak uncontextualized aliases and taxonomy
+contradictions and has no fuzzy fallback; unmatched and ambiguous mentions
+remain unresolved rather than receiving a plausible-looking but unsupported
+genome identifier.
 
 For uniquely resolved SI-IDs, the detailed API can provide genome accessions.
 The resolver retains the response hash for each genome and selects one assembly

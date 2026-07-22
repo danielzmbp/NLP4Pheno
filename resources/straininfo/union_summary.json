@@ -1,0 +1,28 @@
+{
+  "compact_input": {
+    "alias_pair_count": 476098,
+    "name": "designations.parquet",
+    "sha256": "69ae0bce256200ebe7ac7a2548a862f9ae0b88529d4004f911154d01e5680cf8",
+    "si_id_count": 314035
+  },
+  "created_at": "2026-07-22T09:46:57.938934+00:00",
+  "detailed_input": {
+    "alias_pair_count_before_union": 733238,
+    "duplicated_si_id_count": 21,
+    "name": "straininfo_synonyms.csv",
+    "row_count": 314018,
+    "sha256": "a9cc89900e5716211c032c559aba63b39ceeb20747231bfd3666e425a3d1fa39",
+    "unique_si_id_count": 313997
+  },
+  "matching_policy": "compact and detailed aliases are retained; alias-to-multiple-SI-ID ambiguity is preserved for contextual resolution",
+  "union": {
+    "alias_pair_count": 733289,
+    "ambiguous_designation_key_count": 13296,
+    "compact_only_alias_pairs": 51,
+    "compact_si_ids_missing_from_detailed": 38,
+    "designation_key_count": 708233,
+    "detailed_only_alias_pairs": 257191,
+    "detailed_si_ids_missing_from_compact": 0,
+    "si_id_count": 314035
+  }
+}

@@ -33,6 +33,17 @@ The expected SHA-256 is:
 24deb4209a72c26d8e178c67a82cd8b8ac70853a7e67f88645f63866923e7f45
 ```
 
+Also upload `straininfo_synonyms.csv` to
+`resources/straininfo/straininfo_synonyms.csv`, or point the launcher to it:
+
+```bash
+export NLP4PHENO_STRAININFO_DETAILED_CSV=/shared/path/straininfo_synonyms.csv
+```
+
+The download-queue preparation job combines it with the pinned compact
+StrainInfo snapshot. GPU and ordinary compute nodes only read the resulting
+local Parquet catalog.
+
 ## Submit all four stages
 
 From the repository root on an NBI login node:

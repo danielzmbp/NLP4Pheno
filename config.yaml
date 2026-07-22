@@ -46,6 +46,6 @@ output_path: /pfs/work9/workspace/scratch/tu_kmpaj01-link
 pmc_parquet_file: snakemake_PMC/output/data/pmc_filtered.parquet
 straininfo_version: "2025.10"
 straininfo_strains_file: resources/straininfo/strains.parquet
-straininfo_designations_file: resources/straininfo/designations.parquet
+straininfo_designations_file: resources/straininfo/designations_union.parquet
 straininfo_assembly_workers: 8
 straininfo_max_failure_fraction: 0.01

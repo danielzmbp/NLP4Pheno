@@ -19,6 +19,17 @@ NON_ALNUM = re.compile(r"[^A-Z0-9]+")
 SCIENTIFIC_NAME = re.compile(
     r"\b(?P<genus>[A-Z][a-z]+|[A-Z])\.?\s+(?P<species>[a-z][a-z-]+)\b"
 )
+GENUS_BEFORE_DESIGNATION = re.compile(
+    r"\b(?P<genus>[A-Z][a-z]{2,})\s+(?=(?:strain\s+)?[A-Z0-9][A-Za-z0-9._#/+-]*\b)"
+)
+NON_TAXONOMIC_GENUS_WORDS = {
+    "Culture",
+    "Isolate",
+    "Mutant",
+    "Sample",
+    "Strain",
+    "Type",
+}
 
 
 def designation_key(value: str) -> str:
@@ -33,6 +44,11 @@ def eligible_contained_key(key: str) -> bool:
         and any(character.isalpha() for character in key)
         and any(character.isdigit() for character in key)
     )
+
+
+def eligible_exact_key(key: str) -> bool:
+    """Require enough identifying structure for an uncontextualized exact match."""
+    return len(key) >= 4 and any(character.isalpha() for character in key)
 
 
 def _normalized_positions(value: str) -> tuple[str, list[int]]:
@@ -73,25 +89,53 @@ def scientific_name_hint(value: str) -> tuple[str, str] | None:
     return match.group("genus").lower(), match.group("species").lower()
 
 
+def scientific_genus_hint(value: str) -> str | None:
+    """Extract a full genus immediately before a strain-like designation."""
+    match = GENUS_BEFORE_DESIGNATION.search(value)
+    if match is None or match.group("genus") in NON_TAXONOMIC_GENUS_WORDS:
+        return None
+    return match.group("genus").lower()
+
+
 def taxon_compatible(mention: str, taxon: str | None) -> bool | None:
     """Compare an explicit scientific-name hint with a catalog taxon.
 
     ``None`` means the mention did not provide enough taxonomic evidence.
     """
     hint = scientific_name_hint(mention)
-    if hint is None or not taxon:
+    genus_hint = scientific_genus_hint(mention) if hint is None else None
+    if (hint is None and genus_hint is None) or not taxon:
         return None
     taxon_tokens = re.findall(r"[A-Za-z][A-Za-z-]*", taxon.lower())
     if len(taxon_tokens) < 2:
         return None
-    hint_genus, hint_species = hint
     taxon_genus, taxon_species = taxon_tokens[:2]
+    if hint is None:
+        return genus_hint == taxon_genus
+    hint_genus, hint_species = hint
     genus_matches = (
         hint_genus == taxon_genus
         if len(hint_genus) > 1
         else hint_genus[0] == taxon_genus[0]
     )
     return genus_matches and hint_species == taxon_species
+
+
+def _prefer_taxonomic_support(
+    mention: str, rows: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Reject contradictions and prefer positively corroborated candidates."""
+    evidence = [(row, taxon_compatible(mention, row.get("taxon"))) for row in rows]
+    supported = [row for row, compatible in evidence if compatible is True]
+    if supported:
+        return supported
+    return [row for row, compatible in evidence if compatible is not False]
+
+
+def _prefer_compact_authority(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Prefer aliases asserted by the compact catalog over detailed cross-references."""
+    compact = [row for row in rows if row.get("in_compact") is True]
+    return compact or rows
 
 
 def resolve_candidates(
@@ -103,7 +147,22 @@ def resolve_candidates(
     rows = [dict(candidate) for candidate in candidates]
     exact = [row for row in rows if row["designation_key"] == mention_key]
     if exact:
-        accepted = exact
+        accepted = _prefer_taxonomic_support(mention, exact)
+        accepted = [
+            row
+            for row in accepted
+            if eligible_exact_key(row["designation_key"])
+            or taxon_compatible(mention, row.get("taxon")) is True
+        ]
+        if not accepted:
+            return {
+                "status": "unmatched",
+                "method": "exact_weak_rejected",
+                "si_id": None,
+                "taxon": None,
+                "si_ids": sorted({int(row["si_id"]) for row in exact}),
+                "designation_keys": sorted({row["designation_key"] for row in exact}),
+            }
         method = "exact"
     else:
         bounded = [
@@ -111,8 +170,8 @@ def resolve_candidates(
             for row in rows
             if eligible_contained_key(row["designation_key"])
             and has_complete_occurrence(mention, row["designation_key"])
-            and taxon_compatible(mention, row.get("taxon")) is not False
         ]
+        bounded = _prefer_taxonomic_support(mention, bounded)
         if not bounded:
             return {
                 "status": "unmatched",
@@ -126,6 +185,7 @@ def resolve_candidates(
         accepted = [row for row in bounded if len(row["designation_key"]) == longest]
         method = "contained_bounded"
 
+    accepted = _prefer_compact_authority(accepted)
     si_ids = sorted({int(row["si_id"]) for row in accepted})
     taxa = sorted({str(row["taxon"]) for row in accepted if row.get("taxon")})
     return {
@@ -157,7 +217,11 @@ def resolve_mentions(mentions: Iterable[str], aliases: pl.DataFrame) -> pl.DataF
     if missing:
         raise ValueError(f"StrainInfo aliases are missing columns: {sorted(missing)}")
 
-    alias_frame = aliases.select(*sorted(required))
+    optional = {"in_compact", "in_detailed_deposit", "in_detailed_other"}
+    selected = sorted(required | (optional & set(aliases.columns)))
+    alias_frame = aliases.select(*selected).filter(
+        pl.col("designation_key").is_not_null()
+    )
     alias_keys = alias_frame.get_column("designation_key").unique().to_list()
     contained_keys = [key for key in alias_keys if eligible_contained_key(key)]
     mention_frame = pl.DataFrame(
@@ -166,27 +230,42 @@ def resolve_mentions(mentions: Iterable[str], aliases: pl.DataFrame) -> pl.DataF
             "mention_key": [designation_key(value) for value in mention_values],
         }
     )
-    exact = mention_frame.join(
-        alias_frame,
-        left_on="mention_key",
-        right_on="designation_key",
-        how="left",
-    ).filter(pl.col("si_id").is_not_null())
-    extracted = (
-        mention_frame.with_columns(
-            pl.col("mention_key")
-            .str.extract_many(contained_keys, overlapping=True)
-            .alias("designation_key")
+    exact_aliases = alias_frame.rename({"designation_key": "exact_key"})
+    exact = (
+        mention_frame.join(
+            exact_aliases,
+            left_on="mention_key",
+            right_on="exact_key",
+            how="left",
         )
-        .explode("designation_key", empty_as_null=True)
-        .filter(pl.col("designation_key").is_not_null())
-        .join(alias_frame, on="designation_key", how="inner")
+        .filter(pl.col("si_id").is_not_null())
+        .with_columns(pl.col("mention_key").alias("designation_key"))
     )
+    if contained_keys:
+        extracted = (
+            mention_frame.with_columns(
+                pl.col("mention_key")
+                .str.extract_many(contained_keys, overlapping=True)
+                .alias("designation_key")
+            )
+            .explode("designation_key", empty_as_null=True)
+            .filter(pl.col("designation_key").is_not_null())
+            .join(alias_frame, on="designation_key", how="inner")
+        )
+    else:
+        extracted = exact.head(0)
     candidates = pl.concat([exact, extracted], how="diagonal_relaxed")
     grouped: dict[str, list[dict[str, Any]]] = {}
-    for row in candidates.select(
-        "mention", "designation_key", "designation", "si_id", "taxon", "type_strain"
-    ).iter_rows(named=True):
+    candidate_columns = [
+        "mention",
+        "designation_key",
+        "designation",
+        "si_id",
+        "taxon",
+        "type_strain",
+        *sorted(optional & set(candidates.columns)),
+    ]
+    for row in candidates.select(*candidate_columns).iter_rows(named=True):
         grouped.setdefault(row["mention"], []).append(row)
 
     records = []
