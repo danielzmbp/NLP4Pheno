@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Generate corpus shards from a Parquet file using a single streaming pass."""
 
-from __future__ import annotations
-
 import argparse
 from pathlib import Path
 from typing import List, Sequence
