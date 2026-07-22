@@ -2,8 +2,8 @@
 #SBATCH --job-name=nlp4pheno-prepare
 #SBATCH --partition=nbi-download
 #SBATCH --time=1-00:00:00
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=64G
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=12G
 #SBATCH --output=hpc/logs/%x-%j.out
 #SBATCH --error=hpc/logs/%x-%j.err
 
