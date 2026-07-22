@@ -1,87 +1,117 @@
-from nervaluate import Evaluator
+"""Evaluate the per-entity NER predictions with nervaluate.
+
+The training datasets intentionally use untyped BIO tags (``B``, ``I``, and
+``O``), because each model predicts exactly one entity type.  Nervaluate 1.x
+requires typed tags, so this script adds the entity name before evaluation.
+"""
+
+from dataclasses import asdict, is_dataclass
 import json
-import yaml
 import os
 
+import yaml
+
+
 def load_predictions(label):
-	file_path = f"NER_output/{label}/test_predictions.txt"
-	with open(file_path, 'r') as f:
-		return f.read()
+    file_path = f"NER_output/{label}/test_predictions.txt"
+    with open(file_path) as handle:
+        return handle.read()
+
 
 def load_ground_truth(label):
-	file_path = f"NER/{label}/test.txt"
-	with open(file_path, 'r') as f:
-		return f.read()
+    file_path = f"NER/{label}/test.txt"
+    with open(file_path) as handle:
+        return handle.read()
+
 
 def load_labels_from_config(config_path):
-	with open(config_path, 'r') as f:
-		config = yaml.safe_load(f)
-	return config.get('ner_labels', [])
+    with open(config_path) as handle:
+        config = yaml.safe_load(handle)
+    return config.get("ner_labels", [])
+
+
+def normalize_conll(text, label):
+    """Return tab-separated CoNLL with bare B/I tags made entity-specific."""
+    normalized = []
+    for line_number, line in enumerate(text.splitlines(), start=1):
+        if not line.strip():
+            normalized.append("")
+            continue
+
+        columns = line.split("\t")
+        if len(columns) < 2:
+            raise ValueError(
+                f"Invalid CoNLL line {line_number}: expected tab-separated token and tag"
+            )
+
+        tag = columns[-1]
+        if tag in {"B", "I"}:
+            columns[-1] = f"{tag}-{label}"
+        elif tag != "O" and not tag.startswith(("B-", "I-")):
+            raise ValueError(f"Invalid BIO tag {tag!r} on line {line_number}")
+        normalized.append("\t".join(columns))
+
+    return "\n".join(normalized) + "\n"
+
+
+def jsonable(value):
+    """Convert nervaluate dataclasses into stable, rounded JSON values."""
+    if is_dataclass(value):
+        return jsonable(asdict(value))
+    if isinstance(value, dict):
+        return {key: jsonable(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [jsonable(item) for item in value]
+    if isinstance(value, float):
+        return round(value, 4)
+    return value
+
+
+def write_error_sentences(output_dir, predictions, indices):
+    sentences = predictions.strip().split("\n\n")
+    for strategy, categories in indices.items():
+        category_values = asdict(categories) if is_dataclass(categories) else categories
+        for category, pairs in category_values.items():
+            document_ids = sorted({pair[0] for pair in pairs})
+            selected = [sentences[index] for index in document_ids if index < len(sentences)]
+            output_path = os.path.join(output_dir, f"{strategy}_{category}_sentences.txt")
+            with open(output_path, "w") as handle:
+                handle.write("\n\n".join(selected))
+
 
 def main():
-	# Load configuration
-	config_file = "./config.yaml"
-	config = load_labels_from_config(config_file)
+    from nervaluate import Evaluator
 
-	# Iterate over labels to evaluate predictions for each
-	for label in config:
-		ground_truth = load_ground_truth(label)
-		ground_truth = ground_truth.replace("-DOCSTART- -X- O\n", "").replace(" -X- _ ", "\t")
-		predictions = load_predictions(label)
+    labels = load_labels_from_config("./config.yaml")
+    for label in labels:
+        ground_truth = load_ground_truth(label)
+        ground_truth = ground_truth.replace("-DOCSTART- -X- O\n", "").replace(
+            " -X- _ ", "\t"
+        )
+        predictions = load_predictions(label)
 
-		# Initialize the evaluator
-		evaluator = Evaluator(ground_truth, predictions, tags=[""], loader="conll")
+        ground_truth = normalize_conll(ground_truth, label)
+        predictions = normalize_conll(predictions, label)
+        evaluation = Evaluator(
+            ground_truth, predictions, tags=[label], loader="conll"
+        ).evaluate()
 
-		# Evaluate
-		results, results_by_tag, result_indices, result_indices_by_tag = evaluator.evaluate()
+        output_dir = f"./NER_output/{label}"
+        os.makedirs(output_dir, exist_ok=True)
 
-		# Write results to file
-		output_dir = f"./NER_output/{label}/"
-		os.makedirs(output_dir, exist_ok=True)
+        with open(os.path.join(output_dir, "overall_results.json"), "w") as handle:
+            json.dump(jsonable(evaluation["overall"]), handle, indent=4)
 
-		# Adjust results before writing
-		adjusted_results = {key: round(value, 4) if isinstance(value, float) else value for key, value in results.items()}
-		adjusted_results_by_tag = {
-			tag: {key: round(value, 4) if isinstance(value, float) else value for key, value in metrics.items()}
-			for tag, metrics in results_by_tag.items()
-		}
+        with open(os.path.join(output_dir, "results_per_tag.json"), "w") as handle:
+            json.dump(jsonable(evaluation["entities"]), handle, indent=4)
 
-		with open(os.path.join(output_dir, "overall_results.json"), "w") as overall_file:
-			json.dump(adjusted_results, overall_file, indent=4)
+        with open(os.path.join(output_dir, "comparison_report.json"), "w") as handle:
+            json.dump(jsonable(evaluation["overall_indices"]), handle, indent=4)
 
-		with open(os.path.join(output_dir, "results_per_tag.json"), "w") as per_tag_file:
-			json.dump(adjusted_results_by_tag, per_tag_file, indent=4)
+        write_error_sentences(
+            output_dir, predictions, evaluation["overall_indices"]
+        )
 
-		# Compare and report missed, partial, and wrong instances
-		strict = result_indices.get("strict", [])
-		partial = result_indices.get("partial", [])
-		ent_type = result_indices.get("ent_type", [])
-
-		predictions_split = predictions.split("\n\n")
-		comparison_report = {
-			"strict": strict,
-			"partial": partial,
-			"ent_type": ent_type,
-		}
-
-		unique_indices = {}
-		for category in comparison_report.keys():
-			for typ in comparison_report[category].keys():
-				indices = comparison_report[category][typ]
-				
-				# Make indices unique based on the first element of each pair
-				unique_indices[typ] = list({idx[0]: idx for idx in indices}.values())
-				
-				sentences = [predictions_split[idx[0]] for idx in unique_indices[typ]]
-				
-				# Write the sentences to a file
-				output_file_path = os.path.join(output_dir, f"{category}_{typ}_sentences.txt")
-				with open(output_file_path, "w") as output_file:
-					output_file.write("\n\n".join(sentences))
-
-
-		with open(os.path.join(output_dir, "comparison_report.json"), "w") as comparison_file:
-			json.dump(comparison_report, comparison_file, indent=4)
 
 if __name__ == "__main__":
-	main()
+    main()
