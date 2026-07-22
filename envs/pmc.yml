@@ -4,21 +4,11 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  # Core Python
   - python=3.11
-  - pip
-  
-  # Snakemake core
-  - snakemake
+  - snakemake>=9,<10
   - snakemake-executor-plugin-slurm
-  
-  # Data processing packages (from imports)
-  - pandas
-  - polars
-  - pyarrow
-  - tqdm
-  - psutil
-  
-  # Additional packages from pip
-  - pip:
-      - lingua-language-detector==2.0.2
+  - lxml=5.3
+  - numpy=2.1
+  - pyarrow=18.1
+  - pyyaml=6.0
+  - requests=2.32

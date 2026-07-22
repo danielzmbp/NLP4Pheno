@@ -1,0 +1,85 @@
+# Reproducible snapshot settings. Update snapshot_date deliberately for each
+# release; the resolved ESearch query and S3 inventory version are recorded in
+# output/metadata and output/stats.
+source:
+  mode: s3
+  snapshot_date: "2026-07-20"
+  start_date: "1900-01-01"
+  # Keep eligibility separate from scientific scope so both can be benchmarked.
+  base_query: >-
+    open_access[filter] AND 1950:3000[dp]
+    NOT (hasretractionin OR articletyperetraction)
+  # High-recall bacterial/archaeal discovery. MeSH catches indexed taxonomic
+  # papers; title, abstract and body terms cover new and not-yet-indexed work.
+  scope_query: >-
+    Bacteria[mh] OR Archaea[mh]
+    OR bacter*[tiab] OR microb*[tiab]
+    OR prokaryot*[tiab] OR archae*[tiab]
+    OR bacter*[body] OR microb*[body]
+    OR prokaryot*[body] OR archae*[body]
+    OR "16S rRNA"[tiab] OR "16S rRNA"[body]
+    OR cyanobacter*[tiab] OR proteobacter*[tiab]
+    OR pseudomonadota[tiab]
+    OR actinobacter*[tiab] OR actinomycet*[tiab]
+    OR firmicut*[tiab] OR bacillota[tiab]
+    OR bacteroid*[tiab] OR spiroch*[tiab]
+    OR fusobacter*[tiab] OR mycoplasm*[tiab] OR mollicut*[tiab]
+  inventory_version: latest
+  bucket_url: https://pmc-oa-opendata.s3.amazonaws.com
+  inventory_prefix: inventory-reports/pmc-oa-opendata/metadata/
+  esearch_url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi
+  ncbi_tool: nlp4pheno_pmc_builder
+  ncbi_email_env: NCBI_EMAIL
+  ncbi_api_key_env: NCBI_API_KEY
+  max_missing_fraction: 0.01
+
+processing:
+  # Stable modulo partitions make downloads easy to distribute over SLURM.
+  chunk_count: 512
+  max_text_chars: 512
+  min_text_chars: 20
+  publication_year_min: 1950
+  allowed_languages: [en]
+  include_unknown_language: true
+  excluded_section_patterns:
+    - "^references?$"
+    - "acknowledg"
+    - "author contributions?"
+    - "competing interests?"
+    - "conflicts? of interest"
+    - "ethics? (statement|approval)"
+    - "funding"
+    - "data availability"
+    - "supplementary (information|materials?)"
+  parquet_compression: zstd
+  row_group_size: 250000
+
+download:
+  workers_per_job: 4
+  # Verify the inventory ETag and the XML MD5 in each PMC metadata object.
+  verify_metadata_json: true
+  request_timeout_seconds: 120
+  retries: 5
+  max_failure_fraction: 0.01
+  # Percentage guards are unstable on tiny chunks. Chunk-level enforcement is
+  # deferred until this many failures; the aggregate limit always applies.
+  min_chunk_failures_for_abort: 5
+  user_agent: "NLP4Pheno PMC corpus builder/2.0"
+
+resources:
+  cpu_partition: "cpu,cpu_il"
+  discovery_mem_mb: 2000
+  discovery_runtime_minutes: 120
+  inventory_mem_mb: 4000
+  inventory_runtime_minutes: 180
+  selection_mem_mb: 32000
+  selection_runtime_minutes: 240
+  partition_mem_mb: 8000
+  partition_runtime_minutes: 120
+  parse_mem_mb: 12000
+  parse_runtime_minutes: 1440
+  merge_mem_mb: 16000
+  merge_runtime_minutes: 360
+
+output_dir: output
+work_dir: temp

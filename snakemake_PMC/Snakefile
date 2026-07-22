@@ -1,563 +1,284 @@
-import pyarrow.parquet as pq
-import pandas as pd
-import polars as pl
-import pyarrow as pa
-import re
-import time
-import os
-from datetime import datetime
+"""Build a reproducible, versioned PMC Open Access sentence corpus.
 
-localrules: bulk_download, bulk_download_noncomm, chunk_csv_parquet
+The workflow follows the post-April-2026 PMC distribution model:
 
-# Configuration
-PMC = [f"PMC0{str(x).zfill(2)}" for x in range(13)]
-BASELINE_DATE = "2025-06-26"
-CHUNK_ROWS = 20_000_000  # 20 million rows per chunk for final filtering
-XML_CHUNKS = 1000  # Number of chunks to split XML processing into
-FILES_PER_CHUNK = 3000  # Approximate files per XML processing chunk - smaller for more parallelization
+1. Discover reusable PMCIDs with ESearch.
+2. Download a pinned S3 inventory report.
+3. Resolve the newest article version for every PMCID.
+4. Partition the manifest deterministically.
+5. Download and parse versioned JATS XML in parallel.
+6. Merge validated sentence and article metadata Parquet files.
 
-# Directory structure
-OUTPUT_DIR = "output"
-TEMP_DIR = "temp"
-DATA_DIR = os.path.join(OUTPUT_DIR, "data")
-LOGS_DIR = os.path.join(OUTPUT_DIR, "logs")
-STATS_DIR = os.path.join(OUTPUT_DIR, "stats")
-XML_CHUNKS_DIR = os.path.join(TEMP_DIR, "xml_chunks")  # For XML processing chunks
-LISTS_DIR = os.path.join(TEMP_DIR, "filelists")
-CSV_DIR = os.path.join(TEMP_DIR, "csv")
-PARQUET_DIR = os.path.join(TEMP_DIR, "parquet")
+All relative paths are resolved from this Snakefile's directory, so the workflow
+behaves the same whether it is launched from the repository root or here.
+"""
 
-# Create directories
-for dir_path in [
-    DATA_DIR,
-    LOGS_DIR,
-    STATS_DIR,
-    XML_CHUNKS_DIR,
-    LISTS_DIR,
-    CSV_DIR,
-    PARQUET_DIR,
-]:
-    os.makedirs(dir_path, exist_ok=True)
+from pathlib import Path
 
-# Performance settings
-os.environ["POLARS_MAX_THREADS"] = str(min(32, os.cpu_count() or 16))
-os.environ["POLARS_VERBOSE"] = "0"
-os.environ["POLARS_PREFETCH_SIZE"] = "100"
 
-# Common resource configurations
-COMMON_RESOURCES = {
-    "slurm_partition": "cpu,cpu_il",
-    "runtime": 360,
-    "mem_mb": 16000,
-}
+WORKFLOW_DIR = Path(workflow.basedir).resolve()
 
-# Simplified regex patterns - combine similar patterns
-FILTER_KEYWORDS = [
-    # Medical/Health journals
-    "Cancer",
-    "Surg",
-    "Med",
-    "Health",
-    "Hospital",
-    "Clinic",
-    "Therap",
-    "Diabet",
-    "Cardio",
-    "Neuro",
-    "Psych",
-    "Pediatr",
-    "Geriatr",
-    "Oncol",
-    "Radiol",
-    "Anesth",
-    "Ortho",
-    "Ophthalm",
-    # Technical/Engineering
-    "Comput",
-    "Software",
-    "Hardware",
-    "Electron",
-    "Quantum",
-    "Robot",
-    "Cyber",
-    "Program",
-    # Social Sciences/Humanities
-    "Sociol",
-    "Philos",
-    "Polit",
-    "Law",
-    "Ethics",
-    "Humanit",
-    "Cultur",
-    "Relig",
-    "Hist",
-    # Physical Sciences
-    "Phys",
-    "Math",
-    "Chem",
-    "Crystallogr",
-    "Astro",
-    "Cosmo",
-    "Geophys",
-    # Business/Economics
-    "Econ",
-    "Financ",
-    "Market",
-    "Business",
-    "Manag",
-    "Account",
-    # Materials/Engineering
-    "Material",
-    "Polymer",
-    "Nano",
-    "Alloy",
-    "Mech",
-    "Eng Struct",
-    # Other
-    "Educ",
-    "Sport",
-    "Tourism",
-    "Transport",
-    "Urban",
-    "Build",
-    "Energy",
-]
+
+configfile: str(WORKFLOW_DIR / "config.yaml")
+
+
+def workflow_path(value):
+    path = Path(str(value))
+    return path if path.is_absolute() else WORKFLOW_DIR / path
+
+
+SOURCE = config.get("source", {})
+PROCESSING = config.get("processing", {})
+DOWNLOAD = config.get("download", {})
+RESOURCES = config.get("resources", {})
+
+MODE = SOURCE.get("mode", "s3")
+if MODE not in {"s3", "fixture", "pmcid_list"}:
+    raise ValueError("source.mode must be 's3', 'fixture', or 'pmcid_list'")
+
+
+def source_query():
+    """Compose an auditable base query and optional scientific scope."""
+    if "query" in SOURCE:
+        return str(SOURCE["query"])
+    base = str(SOURCE.get("base_query", "open_access[filter]"))
+    scope = str(SOURCE.get("scope_query", "")).strip()
+    return f"({base}) AND ({scope})" if scope else base
+
+
+SOURCE_QUERY = source_query()
+
+OUTPUT_DIR = workflow_path(config.get("output_dir", "output"))
+WORK_DIR = workflow_path(config.get("work_dir", "temp"))
+METADATA_DIR = OUTPUT_DIR / "metadata"
+DATA_DIR = OUTPUT_DIR / "data"
+STATS_DIR = OUTPUT_DIR / "stats"
+LOGS_DIR = OUTPUT_DIR / "logs"
+INVENTORY_DIR = workflow_path(config.get("inventory_dir", WORK_DIR / "inventory"))
+MANIFEST_CHUNK_DIR = WORK_DIR / "manifest_chunks"
+SENTENCE_CHUNK_DIR = WORK_DIR / "sentence_chunks"
+ARTICLE_CHUNK_DIR = WORK_DIR / "article_chunks"
+FAILURE_DIR = OUTPUT_DIR / "failures"
+
+CHUNK_COUNT = int(PROCESSING.get("chunk_count", 512))
+if CHUNK_COUNT <= 0:
+    raise ValueError("processing.chunk_count must be greater than zero")
+CHUNKS = [f"{index:04d}" for index in range(CHUNK_COUNT)]
+
+PYTHON_ENV = "envs/python.yml"
+
+
+def explicit_ids(_wildcards):
+    if MODE == "fixture":
+        return [str(workflow_path(SOURCE["fixture_ids"]))]
+    if MODE == "pmcid_list":
+        return [str(workflow_path(SOURCE["pmcid_list"]))]
+    else:
+        return []
+
+
+def fixture_inventory(_wildcards):
+    if MODE != "fixture":
+        return []
+    return [str(workflow_path(path)) for path in SOURCE["fixture_inventory_files"]]
+
+
 rule all:
     input:
-        os.path.join(DATA_DIR, "pmc_filtered.parquet"),
-        os.path.join(STATS_DIR, "processing_summary.json"),
+        corpus=str(DATA_DIR / "pmc_filtered.parquet"),
+        articles=str(DATA_DIR / "pmc_articles.parquet"),
+        summary=str(STATS_DIR / "processing_summary.json"),
 
 
-rule bulk_download:
+rule discover_pmcids:
+    input:
+        explicit=explicit_ids,
     output:
-        tar=temp(
-            os.path.join(
-                TEMP_DIR, f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
-            )
-        ),
-        filelist=temp(
-            os.path.join(
-                TEMP_DIR,
-                f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
-            )
-        ),
+        ids=str(METADATA_DIR / "pmcids.txt"),
+        manifest=str(METADATA_DIR / "search_manifest.json"),
+    log:
+        str(LOGS_DIR / "discover_pmcids.log"),
     params:
-        tar_name=f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
-        filelist_name=f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
-    shell:
-        """
-        # Download filelist first
-        wget --timeout=300 --tries=3 -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/{params.filelist_name}
-
-        # Download tar file with resume capability
-        wget --timeout=7200 --tries=3 --continue -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/{params.tar_name}
-
-        echo "Downloaded {output.tar} - will process directly from archive without full extraction"
-        """
-
-
-rule bulk_download_noncomm:
-    output:
-        tar=temp(
-            os.path.join(
-                TEMP_DIR,
-                f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
-            )
+        mode=MODE,
+        base_url=SOURCE.get(
+            "esearch_url",
+            "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
         ),
-        filelist=temp(
-            os.path.join(
-                TEMP_DIR,
-                f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
-            )
-        ),
-    params:
-        tar_name=f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
-        filelist_name=f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
-    shell:
-        """
-        # Try to download filelist first
-        wget --timeout=300 --tries=3 -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/{params.filelist_name} || touch {output.filelist}
-
-        # Try to download tar file (may not exist for all PMC datasets)
-        wget --timeout=7200 --tries=3 --continue -P {TEMP_DIR} https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/{params.tar_name} || touch {output.tar}
-
-        if [ -s {output.tar} ]; then
-            echo "Downloaded non-commercial {output.tar} - will process directly from archive"
-        else
-            echo "No non-commercial data available for this PMC dataset"
-        fi
-        """
-
-
-rule concat_lists:
-    input:
-        lists=os.path.join(
-            TEMP_DIR,
-            f"oa_comm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
-        ),
-        lists_nc=os.path.join(
-            TEMP_DIR,
-            f"oa_noncomm_xml.{{pmc}}xxxxxx.baseline.{BASELINE_DATE}.filelist.txt",
-        ),
-    output:
-        os.path.join(LISTS_DIR, "{pmc}_filelist.tsv"),
-    resources:
-        slurm_partition="cpu,cpu_il",
-        runtime=60,
-        mem_mb=2000,
-        tasks=1,
-    run:
-        import os
-        import time
-        import polars as pl
-
-        start_time = time.time()
-        pmc_id = wildcards.pmc
-
-        print(f"=== Processing {pmc_id} filelist ===")
-
-        # Check input file sizes first
-        comm_size = os.path.getsize(input.lists) if os.path.exists(input.lists) else 0
-        nc_size = os.path.getsize(input.lists_nc) if os.path.exists(input.lists_nc) else 0
-
-        print(f"Commercial list: {comm_size:,} bytes")
-        print(f"Non-commercial list: {nc_size:,} bytes")
-
-        if comm_size == 0:
-            print("ERROR: Commercial filelist is empty!")
-            raise ValueError(f"Empty commercial filelist for {pmc_id}")
-
-        # Read commercial list
-        print("Reading commercial filelist...")
-        try:
-            df = pl.read_csv(input.lists, separator="\t", ignore_errors=True)
-            print(f"Loaded {df.height:,} records from commercial list")
-        except Exception as e:
-            print(f"ERROR reading commercial list: {e}")
-            # Fallback to pandas
-            df = pd.read_csv(input.lists, sep="\t")
-            df = pl.from_pandas(df)
-            print(f"Fallback: Loaded {df.height:,} records from commercial list")
-
-        # Try to read non-commercial list
-        df_nc = None
-        if os.path.exists(input.lists_nc) and nc_size > 0:
-            print("Reading non-commercial filelist...")
-            try:
-                df_nc = pl.read_csv(input.lists_nc, separator="\t", ignore_errors=True)
-
-                # Validate columns match
-                if df_nc.height > 0 and set(df_nc.columns) == set(df.columns):
-                    df = pl.concat([df, df_nc], how="vertical")
-                    print(f"Combined: {df_nc.height:,} additional records from non-commercial list")
-                elif df_nc.height == 0:
-                    print("Non-commercial list is empty, using only commercial list")
-                else:
-                    print("Column mismatch in non-commercial list, using only commercial list")
-                    print(f"Commercial cols: {df.columns}")
-                    print(f"Non-commercial cols: {df_nc.columns}")
-            except Exception as e:
-                print(f"WARNING: Could not read non-commercial list: {e}")
-        else:
-            print("Non-commercial list file is empty or doesn't exist")
-
-        print(f"Total records before filtering: {df.height:,}")
-
-        # Apply filtering
-        print("Extracting journal and year information...")
-
-        # Split Article Citation and extract components
-        df_filtered = (
-            df.lazy()
-            .with_columns([
-                # Extract journal
-                pl.col("Article Citation")
-                .str.split(".")
-                .list.first()
-                .fill_null("")
-                .alias("journal"),
-
-                # Extract year using regex
-                pl.col("Article Citation")
-                .str.extract(r"(\d{4})", 1)
-                .fill_null("")
-                .alias("year")
-            ])
-            .filter(
-                # Filter out unwanted journals
-                ~pl.col("journal").str.to_lowercase().str.contains("|".join(keyword.lower() for keyword in FILTER_KEYWORDS)) &
-                # Filter out old years
-                ~pl.col("year").str.contains(r"^(18\d{2}|19[0-5]\d)$")
-            )
-            .drop(["journal", "year"])
-            .collect()
-        )
-
-        print(f"Filtered from {df.height:,} to {df_filtered.height:,} records")
-        reduction_pct = (1 - df_filtered.height / df.height) * 100 if df.height > 0 else 0
-        print(f"Reduction: {reduction_pct:.1f}%")
-
-        # Write output
-        print("Writing filtered results...")
-        df_filtered.write_csv(output[0], separator="\t")
-
-        elapsed = time.time() - start_time
-        print(f"=== {pmc_id} completed in {elapsed:.1f} seconds ===")
-
-        # Verify output file
-        output_size = os.path.getsize(output[0])
-        print(f"Output file size: {output_size:,} bytes")
-
-        if output_size == 0:
-            raise ValueError(f"Output file is empty for {pmc_id}!")
-
-
-rule concatenate_all_lists:
-    input:
-        expand(os.path.join(LISTS_DIR, "{pmc}_filelist.tsv"), pmc=PMC),
-    output:
-        os.path.join(LISTS_DIR, "all_pmc_filelist.tsv"),
-    resources:
-        slurm_partition="cpu,cpu_il",
-        runtime=60,
-        mem_mb=2000,
-        tasks=1,
-    run:
-        import pandas as pd
-
-        # Read and concatenate all filelists
-        all_dfs = []
-        for file in input:
-            df = pd.read_csv(file, sep="\t")
-            # Add PMC identifier from filename
-            pmc_id = os.path.basename(file).replace("_filelist.tsv", "")
-            df["pmc_dataset"] = pmc_id
-            all_dfs.append(df)
-
-        combined_df = pd.concat(all_dfs, ignore_index=True)
-        print(f"Combined {len(combined_df)} total files from {len(input)} PMC datasets")
-
-        # Save combined list
-        combined_df.to_csv(output[0], index=False, sep="\t")
-
-
-checkpoint split_into_chunks:
-    input:
-        os.path.join(LISTS_DIR, "all_pmc_filelist.tsv"),
-    output:
-        os.path.join(XML_CHUNKS_DIR, "xml_chunks.txt"),
-    params:
-        chunk_size=FILES_PER_CHUNK,
-    resources:
-        slurm_partition="cpu,cpu_il",
-        runtime=60,
-        mem_mb=8000,
-    run:
-        import pandas as pd
-        import math
-        import os
-
-        # Create the XML chunks directory
-        os.makedirs(XML_CHUNKS_DIR, exist_ok=True)
-
-        # Read the combined filelist
-        df = pd.read_csv(input[0], sep="\t")
-        total_files = len(df)
-        chunk_size = params.chunk_size
-        num_chunks = math.ceil(total_files / chunk_size)
-
-        print(
-            f"Splitting {total_files} files into {num_chunks} chunks of ~{chunk_size} files each"
-        )
-
-        # Create chunk files
-        chunk_names = []
-        for i in range(num_chunks):
-            start_idx = i * chunk_size
-            end_idx = min((i + 1) * chunk_size, total_files)
-            chunk_df = df.iloc[start_idx:end_idx]
-
-            chunk_name = f"xmlchunk_{i:04d}"
-            chunk_file = os.path.join(XML_CHUNKS_DIR, f"{chunk_name}_filelist.tsv")
-            chunk_df.to_csv(chunk_file, index=False, sep="\t")
-            chunk_names.append(chunk_name)
-
-            if i % 10 == 0:
-                print(f"Created chunk {i}/{num_chunks}: {len(chunk_df)} files")
-
-                # Write list of chunks
-        with open(output[0], "w") as f:
-            for name in chunk_names:
-                f.write(f"{name}\n")
-
-        print(f"Created {len(chunk_names)} chunks")
-
-
-def get_xml_chunks(wildcards):
-    """Get list of XML chunks from checkpoint"""
-    checkpoint_output = checkpoints.split_into_chunks.get(**wildcards).output[0]
-    with open(checkpoint_output) as f:
-        chunks = [line.strip() for line in f if line.strip()]
-    return chunks
-
-
-
-# Helper to narrow tar inputs per chunk
-def _chunk_pmcs(xmlchunk):
-    filelist_path = os.path.join(XML_CHUNKS_DIR, f"{xmlchunk}_filelist.tsv")
-    if not os.path.exists(filelist_path):
-        return []
-    df = pd.read_csv(filelist_path, sep="	", usecols=["pmc_dataset"])
-    pmcs = df["pmc_dataset"].dropna().astype(str).unique().tolist()
-    return sorted(pmcs)
-
-
-def get_comm_tars(wildcards):
-    pmcs = _chunk_pmcs(wildcards.xmlchunk)
-    return [
-        os.path.join(
-            TEMP_DIR,
-            f"oa_comm_xml.{pmc}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
-        )
-        for pmc in pmcs
-    ]
-
-
-def get_noncomm_tars(wildcards):
-    pmcs = _chunk_pmcs(wildcards.xmlchunk)
-    return [
-        os.path.join(
-            TEMP_DIR,
-            f"oa_noncomm_xml.{pmc}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
-        )
-        for pmc in pmcs
-    ]
-
-def get_parquet_chunks(wildcards):
-    """Get parquet chunk paths for downstream merging"""
-    chunks = get_xml_chunks(wildcards)
-    return [os.path.join(PARQUET_DIR, f"{chunk}.parquet") for chunk in chunks]
-
-
-rule process_xml_chunk:
-    threads: 4
-    input:
-        filelist=os.path.join(XML_CHUNKS_DIR, "{xmlchunk}_filelist.tsv"),
-        comm_tars=get_comm_tars,
-        noncomm_tars=get_noncomm_tars,
-        chunk_list=os.path.join(XML_CHUNKS_DIR, "xml_chunks.txt"),  # Dependency on checkpoint
-    output:
-        temp(os.path.join(CSV_DIR, "{xmlchunk}.csv")),
+        query=SOURCE_QUERY,
+        start_date=str(SOURCE.get("start_date", "1900-01-01")),
+        snapshot_date=str(SOURCE["snapshot_date"]),
+        tool=SOURCE.get("ncbi_tool", "nlp4pheno_pmc_builder"),
+        email_env=SOURCE.get("ncbi_email_env", "NCBI_EMAIL"),
+        api_key_env=SOURCE.get("ncbi_api_key_env", "NCBI_API_KEY"),
+        request_timeout=int(DOWNLOAD.get("request_timeout_seconds", 120)),
+        retries=int(DOWNLOAD.get("retries", 5)),
     conda:
-        "envs/r_env.yml"
+        PYTHON_ENV
     resources:
-        slurm_partition="cpu,cpu_il",
-        tasks=4,
-        runtime=2880,
-        mem_mb=8000,
+        mem_mb=int(RESOURCES.get("discovery_mem_mb", 2000)),
+        runtime=int(RESOURCES.get("discovery_runtime_minutes", 120)),
+        slurm_partition=RESOURCES.get("cpu_partition", "cpu,cpu_il"),
+        cpus_per_task=1,
     script:
-        "scripts/xml2tsv_chunk.R"
+        "scripts/fetch_pmc_ids.py"
 
 
-rule chunk_csv_parquet:
+rule fetch_inventory:
     input:
-        os.path.join(CSV_DIR, "{xmlchunk}.csv"),
+        fixture=fixture_inventory,
     output:
-        os.path.join(PARQUET_DIR, "{xmlchunk}.parquet"),
-    wildcard_constraints:
-        xmlchunk="xmlchunk_\d{4}"
+        complete=str(INVENTORY_DIR / "inventory_complete.json"),
+    log:
+        str(LOGS_DIR / "fetch_inventory.log"),
+    params:
+        mode=MODE,
+        bucket_url=SOURCE.get(
+            "bucket_url", "https://pmc-oa-opendata.s3.amazonaws.com"
+        ),
+        inventory_prefix=SOURCE.get(
+            "inventory_prefix",
+            "inventory-reports/pmc-oa-opendata/metadata/",
+        ),
+        inventory_version=str(SOURCE.get("inventory_version", "latest")),
+        snapshot_date=str(SOURCE["snapshot_date"]),
+        request_timeout=int(DOWNLOAD.get("request_timeout_seconds", 120)),
+        retries=int(DOWNLOAD.get("retries", 5)),
+    conda:
+        PYTHON_ENV
     resources:
-        slurm_partition="cpu,cpu_il",
-        runtime=500,
-        mem_mb=2000,
-        tasks=1,
+        mem_mb=int(RESOURCES.get("inventory_mem_mb", 4000)),
+        runtime=int(RESOURCES.get("inventory_runtime_minutes", 180)),
+        slurm_partition=RESOURCES.get("cpu_partition", "cpu,cpu_il"),
+        cpus_per_task=1,
     script:
-        "scripts/tsv2parquet_chunk.py"
+        "scripts/fetch_inventory.py"
 
-rule merge_filtered:
+
+rule select_article_versions:
     input:
-        chunks=get_parquet_chunks,
+        ids=str(METADATA_DIR / "pmcids.txt"),
+        search=str(METADATA_DIR / "search_manifest.json"),
+        inventory=str(INVENTORY_DIR / "inventory_complete.json"),
     output:
-        os.path.join(DATA_DIR, "pmc_filtered.parquet"),
+        manifest=str(METADATA_DIR / "article_manifest.parquet"),
+        summary=str(STATS_DIR / "selection_summary.json"),
+    log:
+        str(LOGS_DIR / "select_article_versions.log"),
+    params:
+        bucket_url=SOURCE.get(
+            "bucket_url", "https://pmc-oa-opendata.s3.amazonaws.com"
+        ),
+        fixture_xml_dir=(
+            str(workflow_path(SOURCE["fixture_xml_dir"]))
+            if MODE == "fixture"
+            else ""
+        ),
+        snapshot_date=str(SOURCE["snapshot_date"]),
+        max_missing_fraction=float(SOURCE.get("max_missing_fraction", 0.01)),
+    conda:
+        PYTHON_ENV
     resources:
-        slurm_partition="cpu,cpu_il",
-        runtime=600,
-        mem_mb=128 * 1024,
-        tasks=32, 
-    run:
-        import os
-        import polars as pl
-
-        # Let Polars manage threading (don’t hard-pin unless you must)
-        os.environ["POLARS_MAX_THREADS"] = str(resources.tasks)
-        os.environ["POLARS_FORCE_ASYNC"] = "1"
-
-        # Instead of batching → one global lazy scan
-        lazy_dfs = [pl.scan_parquet(f) for f in input.chunks]
-
-        # Concatenate lazily, collect once with streaming
-        result = pl.concat(lazy_dfs, how="vertical_relaxed")
-
-        # Write directly — avoid holding all_dfs in memory
-        result.sink_parquet(
-            output[0],
-            compression="zstd",
-            row_group_size=1_000_000,   # Bigger row groups = faster writes
-        )
+        mem_mb=int(RESOURCES.get("selection_mem_mb", 32000)),
+        runtime=int(RESOURCES.get("selection_runtime_minutes", 240)),
+        slurm_partition=RESOURCES.get("cpu_partition", "cpu,cpu_il"),
+        cpus_per_task=1,
+    script:
+        "scripts/select_articles.py"
 
 
-rule create_summary:
+rule partition_article_manifest:
     input:
-        data=os.path.join(DATA_DIR, "pmc_filtered.parquet"),
+        str(METADATA_DIR / "article_manifest.parquet"),
     output:
-        os.path.join(STATS_DIR, "processing_summary.json"),
+        expand(str(MANIFEST_CHUNK_DIR / "{chunk}.parquet"), chunk=CHUNKS),
+    log:
+        str(LOGS_DIR / "partition_article_manifest.log"),
+    params:
+        chunk_count=CHUNK_COUNT,
+    conda:
+        PYTHON_ENV
     resources:
-        **COMMON_RESOURCES
-    run:
-        import json
-        from datetime import datetime
-        import os
-        import polars as pl
-
-        chunk_paths = get_parquet_chunks({})
-        rows_df = pl.scan_parquet(input.data).select(pl.len().alias("rows")).collect()
-        total_rows = rows_df[0, "rows"] if rows_df.height else 0
-        output_bytes = os.path.getsize(input.data) if os.path.exists(input.data) else 0
-
-        # Create summary
-        summary = {
-            "timestamp": datetime.now().isoformat(),
-            "pipeline_config": {
-                "baseline_date": BASELINE_DATE,
-                "chunk_rows": CHUNK_ROWS,
-                "pmc_datasets": len(PMC),
-                "total_chunks": len(chunk_paths),
-            },
-            "overall_statistics": {
-                "total_rows": total_rows,
-                "chunks_merged": len(chunk_paths),
-                "output_file_bytes": output_bytes,
-            },
-            "filtering_statistics": {
-                "english_filtering_enabled": False,
-            },
-            "output_location": str(output[0]),
-            "data_location": str(input.data),
-        }
-
-        # Write summary
-        with open(output[0], "w") as f:
-            json.dump(summary, f, indent=2)
-
-        # Print summary to console
-        print("\n" + "=" * 60)
-        print("PROCESSING COMPLETE")
-        print("=" * 60)
-        print(f"Total rows processed: {total_rows:,}")
-        print(f"Combined chunks: {len(chunk_paths)}")
-        print(f"Output size (bytes): {output_bytes:,}")
-        print(f"Output saved to: {input.data}")
-        print(f"Summary saved to: {output[0]}")
-        print("=" * 60)
+        mem_mb=int(RESOURCES.get("partition_mem_mb", 8000)),
+        runtime=int(RESOURCES.get("partition_runtime_minutes", 120)),
+        slurm_partition=RESOURCES.get("cpu_partition", "cpu,cpu_il"),
+        cpus_per_task=1,
+    script:
+        "scripts/partition_manifest.py"
 
 
+rule parse_article_chunk:
+    input:
+        manifest=str(MANIFEST_CHUNK_DIR / "{chunk}.parquet"),
+    output:
+        sentences=str(SENTENCE_CHUNK_DIR / "{chunk}.parquet"),
+        articles=str(ARTICLE_CHUNK_DIR / "{chunk}.parquet"),
+        failures=str(FAILURE_DIR / "{chunk}.tsv"),
+        stats=str(STATS_DIR / "chunks" / "{chunk}.json"),
+    log:
+        str(LOGS_DIR / "chunks" / "{chunk}.log"),
+    threads:
+        int(DOWNLOAD.get("workers_per_job", 4))
+    params:
+        snapshot_date=str(SOURCE["snapshot_date"]),
+        max_text_chars=int(PROCESSING.get("max_text_chars", 512)),
+        min_text_chars=int(PROCESSING.get("min_text_chars", 20)),
+        publication_year_min=int(PROCESSING.get("publication_year_min", 1950)),
+        allowed_languages=PROCESSING.get("allowed_languages", ["en"]),
+        include_unknown_language=bool(
+            PROCESSING.get("include_unknown_language", True)
+        ),
+        excluded_section_patterns=PROCESSING.get(
+            "excluded_section_patterns", []
+        ),
+        request_timeout=int(DOWNLOAD.get("request_timeout_seconds", 120)),
+        retries=int(DOWNLOAD.get("retries", 5)),
+        verify_metadata_json=bool(DOWNLOAD.get("verify_metadata_json", True)),
+        user_agent=DOWNLOAD.get(
+            "user_agent", "NLP4Pheno PMC corpus builder/2.0"
+        ),
+    conda:
+        PYTHON_ENV
+    resources:
+        mem_mb=int(RESOURCES.get("parse_mem_mb", 12000)),
+        runtime=int(RESOURCES.get("parse_runtime_minutes", 1440)),
+        slurm_partition=RESOURCES.get("cpu_partition", "cpu,cpu_il"),
+        cpus_per_task=lambda wildcards, threads: threads,
+    script:
+        "scripts/parse_article_chunk.py"
+
+
+rule merge_corpus:
+    input:
+        sentences=expand(
+            str(SENTENCE_CHUNK_DIR / "{chunk}.parquet"), chunk=CHUNKS
+        ),
+        articles=expand(
+            str(ARTICLE_CHUNK_DIR / "{chunk}.parquet"), chunk=CHUNKS
+        ),
+        stats=expand(str(STATS_DIR / "chunks" / "{chunk}.json"), chunk=CHUNKS),
+        selection=str(STATS_DIR / "selection_summary.json"),
+        search=str(METADATA_DIR / "search_manifest.json"),
+        inventory=str(INVENTORY_DIR / "inventory_complete.json"),
+    output:
+        corpus=str(DATA_DIR / "pmc_filtered.parquet"),
+        articles=str(DATA_DIR / "pmc_articles.parquet"),
+        summary=str(STATS_DIR / "processing_summary.json"),
+    log:
+        str(LOGS_DIR / "merge_corpus.log"),
+    params:
+        snapshot_date=str(SOURCE["snapshot_date"]),
+        compression=PROCESSING.get("parquet_compression", "zstd"),
+        row_group_size=int(PROCESSING.get("row_group_size", 250000)),
+        max_failure_fraction=float(DOWNLOAD.get("max_failure_fraction", 0.01)),
+        min_chunk_failures_for_abort=int(
+            DOWNLOAD.get("min_chunk_failures_for_abort", 5)
+        ),
+    conda:
+        PYTHON_ENV
+    resources:
+        mem_mb=int(RESOURCES.get("merge_mem_mb", 16000)),
+        runtime=int(RESOURCES.get("merge_runtime_minutes", 360)),
+        slurm_partition=RESOURCES.get("cpu_partition", "cpu,cpu_il"),
+        cpus_per_task=1,
+    script:
+        "scripts/merge_corpus.py"

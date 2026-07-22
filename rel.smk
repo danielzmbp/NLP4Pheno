@@ -6,6 +6,11 @@ import re
 from itertools import permutations
 from sklearn.model_selection import train_test_split
 import jsonlines
+import sys
+
+sys.path.append("scripts")
+from annotation_utils import load_annotations, load_unique_pmc_groups, source_group
+from relation_data import build_relation_rows, relation_membership, split_by_task
 
 
 configfile: "config.yaml"
@@ -16,6 +21,7 @@ model_sets = config["model_sets"]
 input_file = config["input_file"]
 cuda = config["cuda_devices"]
 test_size = config["rel_test"]
+annotation_pmc_matches_file = config.get("annotation_pmc_matches_file")
 
 # Common resource configuration
 COMMON_RESOURCES = {"slurm_partition": "cpu", "runtime": 260, "mem_mb": 8000}
@@ -29,8 +35,7 @@ def load_json_data(input_file):
     """Load and cache JSON data to avoid repeated file reads"""
     global JSON_DATA_CACHE
     if JSON_DATA_CACHE is None:
-        with open(input_file) as f:
-            JSON_DATA_CACHE = json.load(f)
+        JSON_DATA_CACHE = load_annotations(input_file)
     return JSON_DATA_CACHE
 
 
@@ -71,83 +76,9 @@ rule parse_rels:
         runtime=60,
         mem_mb=12000,
     run:
-        # Use cached JSON data
         data = load_json_data(input[0])
-        ners = []
-        rels = []
-        for sentence in data:
-            if sentence.get("annotations") and sentence["annotations"]:
-                for annotation in sentence["annotations"][0]["result"]:
-                    if annotation["type"] == "labels":
-                        df = pd.json_normalize(annotation)
-                        df["sentence_id"] = sentence["id"]
-                        ners.append(df)
-                    elif annotation["type"] == "relation":
-                        df = pd.json_normalize(annotation)
-                        df["sentence_id"] = sentence["id"]
-                        rels.append(df)
-        ner = pd.concat(ners, ignore_index=True) if ners else pd.DataFrame()
-        rel = pd.concat(rels, ignore_index=True) if rels else pd.DataFrame()
-
-        perms = ner.groupby("sentence_id").apply(
-            lambda x: list(permutations(x["id"], 2))
-        )
-        perms.name = "perms"  # get every possible combination of entities in a sentence
-
-        df = pd.json_normalize(data)
-        d = ner.merge(perms, on="sentence_id").merge(
-            df[["id", "data.text"]], left_on="sentence_id", right_on="id"
-        )
-        d = d.drop(columns="id_y").rename(columns={"id_x": "id"})
-
-        sentences = []
-        labels = []
-        for id in d.sentence_id.drop_duplicates().to_list():
-            sentence = d[d["sentence_id"] == id].loc[:, "data.text"].values[0]
-            for perm in d[d["sentence_id"] == id].perms.to_list()[0]:
-                text0 = d[d["id"] == perm[0]].loc[:, "value.text"].values[0]
-                lab0 = str(d[d["id"] == perm[0]].loc[:, "value.labels"].values[0])
-                text1 = d[d["id"] == perm[1]].loc[:, "value.text"].values[0]
-                lab1 = str(d[d["id"] == perm[1]].loc[:, "value.labels"].values[0])
-                replaced_sentence = sentence.replace(text0, f"@{lab0[2:-2]}$").replace(
-                    text1, f"@{lab1[2:-2]}$"
-                )
-                sentences.append(replaced_sentence)
-                rel_label = rel[
-                    (rel["from_id"] == perm[0]) & (rel["to_id"] == perm[1])
-                ].labels.values
-                if rel_label.size == 1:
-                    # Check if rel_label[0] is a valid list/array with content
-                    try:
-                        # Try to get the length - this will fail for NaN/None
-                        rel_len = len(rel_label[0]) if hasattr(rel_label[0], '__len__') else 0
-                        
-                        if rel_len == 2:
-                            sentences.append(replaced_sentence)
-                            for lbl in rel_label[0]:
-                                label = f"{lab0[2:-2]}-{lab1[2:-2]}:{str(lbl)}"
-                                labels.append(label)
-                        elif rel_len == 1:
-                            label = f"{lab0[2:-2]}-{lab1[2:-2]}:{str(rel_label[0])[2:-2]}"
-                            labels.append(label)
-                        elif rel_len == 0:
-                            # Empty list/array
-                            label = f"{lab0[2:-2]}-{lab1[2:-2]}:"
-                            labels.append(label)
-                    except (TypeError, ValueError):
-                        # Handle case where labels is NaN, None, or other non-iterable
-                        print(f"WARNING: Empty/NaN relation label in sentence ID {id}")
-                        print(f"  Sentence: {sentence[:100]}...")
-                        print(f"  Entity pair: {text0} ({lab0[2:-2]}) -> {text1} ({lab1[2:-2]})")
-                        print(f"  Raw label value: {rel_label[0]}")
-                        label = f"{lab0[2:-2]}-{lab1[2:-2]}:"
-                        labels.append(label)
-                elif rel_label.size == 0:
-                    label = f"{lab0[2:-2]}-{lab1[2:-2]}:"
-                    labels.append(label)
-        rel_df = pd.DataFrame({"sentence": sentences, "label": labels})
-        # replace all hyphens in the data by spaces
-        rel_df["sentence"] = rel_df["sentence"].str.replace(r"(?<=\w)-(?=\w)", " ")
+        rel_df, stats = build_relation_rows(data)
+        print(json.dumps(stats, sort_keys=True))
         rel_df.to_csv(output[0], sep="\t", index=False)
 
 
@@ -162,7 +93,7 @@ rule split_labels:
         df = pd.read_csv(input[0], sep="\t")
         for label in labels:
             relation = label.split(":")[0]
-            df[df["label"].str.startswith(relation)].to_csv(
+            df[df["pair_type"] == relation].to_csv(
                 f"REL/{label}/all.tsv", sep="\t", index=False
             )
 
@@ -171,79 +102,98 @@ rule split_sets:
     input:
         expand("REL/{ENT}/all.tsv", ENT=labels),
         input_file,
+        *([annotation_pmc_matches_file] if annotation_pmc_matches_file else []),
     output:
-        expand("REL/{ENT}/{SET}.json", ENT=labels, SET=model_sets),
+        datasets=expand("REL/{ENT}/{SET}.json", ENT=labels, SET=model_sets),
+        summary="REL/split_summary.json",
     resources:
         **COMMON_RESOURCES,
     params:
         seed=config["seed"],
     run:
-        # Use cached JSON data and strain catalog
-        data = load_json_data(input_file)
-        strain_catalog = extract_strain_catalog(data)
-
+        summary = {}
+        pmc_groups = load_unique_pmc_groups(annotation_pmc_matches_file)
         for label in labels:
             rel_label = label.split(":")[1]
             df = pd.read_csv(f"REL/{label}/all.tsv", sep="\t")
-
-            df.rename(columns={"label": "l"}, inplace=True)
-
-            df.loc[:, "label"] = np.where(df.l.str.endswith(rel_label), 1, 0)
-
-            train, test_eval = train_test_split(
-                df, test_size=test_size, stratify=df.label, random_state=params.seed
+            df.loc[:, "binary_label"] = relation_membership(
+                df["relations"], rel_label
+            ).astype(int)
+            df.loc[:, "split_group"] = df["task_id"].map(
+                lambda task_id: source_group(task_id, pmc_groups)
             )
-
-            # Optimized data augmentation for positive samples
-            positive_samples = train[train["label"] == 1]
-            negative_samples = train[train["label"] == 0]
-            num_to_generate = (len(negative_samples) - len(positive_samples)) // 5
-
-            if num_to_generate > 0:
-                augmented_rows = []
-                strain_catalog_set = set(strain_catalog)  # Faster lookup
-
-                for _ in range(num_to_generate):
-                    random_sentence = positive_samples.sample(1).iloc[0]
-                    sentence_text = random_sentence.sentence
-                    for strain in strain_catalog:
-                        if strain in sentence_text:
-                            alternatives = list(strain_catalog_set - {strain})
-                            if alternatives:
-                                new_strain = np.random.choice(alternatives)
-                                augmented_sentence = sentence_text.replace(
-                                    strain, new_strain
-                                )
-                                augmented_row = random_sentence.copy()
-                                augmented_row.sentence = augmented_sentence
-                                augmented_rows.append(augmented_row)
-                                break
-
-                if augmented_rows:
-                    train = pd.concat(
-                        [train, pd.DataFrame(augmented_rows)], ignore_index=True
-                    )
-
-            test, evaluation = train_test_split(
-                test_eval,
-                test_size=0.5,
-                stratify=test_eval.label,
-                random_state=params.seed,
+            data_sets = split_by_task(
+                df,
+                test_and_dev_size=test_size,
+                seed=params.seed,
+                group_column="split_group",
             )
-
-            data_sets = {"test": test, "dev": evaluation, "train": train}
+            split_task_ids = {
+                split: set(data["task_id"].unique()) for split, data in data_sets.items()
+            }
+            if (
+                split_task_ids["train"] & split_task_ids["dev"]
+                or split_task_ids["train"] & split_task_ids["test"]
+                or split_task_ids["dev"] & split_task_ids["test"]
+            ):
+                raise RuntimeError(f"Task leakage detected while splitting {label}")
+            split_source_groups = {
+                split: set(data["split_group"].unique())
+                for split, data in data_sets.items()
+            }
+            if (
+                split_source_groups["train"] & split_source_groups["dev"]
+                or split_source_groups["train"] & split_source_groups["test"]
+                or split_source_groups["dev"] & split_source_groups["test"]
+            ):
+                raise RuntimeError(f"Source-article leakage detected while splitting {label}")
+            summary[label] = {
+                "all": {
+                    "rows": int(len(df)),
+                    "tasks": int(df["task_id"].nunique()),
+                    "groups": int(df["split_group"].nunique()),
+                    "pmc_linked_tasks": int(
+                        df.loc[df["task_id"].astype(str).isin(pmc_groups), "task_id"].nunique()
+                    ),
+                    "positive": int(df["binary_label"].sum()),
+                    "negative": int((df["binary_label"] == 0).sum()),
+                },
+                "splits": {},
+            }
 
             for data_set, data in data_sets.items():
+                summary[label]["splits"][data_set] = {
+                    "rows": int(len(data)),
+                    "tasks": int(data["task_id"].nunique()),
+                    "groups": int(data["split_group"].nunique()),
+                    "positive": int(data["binary_label"].sum()),
+                    "negative": int((data["binary_label"] == 0).sum()),
+                }
                 data = (
-                    data.reset_index()
-                    .drop(columns="index")
-                    .reset_index()[["index", "sentence", "label"]]
+                    data.reset_index(drop=True)
+                    .reset_index()[["index", "task_id", "sentence", "binary_label"]]
                 )
                 with jsonlines.open(f"REL/{label}/{data_set}.json", mode="w") as writer:
                     for row in data.itertuples(index=False):
                         writer.write(
-                            {"id": row[0], "sentence": row[1], "label": row[2]}
+                            {
+                                "id": row[0],
+                                "task_id": row[1],
+                                "sentence": row[2],
+                                "label": row[3],
+                            }
                         )
+        with open(output.summary, "w") as handle:
+            json.dump(
+                {
+                    "grouping": "unique_pmcid_else_task_id",
+                    "pmc_linked_tasks": len(pmc_groups),
+                    "relations": summary,
+                },
+                handle,
+                indent=2,
+                sort_keys=True,
+            )
 
 
 rule run_linkbert:
@@ -271,6 +221,10 @@ rule run_linkbert:
         export MODEL_PATH=michiyasunaga/$MODEL
         export USE_CODALAB=1
         python -c "import torch; print(f'Using GPU: {{torch.cuda.is_available()}}'); print(f'GPU Device: {{torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None"}}')"
+        if ! python -c "import torch; exit(0 if torch.cuda.is_available() else 1)"; then
+            echo "ERROR: No GPU detected by PyTorch; relation training is intentionally disabled on CPU."
+            exit 1
+        fi
         for entity in {params.entities};
         do
             datadir=REL/$entity
@@ -283,7 +237,7 @@ rule run_linkbert:
             --learning_rate 3e-5 --num_train_epochs {params.epochs} --max_seq_length 512 \
             --save_strategy epoch --eval_strategy epoch --logging_strategy epoch --output_dir $outdir --overwrite_output_dir --load_best_model_at_end \
             --metric_for_best_model F1 --greater_is_better True \
-            |& tee $outdir/log.txt
+            2>&1 | tee $outdir/log.txt
             rm -rf $outdir/checkpoint-*
         done
         """

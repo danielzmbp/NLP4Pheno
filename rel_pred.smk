@@ -2,14 +2,14 @@ import pandas as pd
 import itertools
 from rapidfuzz import process
 from rapidfuzz import fuzz
-from scipy import sparse
-from tqdm.auto import tqdm
-import dask.array as da
-from scipy.sparse import csr_matrix
 import numpy as np
 from collections import defaultdict
-from glob import glob
 import polars as pl
+import sys
+import os
+
+sys.path.append("scripts")
+from relation_prediction_utils import add_formatted_text
 
 
 configfile: "config.yaml"
@@ -21,6 +21,12 @@ preds = f"{output_path}/preds" + str(config["dataset"])
 labels = config["rel_labels"]
 cuda = config["cuda_devices"]
 pmc_file = config["pmc_parquet_file"]
+straininfo_designations = config["straininfo_designations_file"]
+straininfo_version = config["straininfo_version"]
+straininfo_assembly_workers = int(config.get("straininfo_assembly_workers", 8))
+straininfo_max_failure_fraction = float(
+    config.get("straininfo_max_failure_fraction", 0.01)
+)
 
 # Common resource configurations
 COMMON_RESOURCES = {"slurm_partition": "cpu", "runtime": 30, "mem_mb": 10000}
@@ -53,45 +59,7 @@ rule format_sentences:
         mem_mb=24000,
     run:
         df = pl.read_parquet(input[0])
-
-        # Optimized text formatting using polars expressions
-        df = df.with_columns(
-            [
-                pl.when(
-                    (pl.col("start_strain") > pl.col("start"))
-                    & (pl.col("end_strain") > pl.col("end"))
-                )
-                .then(
-                    pl.col("text").str.slice(0, pl.col("start_strain"))
-                    + "@STRAIN$"
-                    + pl.col("text").str.slice(pl.col("end_strain"))
-                    + pl.col("text").str.slice(0, pl.col("start"))
-                    + "@"
-                    + pl.col("ner")
-                    + "$"
-                    + pl.col("text").str.slice(pl.col("end"))
-                )
-                .when(
-                    (pl.col("start_strain") <= pl.col("start"))
-                    & (pl.col("end") > pl.col("end_strain"))
-                )
-                .then(
-                    pl.col("text").str.slice(0, pl.col("start"))
-                    + "@"
-                    + pl.col("ner")
-                    + "$"
-                    + pl.col("text").str.slice(pl.col("end"))
-                    + pl.col("text").str.slice(0, pl.col("start_strain"))
-                    + "@STRAIN$"
-                    + pl.col("text").str.slice(pl.col("end_strain"))
-                )
-                .otherwise(None)
-                .alias("formatted_text")
-            ]
-        )
-
-        # Remove rows where formatting failed
-        df = df.filter(pl.col("formatted_text").is_not_null())
+        df = add_formatted_text(df)
         df.write_parquet(output[0], compression="snappy")
 
 
@@ -180,245 +148,27 @@ rule merge_preds:
         df.write_parquet(output[0], compression="snappy")
 
 
-rule download_strainselect:
-    output:
-        f"{preds}/strainselect/StrainSelect21_edges.tab.txt",
-        f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
-    resources:
-        **COMMON_RESOURCES,
-    shell:
-        "wget https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_edges.tab.txt -O {output[0]}; wget https://gg-sg-web.s3-us-west-2.amazonaws.com/downloads/strainselect_database/StrainSelect21/StrainSelect21_vertices.tab.txt -O {output[1]}"
-
-
-rule split_batches_strainselect:
+rule match_straininfo:
     input:
-        preds_file=f"{preds}/REL_output/preds.pqt",
+        predictions=f"{preds}/REL_output/preds.pqt",
+        designations=straininfo_designations,
     output:
-        batch_files=expand(
-            f"{preds}/REL_output/batched_input/{{batch_id}}.pqt",
-            batch_id=range(0, 1000),
-        ),
-    resources:
-        slurm_partition="cpu",
-        runtime=50,
-        mem_mb=10000,
-        tasks=2,
-    run:
-        import sys
-
-        sys.path.append("scripts")
-        from entity_normalization import create_vertex_dot_column, extract_genus_hint
-
-        # Use polars for efficient processing
-        df = pl.read_parquet(input[0])
-
-        # Add genus hints from sentence context (CRITICAL for improved matching)
-        df = extract_genus_hint(df)
-
-        df = create_vertex_dot_column(df)
-
-        # Filter out short matches that are likely noise
-        df = df.filter(~pl.col("vertex_dot").str.contains("^[a-z]\\.[a-z]+$"))
-
-        num_batches = 1000
-        batch_size = len(df) // num_batches + 1
-
-        os.makedirs(f"{preds}/REL_output/batched_input/", exist_ok=True)
-        for i in range(num_batches):
-            start_idx = i * batch_size
-            end_idx = min((i + 1) * batch_size, len(df))
-            batch_df = df.slice(start_idx, end_idx - start_idx)
-            batch_df.write_parquet(f"{preds}/REL_output/batched_input/{i}.pqt")
-
-
-rule match_batch_strainselect:
-    input:
-        batch_file=f"{preds}/REL_output/batched_input/{{batch_id}}.pqt",
-        vertices=f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
-    output:
-        batch_output=f"{preds}/batched_output_results/{{batch_id}}.parquet",
+        matched=f"{preds}/REL_output/preds_straininfo.pqt",
+        summary=f"{preds}/REL_output/straininfo_match_summary.json",
     resources:
         slurm_partition="cpu,cpu_il",
-        runtime=1000,
-        mem_mb=10000,
-    threads: 8
-    run:
-        import sys
-        sys.path.append("scripts")
-        from improved_strain_matching import match_strains_improved, filter_ambiguous_matches
-        from rapidfuzz import process, fuzz
-
-        workers = threads
-
-        batch_id = wildcards.batch_id
-        print(f"[BATCH {batch_id}] Starting HYBRID strain matching process...")
-
-        # Load batch data (now includes genus_hint column)
-        df = pd.read_parquet(input[0])
-
-        # Load vertices database
-        vertices = pd.read_csv(input[1], sep="\t", usecols=[0, 1, 2], low_memory=False)
-        vertices["vertex_dot"] = vertices.vertex.str.replace("_", ".").str.lower()
-
-        # Clean strain names
-        strains_series = (
-            df.vertex_dot.str.replace("\.$", "", regex=True)
-            .str.replace("^\.", "", regex=True)
-        )
-
-        # Filter out very short strains (likely noise)
-        mask = strains_series.str.replace(".", "", regex=False).str.len() > 2
-        strains_series = strains_series[mask]
-
-        # Get genus hints aligned with strains
-        genus_hints_series = df.loc[strains_series.index, 'genus_hint'] if 'genus_hint' in df.columns else None
-
-        # Get unique strains (but keep genus hints)
-        strain_genus_df = pd.DataFrame({
-            'strain': strains_series,
-            'genus_hint': genus_hints_series if genus_hints_series is not None else None
-        }).drop_duplicates(subset=['strain'])
-
-        print(f"[BATCH {batch_id}] Data loaded: {len(df)} rows, {len(strain_genus_df)} unique strains")
-        if genus_hints_series is not None:
-            n_with_genus = strain_genus_df['genus_hint'].notna().sum()
-            print(f"[BATCH {batch_id}] Genus hints: {n_with_genus} / {len(strain_genus_df)} ({100*n_with_genus/len(strain_genus_df):.1f}%)")
-
-        # STEP 1: Try NEW (improved) matching algorithm
-        print(f"[BATCH {batch_id}] STEP 1/2: Running improved context-aware matching...")
-        new_matches = match_strains_improved(
-            strains=strain_genus_df['strain'],
-            vertices=vertices,
-            genus_hints=strain_genus_df['genus_hint'] if 'genus_hint' in strain_genus_df.columns else None,
-            workers=workers,
-            verbose=False
-        )
-        new_matches = filter_ambiguous_matches(new_matches, score_threshold=5.0)
-
-        # STEP 2: Fallback to OLD strategy for unmatched strains
-        matched_by_new = set(new_matches['strain'].tolist()) if len(new_matches) > 0 else set()
-        unmatched_strains = [s for s in strain_genus_df['strain'] if s not in matched_by_new]
-
-        print(f"[BATCH {batch_id}] NEW matched: {len(matched_by_new)}/{len(strain_genus_df)}")
-        print(f"[BATCH {batch_id}] STEP 2/2: Running OLD strategy on {len(unmatched_strains)} unmatched strains...")
-
-        if len(unmatched_strains) > 0:
-            # OLD strategy: simple fuzzy matching without genus filtering
-            vertices_noass = vertices[vertices.vertex_type == 'gss'].copy()
-            vertices_list = vertices_noass.vertex_dot.to_list()
-
-            partial_matches = process.cdist(
-                unmatched_strains,
-                vertices_list,
-                scorer=fuzz.partial_ratio,
-                workers=workers,
-                score_cutoff=90
-            )
-
-            old_matches_list = []
-            for i, strain in enumerate(unmatched_strains):
-                strain_scores = partial_matches[i]
-                if strain_scores.max() > 0:
-                    best_idx = strain_scores.argmax()
-                    best_match = vertices_list[best_idx]
-                    best_score = strain_scores[best_idx]
-
-                    old_matches_list.append({
-                        'strain': strain,
-                        'strainselect': best_match,
-                        'score_weighted': best_score,
-                        'score_partial': best_score
-                    })
-
-            if len(old_matches_list) > 0:
-                old_fallback = pd.DataFrame(old_matches_list)
-                old_fallback = old_fallback.merge(
-                    vertices_noass[['vertex_dot', 'vertex', 'vertex_type', 'StrainSelectID']],
-                    left_on='strainselect',
-                    right_on='vertex_dot',
-                    how='left'
-                )
-                # Combine NEW + OLD
-                matches = pd.concat([new_matches, old_fallback], ignore_index=True)
-                print(f"[BATCH {batch_id}] OLD matched: {len(old_fallback)} additional strains")
-            else:
-                matches = new_matches
-                print(f"[BATCH {batch_id}] OLD matched: 0 additional strains")
-        else:
-            matches = new_matches
-
-        print(f"[BATCH {batch_id}] HYBRID TOTAL: {len(matches)}/{len(strain_genus_df)} unique strains matched")
-
-        # Merge matches back to original df
-        # Clean vertex_dot in df for matching
-        df_clean = df.copy()
-        df_clean['vertex_dot_clean'] = (
-            df_clean.vertex_dot.str.replace("\.$", "", regex=True)
-            .str.replace("^\.", "", regex=True)
-        )
-
-        # Drop score_partial from matches to avoid duplicate after rename
-        if 'score_partial' in matches.columns:
-            matches = matches.drop(columns=['score_partial'])
-
-        final = df_clean.merge(
-            matches,
-            left_on='vertex_dot_clean',
-            right_on='strain',
-            how='left'
-        )
-
-        # Rename columns to match expected output format
-        final = final.drop(columns=['vertex_dot_clean', 'vertex_dot_y', 'strainselect', 'strain'], errors='ignore')
-        if 'vertex_dot_x' in final.columns:
-            final = final.rename(columns={'vertex_dot_x': 'vertex_dot'})
-
-        final = final.rename(
-            columns={
-                "vertex": "strainselect_vertex",
-                "score_weighted": "score_partial"
-            },
-            errors='ignore'
-        )
-
-        # Add score_full as NaN (not used in improved matching)
-        if 'score_full' not in final.columns:
-            final['score_full'] = np.nan
-
-        # Final statistics
-        matched_rows = final['StrainSelectID'].notna().sum()
-        print(f"[BATCH {batch_id}] FINAL RESULTS: {matched_rows}/{len(final)} rows have strain matches ({100*matched_rows/len(final):.1f}%)")
-
-        final.to_parquet(output[0])
-
-
-rule merge_batch_outputs_strainselect:
-    input:
-        batch_outputs=expand(
-            f"{preds}/batched_output_results/{{batch_id}}.parquet",
-            batch_id=range(0, 1000),
-        ),
-    output:
-        merged_output=f"{preds}/REL_output/preds_strainselect.pqt",
-    resources:
-        slurm_partition="cpu",
-        runtime=600,
-        mem_mb=16000,
-    run:
-        # Efficient batch processing with polars
-        df_list = []
-        for file_path in input:
-            df_temp = pl.read_parquet(file_path)
-            df_list.append(df_temp)
-        df = pl.concat(df_list)
-        df.write_parquet(output[0], compression="snappy")
+        runtime=240,
+        mem_mb=32000,
+        cpus_per_task=4,
+    shell:
+        "python scripts/match_straininfo_predictions.py {input.predictions} {input.designations} --output {output.matched} --summary {output.summary}"
 
 
 rule group_entities:
     input:
-        f"{preds}/REL_output/preds_strainselect.pqt",
+        f"{preds}/REL_output/preds_straininfo.pqt",
     output:
-        f"{preds}/REL_output/preds_strainselect_grouped.pqt",
+        f"{preds}/REL_output/preds_straininfo_grouped.pqt",
     resources:
         slurm_partition="cpu",
         runtime=80,
@@ -427,7 +177,7 @@ rule group_entities:
     run:
         df = pd.read_parquet(input[0])
         df = df.drop(columns=["label_rel", "label"])
-        df.rename(
+        df = df.rename(
             columns={
                 "score": "ner_score",
             }
@@ -451,14 +201,14 @@ rule group_entities:
                 workers=20,
             )
             indices = np.argwhere(result >= cutoff)
-            word_indices = list(zip(all_words[indices[:, 0]], all_words[indices[:, 1]]))
+            word_indices = list(zip(query_words[indices[:, 0]], all_words[indices[:, 1]]))
             matchesdf = pd.DataFrame(word_indices)
 
             scores = result[indices[:, 0], indices[:, 1]]
             matchesdf["score"] = scores
             unique_matches = matchesdf[matchesdf[0] != matchesdf[1]]
 
-            word_counts = df.word_qc.value_counts()
+            word_counts = df_filter.word_qc.value_counts()
             unique_matches.loc[:, "total_count_0"] = unique_matches[0].map(word_counts)
             unique_matches.loc[:, "total_count_1"] = unique_matches[1].map(word_counts)
 
@@ -502,47 +252,28 @@ rule group_entities:
         finaldf.to_parquet(output[0], compression="snappy")
 
 
-rule write_download_file:
+rule resolve_straininfo_assemblies:
     input:
-        f"{preds}/REL_output/preds_strainselect_grouped.pqt",
-        f"{preds}/strainselect/StrainSelect21_vertices.tab.txt",
+        f"{preds}/REL_output/preds_straininfo_grouped.pqt",
     output:
-        f"{preds}/REL_output/strains_assemblies.txt",
+        assemblies=f"{preds}/straininfo/assemblies.parquet",
+        manifest=f"{preds}/REL_output/strains_assemblies.txt",
+        summary=f"{preds}/straininfo/assembly_summary.json",
     resources:
-        **{**COMMON_RESOURCES, "runtime": 60},
-    run:
-        import polars as pl
-        
-        # Read parquet file and filter out nulls
-        df = pl.read_parquet(input[0]).filter(pl.col("StrainSelectID").is_not_null())
-        
-        # Read vertices file and filter for rs_assembly only during reading
-        v_rs = (
-            pl.read_csv(input[1], separator="\t", n_rows=None)
-            .select(["StrainSelectID", "vertex", "vertex_type"])
-            .filter(pl.col("vertex_type") == "rs_assembly")
-        )
-        
-        # Perform join and create assemblies column
-        merged = df.join(v_rs, on="StrainSelectID", how="inner")
-        merged = merged.with_columns(
-            (pl.col("StrainSelectID") + "/" + pl.col("vertex").str.replace(" ", "_")).alias("assemblies")
-        )
-        
-        # Get unique assemblies
-        assemblies = merged.select("assemblies").unique().to_series().to_list()
-        
-        with open(output[0], "w") as f:
-            for a in assemblies:
-                f.write(a + "\n")
+        slurm_partition="cpu_il,cpu",
+        runtime=240,
+        mem_mb=8000,
+        cpus_per_task=straininfo_assembly_workers,
+    shell:
+        "python scripts/fetch_straininfo_assemblies.py {input} --expected-version {straininfo_version} --workers {straininfo_assembly_workers} --max-failure-fraction {straininfo_max_failure_fraction} --output {output.assemblies} --manifest-output {output.manifest} --summary {output.summary}"
 
 
 rule link_pmc:
     input:
-        f"{preds}/REL_output/preds_strainselect_grouped.pqt",
+        f"{preds}/REL_output/preds_straininfo_grouped.pqt",
         pmc_file,
     output:
-        f"{preds}/REL_output/preds_strainselect_grouped_pmc.pqt",
+        f"{preds}/REL_output/preds_straininfo_grouped_pmc.pqt",
     resources:
         slurm_partition="cpu",
         runtime=80,
@@ -552,9 +283,9 @@ rule link_pmc:
         df = pl.scan_parquet(input[0])
         pmc = (
             pl.scan_parquet(input[1])
-            .select(["text", "pmcid", "paragraph", "sentence_range"])
-            .with_columns(pl.col("text").str.replace_all(r"(\w)-(\w)", r"$1 $2"))
-            .with_columns(pl.col("text").str.replace_all(r"(\w)-(\w)", r"$1 $2"))
+            .select(
+                ["text", "pmcid", "article_version", "paragraph", "sentence_range"]
+            )
         )
 
         df_merged = df.join(pmc, on="text", how="left")
@@ -566,34 +297,34 @@ rule link_pmc:
 
 rule create_network:
     input:
-        f"{preds}/REL_output/preds_strainselect_grouped.pqt",
+        f"{preds}/REL_output/preds_straininfo_grouped.pqt",
     output:
         f"{preds}/network.tsv",
         f"{preds}/strains.txt",
-        # f"{preds}/network_assemblies.tsv",
-        # f"{preds}/strains_assemblies.txt",
     resources:
         **COMMON_RESOURCES,
-    params:
-        data=str(config["dataset"]),
     run:
         df = pd.read_parquet(input[0])
         # filter out wrongly assigned strains
-        df = df[~df["word_strain_qc"].str.contains("adapted|covid")]
+        df = df[~df["word_strain_qc"].str.contains("adapted|covid", na=False)]
+
+        matched = df[df["straininfo_si_id"].notna()].copy()
+        matched.loc[:, "strain_id"] = matched["straininfo_si_id"].astype(int).map(
+            lambda value: f"SI-ID{value}"
+        )
 
         network = (
-            df[df.StrainSelectID.isna() == False]
-            .loc[:, ["StrainSelectID", "word_qc_group", "rel"]]
-            .drop_duplicates(["StrainSelectID", "word_qc_group", "rel"])
+            matched.loc[:, ["strain_id", "word_qc_group", "rel"]]
+            .drop_duplicates(["strain_id", "word_qc_group", "rel"])
         )
         network.loc[:, "source"] = np.where(
             network["rel"].str.startswith("STRAIN"),
-            network.StrainSelectID,
+            network.strain_id,
             network.word_qc_group,
         )
         network.loc[:, "target"] = np.where(
             network["rel"].str.startswith("STRAIN") == False,
-            network.StrainSelectID,
+            network.strain_id,
             network.word_qc_group,
         )
 
@@ -614,43 +345,13 @@ rule create_network:
         network.to_csv(output[0], index=False, sep="\t")
 
         with open(output[1], "w") as f:
-            for s in sorted(
-                set(df[df.StrainSelectID.isna() == False].StrainSelectID.to_list())
-            ):
+            for s in sorted(set(matched.strain_id.to_list())):
                 f.write(f"{s}\n")
-
-                # # filtered network
-
-                # folders = glob(f"{output_path}/assemblies_{params.data}/*")
-
-                # strains = [f.split("/")[-1] for f in folders]
-                # filtered_df= df[df.StrainSelectID.isin(strains)]
-
-                # network = filtered_df.loc[:,["StrainSelectID","word_qc_group","rel"]].drop_duplicates(["StrainSelectID","word_qc_group","rel"])
-                # network.loc[:,"source"] = np.where(network['rel'].str.startswith("STRAIN"), network.StrainSelectID	, network.word_qc_group)
-                # network.loc[:,"target"] = np.where(network['rel'].str.startswith("STRAIN")==False, network.StrainSelectID, network.word_qc_group)
-
-                # network = network.loc[:,["source","target","rel"]]
-
-                # network = pd.concat([network,
-                # network.rel.str.split(":",expand=True)[0].str.split("-",expand=True).rename(
-                # columns={0:"source_ner",1:"target_ner"})]
-                #     ,axis=1
-                #     )
-
-                # network["rel"] = network.rel.str.split(":",expand=True)[1]
-                # network.to_csv(output[2],index=False,sep="\t")
-
-                # with open(output[3], "w") as f:
-                #     for s in sorted(set(filtered_df.StrainSelectID.to_list())):
-                #         f.write(f"{s}\n")
-
-
 
 rule link_pmc_network:
     input:
         f"{preds}/network.tsv",
-        f"{preds}/REL_output/preds_strainselect_grouped_pmc.pqt",
+        f"{preds}/REL_output/preds_straininfo_grouped_pmc.pqt",
     output:
         f"{preds}/network_pmc.tsv",
     resources:
@@ -658,22 +359,42 @@ rule link_pmc_network:
     run:
         df = pl.read_parquet(input[1])
         network = pl.read_csv(input[0], separator="\t")
-        network = network.join(
-            df.select(
+        evidence = (
+            df.filter(pl.col("straininfo_si_id").is_not_null())
+            .with_columns(
+                pl.concat_str(
+                    pl.lit("SI-ID"),
+                    pl.col("straininfo_si_id").cast(pl.Int64).cast(pl.String),
+                ).alias("strain_id"),
+            )
+            .with_columns(
+                pl.when(pl.col("rel").str.starts_with("STRAIN"))
+                .then(pl.col("strain_id"))
+                .otherwise(pl.col("word_qc_group"))
+                .alias("source"),
+                pl.when(pl.col("rel").str.starts_with("STRAIN"))
+                .then(pl.col("word_qc_group"))
+                .otherwise(pl.col("strain_id"))
+                .alias("target"),
+                pl.col("rel").str.split(":").list.get(1).alias("rel_name"),
+            )
+            .select(
                 [
-                    "StrainSelectID",
-                    "word_qc_group",
+                    "source",
+                    "target",
+                    "rel_name",
                     "pmcid",
+                    "article_version",
                     "paragraph",
                     "sentence_range",
                 ]
-            ),
-            left_on=["source", "target"],
-            right_on=["StrainSelectID", "word_qc_group"],
+            )
+            .unique()
+        )
+        network = network.join(
+            evidence,
+            left_on=["source", "target", "rel"],
+            right_on=["source", "target", "rel_name"],
             how="left",
         )
-        # Only drop columns if they exist in the result
-        cols_to_drop = [col for col in ["StrainSelectID", "word_qc_group"] if col in network.columns]
-        if cols_to_drop:
-            network = network.drop(cols_to_drop)
         network.write_csv(output[0], separator="\t")

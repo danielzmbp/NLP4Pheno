@@ -7,6 +7,10 @@ from operator import itemgetter
 from glob import glob
 import itertools
 import csv
+import sys
+
+sys.path.append("scripts")
+from ner_postprocess import merge_entities as merge_entity_spans
 
 
 configfile: "config.yaml"
@@ -37,34 +41,7 @@ def merge_entities(entity_list):
     if cache_key in MERGED_ENTITIES_CACHE:
         return MERGED_ENTITIES_CACHE[cache_key]
 
-    merged_list = []
-    skip = False
-    entity_len = len(entity_list)
-
-    for i in range(entity_len):
-        if skip:
-            skip = False
-            continue
-
-        current_entity = entity_list[i].copy()
-        current_entity.pop("word", None)
-
-        if current_entity["entity_group"] == "B":
-            scores = [current_entity["score"]]
-            next_idx = i + 1
-            while (
-                next_idx < entity_len
-                and entity_list[next_idx]["entity_group"] == "I"
-                and (entity_list[next_idx]["start"] - current_entity["end"]) <= 4
-            ):
-                scores.append(entity_list[next_idx]["score"])
-                current_entity["end"] = entity_list[next_idx]["end"]
-                skip = True
-                next_idx += 1
-
-            current_entity["score"] = np.mean(scores)
-
-        merged_list.append(current_entity)
+    merged_list = merge_entity_spans(entity_list)
 
     MERGED_ENTITIES_CACHE[cache_key] = merged_list
     return merged_list

@@ -1,17 +1,17 @@
 import pandas as pd
-from glob import glob
-import os
 import pickle
 import polars as pl
-from tqdm import tqdm
 
 
 configfile: "config.yaml"
 
+wildcard_constraints:
+    rel="[^/]+"
+
 # Define constants
 DATA = config["dataset"]
 path = config["output_path"]
-input_df = f"{path}/preds{DATA}/REL_output/preds_strainselect_grouped.pqt"
+input_df = f"{path}/preds{DATA}/REL_output/preds_straininfo_grouped.pqt"
 
 # Common resource configurations
 COMMON_CPU_RESOURCES = {
@@ -33,9 +33,8 @@ XGBOOST_RESOURCES = {
 }
 
 def get_rels():
-    """Get unique relationship types from processed predictions"""
-    df = pd.read_parquet(input_df)
-    return df["rel"].unique()
+    """Return configured relationships without reading future DAG inputs."""
+    return config["rel_labels"]
 
 def load_and_process_annotation(args):
     """Load and process a single annotation file with optimized memory usage"""
@@ -75,17 +74,13 @@ def load_and_process_annotation(args):
         print(f"Error processing {annotation_file}: {e}")
         return None
 
-def filter_by_genus_diversity(drel, strainselect_vertices):
+def filter_by_genus_diversity(drel):
     """Filter relationships by genus diversity requirements"""
-    ss = strainselect_vertices[strainselect_vertices["vertex_type"] == "gss"].copy()
-    ss = ss.copy()
-    ss["genus"] = ss['vertex'].str.split('.', n=1, expand=True)[0].astype('category')
-    ss = ss[["StrainSelectID", "genus"]]
-
-    m = drel.merge(ss, on="StrainSelectID", how="left")
+    m = drel.copy()
+    m["genus"] = m["straininfo_taxon"].str.split().str[0].astype("category")
     m['genus_count_in_group'] = m.groupby("word_qc_group", observed=False)['genus'].transform('nunique')
-    m['genus_count'] = m.groupby(["word_qc_group", "genus"], observed=False)['StrainSelectID'].transform('count')
-    m['total_strains_in_group'] = m.groupby("word_qc_group", observed=False)['StrainSelectID'].transform('count')
+    m['genus_count'] = m.groupby(["word_qc_group", "genus"], observed=False)['straininfo_si_id'].transform('count')
+    m['total_strains_in_group'] = m.groupby("word_qc_group", observed=False)['straininfo_si_id'].transform('count')
     m['genus_proportion'] = m['genus_count'] / m['total_strains_in_group']
 
     # Filter groups where nunique > 4 and no single genus makes up > 30% of the group
@@ -112,9 +107,8 @@ rule process_rel:
     input:
         rel_file=input_df,
         downloaded_strains= f"{path}/preds{DATA}/REL_output/strains_assemblies_downloaded.txt",
-        strainselect_vertices=f"{path}/preds{DATA}/strainselect/StrainSelect21_vertices.tab.txt",
     output:
-        rel_output=path + "/xgboost/annotations{data}/{rel}.parquet",
+        rel_output=f"{path}/xgboost/annotations{DATA}/{{rel}}.parquet",
     params:
         base_annotation_path=f"{path}/assemblies_{DATA}",
         cols_to_drop=[
@@ -127,7 +121,6 @@ rule process_rel:
     run:
         from pathlib import Path
         import concurrent.futures
-        import pyarrow as pa
 
         # Helper function is defined at module level
 
@@ -135,30 +128,31 @@ rule process_rel:
 
         # --- 1. Load Initial Data ---
         # Use Polars lazy evaluation for better memory management
-        df = pl.read_parquet(input.rel_file).select([
-            "StrainSelectID", "word_qc_group", "rel"
-        ]).lazy()
+        df = (
+            pl.read_parquet(input.rel_file)
+            .select(["straininfo_si_id", "straininfo_taxon", "word_qc_group", "rel"])
+            .with_columns(
+                pl.concat_str(
+                    pl.lit("SI-ID"),
+                    pl.col("straininfo_si_id").cast(pl.Int64).cast(pl.String),
+                ).alias("strain_id")
+            )
+            .lazy()
+        )
 
         # Load strain/assembly data efficiently
         das = pl.read_csv(input.downloaded_strains, separator="/", 
                          has_header=False, new_columns=["strain", "assembly"])
         downloaded_strains_set = set(das["strain"].unique())
 
-        # Load strain vertices data
-        strainselect_vertices = pl.read_csv(
-            input.strainselect_vertices,
-            separator="\t"
-        ).select(["StrainSelectID", "vertex_type", "vertex"])
- 
-
         # --- 2. Initial Filtering of Relation Data ---
         # Apply all filters using lazy evaluation
         drel = (df
-                .filter(pl.col("StrainSelectID").is_not_null())
+                .filter(pl.col("straininfo_si_id").is_not_null())
                 .unique()
                 .filter(
                     (pl.col("rel") == wildcards.rel) & 
-                    (pl.col("StrainSelectID").is_in(downloaded_strains_set))
+                    (pl.col("strain_id").is_in(downloaded_strains_set))
                 )
                 .collect()  # Materialize only when needed
         )
@@ -169,8 +163,7 @@ rule process_rel:
         drel = drel.filter(pl.col("word_qc_group").is_in(valid_groups))
 
         # --- 3. Filter by Genus Diversity ---
-        drel = filter_by_genus_diversity(drel.to_pandas(), strainselect_vertices.to_pandas())
-        del strainselect_vertices 
+        drel = filter_by_genus_diversity(drel.to_pandas())
 
         # --- 4. Prepare for Annotation Loading ---
         
@@ -178,7 +171,7 @@ rule process_rel:
         drel_pl = pl.from_pandas(drel)
         
         # Merge with available assemblies
-        drel_expanded = drel_pl.join(das, left_on="StrainSelectID", right_on="strain", how="inner")
+        drel_expanded = drel_pl.join(das, left_on="strain_id", right_on="strain", how="inner")
         del drel, drel_pl, das
 
         # Check if join was successful
@@ -196,7 +189,7 @@ rule process_rel:
             pl.DataFrame(schema=empty_schema).write_parquet(output.rel_output)
             return
 
-        unique_sa_to_load = drel_expanded.select(['StrainSelectID', 'assembly']).unique().rename({'StrainSelectID': 'strain'})
+        unique_sa_to_load = drel_expanded.select(["strain_id", "assembly"]).unique().rename({"strain_id": "strain"})
 
         # --- 5. Load and Process Annotations in Chunked Batches ---
         CHUNK_SIZE = max(1, min(100, len(unique_sa_to_load)))  # Process in chunks to manage memory
@@ -256,7 +249,7 @@ rule process_rel:
 
         final_df_pl = drel_expanded.join(
             annotations_pl,
-            left_on=['StrainSelectID', 'assembly'],
+            left_on=['strain_id', 'assembly'],
             right_on=['strain', 'assembly'],
             how="inner"
         )
@@ -270,14 +263,14 @@ rule process_rel:
                       .drop(cols_to_drop)
                       .with_columns(
                           pl.concat_str([
-                              pl.col("StrainSelectID").cast(pl.Utf8),
+                              pl.col("strain_id").cast(pl.Utf8),
                               pl.lit("!"),
                               pl.col("assembly").cast(pl.Utf8),
                               pl.lit("!"),
                               pl.col("word_qc_group").cast(pl.Utf8)
                           ], separator="").alias("sa_ner")
                       )
-                      .drop("StrainSelectID"))
+                      .drop("straininfo_si_id"))
 
         # --- 8. Final Filtering and Output ---
         # Apply final filter for word_qc_groups with more than 2 entries
@@ -310,9 +303,9 @@ rule process_rel:
 # Rule for creating pickle files, which includes the X, y, and index for input to XGBoost (features, labels, and index)
 rule process_file:
     input:
-        parquet_file=path + "/xgboost/annotations{data}/{rel}.parquet",
+        parquet_file=f"{path}/xgboost/annotations{DATA}/{{rel}}.parquet",
     output:
-        pickle_file=path + "/xgboost/annotations{data}/{rel}.pkl",
+        pickle_file=f"{path}/xgboost/annotations{DATA}/{{rel}}.pkl",
     resources:
         slurm_partition="cpu,cpu_il",
         runtime=1000,
@@ -375,9 +368,9 @@ rule process_file:
 # Run XGBoost on the binary classification task, outputs are the pickles containing the model and the predictions
 rule xgboost_binary_parts:
     input:
-        path + "/xgboost/annotations{data}/{rel}.pkl"
+        f"{path}/xgboost/annotations{DATA}/{{rel}}.pkl"
     output:
-        path + "/xgboost/annotations{data}/{rel}.pickle",
+        f"{path}/xgboost/annotations{DATA}/{{rel}}.pickle",
     threads: 32
     resources:
         **XGBOOST_RESOURCES,

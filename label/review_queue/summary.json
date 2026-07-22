@@ -1,0 +1,30 @@
+{
+  "candidate_issues": 94,
+  "candidate_issues_by_category": {
+    "entity_label_conflict": 4,
+    "entity_omission": 83,
+    "relation_omission": 7
+  },
+  "candidate_tasks": 86,
+  "config": "config.yaml",
+  "selected_issues": 94,
+  "selected_issues_by_category": {
+    "entity_label_conflict": 4,
+    "entity_omission": 83,
+    "relation_omission": 7
+  },
+  "selected_tasks": 86,
+  "source": "label/project-10-at-2025-08-21-21-08-cb43bf25.json",
+  "source_sha256": "26b438427637164142b58f17f254c7979d8a06706ae525803c38b3c6cdf98777",
+  "tasks_in_source": 3979,
+  "thresholds": {
+    "conflict_min_purity": 0.85,
+    "conflict_min_support": 5,
+    "max_tasks": 250,
+    "omission_general_support": 20,
+    "omission_max_per_surface": 20,
+    "omission_specific_support": 8,
+    "relation_min_positive": 4,
+    "relation_min_rate": 0.8
+  }
+}

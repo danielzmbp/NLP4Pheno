@@ -1,0 +1,53 @@
+source:
+  mode: pmcid_list
+  snapshot_date: "2026-07-20"
+  start_date: "1900-01-01"
+  query: "bounded known-positive and recent-background PMC benchmark"
+  pmcid_list: benchmark_data/smoke_pmcids.txt
+  inventory_version: "2026-07-20T01-00Z"
+  bucket_url: https://pmc-oa-opendata.s3.amazonaws.com
+  inventory_prefix: inventory-reports/pmc-oa-opendata/metadata/
+  max_missing_fraction: 0.0
+
+processing:
+  chunk_count: 8
+  max_text_chars: 512
+  min_text_chars: 20
+  publication_year_min: 1950
+  allowed_languages: [en]
+  include_unknown_language: true
+  excluded_section_patterns:
+    - "^references?$"
+    - "acknowledg"
+    - "author contributions?"
+    - "competing interests?"
+    - "conflicts? of interest"
+    - "ethics? (statement|approval)"
+    - "funding"
+    - "data availability"
+    - "supplementary (information|materials?)"
+  parquet_compression: zstd
+  row_group_size: 50000
+
+download:
+  workers_per_job: 4
+  verify_metadata_json: true
+  request_timeout_seconds: 120
+  retries: 5
+  max_failure_fraction: 0.01
+  min_chunk_failures_for_abort: 5
+  user_agent: "NLP4Pheno bounded PMC smoke test/1.0"
+
+resources:
+  cpu_partition: cpu
+  discovery_mem_mb: 2000
+  inventory_mem_mb: 4000
+  selection_mem_mb: 8000
+  partition_mem_mb: 2000
+  parse_mem_mb: 4000
+  merge_mem_mb: 4000
+
+output_dir: benchmark_data/smoke_output
+work_dir: benchmark_data/smoke_work
+# Reuse the pinned 243 MB inventory downloaded by the production configuration.
+inventory_dir: temp/inventory

@@ -4,8 +4,9 @@ from tqdm.auto import tqdm
 import argparse
 import pandas as pd
 from torch.utils.data import Dataset, DataLoader
-import re
 import torch
+
+from prediction_io import load_corpus_lines
 
 
 class ListDataset(Dataset):
@@ -64,15 +65,7 @@ if args.half_precision:
 nlp = pipeline(**pipeline_kwargs)
 
 corpus = args.corpus
-
-with open(corpus, "r") as f:
-    text = f.read()
-
-texts = text.split("\n")
-texts.pop(-1)
-
-# Replace hyphens between words with spaces using regex
-texts = [re.sub(r'(?<=\w)-(?=\w)', ' ', sentence) for sentence in texts]
+texts = load_corpus_lines(corpus)
 
 dataset = ListDataset(texts)
 result = []

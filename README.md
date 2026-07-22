@@ -13,14 +13,15 @@ The pipeline integrates Named Entity Recognition (NER), Relation Extraction (RE)
 - [Snakemake](https://snakemake.readthedocs.io/) ≥6.0
 - [Mamba](https://mamba.readthedocs.io/) or Conda ≥4.9
 - CUDA-capable GPU (recommended for training)
-- ~50GB free disk space for full pipeline
+- At least ~50GB free disk space for the PMC build; model inference and genome
+  analysis require additional working space
 - 16GB+ RAM recommended
 
 ### External Dependencies
 - NCBI API key (optional, speeds up genome downloads)
 - [InterProScan](https://interproscan-docs.readthedocs.io/) ≥5.0 (for protein annotation)
   - Download and extract to your system
-  - Update the path in `ip.smk` at line containing `interproscan.sh`
+  - Set `interproscan_path` in `config.yaml`
 
 ## Configuration
 
@@ -32,7 +33,7 @@ Before running any pipeline, adjust `config.yaml` to match your setup.
 |-----------|-------------|----------------|
 | `dataset` | Corpus identifier (determines output directories) | `1108` |
 | `cuda_devices` | GPU devices for training | `[0]` |
-| `input_file` | Path to manually annotated training data | `label/project-10-at-2025-08-21-21-08-cb43bf25.json` |
+| `input_file` | Path to manually annotated training data | `label/project-10-reviewed-2026-07-21.json` |
 | `ner_epochs` | Training epochs for NER models | `15` |
 | `rel_epochs` | Training epochs for RE models | `25` |
 | `ner_test` | Test split ratio for NER | `0.2` |
@@ -42,10 +43,11 @@ Before running any pipeline, adjust `config.yaml` to match your setup.
 | `seed` | Random seed for reproducibility | `97` |
 | `output_path` | Base output directory | `/pfs/work9/workspace/scratch/tu_kmpaj01-link` |
 | `pmc_parquet_file` | PMC corpus data file | `snakemake_PMC/output/data/pmc_filtered.parquet` |
+| `straininfo_designations_file` | Versioned local StrainInfo alias snapshot | `resources/straininfo/designations.parquet` |
 
 ### Entity Types
 ```yaml
-ner_labels: [STRAIN, SPECIES, ISOLATE, COMPOUND, MEDIUM, ORGANISM, PHENOTYPE, EFFECT, DISEASE]
+ner_labels: [STRAIN, SPECIES, ISOLATE, COMPOUND, MEDIUM, ORGANISM, PHENOTYPE, DISEASE]
 ```
 
 ### Relationship Types
@@ -95,24 +97,74 @@ snakemake -n -s ner.smk
 ```
 ## Create PubMed Corpus (PMC)
 
-- Use the code in `snakemake_PMC/` to download files (requires pmc environment):
+- The PMC builder uses the current ESearch and versioned PMC Open Data on AWS
+  services. Configure the release snapshot in `snakemake_PMC/config.yaml`, set a
+  contact email for NCBI, and validate the workflow with its offline fixture:
+
 ```bash
-conda activate pmc
-snakemake --cores 20 --use-conda --executor slurm -s snakemake_PMC/Snakefile
+export NCBI_EMAIL='name@example.org'
+python -m unittest discover -s snakemake_PMC/tests -p 'test_*.py'
+snakemake -s snakemake_PMC/Snakefile \
+  --configfile snakemake_PMC/tests/config.fixture.yaml --cores 2
 ```
-- Prepare corpus files using the `scripts/make_test_corpus.py` script. Files are saved to `corpus{dataset}/` directory (where `{dataset}` is defined in `config.yaml`).
+
+- Build the complete snapshot on SLURM:
+
+```bash
+snakemake -s snakemake_PMC/Snakefile \
+  --use-conda --executor slurm --jobs 40 --rerun-incomplete
+```
+
+The final `snakemake_PMC/output/data/pmc_filtered.parquet` already has the
+`pmcid`, `paragraph`, `sentence_range`, and `text` provenance required by the
+inference workflow. See `snakemake_PMC/README.md` for schemas and release
+artifacts.
 
 ## Model Training
 
 ## Data Preparation
 
 ### Annotation Data
-The manually annotated dataset is provided in `label/project-10-at-2025-08-21-21-08-cb43bf25.json` (Label Studio JSON format).
+The current manually reviewed dataset is provided in
+`label/project-10-reviewed-2026-07-21.json` (Label Studio JSON format). The
+2025 export is retained unchanged as its auditable source.
+When a task has multiple active annotations, preprocessing selects a marked
+ground-truth record or otherwise the most recently updated record.
+
+Audit the raw exports and their agreement with `config.yaml` before training:
+
+```bash
+python scripts/audit_annotations.py \
+  label/project-10-at-2025-08-21-21-08-cb43bf25.json \
+  label/project-10-reviewed-2026-07-21.json \
+  --config config.yaml \
+  --json-output label/annotation_audit_reviewed.json \
+  --markdown-output label/annotation_audit_reviewed.md
+```
 
 **Format Requirements:**
 - Label Studio JSON export format
-- Must contain annotations for all 9 entity types: `STRAIN`, `SPECIES`, `ISOLATE`, `COMPOUND`, `MEDIUM`, `ORGANISM`, `PHENOTYPE`, `EFFECT`, `DISEASE`
+- Must contain examples for every entity and typed relation configured in
+  `config.yaml`
 - Annotations should include entity spans and relationship labels
+- Keep a PMCID or another document identifier in future exports so evaluation
+  can be split by source article, not only by annotation task
+
+The historical export has no document identifier. After building the PMC
+corpus, recover only verifiable literal matches and retain ambiguous sources:
+
+```bash
+python scripts/link_annotations_to_pmc.py \
+  label/project-10-reviewed-2026-07-21.json \
+  snakemake_PMC/output/data/pmc_filtered.parquet \
+  --matches-output label/annotation_pmc_matches.parquet \
+  --summary-output label/annotation_pmc_summary.json
+```
+
+Only tasks with status `unique_pmcid` are safe to use for a source-article
+grouped split. The script deliberately reports rather than guesses ambiguous
+and unmatched tasks. Set `annotation_pmc_matches_file` in `config.yaml` to the
+generated Parquet before rebuilding the NER and relation splits.
 
 ### Corpus Files
 Corpus files are automatically generated from the PMC parquet data during the NER prediction step. The `ner_pred.smk` pipeline will:
@@ -121,7 +173,20 @@ Corpus files are automatically generated from the PMC parquet data during the NE
 - Process files in chunks for efficient prediction
 
 ### Named Entity Recognition (NER)
-Train NER models for each entity type (STRAIN, SPECIES, PHENOTYPE, etc.): 
+Build and inspect the CPU-only NER datasets before scheduling GPU training:
+
+```bash
+snakemake --cores 1 -s ner.smk NER/dataset_summary.json
+```
+
+The workflow converts character offsets directly to token-level B/I/O data;
+it no longer depends on an undeclared Label Studio converter executable. When
+`annotation_pmc_matches_file` is set, tasks with a unique recovered PMCID are
+kept together in one split for both NER and relation training.
+Source text, including word-internal hyphens, is preserved unchanged through
+training and inference so entity offsets and PMC provenance remain exact.
+
+Train NER models for each entity type (STRAIN, SPECIES, PHENOTYPE, etc.):
 ```bash
 snakemake --cores 20 --use-conda -s ner.smk
 ```
@@ -135,8 +200,17 @@ snakemake --cores 20 --use-conda -s ner.smk
 ### Relation Extraction (RE)
 Train models to predict relationships between entities:
 ```bash
-rm -rf REL*
 snakemake --cores 20 --use-conda -s rel.smk
+```
+
+Relation examples are marked using their annotated character offsets and are
+split by recovered PMCID when it is unique, otherwise by source task. This
+prevents linked sentences from the same paper from crossing train, development,
+and test sets. Multi-label entity pairs remain one example and count as positive
+in every applicable binary classifier. The CPU-only preparation target is:
+
+```bash
+snakemake --cores 1 -s rel.smk REL/split_summary.json
 ```
 
 **Requirements:** 8GB GPU memory recommended
@@ -144,6 +218,44 @@ snakemake --cores 20 --use-conda -s rel.smk
 **Output:**
 - `REL/`: Data for training and testing
 - `REL_output/`: Trained models and metrics
+
+### Strain registry
+
+The retired StrainSelect download is not a reproducible source for a new build.
+Snapshot the maintained StrainInfo alias catalog instead; its version and every
+page hash are recorded alongside the Parquet files:
+
+```bash
+python scripts/fetch_straininfo_catalog.py \
+  --expected-version 2025.10 \
+  --strains-output resources/straininfo/strains.parquet \
+  --designations-output resources/straininfo/designations.parquet \
+  --summary-output resources/straininfo/summary.json
+```
+
+Exact normalized designations can be resolved locally to persistent SI-IDs;
+ambiguous aliases remain explicit. Detailed StrainInfo API records should be
+requested only for resolved SI-IDs that need genome assemblies.
+
+Audit matching against the annotated STRAIN mentions before using the catalog
+in prediction:
+
+```bash
+python scripts/audit_straininfo_matches.py \
+  label/project-10-reviewed-2026-07-21.json \
+  resources/straininfo/designations.parquet \
+  --output label/straininfo_match_audit.json
+```
+
+The audit accepts exact aliases and complete token-bounded identifiers inside a
+longer mention. It rejects taxonomy contradictions and has no fuzzy fallback;
+unmatched and ambiguous mentions remain unresolved rather than receiving a
+plausible-looking but unsupported genome identifier.
+
+For uniquely resolved SI-IDs, the detailed API can provide genome accessions.
+The resolver retains the response hash for each genome and selects one assembly
+per SI-ID by assembly level, then recency, avoiding multiple near-identical
+assemblies from the same strain being treated as independent observations.
 
 ## Prediction
 
@@ -167,7 +279,10 @@ Apply trained RE models to extract relationships:
 snakemake --cores 20 --use-conda -s rel_pred.smk
 ```
 
-**Process:** Analyzes sentences containing STRAIN and phenotype entities to extract relationships.
+**Process:** Analyzes sentences containing STRAIN and phenotype entities,
+matches strain mentions conservatively to the pinned StrainInfo alias catalog,
+resolves one preferred genome per unique SI-ID, and creates a provenance-linked
+network. There is no fuzzy strain fallback.
 
 **Requirements:** GPU recommended
 
@@ -180,6 +295,10 @@ snakemake --cores 20 --use-conda -s rel_pred.smk
 ```bash
 snakemake --cores 20 --use-conda -s ip.smk
 ```
+
+The workflow validates the generated `strain/assembly` manifest through a
+Snakemake checkpoint. A clean run cannot silently expand to zero genomes; an
+empty or malformed manifest stops the workflow.
    
 Output will be saved to `assemblies_{dataset}/` directory.
 

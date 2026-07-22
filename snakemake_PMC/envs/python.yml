@@ -1,0 +1,10 @@
+name: nlp4pheno-pmc
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - lxml=5.3
+  - numpy=2.1
+  - pyarrow=18.1
+  - pyyaml=6.0
+  - requests=2.32
