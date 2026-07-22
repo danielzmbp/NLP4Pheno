@@ -1,0 +1,36 @@
+name: nlp4pheno-hpc
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - pip
+  - snakemake>=9,<10
+  - snakemake-executor-plugin-slurm
+  - pandas>=2.2,<4
+  - numpy>=2,<3
+  - scipy>=1.12
+  - scikit-learn>=1.4
+  - matplotlib>=3.8
+  - seaborn>=0.13
+  - joblib>=1.3
+  - polars>=1.31,<2
+  - pyarrow>=18,<25
+  - pyyaml>=6
+  - jsonlines>=4
+  - requests>=2.32
+  - urllib3>=2
+  - rapidfuzz>=3
+  - tqdm>=4.66
+  - biopython>=1.83
+  - nervaluate
+  - seqeval>=1.2
+  - pip:
+      - torch==2.8.0
+      - transformers==4.55.0
+      - datasets==4.0.0
+      - tokenizers==0.21.4
+      - accelerate==1.10.0
+      - safetensors==0.6.2
+      - huggingface-hub==0.34.4
+      - evaluate==0.4.5

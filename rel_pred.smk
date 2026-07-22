@@ -27,15 +27,25 @@ straininfo_assembly_workers = int(config.get("straininfo_assembly_workers", 8))
 straininfo_max_failure_fraction = float(
     config.get("straininfo_max_failure_fraction", 0.01)
 )
+CPU_PARTITION = config.get("slurm_cpu_partition", "cpu")
+GPU_PARTITION = config.get(
+    "slurm_gpu_partition", "gpu_h100,gpu_h100_il,gpu_a100_il"
+)
+DOWNLOAD_PARTITION = config.get("slurm_download_partition", "cpu_il,cpu")
+GPU_GRES = config.get("slurm_gpu_gres", "--gres=gpu:1")
 
 # Common resource configurations
-COMMON_RESOURCES = {"slurm_partition": "cpu", "runtime": 30, "mem_mb": 10000}
+COMMON_RESOURCES = {
+    "slurm_partition": CPU_PARTITION,
+    "runtime": 30,
+    "mem_mb": 10000,
+}
 
 # Optimized processing - no global caches needed with polars
 
 GPU_RESOURCES = {
-    "slurm_partition": "gpu_h100,gpu_h100_il,gpu_a100_il",
-    "slurm_extra": "--gres=gpu:1",
+    "slurm_partition": GPU_PARTITION,
+    "slurm_extra": GPU_GRES,
     "runtime": 600,
     "mem_mb": 24000,
 }
@@ -54,7 +64,7 @@ rule format_sentences:
     output:
         f"{preds}/NER_output/ner_preds.parquet",
     resources:
-        slurm_partition="cpu",
+        slurm_partition=CPU_PARTITION,
         runtime=60,
         mem_mb=24000,
     run:
@@ -104,7 +114,7 @@ rule merge_preds:
     output:
         f"{preds}/REL_output/preds.pqt",
     resources:
-        slurm_partition="cpu",
+        slurm_partition=CPU_PARTITION,
         runtime=90,
         mem_mb=24000,
     run:
@@ -156,7 +166,7 @@ rule match_straininfo:
         matched=f"{preds}/REL_output/preds_straininfo.pqt",
         summary=f"{preds}/REL_output/straininfo_match_summary.json",
     resources:
-        slurm_partition="cpu,cpu_il",
+        slurm_partition=CPU_PARTITION,
         runtime=240,
         mem_mb=32000,
         cpus_per_task=4,
@@ -170,7 +180,7 @@ rule group_entities:
     output:
         f"{preds}/REL_output/preds_straininfo_grouped.pqt",
     resources:
-        slurm_partition="cpu",
+        slurm_partition=CPU_PARTITION,
         runtime=80,
         mem_mb=120000,
         tasks=20,
@@ -260,7 +270,7 @@ rule resolve_straininfo_assemblies:
         manifest=f"{preds}/REL_output/strains_assemblies.txt",
         summary=f"{preds}/straininfo/assembly_summary.json",
     resources:
-        slurm_partition="cpu_il,cpu",
+        slurm_partition=DOWNLOAD_PARTITION,
         runtime=240,
         mem_mb=8000,
         cpus_per_task=straininfo_assembly_workers,
@@ -275,7 +285,7 @@ rule link_pmc:
     output:
         f"{preds}/REL_output/preds_straininfo_grouped_pmc.pqt",
     resources:
-        slurm_partition="cpu",
+        slurm_partition=CPU_PARTITION,
         runtime=80,
         mem_mb=80000,
         tasks=20,

@@ -122,6 +122,22 @@ artifacts.
 
 ## Model Training
 
+### NBI Slurm cluster
+
+For the NBI cluster, where compute and A100 nodes have no internet access, use
+the staged launcher in `hpc/`. It prepares the shared environment, pretrained
+model, metric modules, and StrainInfo snapshot on `nbi-download`, then runs NER
+training, relation training, and full-corpus inference through Snakemake on
+`nbi-medium` and `ei-gpu`:
+
+```bash
+export NLP4PHENO_CORPUS=/shared/path/pmc_filtered.parquet
+export NLP4PHENO_OUTPUT_PATH=/shared/path/nlp4pheno-results
+bash hpc/submit_model_pipeline.sh
+```
+
+See `hpc/README.md` for resumable stage selection, cache paths, and monitoring.
+
 ## Data Preparation
 
 ### Annotation Data

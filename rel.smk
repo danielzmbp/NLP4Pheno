@@ -22,9 +22,21 @@ input_file = config["input_file"]
 cuda = config["cuda_devices"]
 test_size = config["rel_test"]
 annotation_pmc_matches_file = config.get("annotation_pmc_matches_file")
+CPU_PARTITION = config.get("slurm_cpu_partition", "cpu")
+GPU_PARTITION = config.get(
+    "slurm_gpu_partition", "gpu_h100,gpu_a100_il,gpu_h100_il"
+)
+GPU_GRES = config.get("slurm_gpu_gres", "--gres=gpu:1")
+PRETRAINED_MODEL = config.get("pretrained_model_path") or (
+    f"michiyasunaga/BioLinkBERT-{config['model']}"
+)
 
 # Common resource configuration
-COMMON_RESOURCES = {"slurm_partition": "cpu", "runtime": 260, "mem_mb": 8000}
+COMMON_RESOURCES = {
+    "slurm_partition": CPU_PARTITION,
+    "runtime": 260,
+    "mem_mb": 8000,
+}
 
 # Cache strain catalog globally to avoid recomputation
 STRAIN_CATALOG = None
@@ -72,7 +84,7 @@ rule parse_rels:
     output:
         "REL/parsed_rels.txt",
     resources:
-        slurm_partition="cpu",
+        slurm_partition=CPU_PARTITION,
         runtime=60,
         mem_mb=12000,
     run:
@@ -207,18 +219,18 @@ rule run_linkbert:
     params:
         epochs=config["rel_epochs"],
         cuda=lambda w: ",".join([str(i) for i in cuda]),
-        model_type=config["model"],
+        model_path=PRETRAINED_MODEL,
         entities=" ".join(labels),
     resources:
-        slurm_partition="gpu_h100,gpu_a100_il,gpu_h100_il",
-        slurm_extra="--gres=gpu:1",
-        runtime=250,
+        slurm_partition=GPU_PARTITION,
+        slurm_extra=GPU_GRES,
+        runtime=int(config.get("rel_training_runtime", 250)),
         mem_mb=32000,
+        cpus_per_task=4,
     shell:
         """
         export CUDA_VISIBLE_DEVICES={params.cuda}
-        export MODEL=BioLinkBERT-{params.model_type}
-        export MODEL_PATH=michiyasunaga/$MODEL
+        export MODEL_PATH="{params.model_path}"
         export USE_CODALAB=1
         python -c "import torch; print(f'Using GPU: {{torch.cuda.is_available()}}'); print(f'GPU Device: {{torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None"}}')"
         if ! python -c "import torch; exit(0 if torch.cuda.is_available() else 1)"; then

@@ -1,5 +1,8 @@
 .snakemake/
 /.envs/
+/.hpc/
+/hpc/logs/
+/resources/models/
 /label/label_studio_data/
 /label/review_queue/credentials.txt
 /label/annotation_audit*.json
@@ -47,3 +50,4 @@ notebooks/__pycache__/
 CLAUDE.md
 notebooks/bacdive_config.py
 resources/straininfo/*.parquet
+/resources/straininfo/runtime_summary.json

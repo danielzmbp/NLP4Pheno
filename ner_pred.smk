@@ -22,11 +22,16 @@ cuda = config["cuda_devices"]
 corpus = "corpus" + str(config["dataset"])
 preds = config["output_path"].rstrip("/") + "/preds" + str(config["dataset"])
 parquet_file = config["pmc_parquet_file"]
+CPU_PARTITION = config.get("slurm_cpu_partition", "cpu,cpu_il")
+GPU_PARTITION = config.get(
+    "slurm_gpu_partition", "gpu_h100,gpu_a100_il,gpu_h100_il"
+)
+GPU_GRES = config.get("slurm_gpu_gres", "--gres=gpu:1")
 
 STRAIN_PART_COUNT = 250
 
 COMMON_RESOURCES = {
-    "slurm_partition": "cpu,cpu_il",
+    "slurm_partition": CPU_PARTITION,
     "runtime": 30,
     "mem_mb": 3000,
     "cpus_per_task": 2,
@@ -105,7 +110,7 @@ rule generate_corpus:
     output:
         expand(corpus + "/{part}.txt", part=PARTS),
     resources:
-        slurm_partition="cpu,cpu_il",
+        slurm_partition=CPU_PARTITION,
         runtime=200,
         mem_mb=64000,
         cpus_per_task=4,
@@ -138,8 +143,8 @@ rule run_strain_prediction:
         "envs/pytorch.yml"
     retries: 3
     resources:
-        slurm_partition="gpu_h100,gpu_a100_il,gpu_h100_il",
-        slurm_extra="--gres=gpu:1",
+        slurm_partition=GPU_PARTITION,
+        slurm_extra=GPU_GRES,
         runtime=80,
         mem_mb=8000,
         cpus_per_task=4,
@@ -163,7 +168,7 @@ rule merge_strain_predictions:
     output:
         preds + "/NER_output/STRAIN/strains.parquet",
     resources:
-        slurm_partition="cpu,cpu_il",
+        slurm_partition=CPU_PARTITION,
         runtime=120,
         mem_mb=32000,
         cpus_per_task=8,
@@ -183,7 +188,7 @@ rule make_sentence_file:
         preds + "/NER_output/strains.txt",
         preds + "/NER_output/device_models.txt",
     resources:
-        slurm_partition="cpu",
+        slurm_partition=CPU_PARTITION,
         runtime=300,
         mem_mb=8000,
         cpus_per_task=4,
@@ -207,8 +212,8 @@ rule run_all_models:
     conda:
         "envs/pytorch.yml"
     resources:
-        slurm_partition="gpu_h100,gpu_a100_il,gpu_h100_il",
-        slurm_extra="--gres=gpu:1",
+        slurm_partition=GPU_PARTITION,
+        slurm_extra=GPU_GRES,
         runtime=STRAIN_PART_COUNT,
         mem_mb=8000,
     shell:
@@ -229,7 +234,7 @@ rule agg_model_results:
     output:
         preds + "/NER_output/strain_preds.parquet",
     resources:
-        slurm_partition="cpu,cpu_il",
+        slurm_partition=CPU_PARTITION,
         runtime=180,
         mem_mb=48000,
         cpus_per_task=12,
@@ -276,7 +281,7 @@ rule merge_preds:
     output:
         preds + "/NER_output/preds.parquet",
     resources:
-        slurm_partition="cpu,cpu_il",
+        slurm_partition=CPU_PARTITION,
         runtime=180,
         mem_mb=32000,
         cpus_per_task=8,

@@ -25,9 +25,21 @@ annotation_pmc_matches_file = config.get("annotation_pmc_matches_file")
 split_inputs = [input_file] + (
     [annotation_pmc_matches_file] if annotation_pmc_matches_file else []
 )
+CPU_PARTITION = config.get("slurm_cpu_partition", "cpu")
+GPU_PARTITION = config.get(
+    "slurm_gpu_partition", "gpu_a100_il,gpu_h100_il,gpu_a100"
+)
+GPU_GRES = config.get("slurm_gpu_gres", "--gres=gpu:1")
+PRETRAINED_MODEL = config.get("pretrained_model_path") or (
+    f"michiyasunaga/BioLinkBERT-{config['model']}"
+)
 
 # Common resource configuration
-COMMON_RESOURCES = {"slurm_partition": "cpu", "runtime": 10, "mem_mb": 8000}
+COMMON_RESOURCES = {
+    "slurm_partition": CPU_PARTITION,
+    "runtime": 10,
+    "mem_mb": 8000,
+}
 
 # Cache strain catalog globally to avoid recomputation
 STRAIN_CATALOG = None
@@ -327,17 +339,17 @@ rule run_linkbert:
     params:
         epochs=config["ner_epochs"],
         cuda=lambda w: ",".join([str(i) for i in cuda]),
-        model_type=config["model"],
+        model_path=PRETRAINED_MODEL,
         entities=" ".join(labels),
     resources:
-        slurm_partition="gpu_a100_il,gpu_h100_il,gpu_a100",
-        slurm_extra="--gres=gpu:1",
-        runtime=120,
+        slurm_partition=GPU_PARTITION,
+        slurm_extra=GPU_GRES,
+        runtime=int(config.get("ner_training_runtime", 120)),
         mem_mb=32000,
+        cpus_per_task=4,
     shell:
         """
-        export MODEL_PATH=michiyasunaga/BioLinkBERT-{params.model_type}
-        export MODEL=BioLinkBERT-{params.model_type}
+        export MODEL_PATH="{params.model_path}"
         export CUDA_VISIBLE_DEVICES={params.cuda}
         export EPOCHS={params.epochs}
         export TOKENIZERS_PARALLELISM=true
@@ -393,7 +405,7 @@ rule aggregate_data:
     output:
         "NER_output/aggregated_eval.tsv",
     resources:
-        slurm_partition="cpu",
+        slurm_partition=CPU_PARTITION,
         runtime=10,
         mem_mb=8000,
     run:
@@ -416,7 +428,7 @@ rule plot:
     params:
         labels=labels,
     resources:
-        slurm_partition="cpu",
+        slurm_partition=CPU_PARTITION,
         runtime=30,
         mem_mb=8000,
     script:
