@@ -51,7 +51,6 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 import datasets
-import evaluate
 import numpy as np
 from datasets import load_dataset
 
@@ -74,6 +73,7 @@ from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
 
 from trainer_seqcls import SeqClsTrainer
+from evaluate_utils import load_metric
 
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
@@ -535,9 +535,9 @@ def main():
         """
         # Get the metric function
         if data_args.task_name is not None:
-            metric = evaluate.load("glue", data_args.task_name)
+            metric = load_metric("glue", data_args.task_name)
         else:
-            metric = evaluate.load("accuracy")
+            metric = load_metric("accuracy")
 
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
         preds = np.squeeze(preds) if is_regression else np.argmax(preds, axis=1)
