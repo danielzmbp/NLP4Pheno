@@ -10,3 +10,7 @@ slurm_gpu_gres: "gpu:a100:1"
 # room for queue variation and checkpoint evaluation.
 ner_training_runtime: 4320
 rel_training_runtime: 5760
+# Full-corpus inference currently processes about 3.8 million strain-matched
+# sentences per label. Keep enough headroom for slower labels and Parquet
+# serialization; this value is in minutes.
+ner_prediction_runtime: 420
