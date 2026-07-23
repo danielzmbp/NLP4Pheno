@@ -1,22 +1,22 @@
 # Ontology grounding pilot
 
-Generated: 2026-07-23T10:41:28.019441+00:00
+Generated: 2026-07-23T11:42:08.404879+00:00
 
 Only unique exact label/synonym matches and conservative normalized matches are accepted. No fuzzy or embedding match is counted as grounded.
 
 This is a coverage benchmark against annotated mention strings, not a concept-ID accuracy gold standard. Ambiguous candidates require review.
 
-Annotation source: `label/project-10-reviewed-2026-07-22.json` (SHA-256 `9420f8747571…`).
+Annotation source: `label/project-10-reviewed-2026-07-23.json` (SHA-256 `3f4b0ebc80a6…`).
 
 ## Coverage
 
 | Entity | Mentions | Matched | Ambiguous | Unmatched | Coverage | Unique surfaces |
 |---|---:|---:|---:|---:|---:|---:|
-| COMPOUND | 3,299 | 1,572 | 177 | 1,550 | 47.6% | 1,824 |
+| COMPOUND | 3,399 | 1,672 | 177 | 1,550 | 49.2% | 1,824 |
 | DISEASE | 552 | 209 | 10 | 333 | 37.9% | 385 |
-| ISOLATE | 660 | 118 | 10 | 532 | 17.9% | 498 |
-| MEDIUM | 582 | 154 | 23 | 405 | 26.5% | 312 |
-| PHENOTYPE | 2,744 | 270 | 12 | 2,462 | 9.8% | 1,932 |
+| ISOLATE | 684 | 142 | 10 | 532 | 20.8% | 498 |
+| MEDIUM | 583 | 155 | 23 | 405 | 26.6% | 312 |
+| PHENOTYPE | 2,753 | 279 | 12 | 2,462 | 10.1% | 1,932 |
 
 ## Ontology snapshots
 
@@ -33,8 +33,8 @@ Annotation source: `label/project-10-reviewed-2026-07-22.json` (SHA-256 `9420f87
 
 ## COMPOUND: accepted-match breakdown
 
-- Ontologies: CHEBI 1,572
-- Methods: abbreviation_exact 29, abbreviation_normalized 1, direct_exact 1,298, direct_formula 210, direct_normalized 34
+- Ontologies: CHEBI 1,672
+- Methods: abbreviation_exact 29, abbreviation_normalized 1, direct_exact 1,395, direct_formula 213, direct_normalized 34
 
 Frequent ambiguous mentions:
 
@@ -129,8 +129,8 @@ Frequent ambiguous mentions:
 
 ## ISOLATE: accepted-match breakdown
 
-- Ontologies: ENVO 68, FOODON 23, UBERON 27
-- Methods: direct_exact 118
+- Ontologies: ENVO 84, FOODON 23, UBERON 35
+- Methods: abbreviation_exact 1, direct_exact 141
 
 Frequent ambiguous mentions:
 
@@ -167,8 +167,8 @@ Frequent ambiguous mentions:
 
 ## MEDIUM: accepted-match breakdown
 
-- Ontologies: MCO 22, MEDIADIVE 132
-- Methods: abbreviation_exact 24, abbreviation_normalized 2, direct_exact 121, direct_normalized 7
+- Ontologies: MCO 22, MEDIADIVE 133
+- Methods: abbreviation_exact 24, abbreviation_normalized 2, direct_exact 122, direct_normalized 7
 
 Frequent ambiguous mentions:
 
@@ -212,8 +212,8 @@ Frequent ambiguous mentions:
 
 ## PHENOTYPE: accepted-match breakdown
 
-- Ontologies: OBA 1, OMP 185, PATO 84
-- Methods: direct_exact 110, direct_normalized 160
+- Ontologies: OBA 1, OMP 185, PATO 93
+- Methods: direct_exact 119, direct_normalized 160
 
 Frequent ambiguous mentions:
 

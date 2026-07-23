@@ -28,11 +28,31 @@ The broader audit found 948 possible omissions. The 810 lower-confidence
 ontology-only or singly corroborated matches are reported only as counts in
 `summary.json`; they are not placed in the review queue.
 
+## Review outcome
+
+All 128 tasks were submitted in Label Studio on 2026-07-23. The reviewer
+accepted 134 of the 138 proposed entity omissions:
+
+- 100 `COMPOUND`
+- 24 `ISOLATE`
+- 9 `PHENOTYPE`
+- 1 `MEDIUM`
+
+The four rejected suggestions were three uses of `fluorescence` as a generic
+measurement rather than a phenotype and one use of `dairy` that did not denote
+an isolate source. The reviewer also added 15 relations. No source entities or
+relations were removed. The merged corpus is
+`label/project-10-reviewed-2026-07-23.json`; `review-summary.json` records the
+decision counts and rejected cases.
+
 Files:
 
 - `queue.json`: Label Studio tasks with proposed spans as predictions
 - `issues.tsv`: one row per selected suggestion with concept ID and evidence
 - `summary.json`: thresholds and audit counts
+- `reviewed-export-2026-07-23.json`: completed Label Studio export
+- `review-summary.json`: accepted/rejected decision audit
+- `merge-report.json`: merge counts and output hash
 
 Regenerate the queue from the repository root:
 
@@ -46,17 +66,12 @@ python scripts/audit_ontology_omissions.py \
   --min-score 0.93
 ```
 
-Use `label/review_queue/label_config.xml` when creating a Label Studio project
-and import `queue.json`. The predictions contain all existing annotations plus
-the proposed spans. Accept, edit, or remove each suggestion before submitting.
-
-After exporting the submitted reviews, merge them into a new version rather
-than overwriting the current source:
+The completed review was merged without overwriting its source:
 
 ```bash
 python scripts/merge_annotation_reviews.py \
   label/project-10-reviewed-2026-07-22.json \
-  /path/to/label-studio-export.json \
-  --output label/project-10-reviewed-YYYY-MM-DD.json \
+  label/review_queue/ontology_batch/reviewed-export-2026-07-23.json \
+  --output label/project-10-reviewed-2026-07-23.json \
   --report label/review_queue/ontology_batch/merge-report.json
 ```

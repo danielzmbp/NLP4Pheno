@@ -30,7 +30,7 @@ model_sets:
     - test
 ner_epochs: 15
 rel_epochs: 25
-input_file: label/project-10-reviewed-2026-07-22.json
+input_file: label/project-10-reviewed-2026-07-23.json
 # Set this to label/annotation_pmc_matches.parquet after the full PMC build.
 # Only matches marked unique_pmcid will be used as source-document groups.
 annotation_pmc_matches_file: null

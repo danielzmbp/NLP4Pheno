@@ -33,7 +33,7 @@ Run the reviewed-annotation pilot with:
 
 ```bash
 python scripts/ground_ontology_annotations.py \
-  label/project-10-reviewed-2026-07-22.json
+  label/project-10-reviewed-2026-07-23.json
 ```
 
 The detailed result is

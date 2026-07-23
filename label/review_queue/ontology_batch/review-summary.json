@@ -1,0 +1,51 @@
+{
+  "reviewed_at": "2026-07-23",
+  "label_studio_project_id": 3,
+  "tasks_reviewed": 128,
+  "proposed_entity_omissions": 138,
+  "accepted_entity_omissions": 134,
+  "accepted_by_label": {
+    "COMPOUND": 100,
+    "ISOLATE": 24,
+    "MEDIUM": 1,
+    "PHENOTYPE": 9
+  },
+  "rejected_entity_omissions": 4,
+  "rejected_by_label": {
+    "ISOLATE": 1,
+    "PHENOTYPE": 3
+  },
+  "rejected": [
+    {
+      "task_id": 21073,
+      "text": "fluorescence",
+      "label": "PHENOTYPE",
+      "concept_id": "PATO:0000018"
+    },
+    {
+      "task_id": 20553,
+      "text": "fluorescence",
+      "label": "PHENOTYPE",
+      "concept_id": "PATO:0000018"
+    },
+    {
+      "task_id": 20643,
+      "text": "dairy",
+      "label": "ISOLATE",
+      "concept_id": "ENVO:00003862"
+    },
+    {
+      "task_id": 22701,
+      "text": "fluorescence",
+      "label": "PHENOTYPE",
+      "concept_id": "PATO:0000018"
+    }
+  ],
+  "original_entities_removed": 0,
+  "original_relations_removed": 0,
+  "reviewer_relations_added": 15,
+  "source": "label/project-10-reviewed-2026-07-22.json",
+  "review_export": "label/review_queue/ontology_batch/reviewed-export-2026-07-23.json",
+  "merged_output": "label/project-10-reviewed-2026-07-23.json",
+  "merged_output_sha256": "3f4b0ebc80a6588d0fb34cdc3969d655f702a9e19514eca38ccdabdd9a423bfd"
+}
