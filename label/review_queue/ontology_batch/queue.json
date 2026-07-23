@@ -3474,16 +3474,414 @@
   },
   {
     "data": {
+      "text": "It has been shown that LHT1 is involved in the uptake of amino acids from soil into the leaf mesophyll cells [121].",
+      "original_task_id": "20998",
+      "review_rank": 19,
+      "review_score": 0.985,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'soil' as ISOLATE; it uniquely matches ENVO:00001998 (soil)."
+    },
+    "meta": {
+      "original_task_id": "20998",
+      "review_rank": 19,
+      "review_score": 0.985,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.985,
+          "task_id": "20998",
+          "summary": "Review unannotated 'soil' as ISOLATE; it uniquely matches ENVO:00001998 (soil).",
+          "action": {
+            "kind": "add_entity",
+            "start": 74,
+            "end": 78,
+            "text": "soil",
+            "suggested_label": "ISOLATE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "ENVO",
+            "concept_id": "ENVO:00001998",
+            "concept_label": "soil",
+            "matched_alias": "soil",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 11
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.985,
+        "result": [
+          {
+            "id": "review_22eea41e2d07",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 74,
+              "end": 78,
+              "text": "soil",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The highest extractable P was found in the soil of genotypes ICT-1026 in INAS (4.1 μg g^-1), and genotypes CCN-51 and ICT 1112 in ITAS (6.92 and 7.20 μg g^-1 respectively).",
+      "original_task_id": "21020",
+      "review_rank": 20,
+      "review_score": 0.985,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'soil' as ISOLATE; it uniquely matches ENVO:00001998 (soil)."
+    },
+    "meta": {
+      "original_task_id": "21020",
+      "review_rank": 20,
+      "review_score": 0.985,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.985,
+          "task_id": "21020",
+          "summary": "Review unannotated 'soil' as ISOLATE; it uniquely matches ENVO:00001998 (soil).",
+          "action": {
+            "kind": "add_entity",
+            "start": 43,
+            "end": 47,
+            "text": "soil",
+            "suggested_label": "ISOLATE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "ENVO",
+            "concept_id": "ENVO:00001998",
+            "concept_label": "soil",
+            "matched_alias": "soil",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 11
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.985,
+        "result": [
+          {
+            "id": "review_b36739f2e069",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 43,
+              "end": 47,
+              "text": "soil",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Sarisha-14 (F_8) and R-o-18 (double haploid) plants were sown in cereals mix (40% medium grade peat, 40% sterilised soil, 20% horticultural grit, 1.3 kg/m^3 PG mix 14‐16‐18 + Te base fertiliser, 1 kg/m^3 Osmocote Mini 16‐8‐11 2 mg + Te 0.02% B, wetting agent, 3 kg/m^3 maglime and 300 g/m^3 Exemptor).",
+      "original_task_id": "21133",
+      "review_rank": 21,
+      "review_score": 0.985,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'soil' as ISOLATE; it uniquely matches ENVO:00001998 (soil)."
+    },
+    "meta": {
+      "original_task_id": "21133",
+      "review_rank": 21,
+      "review_score": 0.985,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.985,
+          "task_id": "21133",
+          "summary": "Review unannotated 'soil' as ISOLATE; it uniquely matches ENVO:00001998 (soil).",
+          "action": {
+            "kind": "add_entity",
+            "start": 116,
+            "end": 120,
+            "text": "soil",
+            "suggested_label": "ISOLATE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "ENVO",
+            "concept_id": "ENVO:00001998",
+            "concept_label": "soil",
+            "matched_alias": "soil",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 11
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.985,
+        "result": [
+          {
+            "value": {
+              "start": 0,
+              "end": 10,
+              "text": "Sarisha-14",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "WWmfiFN-Lf",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 21,
+              "end": 27,
+              "text": "R-o-18",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "nEBLBJsgmg",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 45,
+              "end": 51,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_616116213677",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "id": "review_9c4d9f44ddfc",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 116,
+              "end": 120,
+              "text": "soil",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "So far, besides human OGT, only structures of four other members in GT41 family have been determined, including human OGT orthologues in Drosophila (DmOGT) [46], the plant pathogen Xanthomonas campestris (XcOGT) [47] and the soil thermophile Thermobaculum terrenum (TtOGT) [48], and Actinobacillus pleuropneumoniae HMW1C protein (ApHMW1C) [49].",
+      "original_task_id": "21924",
+      "review_rank": 22,
+      "review_score": 0.985,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'soil' as ISOLATE; it uniquely matches ENVO:00001998 (soil)."
+    },
+    "meta": {
+      "original_task_id": "21924",
+      "review_rank": 22,
+      "review_score": 0.985,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.985,
+          "task_id": "21924",
+          "summary": "Review unannotated 'soil' as ISOLATE; it uniquely matches ENVO:00001998 (soil).",
+          "action": {
+            "kind": "add_entity",
+            "start": 225,
+            "end": 229,
+            "text": "soil",
+            "suggested_label": "ISOLATE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "ENVO",
+            "concept_id": "ENVO:00001998",
+            "concept_label": "soil",
+            "matched_alias": "soil",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 11
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.985,
+        "result": [
+          {
+            "value": {
+              "start": 16,
+              "end": 21,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "BWCWy_QySn",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 137,
+              "end": 147,
+              "text": "Drosophila",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "ShHqkS78TC",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 181,
+              "end": 203,
+              "text": "Xanthomonas campestris",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "iFs8z4MtCz",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 242,
+              "end": 264,
+              "text": "Thermobaculum terrenum",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "88zZgzSKnU",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 283,
+              "end": 314,
+              "text": "Actinobacillus pleuropneumoniae",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "e3mIlg8Vhb",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 230,
+              "end": 241,
+              "text": "thermophile",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "gWT5OSAg3x",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 112,
+              "end": 117,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_27332225c97c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "id": "review_986815e2b5f4",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 225,
+              "end": 229,
+              "text": "soil",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
       "text": "The presence of prevalent fatty acids in the novel strain KMM 6257 (=2-2A-13) and P. arctica A 37-1-2 ^T , such as C _ 16:1 ω 7c 7c (29-40.2%), C _16:0 (12.7-18.2%), C _ 17:1 ω 8c 8c (15.3-17.9%), C _ 18:1 ω 7c 7c (5.2-11%), and C _12:0 3-OH (4.8-7.5%), is in line with the data reported previously for P. distincta [ 1 ] except that P. arctica A 37-1-2 ^T contained a lower proportion of C _17:0 and C _ 17:1 ω 8c 8c ( Table 2 ).",
       "original_task_id": "19210",
-      "review_rank": 19,
+      "review_rank": 23,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acids' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "19210",
-      "review_rank": 19,
+      "review_rank": 23,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -3871,14 +4269,14 @@
     "data": {
       "text": "The major fatty acids of strains RS ^T , GMI1000, and CQPS-1 were C _16:0 , summed feature 3 (C _16:1 ω 7 c and/or C _16:1 ω 6 c ), and summed feature 8 (C _18:1 ω 7 c and/or C _18:1 ω 6 c ), which were closely related to those of R. pseudosolanacearum LMG 9673 ^T and R. solanacearum LMG 2299 ^T ( Table 3 ).",
       "original_task_id": "19437",
-      "review_rank": 20,
+      "review_rank": 24,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acids' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "19437",
-      "review_rank": 20,
+      "review_rank": 24,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -4110,14 +4508,14 @@
     "data": {
       "text": "The major cellular fatty acids of CPCC 101082 T and CPCC 101083 T contained C 18:1 ω 7 c /C 18:1 ω 6 c , cyclo-C 19:0 ω 8 c , and C 16:0 .",
       "original_task_id": "19566",
-      "review_rank": 21,
+      "review_rank": 25,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acids' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "19566",
-      "review_rank": 21,
+      "review_rank": 25,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -4334,14 +4732,14 @@
     "data": {
       "text": "The fatty acids (>5%) of strain CPCC 101082 ^T contained cyclo-C _19:0 ω 8 c (40.4%), Summed Feature 8 (C _18:1 ω 7 c /C _18:1 ω 6 c ; 29.0%) and C _16:0 (10.8%) with minor (1-5%) amounts of C _17:1 ω 6 c (4.5%), Sum In Feature 4 (iso-C _17:1 I and/or anteiso-C _17:1 B; 2.2%), Sum In Feature 3 (C _16:1 ω7c and/or iso-C _15:0 2-OH; 2.1%), C _18:1 ω 5 c (2.0%), C _18:0 (1.8%) and C _16:0 3-OH (1.8%).",
       "original_task_id": "19576",
-      "review_rank": 22,
+      "review_rank": 26,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acids' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "19576",
-      "review_rank": 22,
+      "review_rank": 26,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -4699,14 +5097,14 @@
     "data": {
       "text": "Fatty acid profiles of these ten strains showed variations: C _16 : 0 was the major fatty acid in BG-AF3-A ^T , pH52_RY, WF-MT5-A ^T , BG-MG3-A, STM3_1 ^T , STM2_1, WF-MO7-1 ^T and WF-MA3-C, while summed feature 7 (combination of C _19 : 1 ω 6 c and/or C _19 : 0 cyclo ω 10 c ) was more abundant than other fatty acids in Lr3000 ^T and RRLNB_1_1 (from the same putative novel species) ( Table 6 ).",
       "original_task_id": "19733",
-      "review_rank": 23,
+      "review_rank": 27,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acids' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid). | Review unannotated 'Fatty acid' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid). | Review unannotated 'fatty acid' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "19733",
-      "review_rank": 23,
+      "review_rank": 27,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -5138,14 +5536,14 @@
     "data": {
       "text": "The cell-wall peptidoglycan of BG-AF3-A ^T contains the amino acids alanine (Ala), glutamic acid (Glu), lysine (Lys), and aspartic acid (Asp), with the molar ratio 1.3 (Ala):0.8 (Asp):1.0 (Glu):1.0 (Lys), suggesting the cell-wall peptidoglycan type A4α l -Lys -d -Asp by [ 38 ].",
       "original_task_id": "19768",
-      "review_rank": 24,
+      "review_rank": 28,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'peptidoglycan' as COMPOUND; it uniquely matches CHEBI:8005 (peptidoglycan)."
     },
     "meta": {
       "original_task_id": "19768",
-      "review_rank": 24,
+      "review_rank": 28,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -5386,14 +5784,14 @@
     "data": {
       "text": "C _16:0 and iso-C _17:0 , which were detected as major fatty acids, were present at moderate amounts in strain KA5-B ^T . iso-C _17:0 was detected at a small amount, less than 5% or below the detection limit, in the other closest relatives.",
       "original_task_id": "19901",
-      "review_rank": 25,
+      "review_rank": 29,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acids' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "19901",
-      "review_rank": 25,
+      "review_rank": 29,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -5535,14 +5933,14 @@
     "data": {
       "text": "Analysis of fatty acid profiles showed iso-C 15:0 , anteiso-C 15:0 , C 16:0 , C 18:1 ω9c , and iso-C 17:0 3OH as the major fatty acids for all three strains and additionally C 16:0 3OH for AN421 T and AN502.",
       "original_task_id": "20022",
-      "review_rank": 26,
+      "review_rank": 30,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acids' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid). | Review unannotated 'fatty acid' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "20022",
-      "review_rank": 26,
+      "review_rank": 30,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -5862,14 +6260,14 @@
     "data": {
       "text": "The predominant fatty acids (>10%) for all analyzed strains were iso-C _15:0 , anteiso-C _15:0 , C _16:0 , C _18:1 ω9c , iso-C _17:0 3OH, and additionally, C _16:0 3OH for AN421 ^T and AN502.",
       "original_task_id": "20030",
-      "review_rank": 27,
+      "review_rank": 31,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acids' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "20030",
-      "review_rank": 27,
+      "review_rank": 31,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -6152,14 +6550,14 @@
     "data": {
       "text": "For WF-MT5-A ^T , the major fatty acids are C _16 : 0 , followed by C _19 : 0 cyclo ω 8 c .",
       "original_task_id": "20189",
-      "review_rank": 28,
+      "review_rank": 32,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acids' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "20189",
-      "review_rank": 28,
+      "review_rank": 32,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -6277,14 +6675,14 @@
     "data": {
       "text": "The cell-wall peptidoglycan of WF-MT5-A ^T contains the amino acids alanine (Ala), glutamic acid (Glu), lysine (Lys), aspartic acid (Asp), serine (Ser) and threonine (Thr), with the molar ratio 1.1 (Ala):0.8 (Asp):1.0 (Glu):0.7 (Lys):0.1 (Thr):0.1 (Ser), suggesting the cell-wall peptidoglycan type A4α l -Lys -d -Asp by [ 38 ].",
       "original_task_id": "20190",
-      "review_rank": 29,
+      "review_rank": 33,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'peptidoglycan' as COMPOUND; it uniquely matches CHEBI:8005 (peptidoglycan). | Review unannotated 'peptidoglycan' as COMPOUND; it uniquely matches CHEBI:8005 (peptidoglycan)."
     },
     "meta": {
       "original_task_id": "20190",
-      "review_rank": 29,
+      "review_rank": 33,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -6793,14 +7191,14 @@
     "data": {
       "text": "Pilot experiments had shown that esterified n-3 PUFA in the form of fish oil are poor oxygenation substrates (not shown), whereas a liposomal formulation of an n-3 PUFA lysine salt-wherein the fatty acids are present in their non-esterified form-gave rise to a diverse spectrum of SPM and precursors found in Bacillus megaterium DSM 32963 supernatants after 17 h of cultivation (Figure 2).",
       "original_task_id": "21224",
-      "review_rank": 30,
+      "review_rank": 34,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acids' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "21224",
-      "review_rank": 30,
+      "review_rank": 34,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -6930,14 +7328,14 @@
     "data": {
       "text": "The analysis of the available draft genome of L. mesenteroides P45 allowed us to identify the coding sequences of a pre-bacteriocin (GenBank accession KGB49933) and six peptidoglycan hydrolase (PGH) enzymes (Table 2): β-(1,4)-N-acetylmuramidase (KGB50379, KGB50910, KGB51092), N-acetylmuramidase (KGB5041) and N-acetylmuramoyl-l-alanine amidase enzymes (KGB50968), with molecular weights ranging from 23.93 to 48.94 kDa.",
       "original_task_id": "22708",
-      "review_rank": 31,
+      "review_rank": 35,
       "review_score": 0.98,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'peptidoglycan' as COMPOUND; it uniquely matches CHEBI:8005 (peptidoglycan)."
     },
     "meta": {
       "original_task_id": "22708",
-      "review_rank": 31,
+      "review_rank": 35,
       "review_score": 0.98,
       "review_issues": [
         {
@@ -7022,14 +7420,14 @@
     "data": {
       "text": "The major fatty acid of the group comprising strain P7388 ^T were iso-C _15:0 (23.4%), Summed Feature 3 (C _16:1 ω 7c /C _16:1 ω 6c ) (9.9%), iso-C _17:0 3OH (8.5%) and iso-C _15:0 3OH (8.4%).",
       "original_task_id": "19161",
-      "review_rank": 32,
+      "review_rank": 36,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acid' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "19161",
-      "review_rank": 32,
+      "review_rank": 36,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -7219,14 +7617,14 @@
     "data": {
       "text": "When growing on formic acid, subunits of the particulate methane monooxygenase operon ( pmoCAB3 ), corresponding to M. infernorum V4 loci Minf_1589-1591, were highly expressed (average FPKM = 18,422) and displayed the greatest degree of transcriptional upregulation (average: 6.5 Log _2 FC, p < 0.009) observed ( Figure 4B ; Supplementary Table S1 ).",
       "original_task_id": "19168",
-      "review_rank": 33,
+      "review_rank": 37,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'methane' as COMPOUND; it uniquely matches CHEBI:16183 (methane)."
     },
     "meta": {
       "original_task_id": "19168",
-      "review_rank": 33,
+      "review_rank": 37,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -7311,14 +7709,14 @@
     "data": {
       "text": "The fatty acid composition of three strains of the species P. distincta was also similar to P. arctica A 37-1-2 ^T ( Table 2 ).",
       "original_task_id": "19209",
-      "review_rank": 34,
+      "review_rank": 38,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acid' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "19209",
-      "review_rank": 34,
+      "review_rank": 38,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -7403,14 +7801,14 @@
     "data": {
       "text": "Prediction of PULs found seven putative loci involved in degradation of carrageenan, dextran, hemicellulose, chitin, pectin, starch and xylan, which implies the ability of strain P7388 ^T to degrade various polysaccharide substrates.",
       "original_task_id": "19293",
-      "review_rank": 35,
+      "review_rank": 39,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'polysaccharide' as COMPOUND; it uniquely matches CHEBI:18154 (polysaccharide)."
     },
     "meta": {
       "original_task_id": "19293",
-      "review_rank": 35,
+      "review_rank": 39,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -7648,14 +8046,14 @@
     "data": {
       "text": "The major fatty acid constituents of strains A1 ^T , H1 ^T and B1 ^T (C _16 : 0 , C _16:1 ω7 c and C _18:1 ω7 c ) are similar to those of the Malikia granosa P1 ^T , Hydrogenophaga flava DSM 619 ^T , and Hydrogenophaga palleronii DSM 63 ^T , but different from those of Macromonas bipunctata DSM 12705 ^T ( Table 3 ).",
       "original_task_id": "19418",
-      "review_rank": 36,
+      "review_rank": 40,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acid' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "19418",
-      "review_rank": 36,
+      "review_rank": 40,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -7941,14 +8339,14 @@
     "data": {
       "text": "The strain (HH37) associated with the shortest duration of bacteremia and patient survival had the highest CFU-adjusted LTA release (0.00201 ± 0.00039 ng), whereas the two strains (HH70 and HH35) associated with prolonged bacteremia in the blood (11 and 17 days, respectively) and deaths had the lowest release (1.70e−006 ng and 1.81e−006 ng, respectively).",
       "original_task_id": "19588",
-      "review_rank": 37,
+      "review_rank": 41,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'blood' as ISOLATE; it uniquely matches UBERON:0000178 (blood)."
     },
     "meta": {
       "original_task_id": "19588",
-      "review_rank": 37,
+      "review_rank": 41,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -8147,14 +8545,14 @@
     "data": {
       "text": "For BG-AF3-A ^T , the most abundant fatty acid is C _16 : 0 , followed by C _19 : 0 cyclo ω 8 c .",
       "original_task_id": "19767",
-      "review_rank": 38,
+      "review_rank": 42,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acid' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "19767",
-      "review_rank": 38,
+      "review_rank": 42,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -8272,14 +8670,14 @@
     "data": {
       "text": "For whole-cell fatty acid and polar lipid analysis, the strains 16-SW-7, P. distincta KMM 638 ^T and P. paragorgicola KMM 3548 ^T were grown under optimal physiological conditions for all strains (at 28°C for 24 h on MA).",
       "original_task_id": "19789",
-      "review_rank": 39,
+      "review_rank": 43,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acid' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid). | Review unannotated 'lipid' as COMPOUND; it uniquely matches CHEBI:18059 (lipid)."
     },
     "meta": {
       "original_task_id": "19789",
-      "review_rank": 39,
+      "review_rank": 43,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -8458,14 +8856,14 @@
     "data": {
       "text": "A total of eight PRGBS clinical strains of blood origin with penicillin MICs of ≥0.25 μg/mL were recovered from elderly patients between 2008 and 2016 in Japan, all of which were subjected to our analyses; they included serotype Ia/ST1 strains SU85, SU97, SU187, and SU233, associated with nosocomial infections in a regional general hospital ( 26 ), and serotype III/ST464 (CC23) strain MRY08-1422 ( 31 ), serotype III/ST1 strains SF0942 and SF1510, and serotype Ib/ST10 strain SF0680 from sporadic cases of infection in a large-scale hospital.",
       "original_task_id": "19841",
-      "review_rank": 40,
+      "review_rank": 44,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'blood' as ISOLATE; it uniquely matches UBERON:0000178 (blood)."
     },
     "meta": {
       "original_task_id": "19841",
-      "review_rank": 40,
+      "review_rank": 44,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -8829,14 +9227,14 @@
     "data": {
       "text": "SA29-B T and YU21-B grew at 15-40°C and pH 6.0-12 and contained C 16:0 as the dominant cell fatty acid, whereas KA5-B T showed no growth at 40°C and pH 12 and contained a moderate amount of C 16:0 .",
       "original_task_id": "19893",
-      "review_rank": 41,
+      "review_rank": 45,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fatty acid' as COMPOUND; it uniquely matches CHEBI:35366 (fatty acid)."
     },
     "meta": {
       "original_task_id": "19893",
-      "review_rank": 41,
+      "review_rank": 45,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -8993,14 +9391,14 @@
     "data": {
       "text": "In the blood from BALB/c mice, strains B31-5A4 and B408 yielded significantly greater levels of bacterial burdens than B379 and the negative-control strain, B31A (a high-passage strain that cannot efficiently survive in vertebrate bloodstream [ 31 ]) ( Fig 3A ).",
       "original_task_id": "20195",
-      "review_rank": 42,
+      "review_rank": 46,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'blood' as ISOLATE; it uniquely matches UBERON:0000178 (blood)."
     },
     "meta": {
       "original_task_id": "20195",
-      "review_rank": 42,
+      "review_rank": 46,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -9130,14 +9528,14 @@
     "data": {
       "text": "In addition, the mitochondrial calcium levels in ES2 cells were increased by 1.5%, 3.5%, and 4.0% by 5, 10, and 20 μg/mL of stigmasterol, respectively, compared to that in the case of the vehicle-treated control (1.1%) (Figure 3C).",
       "original_task_id": "20981",
-      "review_rank": 43,
+      "review_rank": 47,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'calcium' as COMPOUND; it uniquely matches CHEBI:29320 (calcium(0))."
     },
     "meta": {
       "original_task_id": "20981",
-      "review_rank": 43,
+      "review_rank": 47,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -9222,14 +9620,14 @@
     "data": {
       "text": "In the genome of L. kunkeei EFB6, we identified genes encoding all proteins of the general secretory (Sec) pathway and putative polysaccharide biosynthesis proteins, which may participate in capsule or S layer formation.",
       "original_task_id": "21145",
-      "review_rank": 44,
+      "review_rank": 48,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'polysaccharide' as COMPOUND; it uniquely matches CHEBI:18154 (polysaccharide)."
     },
     "meta": {
       "original_task_id": "21145",
-      "review_rank": 44,
+      "review_rank": 48,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -9314,14 +9712,14 @@
     "data": {
       "text": "G. echinicolaDSM 19838^T and G. portivictoriaeDSM 23547^T harboured a large set of 127 and 119 CAZymes, respectively, comprising 37-39 glycoside hydrolases, 2-5 polysaccharide lyases, 9-14 carbohydrate esterases, 9-10 carbohydrate binding modules and 55-61 glycoside transferases (Table 8 and Table S5 and S6 in Additional file 1).",
       "original_task_id": "21741",
-      "review_rank": 45,
+      "review_rank": 49,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'polysaccharide' as COMPOUND; it uniquely matches CHEBI:18154 (polysaccharide)."
     },
     "meta": {
       "original_task_id": "21741",
-      "review_rank": 45,
+      "review_rank": 49,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -9406,14 +9804,14 @@
     "data": {
       "text": "The presence of most of the glycolysis pathway, in addition to pyruvate dehydrogenase, suggests that Cytophagia_1 may ferment pyruvate, possibly producing acetate as a metabolic byproduct.",
       "original_task_id": "22146",
-      "review_rank": 46,
+      "review_rank": 50,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'pyruvate' as COMPOUND; it uniquely matches CHEBI:15361 (pyruvate)."
     },
     "meta": {
       "original_task_id": "22146",
-      "review_rank": 46,
+      "review_rank": 50,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -9543,14 +9941,14 @@
     "data": {
       "text": "The enrichments were started for strains 59.10 1M, 59.10 2M and 60.6M with artificial seawater medium and for strain 59.16B with brackish water medium both anoxic, pH buffered by a carbonate buffer and sulfide added as reducing agent as described previously (Vandieken et al., 2017).",
       "original_task_id": "23080",
-      "review_rank": 47,
+      "review_rank": 51,
       "review_score": 0.97,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'sulfide' as COMPOUND; it uniquely matches CHEBI:26822 (sulfide)."
     },
     "meta": {
       "original_task_id": "23080",
-      "review_rank": 47,
+      "review_rank": 51,
       "review_score": 0.97,
       "review_issues": [
         {
@@ -9729,16 +10127,185 @@
   },
   {
     "data": {
+      "text": "RTK17.1, 4 ml of pH-adjusted V4 media (range: pH 0.5-6.0; H _2 SO _4 ) was made, added to (20 ml) Balch tubes (Bellco), and sealed with butyl rubber stoppers prior to sterilization.",
+      "original_task_id": "19316",
+      "review_rank": 52,
+      "review_score": 0.965,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'H _2' as COMPOUND; it uniquely matches CHEBI:18276 (dihydrogen)."
+    },
+    "meta": {
+      "original_task_id": "19316",
+      "review_rank": 52,
+      "review_score": 0.965,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.965,
+          "task_id": "19316",
+          "summary": "Review unannotated 'H _2' as COMPOUND; it uniquely matches CHEBI:18276 (dihydrogen).",
+          "action": {
+            "kind": "add_entity",
+            "start": 58,
+            "end": 62,
+            "text": "H _2",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:18276",
+            "concept_label": "dihydrogen",
+            "matched_alias": "H2",
+            "alias_scope": "RELATED",
+            "match_mode": "formula",
+            "annotated_support": 7
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.965,
+        "result": [
+          {
+            "value": {
+              "start": 29,
+              "end": 31,
+              "text": "V4",
+              "labels": [
+                "MEDIUM"
+              ]
+            },
+            "id": "5Mn79GjT1w",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_f41faa853b05",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 58,
+              "end": 62,
+              "text": "H _2",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "In contrast, wild-type HIV-2 RT incorporates AZTTP less well and has a less well-developed ATP binding site, so it can be considered to be already on a pathway of becoming resistant by decreasing its incorporation of AZTTP.",
+      "original_task_id": "20908",
+      "review_rank": 53,
+      "review_score": 0.965,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'ATP' as COMPOUND; it uniquely matches CHEBI:15422 (ATP)."
+    },
+    "meta": {
+      "original_task_id": "20908",
+      "review_rank": 53,
+      "review_score": 0.965,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.965,
+          "task_id": "20908",
+          "summary": "Review unannotated 'ATP' as COMPOUND; it uniquely matches CHEBI:15422 (ATP).",
+          "action": {
+            "kind": "add_entity",
+            "start": 91,
+            "end": 94,
+            "text": "ATP",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:15422",
+            "concept_label": "ATP",
+            "matched_alias": "ATP",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 7
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.965,
+        "result": [
+          {
+            "value": {
+              "start": 45,
+              "end": 50,
+              "text": "AZTTP",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "JXup9GetY7",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 217,
+              "end": 222,
+              "text": "AZTTP",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "0f810ITvwl",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_aa7883c5f4ab",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 91,
+              "end": 94,
+              "text": "ATP",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
       "text": "Of these 20 bacterial strains, only 2 strains (S3, S14) are potent degrader of chitin and they are also a good producer of the enzyme chitin deacetylase so as to release chitosan.",
       "original_task_id": "21691",
-      "review_rank": 48,
+      "review_rank": 54,
       "review_score": 0.965,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'chitin' as COMPOUND; it uniquely matches CHEBI:17029 (chitin)."
     },
     "meta": {
       "original_task_id": "21691",
-      "review_rank": 48,
+      "review_rank": 54,
       "review_score": 0.965,
       "review_issues": [
         {
@@ -9871,14 +10438,14 @@
     "data": {
       "text": "Desulfovibrio strain SB1, a mesophilic, Gram-negative SRB was isolated from anaerobic sludge of a gas lift reactor-treating sulfate and zinc-rich wastewater (van Houten 2006); while Desulfovibrio mexicoense was isolated from a UASB digester-treating wastewater from a cheese-manufacturing factory in Mexico (Hernandez-Eugenio et al.",
       "original_task_id": "21776",
-      "review_rank": 49,
+      "review_rank": 55,
       "review_score": 0.965,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'sulfate' as COMPOUND; it uniquely matches CHEBI:16189 (sulfate)."
     },
     "meta": {
       "original_task_id": "21776",
-      "review_rank": 49,
+      "review_rank": 55,
       "review_score": 0.965,
       "review_issues": [
         {
@@ -10074,14 +10641,14 @@
     "data": {
       "text": "Another chitin hydrolase CcCti1 is identified from Corallococcus sp. strain EGB, and exhibits efficient antifungal activity against rice blast fungus [13].",
       "original_task_id": "21901",
-      "review_rank": 50,
+      "review_rank": 56,
       "review_score": 0.965,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'chitin' as COMPOUND; it uniquely matches CHEBI:17029 (chitin)."
     },
     "meta": {
       "original_task_id": "21901",
-      "review_rank": 50,
+      "review_rank": 56,
       "review_score": 0.965,
       "review_issues": [
         {
@@ -10212,16 +10779,108 @@
   },
   {
     "data": {
+      "text": "Although none of these identifiers in this study are changing with TOR inhibition, Cys oxidation was identified on V-type proton ATPase subunits C (A8HYU2), F (A8HZ87), and H (A8HQ97), as well as vacuolar ATP (V-ATP) synthase subunits A (A8I164), B (A8IA45), and E (A8IW47).",
+      "original_task_id": "21994",
+      "review_rank": 57,
+      "review_score": 0.965,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'ATP' as COMPOUND; it uniquely matches CHEBI:15422 (ATP)."
+    },
+    "meta": {
+      "original_task_id": "21994",
+      "review_rank": 57,
+      "review_score": 0.965,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.965,
+          "task_id": "21994",
+          "summary": "Review unannotated 'ATP' as COMPOUND; it uniquely matches CHEBI:15422 (ATP).",
+          "action": {
+            "kind": "add_entity",
+            "start": 205,
+            "end": 208,
+            "text": "ATP",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:15422",
+            "concept_label": "ATP",
+            "matched_alias": "ATP",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 7
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.965,
+        "result": [
+          {
+            "value": {
+              "start": 67,
+              "end": 70,
+              "text": "TOR",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "Pcb5m5aq5T",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 83,
+              "end": 96,
+              "text": "Cys oxidation",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "4kaBjOcXIC",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_28fbe7846949",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 205,
+              "end": 208,
+              "text": "ATP",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
       "text": "The polar lipid profile of strain P7388 ^T ( Figure 6A ) consisted of the major lipids, phosphatidylethanolamine, an ornithine lipid, two unidentified lipids lacking a functional group (L3, L4), moderate amounts of unidentified lipid L1, minor amounts of lipids L2 and L6 and an unidentified glycolipid (GL).",
       "original_task_id": "19297",
-      "review_rank": 51,
+      "review_rank": 58,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'lipid' as COMPOUND; it uniquely matches CHEBI:18059 (lipid). | Review unannotated 'lipid' as COMPOUND; it uniquely matches CHEBI:18059 (lipid)."
     },
     "meta": {
       "original_task_id": "19297",
-      "review_rank": 51,
+      "review_rank": 58,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -10376,14 +11035,14 @@
     "data": {
       "text": "Given that (i) tellurite is by far more toxic for bacteria than other metals ( Taylor, 1999 ) and (ii) it is scarce in the Earth’s crust ( Turner, Borghese & Zannoni, 2012 ), finding tellurite resistance determinants in P. glacincola BNF20 was somewhat unexpected.",
       "original_task_id": "19468",
-      "review_rank": 52,
+      "review_rank": 59,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'tellurite' as COMPOUND; it uniquely matches CHEBI:30477 (tellurite)."
     },
     "meta": {
       "original_task_id": "19468",
-      "review_rank": 52,
+      "review_rank": 59,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -10501,14 +11160,14 @@
     "data": {
       "text": "Consistent with the results of Fig 2(b) , low fluorescence intensities were observed in the colonies of FORC_007 and FORC_075 compared with those of other FORC strains forming RDAR colonies (Fig S2), indicating that FORC_007 and FORC_075 produce a small amount of cellulose.",
       "original_task_id": "19855",
-      "review_rank": 53,
+      "review_rank": 60,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence)."
     },
     "meta": {
       "original_task_id": "19855",
-      "review_rank": 53,
+      "review_rank": 60,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -10671,14 +11330,14 @@
     "data": {
       "text": "The genome of P. luminescens HIM3 presents the gene coding for a palmitoyltransferase (pagP), which modifies the lipid A of lipopolysaccharide (LPS); this modification allows the bacteria to inhibit the inflammatory response and evade the insect immune response [ 45 ].",
       "original_task_id": "19921",
-      "review_rank": 54,
+      "review_rank": 61,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'lipid' as COMPOUND; it uniquely matches CHEBI:18059 (lipid)."
     },
     "meta": {
       "original_task_id": "19921",
-      "review_rank": 54,
+      "review_rank": 61,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -10841,14 +11500,14 @@
     "data": {
       "text": "Strain P4023 ^T ( Figure 6B ) displayed major amounts of phosphatidylethanolamine, an ornithine lipid, and two unidentified lipids (L3, L4) lacking a functional group, moderate amounts of unidentified lipid L1 and glycolipid GL and minor amounts of an unidentified aminophospholipid (APL), and two unidentified lipids (L2, L5).",
       "original_task_id": "20099",
-      "review_rank": 55,
+      "review_rank": 62,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'lipid' as COMPOUND; it uniquely matches CHEBI:18059 (lipid)."
     },
     "meta": {
       "original_task_id": "20099",
-      "review_rank": 55,
+      "review_rank": 62,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -11038,14 +11697,14 @@
     "data": {
       "text": "Formate is at an important branch point in the central carbon network during methylotrophic metabolism in AM1, as it can either be utilized for biomass production via the serine cycle or for energy generation by formate dehydrogenases ( Crowther et al., 2008 ).",
       "original_task_id": "20147",
-      "review_rank": 56,
+      "review_rank": 63,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'formate' as COMPOUND; it uniquely matches CHEBI:15740 (formate)."
     },
     "meta": {
       "original_task_id": "20147",
-      "review_rank": 56,
+      "review_rank": 63,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -11217,14 +11876,14 @@
     "data": {
       "text": "AM1 has four known formate dehydrogenases (Fdh1-4) with different co-factor requirements.",
       "original_task_id": "20148",
-      "review_rank": 57,
+      "review_rank": 64,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'formate' as COMPOUND; it uniquely matches CHEBI:15740 (formate)."
     },
     "meta": {
       "original_task_id": "20148",
-      "review_rank": 57,
+      "review_rank": 64,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -11294,14 +11953,14 @@
     "data": {
       "text": "In a recent study, an excellent plant inter-rhizosphere strain, B. aryabhattai LAD, was isolated from maize rhizosphere, and the impact of LAD on rhizosphere microbial structure was also explored in the previous study ( Deng et al., 2022 ).",
       "original_task_id": "20323",
-      "review_rank": 58,
+      "review_rank": 65,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'rhizosphere' as ISOLATE; it uniquely matches ENVO:00005801 (rhizosphere)."
     },
     "meta": {
       "original_task_id": "20323",
-      "review_rank": 58,
+      "review_rank": 65,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -11440,14 +12099,14 @@
     "data": {
       "text": "These predictions are consistent with our previous transcriptional study of Rlv3841 in the rhizosphere of pea, alfalfa, and sugar beet ( 10 ) as well as nutrient uptake of a Rhizobium sp. from root exudates of Arabidopsis ( 47 ).",
       "original_task_id": "20378",
-      "review_rank": 59,
+      "review_rank": 66,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'rhizosphere' as ISOLATE; it uniquely matches ENVO:00005801 (rhizosphere)."
     },
     "meta": {
       "original_task_id": "20378",
-      "review_rank": 59,
+      "review_rank": 66,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -11643,14 +12302,14 @@
     "data": {
       "text": "Fucoidan Sulfatases from Marine Bacterium Wenyingzhuangia fucanilytica CZ1127 T",
       "original_task_id": "20510",
-      "review_rank": 60,
+      "review_rank": 67,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'Fucoidan' as COMPOUND; it uniquely matches CHEBI:5181 (fucoidan)."
     },
     "meta": {
       "original_task_id": "20510",
-      "review_rank": 60,
+      "review_rank": 67,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -11744,14 +12403,14 @@
     "data": {
       "text": "The goals of this study were to identify and functionally characterize fucoidan sulfatases from fucoidan-degrading marine bacterium Wenyingzhuangia fucanilytica CZ1127 ^T , carry out a detailed analysis of their amino acid sequences, and establish their detailed substrate specificity for further use as tools for establishing the structures of fucoidan molecules.",
       "original_task_id": "20513",
-      "review_rank": 61,
+      "review_rank": 68,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fucoidan' as COMPOUND; it uniquely matches CHEBI:5181 (fucoidan)."
     },
     "meta": {
       "original_task_id": "20513",
-      "review_rank": 61,
+      "review_rank": 68,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -11860,14 +12519,14 @@
     "data": {
       "text": "Genes of two fucoidan sulfatases swf1 and swf4 from the marine bacterium Wenyingzhuangia fucanilytica CZ1127 ^T were identified for the first time.",
       "original_task_id": "20516",
-      "review_rank": 62,
+      "review_rank": 69,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fucoidan' as COMPOUND; it uniquely matches CHEBI:5181 (fucoidan)."
     },
     "meta": {
       "original_task_id": "20516",
-      "review_rank": 62,
+      "review_rank": 69,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -11935,16 +12594,78 @@
   },
   {
     "data": {
+      "text": "We successfully set up long-term serological surveillance of SARS-CoV-2 using residual samples from blood donations, demonstrating variation based on age, ethnicity and location.",
+      "original_task_id": "20889",
+      "review_rank": 70,
+      "review_score": 0.96,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'blood' as ISOLATE; it uniquely matches UBERON:0000178 (blood)."
+    },
+    "meta": {
+      "original_task_id": "20889",
+      "review_rank": 70,
+      "review_score": 0.96,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.96,
+          "task_id": "20889",
+          "summary": "Review unannotated 'blood' as ISOLATE; it uniquely matches UBERON:0000178 (blood).",
+          "action": {
+            "kind": "add_entity",
+            "start": 100,
+            "end": 105,
+            "text": "blood",
+            "suggested_label": "ISOLATE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "UBERON",
+            "concept_id": "UBERON:0000178",
+            "concept_label": "blood",
+            "matched_alias": "blood",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 6
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.96,
+        "result": [
+          {
+            "id": "review_4ac7fefca189",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 100,
+              "end": 105,
+              "text": "blood",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
       "text": "Host cell contact-dependent expression of Yersinia virulence genes was assessed with Y. pseudotuberculosis strain YPIII and isogenic mutant strains (YP53 ΔcsrA) with or without contact to HEp-2 cells (ATCC, USA) by a) in situ monitoring of gfp reporter fusions by fluorescence microscopy, b) in situ quantification of light emission of luxCDABE reporter fusions and, and c) detection and quantification of LcrF, YadA or YopE.",
       "original_task_id": "21073",
-      "review_rank": 63,
+      "review_rank": 71,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence)."
     },
     "meta": {
       "original_task_id": "21073",
-      "review_rank": 63,
+      "review_rank": 71,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -12044,14 +12765,14 @@
     "data": {
       "text": "Through the detections of DOX-derived fluorescence in the cells, it can be observed that the DH82 cells exhibited relatively mild phagocytosis to the HIDPPDNE (Fig 4I, A-F) as compared with IDPPDNE (Fig 4I, a-f).",
       "original_task_id": "21102",
-      "review_rank": 64,
+      "review_rank": 72,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence)."
     },
     "meta": {
       "original_task_id": "21102",
-      "review_rank": 64,
+      "review_rank": 72,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -12188,16 +12909,123 @@
   },
   {
     "data": {
+      "text": "The number of DEGs in tolerant PDL-2 was higher in contrast to sensitive genotype, and most of the DEGs belonged to cell wall/callose deposition enzymes (Plasmodesmata Callose-Binding Protein 3), wax formation (Diacylglycerol acetyltransferase WSD1), secondary metabolic processes (Pyruvate phosphate dikinase chloroplastic), and several transcription factors (WRKY and NAC; Singh et al., 2019b).",
+      "original_task_id": "21193",
+      "review_rank": 73,
+      "review_score": 0.96,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'Pyruvate' as COMPOUND; it uniquely matches CHEBI:15361 (pyruvate)."
+    },
+    "meta": {
+      "original_task_id": "21193",
+      "review_rank": 73,
+      "review_score": 0.96,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.96,
+          "task_id": "21193",
+          "summary": "Review unannotated 'Pyruvate' as COMPOUND; it uniquely matches CHEBI:15361 (pyruvate).",
+          "action": {
+            "kind": "add_entity",
+            "start": 282,
+            "end": 290,
+            "text": "Pyruvate",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:15361",
+            "concept_label": "pyruvate",
+            "matched_alias": "pyruvate",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 6
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.96,
+        "result": [
+          {
+            "value": {
+              "start": 126,
+              "end": 133,
+              "text": "callose",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "USPlSLvgQg",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 31,
+              "end": 36,
+              "text": "PDL-2",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "X5noEVXevA",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 196,
+              "end": 209,
+              "text": "wax formation",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "ieKfkW6trA",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_d07334243866",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 282,
+              "end": 290,
+              "text": "Pyruvate",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
       "text": "Based on results obtained via culture-based method we found that 85% of the inoculated grapevines were colonized at the rhizosphere level at 14 dpi by the strain EF3.5(2), dropping to 40% at 96-98 dpi compared to the respective 0% and 13% at both assessment dates for the strain ARSEF-2575-GFP.",
       "original_task_id": "21223",
-      "review_rank": 65,
+      "review_rank": 74,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'rhizosphere' as ISOLATE; it uniquely matches ENVO:00005801 (rhizosphere)."
     },
     "meta": {
       "original_task_id": "21223",
-      "review_rank": 65,
+      "review_rank": 74,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -12313,16 +13141,179 @@
   },
   {
     "data": {
+      "text": "In addition, four genes comprising key regulatory components of the glycolytic pathway were represented amongst this class of potential biomarkers, including pyruvate kinase (CG12229) and fructose-bisphosphate aldolase (delilah) as well as genes that act in peripheral pathways, such as those encoding trehalose-phosphatase (CG5177) and L-iditol 2-dehydrogenase (CG4836).",
+      "original_task_id": "21763",
+      "review_rank": 75,
+      "review_score": 0.96,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'pyruvate' as COMPOUND; it uniquely matches CHEBI:15361 (pyruvate)."
+    },
+    "meta": {
+      "original_task_id": "21763",
+      "review_rank": 75,
+      "review_score": 0.96,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.96,
+          "task_id": "21763",
+          "summary": "Review unannotated 'pyruvate' as COMPOUND; it uniquely matches CHEBI:15361 (pyruvate).",
+          "action": {
+            "kind": "add_entity",
+            "start": 158,
+            "end": 166,
+            "text": "pyruvate",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:15361",
+            "concept_label": "pyruvate",
+            "matched_alias": "pyruvate",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 6
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.96,
+        "result": [
+          {
+            "id": "review_1c6765266798",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 158,
+              "end": 166,
+              "text": "pyruvate",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The polysaccharide HPS-1B23 was isolated from D. huoshanense by chemical methods and the nuclear magnetic resonance (NMR) technique.",
+      "original_task_id": "21988",
+      "review_rank": 76,
+      "review_score": 0.96,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'polysaccharide' as COMPOUND; it uniquely matches CHEBI:18154 (polysaccharide)."
+    },
+    "meta": {
+      "original_task_id": "21988",
+      "review_rank": 76,
+      "review_score": 0.96,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.96,
+          "task_id": "21988",
+          "summary": "Review unannotated 'polysaccharide' as COMPOUND; it uniquely matches CHEBI:18154 (polysaccharide).",
+          "action": {
+            "kind": "add_entity",
+            "start": 4,
+            "end": 18,
+            "text": "polysaccharide",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:18154",
+            "concept_label": "polysaccharide",
+            "matched_alias": "polysaccharide",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 6
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.96,
+        "result": [
+          {
+            "value": {
+              "start": 19,
+              "end": 27,
+              "text": "HPS-1B23",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "JArbaPo6wC",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 46,
+              "end": 60,
+              "text": "D. huoshanense",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "xVsUNkGG96",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "from_id": "xVsUNkGG96",
+            "to_id": "JArbaPo6wC",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRODUCES"
+            ]
+          },
+          {
+            "id": "review_46fca6af9405",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 4,
+              "end": 18,
+              "text": "polysaccharide",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
       "text": "Oral administration of L. kefiranofaciens ZW3 improved depression-like behaviors and independent exploration ability, regulating biochemical disorders in the hypothalamic-pituitary-adrenal axis, immune system, and tryptophan metabolism (Sun et al., 2019).",
       "original_task_id": "22981",
-      "review_rank": 66,
+      "review_rank": 77,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'tryptophan' as COMPOUND; it uniquely matches CHEBI:27897 (tryptophan)."
     },
     "meta": {
       "original_task_id": "22981",
-      "review_rank": 66,
+      "review_rank": 77,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -12464,14 +13455,14 @@
     "data": {
       "text": "Samples of milk from individual lactating cows’ and dairy farm environmental samples (feces, water and manure) were collected at Adami Tulu Jido Kombolcha district (ATJKD) and analyzed for the presence of E. coli O157:H7.",
       "original_task_id": "23108",
-      "review_rank": 67,
+      "review_rank": 78,
       "review_score": 0.96,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'dairy' as ISOLATE; it uniquely matches ENVO:00003862 (dairy)."
     },
     "meta": {
       "original_task_id": "23108",
-      "review_rank": 67,
+      "review_rank": 78,
       "review_score": 0.96,
       "review_issues": [
         {
@@ -12601,14 +13592,14 @@
     "data": {
       "text": "Nevertheless, inspecting the genes belonging to carotenoid synthesis/degradation pathways, the signatures identified by gapsec for all strains of P. distincta and P. arctica A 37-1-1 ^T were the following: nonmevanolate isoprenoid methylerythritol phosphate (MEP) pathway II; geranyl diphosphate biosynthesis; and trans, trans-farnesyl diphosphate biosynthesis, with a completeness of 88, 100, and 66, respectively, excepting for the strains AC163 and TB25 ( Supplementary Tables S7 and S9 ).",
       "original_task_id": "19340",
-      "review_rank": 68,
+      "review_rank": 79,
       "review_score": 0.955,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'carotenoid' as COMPOUND; it uniquely matches CHEBI:23044 (carotenoid)."
     },
     "meta": {
       "original_task_id": "19340",
-      "review_rank": 68,
+      "review_rank": 79,
       "review_score": 0.955,
       "review_issues": [
         {
@@ -12786,14 +13777,14 @@
     "data": {
       "text": "Moreover, in situ GABA supplementation or heterologous expression of glutamate decarboxylase in E . coli OP50 conferred neuroprotective activity to this strain.",
       "original_task_id": "19580",
-      "review_rank": 69,
+      "review_rank": 80,
       "review_score": 0.955,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'glutamate' as COMPOUND; it uniquely matches CHEBI:29987 (glutamate(2-))."
     },
     "meta": {
       "original_task_id": "19580",
-      "review_rank": 69,
+      "review_rank": 80,
       "review_score": 0.955,
       "review_issues": [
         {
@@ -12902,14 +13893,14 @@
     "data": {
       "text": "In addition to its notable “ B. cereus ”-like phenotypic characteristics (per the FDA BAM), G9241 was unique in that it did not produce the pXO2-encoded polyglutamate capsule typical of B. anthracis ; rather, it produced a hyaluronic acid (HA) capsule and alternative exopolysaccharide capsule, termed the Bps capsule [ 22 ].",
       "original_task_id": "19644",
-      "review_rank": 70,
+      "review_rank": 81,
       "review_score": 0.955,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'exopolysaccharide' as COMPOUND; it uniquely matches CHEBI:72813 (exopolysaccharide)."
     },
     "meta": {
       "original_task_id": "19644",
-      "review_rank": 70,
+      "review_rank": 81,
       "review_score": 0.955,
       "review_issues": [
         {
@@ -13033,14 +14024,14 @@
     "data": {
       "text": "It is noteworth mentioning that ICU29 was isolated from a sputum sample of an 84-year-old female patient, while ICU40 was isolated from the cerebrospinal fluid (CSF) of a 5-week-old male baby in a different hospital located in a different city.",
       "original_task_id": "19687",
-      "review_rank": 71,
+      "review_rank": 82,
       "review_score": 0.955,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'CSF' as ISOLATE; it uniquely matches UBERON:0001359 (cerebrospinal fluid)."
     },
     "meta": {
       "original_task_id": "19687",
-      "review_rank": 71,
+      "review_rank": 82,
       "review_score": 0.955,
       "review_issues": [
         {
@@ -13173,14 +14164,14 @@
     "data": {
       "text": "Notably, peptidoglycan-associated lipoproteins occurred in all P. distincta host-associated isolates ( Supplementary Table S6 ), but UDP-2,4-diacetamido-2,4, 6-trideoxy-beta-L-altropyranose hydrolase, which is involved in biosynthesis of pseudaminic acid as a component of polysaccharides in certain gut pathogens, occurred in the strains KMM 3548 and 2-2A-13 with carotenoid-like phenotypes [ 56 ].",
       "original_task_id": "19798",
-      "review_rank": 72,
+      "review_rank": 83,
       "review_score": 0.955,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'polysaccharides' as COMPOUND; it uniquely matches CHEBI:18154 (polysaccharide)."
     },
     "meta": {
       "original_task_id": "19798",
-      "review_rank": 72,
+      "review_rank": 83,
       "review_score": 0.955,
       "review_issues": [
         {
@@ -13361,14 +14352,14 @@
     "data": {
       "text": "Strain AB26 uses the glutamine synthetase and glutamate synthase for ammonia assimilation in the cell.",
       "original_task_id": "20080",
-      "review_rank": 73,
+      "review_rank": 84,
       "review_score": 0.955,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'glutamate' as COMPOUND; it uniquely matches CHEBI:29987 (glutamate(2-))."
     },
     "meta": {
       "original_task_id": "20080",
-      "review_rank": 73,
+      "review_rank": 84,
       "review_score": 0.955,
       "review_issues": [
         {
@@ -13486,14 +14477,14 @@
     "data": {
       "text": "The genome of the marine bacterium W. fucanilytica CZ1127 ^T was analyzed and a PUL potentially involved in the catabolism of fucose-containing sulfated polysaccharides was identified ( Figure S1 ).",
       "original_task_id": "20515",
-      "review_rank": 74,
+      "review_rank": 85,
       "review_score": 0.955,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'polysaccharides' as COMPOUND; it uniquely matches CHEBI:18154 (polysaccharide)."
     },
     "meta": {
       "original_task_id": "20515",
-      "review_rank": 74,
+      "review_rank": 85,
       "review_score": 0.955,
       "review_issues": [
         {
@@ -13600,16 +14591,93 @@
   },
   {
     "data": {
+      "text": "We found high-fat diet markedly decreased the relative abundance of Bifidobacterium and Ruminococcaceae_UCG-014 at the genus level in feces, but CHI leaves extract effectively prevented the reduction of these probiotics (Figures 6E, F).",
+      "original_task_id": "20770",
+      "review_rank": 86,
+      "review_score": 0.955,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'feces' as ISOLATE; it uniquely matches UBERON:0001988 (feces)."
+    },
+    "meta": {
+      "original_task_id": "20770",
+      "review_rank": 86,
+      "review_score": 0.955,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.955,
+          "task_id": "20770",
+          "summary": "Review unannotated 'feces' as ISOLATE; it uniquely matches UBERON:0001988 (feces).",
+          "action": {
+            "kind": "add_entity",
+            "start": 134,
+            "end": 139,
+            "text": "feces",
+            "suggested_label": "ISOLATE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "UBERON",
+            "concept_id": "UBERON:0001988",
+            "concept_label": "feces",
+            "matched_alias": "feces",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 5
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.955,
+        "result": [
+          {
+            "value": {
+              "start": 145,
+              "end": 148,
+              "text": "CHI",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "K3ZKxW5-Go",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_1be08594eec9",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 134,
+              "end": 139,
+              "text": "feces",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
       "text": "Rhamnosin A is a small non lanthionine-containing bacteriocin produced by L. rhamnosus strain 68, which also retained its biological activity after thermal treatment (95°C, 30 min) and was sensitive to the proteolytic activity of pepsin and trypsin (Dimitrijević et al., 2009).",
       "original_task_id": "21724",
-      "review_rank": 75,
+      "review_rank": 87,
       "review_score": 0.955,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'bacteriocin' as COMPOUND; it uniquely matches CHEBI:48081 (bacteriocin)."
     },
     "meta": {
       "original_task_id": "21724",
-      "review_rank": 75,
+      "review_rank": 87,
       "review_score": 0.955,
       "review_issues": [
         {
@@ -13724,14 +14792,14 @@
     "data": {
       "text": "Strain BKS 15-14 has genes coding for butyryl-coenzyme A (CoA) dehydrogenase (EC 1.3.99.2), 3-ketoacyl-CoA thiolase (EC 2.3.1.16), aldehyde dehydrogenase (EC 1.2.1.3), acetyl-CoA acetyltransferase (EC 2.3.1.9), 3-oxoacyl-(acyl-carrier-protein) reductase (EC 1.1.1.100), long-chain-fatty-acid-CoA ligase (EC 6.2.1.3), and enoyl-CoA hydratase (EC 4.2.1.17).",
       "original_task_id": "21742",
-      "review_rank": 76,
+      "review_rank": 88,
       "review_score": 0.955,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'acetyl-CoA' as COMPOUND; it uniquely matches CHEBI:15351 (acetyl-CoA)."
     },
     "meta": {
       "original_task_id": "21742",
-      "review_rank": 76,
+      "review_rank": 88,
       "review_score": 0.955,
       "review_issues": [
         {
@@ -13801,14 +14869,14 @@
     "data": {
       "text": "Based on the preliminary screening of eight indigenous putative probiotic Lactobacilli, Lactobacillus fermentum Lf1 was selected for assessing its antioxidative efficacy in DSS colitis mouse model based on its ability to enhance the expression of “Nrf2” by 6.43 fold and malondialdehyde (MDA) inhibition by 78.1  ±  0.24% in HT 29 cells under H2O2 stress.",
       "original_task_id": "23063",
-      "review_rank": 77,
+      "review_rank": 89,
       "review_score": 0.955,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'H2O2' as COMPOUND; it uniquely matches CHEBI:16240 (hydrogen peroxide)."
     },
     "meta": {
       "original_task_id": "23063",
-      "review_rank": 77,
+      "review_rank": 89,
       "review_score": 0.955,
       "review_issues": [
         {
@@ -13956,14 +15024,14 @@
     "data": {
       "text": "The additional pathways for aerobic aromatic compound catabolism -the degradation of methylgallate and gallate (II), vanillin and vanillate (II), whose major sources are plant lignin and tannins-were found in the strain P. distincta SM1926 ( Figure 10 ; Supplementary Table S8 ).",
       "original_task_id": "19339",
-      "review_rank": 78,
+      "review_rank": 90,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'lignin' as COMPOUND; it uniquely matches CHEBI:6457 (lignin)."
     },
     "meta": {
       "original_task_id": "19339",
-      "review_rank": 78,
+      "review_rank": 90,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -14129,14 +15197,14 @@
     "data": {
       "text": "Identification of the strain AB211 on the basis of carbon source utilization pattern, using the GEN III MicroPlate ^TM test revealed that the strain AB211 could utilize several other carbohydrates and amino acids, grow at high salt concentration (at 8%), and is resistant to several antibiotics like- rifamycin, troleandomycin, lincomycin, nalidixic acid, and aztreonam (Supplementary Figure S6B ).",
       "original_task_id": "19542",
-      "review_rank": 79,
+      "review_rank": 91,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'carbohydrates' as COMPOUND; it uniquely matches CHEBI:16646 (carbohydrate)."
     },
     "meta": {
       "original_task_id": "19542",
-      "review_rank": 79,
+      "review_rank": 91,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -14341,14 +15409,14 @@
     "data": {
       "text": "Although the major pathway for biosynthesis of 3-hydroxy-2-butanone (acetoin) and 2,3-butanediol is identified, further biochemical analysis is required to understand their roles in plant growth promotion by B. aryabhattai AB211.",
       "original_task_id": "19547",
-      "review_rank": 80,
+      "review_rank": 92,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'acetoin' as COMPOUND; it uniquely matches CHEBI:15688 (acetoin)."
     },
     "meta": {
       "original_task_id": "19547",
-      "review_rank": 80,
+      "review_rank": 92,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -14442,14 +15510,14 @@
     "data": {
       "text": "However, strains MDT1-3 ^T , RHLT2-21 ^T , and Sr47 ^T contained MK-11 and MK-12 as the primary menaquinones with minor amounts of MK-10.",
       "original_task_id": "19592",
-      "review_rank": 81,
+      "review_rank": 93,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'menaquinones' as COMPOUND; it uniquely matches CHEBI:25185 (menaquinones)."
     },
     "meta": {
       "original_task_id": "19592",
-      "review_rank": 81,
+      "review_rank": 93,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -14675,14 +15743,14 @@
     "data": {
       "text": "Consistently with our previous studies ( Moraes et al., 2014 ), SK36 was able to initiate biofilms on glass slides coated with human saliva, forming a homogeneous monolayer with spaced small micro colonies after 4 h of grow ( Figure 1 ), and similar phenotypes were also observed in the majority of strains, except for SK115 and for the blood isolates SK678 and SK1056.",
       "original_task_id": "19610",
-      "review_rank": 82,
+      "review_rank": 94,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'saliva' as ISOLATE; it uniquely matches UBERON:0001836 (saliva)."
     },
     "meta": {
       "original_task_id": "19610",
-      "review_rank": 82,
+      "review_rank": 94,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -14917,14 +15985,14 @@
     "data": {
       "text": "Kangiella sediminilitoris KCTC 23892 was the only strain with an ammonium transmembrane transporter (AOE50237.1), while it was also the only one among the five Kangiella strains that lacked aspartate-ammonia ligase, whose function could be supplemented by asparagine synthase (AOE49243.1).",
       "original_task_id": "19694",
-      "review_rank": 83,
+      "review_rank": 95,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'ammonium' as COMPOUND; it uniquely matches CHEBI:28938 (ammonium)."
     },
     "meta": {
       "original_task_id": "19694",
-      "review_rank": 83,
+      "review_rank": 95,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -15024,14 +16092,14 @@
     "data": {
       "text": "The total degradation of petroleum TERHCs by strain BUN14 was estimated at 90% after 21 days with rapid degradation of almost all alkanes C _12 -C _36 (Fig S4 d,e).",
       "original_task_id": "19821",
-      "review_rank": 84,
+      "review_rank": 96,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'alkanes' as COMPOUND; it uniquely matches CHEBI:18310 (alkane)."
     },
     "meta": {
       "original_task_id": "19821",
-      "review_rank": 84,
+      "review_rank": 96,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -15173,14 +16241,14 @@
     "data": {
       "text": "Five representative A. veronii isolates, namely NK01 (resistant to three antimicrobial classes, 3MDR), NK02 (gentamicin resistant), NK07 (5MDR), UDRT09 (4MDR), and CNRT12 (sensitive to all tested drugs except beta-lactam antibiotics), were subjected to genome sequencing.",
       "original_task_id": "19994",
-      "review_rank": 85,
+      "review_rank": 97,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'beta-lactam' as COMPOUND; it uniquely matches CHEBI:35627 (beta-lactam)."
     },
     "meta": {
       "original_task_id": "19994",
-      "review_rank": 85,
+      "review_rank": 97,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -15349,14 +16417,14 @@
     "data": {
       "text": "Calderihabitans maritimus KKC1 was cultured in modified NBRC 1251 medium, pH 7.5 at 65 °C under 100% CO or 100% N _2 gas as previously described with slight modification (Yoneda et al.",
       "original_task_id": "20009",
-      "review_rank": 86,
+      "review_rank": 98,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'N _2' as COMPOUND; it uniquely matches CHEBI:17997 (dinitrogen)."
     },
     "meta": {
       "original_task_id": "20009",
-      "review_rank": 86,
+      "review_rank": 98,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -15448,16 +16516,138 @@
   },
   {
     "data": {
+      "text": "DCCP and DCCP reductase represent a recently identified, novel, ATP-dependent oxidoreductase system in C. hydrogenoformans (Jeoung and Dobbek 2018 ) and the amino acid identities of DCCP and DCCP reductase homologs of C. maritimus KKC1 to those of C. hydrogenoformans were 57% and 41%, respectively.",
+      "original_task_id": "20010",
+      "review_rank": 99,
+      "review_score": 0.95,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'amino acid' as COMPOUND; it uniquely matches CHEBI:33709 (amino acid)."
+    },
+    "meta": {
+      "original_task_id": "20010",
+      "review_rank": 99,
+      "review_score": 0.95,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.95,
+          "task_id": "20010",
+          "summary": "Review unannotated 'amino acid' as COMPOUND; it uniquely matches CHEBI:33709 (amino acid).",
+          "action": {
+            "kind": "add_entity",
+            "start": 157,
+            "end": 167,
+            "text": "amino acid",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:33709",
+            "concept_label": "amino acid",
+            "matched_alias": "amino acid",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 2
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.95,
+        "result": [
+          {
+            "value": {
+              "start": 64,
+              "end": 67,
+              "text": "ATP",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "XqpF9tpEPc",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 103,
+              "end": 122,
+              "text": "C. hydrogenoformans",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "zazNU23QFy",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 218,
+              "end": 235,
+              "text": "C. maritimus KKC1",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "6msMWuHq6X",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 248,
+              "end": 267,
+              "text": "C. hydrogenoformans",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "jcdONYAWPD",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_d85cd2f98f5c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 157,
+              "end": 167,
+              "text": "amino acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
       "text": "S. mutans UA159 can grow on minimal medium with ammonium as the sole nitrogen source ( 33 ), and the iSMU model can produce biomass under these conditions.",
       "original_task_id": "20048",
-      "review_rank": 87,
+      "review_rank": 100,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'ammonium' as COMPOUND; it uniquely matches CHEBI:28938 (ammonium)."
     },
     "meta": {
       "original_task_id": "20048",
-      "review_rank": 87,
+      "review_rank": 100,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -15551,14 +16741,14 @@
     "data": {
       "text": "A mixed culture of UCD_MED5 and UCD_MED7 incubated for four days at 4 °C formed a light purple or lavender biofilm (Figure 13 ).",
       "original_task_id": "20112",
-      "review_rank": 88,
+      "review_rank": 101,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'purple' as PHENOTYPE; it uniquely matches PATO:0000951 (purple)."
     },
     "meta": {
       "original_task_id": "20112",
-      "review_rank": 88,
+      "review_rank": 101,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -15676,14 +16866,14 @@
     "data": {
       "text": "AM1 has two malate dehydrogenases, the NAD-dependent malate dehydrogenase (Mdh) and the membrane-associated malate:quinone oxidoreductase (Mqo).",
       "original_task_id": "20149",
-      "review_rank": 89,
+      "review_rank": 102,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'malate' as COMPOUND; it uniquely matches CHEBI:25115 (malate). | Review unannotated 'malate' as COMPOUND; it uniquely matches CHEBI:25115 (malate). | Review unannotated 'malate' as COMPOUND; it uniquely matches CHEBI:25115 (malate)."
     },
     "meta": {
       "original_task_id": "20149",
-      "review_rank": 89,
+      "review_rank": 102,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -15825,16 +17015,1010 @@
   },
   {
     "data": {
+      "text": "Among non-synonymous SNPs unique to FORC_075, an SNP in envZ leading to an amino acid change from Pro248 to Leu248 was identified to result in the impaired biofilm formation and SAW colony morphology of S.",
+      "original_task_id": "20299",
+      "review_rank": 103,
+      "review_score": 0.95,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'amino acid' as COMPOUND; it uniquely matches CHEBI:33709 (amino acid)."
+    },
+    "meta": {
+      "original_task_id": "20299",
+      "review_rank": 103,
+      "review_score": 0.95,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.95,
+          "task_id": "20299",
+          "summary": "Review unannotated 'amino acid' as COMPOUND; it uniquely matches CHEBI:33709 (amino acid).",
+          "action": {
+            "kind": "add_entity",
+            "start": 75,
+            "end": 85,
+            "text": "amino acid",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:33709",
+            "concept_label": "amino acid",
+            "matched_alias": "amino acid",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 2
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.95,
+        "result": [
+          {
+            "value": {
+              "start": 36,
+              "end": 44,
+              "text": "FORC_075",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "0F2OY6gnXX",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 98,
+              "end": 104,
+              "text": "Pro248",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "pcW-uzhzeW",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 108,
+              "end": 114,
+              "text": "Leu248",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "musvyIuubu",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 178,
+              "end": 188,
+              "text": "SAW colony",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "Sc3Hbg3RQy",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 156,
+              "end": 173,
+              "text": "biofilm formation",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "R_gJKhpVF5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "from_id": "0F2OY6gnXX",
+            "to_id": "Sc3Hbg3RQy",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          },
+          {
+            "from_id": "0F2OY6gnXX",
+            "to_id": "R_gJKhpVF5",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          },
+          {
+            "id": "review_80d0e4a43155",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 75,
+              "end": 85,
+              "text": "amino acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "To measure the total volume of DG, the area of granular cell layer was outlined and computed using images in every 6th adjacent section for a total of 10 sections in photos taken by a confocal fluorescence microscope (Leica TCS SP2 (Leica Microsystems CMS)).",
+      "original_task_id": "20553",
+      "review_rank": 104,
+      "review_score": 0.95,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence)."
+    },
+    "meta": {
+      "original_task_id": "20553",
+      "review_rank": 104,
+      "review_score": 0.95,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.95,
+          "task_id": "20553",
+          "summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence).",
+          "action": {
+            "kind": "add_entity",
+            "start": 193,
+            "end": 205,
+            "text": "fluorescence",
+            "suggested_label": "PHENOTYPE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "PATO",
+            "concept_id": "PATO:0000018",
+            "concept_label": "fluorescence",
+            "matched_alias": "fluorescence",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 4
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.95,
+        "result": [
+          {
+            "id": "review_48bd1ce283c7",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 193,
+              "end": 205,
+              "text": "fluorescence",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "However, the mean total income and costs were significantly higher for households mainly keeping improved dairy breeds (Bos taurus or Zebu × Bos taurus crosses) in comparison to those keeping indigenous Zebu or Zebu by Guzerat crosses.",
+      "original_task_id": "20643",
+      "review_rank": 105,
+      "review_score": 0.95,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'dairy' as ISOLATE; it uniquely matches ENVO:00003862 (dairy)."
+    },
+    "meta": {
+      "original_task_id": "20643",
+      "review_rank": 105,
+      "review_score": 0.95,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.95,
+          "task_id": "20643",
+          "summary": "Review unannotated 'dairy' as ISOLATE; it uniquely matches ENVO:00003862 (dairy).",
+          "action": {
+            "kind": "add_entity",
+            "start": 106,
+            "end": 111,
+            "text": "dairy",
+            "suggested_label": "ISOLATE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "ENVO",
+            "concept_id": "ENVO:00003862",
+            "concept_label": "dairy",
+            "matched_alias": "dairy",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 4
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.95,
+        "result": [
+          {
+            "value": {
+              "start": 203,
+              "end": 207,
+              "text": "Zebu",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "WZmd4eW2BY",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 219,
+              "end": 226,
+              "text": "Guzerat",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "fq13ID8FRr",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 211,
+              "end": 215,
+              "text": "Zebu",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "0G1n4WLehR",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 120,
+              "end": 130,
+              "text": "Bos taurus",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "_vr_6yES6c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 134,
+              "end": 138,
+              "text": "Zebu",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "bZOtnliyxz",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 141,
+              "end": 151,
+              "text": "Bos taurus",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "ZAMMk0G9_N",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_3770b7f078df",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 106,
+              "end": 111,
+              "text": "dairy",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Together, these evidences suggest that the complete lipid landscape induced upon virus infection is required for optimal virus replication.",
+      "original_task_id": "20651",
+      "review_rank": 106,
+      "review_score": 0.95,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'lipid' as COMPOUND; it uniquely matches CHEBI:18059 (lipid)."
+    },
+    "meta": {
+      "original_task_id": "20651",
+      "review_rank": 106,
+      "review_score": 0.95,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.95,
+          "task_id": "20651",
+          "summary": "Review unannotated 'lipid' as COMPOUND; it uniquely matches CHEBI:18059 (lipid).",
+          "action": {
+            "kind": "add_entity",
+            "start": 52,
+            "end": 57,
+            "text": "lipid",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:18059",
+            "concept_label": "lipid",
+            "matched_alias": "lipid",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 4
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.95,
+        "result": [
+          {
+            "value": {
+              "start": 81,
+              "end": 96,
+              "text": "virus infection",
+              "labels": [
+                "DISEASE"
+              ]
+            },
+            "id": "Hkyy46ITgf",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_d2582b83f735",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 52,
+              "end": 57,
+              "text": "lipid",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Total RNA was isolated using RNeasy Lipid Tissue Mini Kit (Qiagen, Hilden, Germany).",
+      "original_task_id": "20841",
+      "review_rank": 107,
+      "review_score": 0.95,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'Lipid' as COMPOUND; it uniquely matches CHEBI:18059 (lipid)."
+    },
+    "meta": {
+      "original_task_id": "20841",
+      "review_rank": 107,
+      "review_score": 0.95,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.95,
+          "task_id": "20841",
+          "summary": "Review unannotated 'Lipid' as COMPOUND; it uniquely matches CHEBI:18059 (lipid).",
+          "action": {
+            "kind": "add_entity",
+            "start": 36,
+            "end": 41,
+            "text": "Lipid",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:18059",
+            "concept_label": "lipid",
+            "matched_alias": "lipid",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 4
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.95,
+        "result": [
+          {
+            "id": "review_88a768bf5fc8",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 36,
+              "end": 41,
+              "text": "Lipid",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "In high- and moderate-expression lines (MTH-Cg2-7, MTH-Cg2-14, MTH-Cg2-19, MTH-IP-1, MTH-IP-12, MTH-YC3.12-7, and MTH-YC3.12-8; closed circles in Figure 2B), consistent with their luciferase activities, cytosolic fluorescence (Figure 3H, 3J, and 3K) was smooth with occasional bright spots, with nuclei usually less fluorescent.",
+      "original_task_id": "20940",
+      "review_rank": 108,
+      "review_score": 0.95,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence)."
+    },
+    "meta": {
+      "original_task_id": "20940",
+      "review_rank": 108,
+      "review_score": 0.95,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.95,
+          "task_id": "20940",
+          "summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence).",
+          "action": {
+            "kind": "add_entity",
+            "start": 213,
+            "end": 225,
+            "text": "fluorescence",
+            "suggested_label": "PHENOTYPE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "PATO",
+            "concept_id": "PATO:0000018",
+            "concept_label": "fluorescence",
+            "matched_alias": "fluorescence",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 4
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.95,
+        "result": [
+          {
+            "value": {
+              "start": 40,
+              "end": 49,
+              "text": "MTH-Cg2-7",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "mIQivklnmo",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 51,
+              "end": 61,
+              "text": "MTH-Cg2-14",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "HEQFKtZBwj",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 63,
+              "end": 73,
+              "text": "MTH-Cg2-19",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "5pHZ6PRZyG",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 75,
+              "end": 83,
+              "text": "MTH-IP-1",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "xadcz2lW7h",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 85,
+              "end": 94,
+              "text": "MTH-IP-12",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "eehcSv6cvL",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 96,
+              "end": 108,
+              "text": "MTH-YC3.12-7",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "M6ncGfop-p",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 114,
+              "end": 126,
+              "text": "MTH-YC3.12-8",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "Hlx0rX8xjY",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_e42274d459f1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 213,
+              "end": 225,
+              "text": "fluorescence",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Further validation of the CN-BOT tag-switch assay was obtained from experiments in which the CSE inhibitor propargylglycine (PG)25 and CBS inhibitor aminooxyacetic acid (AOAA) were used.35 Both inhibitors decreased the signal intensity in bovine arterial endothelial (BAE) and SH-SY5Y neuroblastoma cells (albeit not completely), respectively (Fig 3C and S8C in ESI†), while incubation with Na_2S or d-cysteine (an alternative substrate for MST-catalyzed H_2S generation)36 increased the fluorescence signals.",
+      "original_task_id": "21021",
+      "review_rank": 109,
+      "review_score": 0.95,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence)."
+    },
+    "meta": {
+      "original_task_id": "21021",
+      "review_rank": 109,
+      "review_score": 0.95,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.95,
+          "task_id": "21021",
+          "summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence).",
+          "action": {
+            "kind": "add_entity",
+            "start": 488,
+            "end": 500,
+            "text": "fluorescence",
+            "suggested_label": "PHENOTYPE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "PATO",
+            "concept_id": "PATO:0000018",
+            "concept_label": "fluorescence",
+            "matched_alias": "fluorescence",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 4
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.95,
+        "result": [
+          {
+            "value": {
+              "start": 26,
+              "end": 32,
+              "text": "CN-BOT",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "iN3pZLXU9t",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 107,
+              "end": 123,
+              "text": "propargylglycine",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "rXOezqDcY_",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 125,
+              "end": 127,
+              "text": "PG",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "HQmkLwwPvc",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 149,
+              "end": 168,
+              "text": "aminooxyacetic acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "60EPhrnCLI",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 170,
+              "end": 174,
+              "text": "AOAA",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "PRhIpavmGy",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 277,
+              "end": 284,
+              "text": "SH-SY5Y",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "RbvrYCRm1T",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 391,
+              "end": 396,
+              "text": "Na_2S",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "vC9Qx_DHIK",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 400,
+              "end": 410,
+              "text": "d-cysteine",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "yciCyQ1Ecg",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 455,
+              "end": 459,
+              "text": "H_2S",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "Ng_RZJrJao",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 285,
+              "end": 298,
+              "text": "neuroblastoma",
+              "labels": [
+                "DISEASE"
+              ]
+            },
+            "id": "SsXwiltNxH",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 239,
+              "end": 245,
+              "text": "bovine",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "KI29xEIfHG",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_2a32128f7248",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 488,
+              "end": 500,
+              "text": "fluorescence",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "SYTO-9 quickly penetrates the cell wall and binds to DNA with green fluorescence; therefore, it characterizes living bacteria.",
+      "original_task_id": "21160",
+      "review_rank": 110,
+      "review_score": 0.95,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence)."
+    },
+    "meta": {
+      "original_task_id": "21160",
+      "review_rank": 110,
+      "review_score": 0.95,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.95,
+          "task_id": "21160",
+          "summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence).",
+          "action": {
+            "kind": "add_entity",
+            "start": 68,
+            "end": 80,
+            "text": "fluorescence",
+            "suggested_label": "PHENOTYPE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "PATO",
+            "concept_id": "PATO:0000018",
+            "concept_label": "fluorescence",
+            "matched_alias": "fluorescence",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 4
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.95,
+        "result": [
+          {
+            "value": {
+              "start": 0,
+              "end": 6,
+              "text": "SYTO-9",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "z7j_r1EsXw",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 117,
+              "end": 125,
+              "text": "bacteria",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "bjXOT77FzK",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_4950a19b33eb",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 68,
+              "end": 80,
+              "text": "fluorescence",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
       "text": "The Actinobacteria, Herbidospora daliensis (0385M-1^T), was isolated from sediment collected from the Dali area of Taiwan using HVY agar and was then cultured at 45 °C during 7 days.",
       "original_task_id": "21445",
-      "review_rank": 90,
+      "review_rank": 111,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'sediment' as ISOLATE; it uniquely matches ENVO:00002007 (sediment)."
     },
     "meta": {
       "original_task_id": "21445",
-      "review_rank": 90,
+      "review_rank": 111,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -15958,14 +18142,14 @@
     "data": {
       "text": "B. xenovorans LB400 is a model bacterium for the degradation of PCBs and other aromatic compounds [3], [15], [16].",
       "original_task_id": "21686",
-      "review_rank": 91,
+      "review_rank": 112,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'aromatic compounds' as COMPOUND; it uniquely matches CHEBI:33655 (aromatic compound)."
     },
     "meta": {
       "original_task_id": "21686",
-      "review_rank": 91,
+      "review_rank": 112,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -16059,14 +18243,14 @@
     "data": {
       "text": "The genomic G+C content of R. centenum (70.5%) is higher than the genome of the purple non-sulfur bacterium Rhodospirillum rubrum ATCC 11170 (65.4%; GenBank accession CP000230), its closest sequenced relative.",
       "original_task_id": "21810",
-      "review_rank": 92,
+      "review_rank": 113,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'purple' as PHENOTYPE; it uniquely matches PATO:0000951 (purple)."
     },
     "meta": {
       "original_task_id": "21810",
-      "review_rank": 92,
+      "review_rank": 113,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -16175,14 +18359,14 @@
     "data": {
       "text": "Out of the 10 abundant MAGs, only the Actinobacteriota ACT2 encodes the genes necessary for succinic acid production via the route utilizing phosphoenolpyruvate carboxykinase (PEPCK) and malate dehydrogenase (MD), while only the Firmicutes ACID1 and LCO1 encode the genes necessary for succinic acid production via the route through pyruvic acid utilizing malic enzyme (ME) (Figure 3B, Supplementary Figure S1).",
       "original_task_id": "21889",
-      "review_rank": 93,
+      "review_rank": 114,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'malate' as COMPOUND; it uniquely matches CHEBI:25115 (malate)."
     },
     "meta": {
       "original_task_id": "21889",
-      "review_rank": 93,
+      "review_rank": 114,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -16370,16 +18554,254 @@
   },
   {
     "data": {
+      "text": "Further fluorescence assay using tandem fluorescent-tagged LC3 (mRFP-GFP-LC3) also observed reduced autophagy flux after siHMGB1 transfection in both TE-1 cells and Eca-109 cells (Fig 4a).",
+      "original_task_id": "22456",
+      "review_rank": 115,
+      "review_score": 0.95,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence)."
+    },
+    "meta": {
+      "original_task_id": "22456",
+      "review_rank": 115,
+      "review_score": 0.95,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.95,
+          "task_id": "22456",
+          "summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence).",
+          "action": {
+            "kind": "add_entity",
+            "start": 8,
+            "end": 20,
+            "text": "fluorescence",
+            "suggested_label": "PHENOTYPE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "PATO",
+            "concept_id": "PATO:0000018",
+            "concept_label": "fluorescence",
+            "matched_alias": "fluorescence",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 4
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.95,
+        "result": [
+          {
+            "value": {
+              "start": 92,
+              "end": 114,
+              "text": "reduced autophagy flux",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "H-H33gIUXG",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 121,
+              "end": 128,
+              "text": "siHMGB1",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "eS-uBZZBMx",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 150,
+              "end": 154,
+              "text": "TE-1",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "rusCVcugwO",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 165,
+              "end": 172,
+              "text": "Eca-109",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "EDOuMj2NRU",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_2d2b864f4118",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 8,
+              "end": 20,
+              "text": "fluorescence",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "FACS (fluorescence activated cell sorting) analysis showed that expression of miR-4723 in PC3 cells lead to a significant increase in the number of cells in the G2-M phase of the cell cycle compared to miR-CON (Fig 5).",
+      "original_task_id": "22701",
+      "review_rank": 116,
+      "review_score": 0.95,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence)."
+    },
+    "meta": {
+      "original_task_id": "22701",
+      "review_rank": 116,
+      "review_score": 0.95,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.95,
+          "task_id": "22701",
+          "summary": "Review unannotated 'fluorescence' as PHENOTYPE; it uniquely matches PATO:0000018 (fluorescence).",
+          "action": {
+            "kind": "add_entity",
+            "start": 6,
+            "end": 18,
+            "text": "fluorescence",
+            "suggested_label": "PHENOTYPE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "PATO",
+            "concept_id": "PATO:0000018",
+            "concept_label": "fluorescence",
+            "matched_alias": "fluorescence",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 4
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.95,
+        "result": [
+          {
+            "value": {
+              "start": 90,
+              "end": 93,
+              "text": "PC3",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "XZFJNWKo6a",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 110,
+              "end": 171,
+              "text": "significant increase in the number of cells in the G2-M phase",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "rPbVfHXYTC",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 64,
+              "end": 99,
+              "text": "expression of miR-4723 in PC3 cells",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "z_2iSsAbZM",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "from_id": "z_2iSsAbZM",
+            "to_id": "rPbVfHXYTC",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          },
+          {
+            "id": "review_5cb325d8bf8c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 6,
+              "end": 18,
+              "text": "fluorescence",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
       "text": "Generally, the amino acid concentrations in the proteinase-positive S. thermophilus ST.1-L. bulgaricus co-culture were higher than those in the simulated amino acid time courses of L. bulgaricus in mono-culture, with the exception of glycine and leucine.",
       "original_task_id": "23021",
-      "review_rank": 94,
+      "review_rank": 117,
       "review_score": 0.95,
       "review_categories": "ontology_entity_omission",
       "review_summary": "Review unannotated 'amino acid' as COMPOUND; it uniquely matches CHEBI:33709 (amino acid)."
     },
     "meta": {
       "original_task_id": "23021",
-      "review_rank": 94,
+      "review_rank": 117,
       "review_score": 0.95,
       "review_issues": [
         {
@@ -16534,6 +18956,1459 @@
             "value": {
               "start": 154,
               "end": 164,
+              "text": "amino acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Indeed, pathogenicity tests showed that all four related Hymenoscyphus species develop pathogenic growth on European ash stems, with native H. albidus being the least virulent.",
+      "original_task_id": "20823",
+      "review_rank": 118,
+      "review_score": 0.945,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'pathogenicity' as PHENOTYPE; it uniquely matches PATO:0040003 (pathogenicity)."
+    },
+    "meta": {
+      "original_task_id": "20823",
+      "review_rank": 118,
+      "review_score": 0.945,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.945,
+          "task_id": "20823",
+          "summary": "Review unannotated 'pathogenicity' as PHENOTYPE; it uniquely matches PATO:0040003 (pathogenicity).",
+          "action": {
+            "kind": "add_entity",
+            "start": 8,
+            "end": 21,
+            "text": "pathogenicity",
+            "suggested_label": "PHENOTYPE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "PATO",
+            "concept_id": "PATO:0040003",
+            "concept_label": "pathogenicity",
+            "matched_alias": "pathogenicity",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 3
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.945,
+        "result": [
+          {
+            "value": {
+              "start": 57,
+              "end": 70,
+              "text": "Hymenoscyphus",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "T7PaIxJKSt",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 108,
+              "end": 120,
+              "text": "European ash",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "5W1wH4xZI1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 140,
+              "end": 150,
+              "text": "H. albidus",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "-NnxDLR_cn",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 87,
+              "end": 104,
+              "text": "pathogenic growth",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "mvaIbmF9xQ",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "from_id": "-NnxDLR_cn",
+            "to_id": "5W1wH4xZI1",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          },
+          {
+            "id": "review_e12d89295183",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 8,
+              "end": 21,
+              "text": "pathogenicity",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The yellow color of carotenoid was observed in the transformant, indicating that pGGPPS carried the gene substituting the function of the crtE gene (Fig 4).",
+      "original_task_id": "20952",
+      "review_rank": 119,
+      "review_score": 0.945,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'carotenoid' as COMPOUND; it uniquely matches CHEBI:23044 (carotenoid)."
+    },
+    "meta": {
+      "original_task_id": "20952",
+      "review_rank": 119,
+      "review_score": 0.945,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.945,
+          "task_id": "20952",
+          "summary": "Review unannotated 'carotenoid' as COMPOUND; it uniquely matches CHEBI:23044 (carotenoid).",
+          "action": {
+            "kind": "add_entity",
+            "start": 20,
+            "end": 30,
+            "text": "carotenoid",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:23044",
+            "concept_label": "carotenoid",
+            "matched_alias": "carotenoid",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 3
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.945,
+        "result": [
+          {
+            "value": {
+              "start": 4,
+              "end": 16,
+              "text": "yellow color",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "NgcqtBXCL4",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_b997432386b6",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 20,
+              "end": 30,
+              "text": "carotenoid",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Emerging evidence has indicated that sTrem1 can be found in body fluids, including plasma, CSF and bronchoalveolar fluids [12, 13, 15], although its origin remains unclear.",
+      "original_task_id": "21172",
+      "review_rank": 120,
+      "review_score": 0.945,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'CSF' as ISOLATE; it uniquely matches UBERON:0001359 (cerebrospinal fluid)."
+    },
+    "meta": {
+      "original_task_id": "21172",
+      "review_rank": 120,
+      "review_score": 0.945,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.945,
+          "task_id": "21172",
+          "summary": "Review unannotated 'CSF' as ISOLATE; it uniquely matches UBERON:0001359 (cerebrospinal fluid).",
+          "action": {
+            "kind": "add_entity",
+            "start": 91,
+            "end": 94,
+            "text": "CSF",
+            "suggested_label": "ISOLATE"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "UBERON",
+            "concept_id": "UBERON:0001359",
+            "concept_label": "cerebrospinal fluid",
+            "matched_alias": "CSF",
+            "alias_scope": "EXACT",
+            "match_mode": "normalized",
+            "annotated_support": 3
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.945,
+        "result": [
+          {
+            "id": "review_0dd0e36f2abd",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 91,
+              "end": 94,
+              "text": "CSF",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The cell wall of B. rhodina MAMB-05 contains a mix of proteins and polysaccharides, among which are α- and β-D-glucans [15].",
+      "original_task_id": "22029",
+      "review_rank": 121,
+      "review_score": 0.945,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'polysaccharides' as COMPOUND; it uniquely matches CHEBI:18154 (polysaccharide)."
+    },
+    "meta": {
+      "original_task_id": "22029",
+      "review_rank": 121,
+      "review_score": 0.945,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.945,
+          "task_id": "22029",
+          "summary": "Review unannotated 'polysaccharides' as COMPOUND; it uniquely matches CHEBI:18154 (polysaccharide).",
+          "action": {
+            "kind": "add_entity",
+            "start": 67,
+            "end": 82,
+            "text": "polysaccharides",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:18154",
+            "concept_label": "polysaccharide",
+            "matched_alias": "polysaccharides",
+            "alias_scope": "EXACT",
+            "match_mode": "normalized",
+            "annotated_support": 3
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.945,
+        "result": [
+          {
+            "value": {
+              "start": 17,
+              "end": 35,
+              "text": "B. rhodina MAMB-05",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "8NPzS-clyJ",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 100,
+              "end": 118,
+              "text": "α- and β-D-glucans",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "ofwcL0Q7mC",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "from_id": "8NPzS-clyJ",
+            "to_id": "ofwcL0Q7mC",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRODUCES"
+            ]
+          },
+          {
+            "id": "review_9b0d1c5bd986",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 67,
+              "end": 82,
+              "text": "polysaccharides",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "It could be considered that treatment for a short time with cholesterol in the presence of CA may inflict a revisable inflammatory/proliferation stimulus that is followed by HSC apoptosis and mitigation of fibrosis.",
+      "original_task_id": "20574",
+      "review_rank": 122,
+      "review_score": 0.94,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'cholesterol' as COMPOUND; it uniquely matches CHEBI:16113 (cholesterol)."
+    },
+    "meta": {
+      "original_task_id": "20574",
+      "review_rank": 122,
+      "review_score": 0.94,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.94,
+          "task_id": "20574",
+          "summary": "Review unannotated 'cholesterol' as COMPOUND; it uniquely matches CHEBI:16113 (cholesterol).",
+          "action": {
+            "kind": "add_entity",
+            "start": 60,
+            "end": 71,
+            "text": "cholesterol",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:16113",
+            "concept_label": "cholesterol",
+            "matched_alias": "cholesterol",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 2
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.94,
+        "result": [
+          {
+            "value": {
+              "start": 91,
+              "end": 93,
+              "text": "CA",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "HZ6WCdM2dP",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 178,
+              "end": 187,
+              "text": "apoptosis",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "B7FyNFjYva",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 192,
+              "end": 214,
+              "text": "mitigation of fibrosis",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "fOVXfY3Wx3",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 206,
+              "end": 214,
+              "text": "fibrosis",
+              "labels": [
+                "DISEASE"
+              ]
+            },
+            "id": "NWU-WTqKfn",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 118,
+              "end": 153,
+              "text": "inflammatory/proliferation stimulus",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "2Ek_fZCGoW",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_64d4e340f348",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 60,
+              "end": 71,
+              "text": "cholesterol",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Genetically modified insulin, with clear benefits but because it involves interspecies gene transfer, its associated risks were less acceptable (weighted average 4.02) compared to GM palm oil.",
+      "original_task_id": "20677",
+      "review_rank": 123,
+      "review_score": 0.94,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'insulin' as COMPOUND; it uniquely matches CHEBI:145810 (insulin)."
+    },
+    "meta": {
+      "original_task_id": "20677",
+      "review_rank": 123,
+      "review_score": 0.94,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.94,
+          "task_id": "20677",
+          "summary": "Review unannotated 'insulin' as COMPOUND; it uniquely matches CHEBI:145810 (insulin).",
+          "action": {
+            "kind": "add_entity",
+            "start": 21,
+            "end": 28,
+            "text": "insulin",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:145810",
+            "concept_label": "insulin",
+            "matched_alias": "insulin",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 2
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.94,
+        "result": [
+          {
+            "id": "review_a3c59404b4ca",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 21,
+              "end": 28,
+              "text": "insulin",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Although producers try to partially compensate for the lack of nutrients in specific molasses, this does not seem to fully compensate for the differences in the nutrient portfolio between different batches of yeast extract [28, 29].",
+      "original_task_id": "20833",
+      "review_rank": 124,
+      "review_score": 0.94,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'molasses' as COMPOUND; it uniquely matches CHEBI:83163 (molasses)."
+    },
+    "meta": {
+      "original_task_id": "20833",
+      "review_rank": 124,
+      "review_score": 0.94,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.94,
+          "task_id": "20833",
+          "summary": "Review unannotated 'molasses' as COMPOUND; it uniquely matches CHEBI:83163 (molasses).",
+          "action": {
+            "kind": "add_entity",
+            "start": 85,
+            "end": 93,
+            "text": "molasses",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:83163",
+            "concept_label": "molasses",
+            "matched_alias": "molasses",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 2
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.94,
+        "result": [
+          {
+            "id": "review_52f63e157605",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 85,
+              "end": 93,
+              "text": "molasses",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The growth and cyanide results are normalized with respect to the growth and cyanide amount achieved when CDM1 with no amino acid (as the blank experiment) is used as the culture medium, respectively.",
+      "original_task_id": "21000",
+      "review_rank": 125,
+      "review_score": 0.94,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'amino acid' as COMPOUND; it uniquely matches CHEBI:33709 (amino acid)."
+    },
+    "meta": {
+      "original_task_id": "21000",
+      "review_rank": 125,
+      "review_score": 0.94,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.94,
+          "task_id": "21000",
+          "summary": "Review unannotated 'amino acid' as COMPOUND; it uniquely matches CHEBI:33709 (amino acid).",
+          "action": {
+            "kind": "add_entity",
+            "start": 119,
+            "end": 129,
+            "text": "amino acid",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:33709",
+            "concept_label": "amino acid",
+            "matched_alias": "amino acid",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 2
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.94,
+        "result": [
+          {
+            "value": {
+              "start": 15,
+              "end": 22,
+              "text": "cyanide",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "SCiEwCKkrQ",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 77,
+              "end": 84,
+              "text": "cyanide",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "MghYlI838T",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 106,
+              "end": 110,
+              "text": "CDM1",
+              "labels": [
+                "MEDIUM"
+              ]
+            },
+            "id": "IX2pWWrHeV",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_0e575b7ab967",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 119,
+              "end": 129,
+              "text": "amino acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "We therefore set out to identify the malate transporter in the malate-producing strain E. coli Δmdh Δmqo ΔackA-pta ΔmaeA ΔmaeB pACT3w-ppc_K620S (Sy280) by deleting the permease DctA, which is required for the uptake of dicarboxylic acids aerobic conditions [43, 44], and the permeases DcuA and DcuB which are responsible for the uptake of dicarboxylic acids under anaerobic conditions [45].",
+      "original_task_id": "21245",
+      "review_rank": 126,
+      "review_score": 0.94,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'malate' as COMPOUND; it uniquely matches CHEBI:25115 (malate)."
+    },
+    "meta": {
+      "original_task_id": "21245",
+      "review_rank": 126,
+      "review_score": 0.94,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.94,
+          "task_id": "21245",
+          "summary": "Review unannotated 'malate' as COMPOUND; it uniquely matches CHEBI:25115 (malate).",
+          "action": {
+            "kind": "add_entity",
+            "start": 37,
+            "end": 43,
+            "text": "malate",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:25115",
+            "concept_label": "malate",
+            "matched_alias": "malate",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 2
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.94,
+        "result": [
+          {
+            "value": {
+              "start": 63,
+              "end": 69,
+              "text": "malate",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "9ibTPzqw5l",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 87,
+              "end": 94,
+              "text": "E. coli",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "lxuaIADk3x",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 219,
+              "end": 237,
+              "text": "dicarboxylic acids",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "hHkN02MzPl",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 339,
+              "end": 357,
+              "text": "dicarboxylic acids",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "XZT8xbvMGq",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 329,
+              "end": 384,
+              "text": "uptake of dicarboxylic acids under anaerobic conditions",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "Dmvp4rixhh",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_0251c9678495",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 37,
+              "end": 43,
+              "text": "malate",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Out of 28 metabolites accumulated only in LA754, amino acid (leucine, tryptophan, B-alnine, valin, and tyrosine), organic acid (3-Hydroxy propanoic acid, phosphoric acid, glycolic acid, isocitric acid, fumaric acid, and citric acid), sugar (fructose, glucose, and 2-O-Glycerol-a-D-galactopyranoside), fatty acid (alpha-linolenic acid), sugar alcohol (ribitol), and organic compound (1-Monohexadecanoylglycerol) demonstrated at least more than 1.5-fold increase under drought condition.",
+      "original_task_id": "22227",
+      "review_rank": 127,
+      "review_score": 0.94,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'amino acid' as COMPOUND; it uniquely matches CHEBI:33709 (amino acid)."
+    },
+    "meta": {
+      "original_task_id": "22227",
+      "review_rank": 127,
+      "review_score": 0.94,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.94,
+          "task_id": "22227",
+          "summary": "Review unannotated 'amino acid' as COMPOUND; it uniquely matches CHEBI:33709 (amino acid).",
+          "action": {
+            "kind": "add_entity",
+            "start": 49,
+            "end": 59,
+            "text": "amino acid",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:33709",
+            "concept_label": "amino acid",
+            "matched_alias": "amino acid",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 2
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.94,
+        "result": [
+          {
+            "value": {
+              "start": 61,
+              "end": 68,
+              "text": "leucine",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "vpwJD2n1Lh",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 70,
+              "end": 80,
+              "text": "tryptophan",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "aq_ex2Cbs5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 82,
+              "end": 90,
+              "text": "B-alnine",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "4am3yuCYww",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 92,
+              "end": 97,
+              "text": "valin",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "xGQEM1JRLf",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 103,
+              "end": 111,
+              "text": "tyrosine",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "6U7T1uIzQM",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 128,
+              "end": 152,
+              "text": "3-Hydroxy propanoic acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "P2MCVB8xLL",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 154,
+              "end": 169,
+              "text": "phosphoric acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "UK5XQFgg6w",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 171,
+              "end": 184,
+              "text": "glycolic acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "O95edM8nQ8",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 186,
+              "end": 200,
+              "text": "isocitric acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "L47Ov5sLDV",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 202,
+              "end": 214,
+              "text": "fumaric acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "sIU_731EYW",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 220,
+              "end": 231,
+              "text": "citric acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "VyLbR7Px34",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 234,
+              "end": 239,
+              "text": "sugar",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "1Bn999y8-v",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 241,
+              "end": 249,
+              "text": "fructose",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "v59Nd5z6EA",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 251,
+              "end": 258,
+              "text": "glucose",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "FuKOfKQWVo",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 264,
+              "end": 298,
+              "text": "2-O-Glycerol-a-D-galactopyranoside",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "VyE_cByxa4",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 301,
+              "end": 311,
+              "text": "fatty acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "XWSaDNdgLt",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 313,
+              "end": 333,
+              "text": "alpha-linolenic acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "u5_jIk9BC4",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 336,
+              "end": 349,
+              "text": "sugar alcohol",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "V2WqiltCq9",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 351,
+              "end": 358,
+              "text": "ribitol",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "aHb3k3fKLY",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 383,
+              "end": 409,
+              "text": "1-Monohexadecanoylglycerol",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "e36SBD5dWc",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 467,
+              "end": 484,
+              "text": "drought condition",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "YlHyXftAkP",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "id": "review_4b2b51d06c48",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 49,
+              "end": 59,
+              "text": "amino acid",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "We found that the soybean and common bean varieties exhibited differential genetic behaviors in response to the inoculation with mycorrhizal and Trichoderma treatments regarding amino acid and proline synthesis in the leave TGx 1484 1D was the best genotype when co-inoculated with mycorrhizas and Trichoderma.",
+      "original_task_id": "22694",
+      "review_rank": 128,
+      "review_score": 0.94,
+      "review_categories": "ontology_entity_omission",
+      "review_summary": "Review unannotated 'amino acid' as COMPOUND; it uniquely matches CHEBI:33709 (amino acid)."
+    },
+    "meta": {
+      "original_task_id": "22694",
+      "review_rank": 128,
+      "review_score": 0.94,
+      "review_issues": [
+        {
+          "category": "ontology_entity_omission",
+          "score": 0.94,
+          "task_id": "22694",
+          "summary": "Review unannotated 'amino acid' as COMPOUND; it uniquely matches CHEBI:33709 (amino acid).",
+          "action": {
+            "kind": "add_entity",
+            "start": 178,
+            "end": 188,
+            "text": "amino acid",
+            "suggested_label": "COMPOUND"
+          },
+          "evidence": {
+            "tier": "annotation_and_ontology",
+            "ontology": "CHEBI",
+            "concept_id": "CHEBI:33709",
+            "concept_label": "amino acid",
+            "matched_alias": "amino acid",
+            "alias_scope": "LABEL",
+            "match_mode": "normalized",
+            "annotated_support": 2
+          }
+        }
+      ]
+    },
+    "predictions": [
+      {
+        "model_version": "ontology-omission-audit-v1",
+        "score": 0.94,
+        "result": [
+          {
+            "value": {
+              "start": 18,
+              "end": 25,
+              "text": "soybean",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "f63Ks1YFaF",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 30,
+              "end": 41,
+              "text": "common bean",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "anKOOPvC8F",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 193,
+              "end": 200,
+              "text": "proline",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "EYV12ZN_Th",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 129,
+              "end": 140,
+              "text": "mycorrhizal",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "AnLxadFdV2",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 145,
+              "end": 156,
+              "text": "Trichoderma",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "FcgrE2MbRl",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 52,
+              "end": 92,
+              "text": "exhibited differential genetic behaviors",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "QPklxCxqHs",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 282,
+              "end": 293,
+              "text": "mycorrhizas",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "ASMoAzn0hg",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "value": {
+              "start": 298,
+              "end": 309,
+              "text": "Trichoderma",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "nt1V6dCEm_",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "manual"
+          },
+          {
+            "from_id": "f63Ks1YFaF",
+            "to_id": "QPklxCxqHs",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          },
+          {
+            "from_id": "anKOOPvC8F",
+            "to_id": "QPklxCxqHs",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          },
+          {
+            "id": "review_a3ff458e1239",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 178,
+              "end": 188,
               "text": "amino acid",
               "labels": [
                 "COMPOUND"

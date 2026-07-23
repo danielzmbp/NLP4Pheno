@@ -227,6 +227,16 @@ def context_is_credible(
     abbreviations: dict[str, str],
 ) -> bool:
     normalized = normalize_surface(surface)
+    surface_letters = "".join(character for character in surface if character.isalpha())
+    alias_letters = "".join(
+        character for character in candidate.alias if character.isalpha()
+    )
+    if (
+        len(surface_letters) >= 4
+        and surface_letters == surface_letters.upper()
+        and alias_letters != alias_letters.upper()
+    ):
+        return False
     expansion = abbreviations.get(normalized)
     if expansion and candidate.case_sensitive:
         expected = {
@@ -261,16 +271,18 @@ def context_is_credible(
         ):
             return False
     if candidate.entity_type == "PHENOTYPE" and normalized == "circular":
-        if re.search(r"\b(?:chromosome|genome|plasmid|replicon|representation)\b", lowered):
+        if re.search(
+            r"\b(?:chromosome|genome|plasmid|replicon|representation|dna|"
+            r"dichroism|spectroscopy)\b",
+            lowered,
+        ):
             return False
     if candidate.entity_type == "COMPOUND" and normalized in {
         "amino acid",
         "amino acids",
     }:
         if re.search(
-            r"\bamino acids?\s+(?:"
-            r"sequences?(?:\s+identit\w*)?"
-            r"|identit\w*|changes?|replacements?|residues?)\b",
+            r"\b(?:sequence|identity|substitution|replacement|residue|alignment)\w*\b",
             lowered,
         ):
             return False
@@ -305,7 +317,7 @@ def score_candidate(
         score = 0.86
         tier = "single_annotation_and_ontology"
     elif candidate.mode == "formula":
-        score = 0.94
+        score = 0.90
         tier = "case_preserving_formula"
     elif token_count >= 2 and alpha_length >= 8:
         score = 0.89 if candidate.scope == "LABEL" else 0.87
@@ -347,8 +359,6 @@ def find_omission_issues(
         entities = list(task_entities(task).values())
         occupied = [(entity.start, entity.end) for entity in entities]
         has_strain = any(entity.label == "STRAIN" for entity in entities)
-        if not has_strain:
-            continue
         abbreviations = extract_abbreviation_definitions(text)
         task_candidates: dict[tuple[int, int, str], dict[str, Any]] = {}
         for start, end, surface in iter_ngram_spans(text, max_tokens=max_tokens):

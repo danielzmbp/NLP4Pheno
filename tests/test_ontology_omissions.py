@@ -95,23 +95,7 @@ class OntologyOmissionTests(unittest.TestCase):
         task = {
             "id": 1,
             "data": {"text": "The strain produced hydrogen peroxide."},
-            "annotations": [
-                {
-                    "id": 2,
-                    "result": [
-                        {
-                            "id": "s",
-                            "type": "labels",
-                            "value": {
-                                "start": 4,
-                                "end": 10,
-                                "text": "strain",
-                                "labels": ["STRAIN"],
-                            },
-                        }
-                    ],
-                }
-            ],
+            "annotations": [{"id": 2, "result": []}],
         }
         candidate = AliasCandidate(
             "COMPOUND",

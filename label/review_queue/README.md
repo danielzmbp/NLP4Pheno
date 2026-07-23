@@ -48,6 +48,6 @@ subsequently reviewed and merged into
 `label/project-10-reviewed-2026-07-22.json`.
 
 An ontology-backed third batch is prepared under `ontology_batch/`. It contains
-94 tasks with 104 proposed entity omissions corroborated both by the ontology
+128 tasks with 138 proposed entity omissions corroborated both by the ontology
 index and by at least two existing annotations of the same surface. These
 remain unreviewed predictions and have not been merged into the ground truth.
