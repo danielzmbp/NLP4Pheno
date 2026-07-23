@@ -5,7 +5,8 @@ submits two dependent Slurm jobs:
 
 1. `prepare_offline.sbatch` runs on `nbi-download`. It creates one shared Conda
    environment, downloads BioLinkBERT-large, caches the Hugging Face evaluation
-   modules used during training, and snapshots the pinned StrainInfo catalog.
+   modules used during training, snapshots the pinned StrainInfo catalog, and
+   builds the versioned ontology alias index used by postprocessing.
 2. `run_model_pipeline.sbatch` runs as an offline controller and executes, in
    order, `ner.smk`, `rel.smk`, `ner_pred.smk`, and `rel_pred.smk`. Snakemake
    sends GPU rules to `ei-gpu`, CPU rules to `nbi-medium`, and the one online
@@ -65,7 +66,11 @@ export NLP4PHENO_STAGES="ner rel ner_pred rel_pred"
 export NLP4PHENO_ENV_PREFIX=/shared/path/nlp4pheno-conda
 export NLP4PHENO_HF_HOME=/shared/path/huggingface-cache
 export NLP4PHENO_DRY_RUN=1
+export NLP4PHENO_REFRESH_ONTOLOGIES=1
 ```
+
+`NLP4PHENO_REFRESH_ONTOLOGIES=1` intentionally downloads fresh ontology
+releases; omit it to reuse the local snapshots and their manifest.
 
 `NLP4PHENO_STAGES` makes a retry or partial run straightforward. For example,
 after training has completed:

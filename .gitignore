@@ -3,6 +3,7 @@
 /.hpc/
 /hpc/logs/
 /resources/models/
+/resources/ontologies/runtime/
 /label/label_studio_data/
 /label/review_queue/credentials.txt
 /label/annotation_audit*.json

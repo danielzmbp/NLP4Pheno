@@ -50,7 +50,8 @@ export HF_HUB_DISABLE_TELEMETRY=1
 mkdir -p \
     "${HF_HOME}" \
     "${NLP4PHENO_MODEL_DIR}" \
-    resources/straininfo
+    resources/straininfo \
+    resources/ontologies/runtime
 
 export NLP4PHENO_MODEL_ID NLP4PHENO_MODEL_DIR
 python - <<'PY'
@@ -101,6 +102,16 @@ elif [[ ! -s resources/straininfo/designations_union.parquet ]]; then
     exit 1
 fi
 
+if [[ ! -s resources/ontologies/runtime/aliases.parquet \
+      || ! -s resources/ontologies/runtime/manifest.json \
+      || "${NLP4PHENO_REFRESH_ONTOLOGIES:-0}" == "1" ]]; then
+    ontology_args=()
+    if [[ "${NLP4PHENO_REFRESH_ONTOLOGIES:-0}" == "1" ]]; then
+        ontology_args+=(--refresh)
+    fi
+    python scripts/build_ontology_index.py "${ontology_args[@]}"
+fi
+
 # Prove that the assets needed by offline GPU jobs resolve without network.
 HF_HUB_OFFLINE=1 \
 TRANSFORMERS_OFFLINE=1 \
@@ -126,6 +137,8 @@ for path in (
     "resources/straininfo/strains.parquet",
     "resources/straininfo/designations.parquet",
     "resources/straininfo/designations_union.parquet",
+    "resources/ontologies/runtime/terms.parquet",
+    "resources/ontologies/runtime/aliases.parquet",
 ):
     metadata = pq.read_metadata(path)
     if metadata.num_rows == 0:

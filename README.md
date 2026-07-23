@@ -288,6 +288,43 @@ contradictions and has no fuzzy fallback; unmatched and ambiguous mentions
 remain unresolved rather than receiving a plausible-looking but unsupported
 genome identifier.
 
+### Ontology grounding
+
+Entity strings can be grounded after NER instead of being treated as unrelated
+spellings. The pilot terminology index currently covers:
+
+| Entity | Sources |
+|---|---|
+| `PHENOTYPE` | OMP, OBA, PATO |
+| `COMPOUND` | ChEBI |
+| `DISEASE` | Mondo |
+| `ISOLATE` | ENVO, UBERON, FoodOn |
+| `MEDIUM` | MCO, MediaDive |
+
+Build a local, versioned index and benchmark it against the reviewed
+annotations:
+
+```bash
+python scripts/build_ontology_index.py
+python scripts/ground_ontology_annotations.py \
+  label/project-10-reviewed-2026-07-22.json
+```
+
+The downloaded releases and generated Parquet indexes are written below
+`resources/ontologies/runtime/` and are deliberately ignored by Git. Its
+`manifest.json` records each resolved release, byte size, and SHA-256. The
+tracked report is `label/ontology_grounding_pilot.md`.
+
+Automatic grounding is deliberately conservative: an exact preferred label,
+exact ontology synonym, source-derived MediaDive alias, locally defined
+abbreviation, or case-preserving ChEBI formula must identify one concept.
+Multiple candidates remain `ambiguous`; fuzzy and embedding similarities are
+not auto-accepted. `STRAIN` continues to use the StrainInfo resolver, while
+`SPECIES` and `ORGANISM` need a separate taxonomy-aware resolver. The pilot
+measures resolvable coverage, not concept-level accuracy, so newly introduced
+sources should still be sampled before their matches are used in the final
+network.
+
 For uniquely resolved SI-IDs, the detailed API can provide genome accessions.
 The resolver retains the response hash for each genome and selects one assembly
 per SI-ID by assembly level, then recency, avoiding multiple near-identical
