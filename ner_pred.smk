@@ -206,10 +206,14 @@ rule make_sentence_file:
     resources:
         slurm_partition=CPU_PARTITION,
         runtime=300,
-        mem_mb=8000,
+        mem_mb=32000,
         cpus_per_task=4,
     run:
-        df = pd.read_parquet(input[0])
+        # The merged strain table contains millions of rows and several
+        # prediction columns, but this rule only needs the sentence text.
+        # Restricting the Parquet projection avoids materializing the much
+        # larger entity/score/offset columns before de-duplication.
+        df = pd.read_parquet(input[0], columns=["text"])
         df.drop_duplicates(subset="text")["text"].to_csv(
             output[0], sep="\t", index=False, header=False, quoting=csv.QUOTE_NONE
         )
