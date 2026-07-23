@@ -1,0 +1,28 @@
+{
+  "alias_rows_scanned": 2972,
+  "ambiguous_alias_keys_excluded": 280,
+  "candidate_issues": 634,
+  "candidate_issues_by_tier": {
+    "annotation_and_ontology": 104,
+    "long_ontology_label": 194,
+    "resource_stated_medium_alias": 38,
+    "single_annotation_and_ontology": 123,
+    "specific_multiword_ontology_alias": 175
+  },
+  "max_tasks": 150,
+  "max_tokens": 6,
+  "min_score": 0.93,
+  "ontology_manifest": "resources/ontologies/runtime/manifest.json",
+  "possible_formula_keys": 494235,
+  "possible_normalized_keys": 491944,
+  "selected_issues": 104,
+  "selected_issues_by_tier": {
+    "annotation_and_ontology": 104
+  },
+  "selected_tasks": 94,
+  "source": "label/project-10-reviewed-2026-07-22.json",
+  "source_sha256": "9420f8747571a6cdd254793a6da6dbecf0df9a222943307cd7f48816ffdfee3c",
+  "tasks_in_source": 3979,
+  "unique_formula_aliases": 71,
+  "unique_normalized_aliases": 2273
+}

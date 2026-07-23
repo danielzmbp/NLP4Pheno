@@ -46,3 +46,8 @@ The submitted first batch was exported and merged into the versioned file
 artifacts live under `label/review_queue/batch2/`. All 21 follow-up tasks were
 subsequently reviewed and merged into
 `label/project-10-reviewed-2026-07-22.json`.
+
+An ontology-backed third batch is prepared under `ontology_batch/`. It contains
+94 tasks with 104 proposed entity omissions corroborated both by the ontology
+index and by at least two existing annotations of the same surface. These
+remain unreviewed predictions and have not been merged into the ground truth.
