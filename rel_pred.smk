@@ -49,6 +49,12 @@ GPU_PARTITION = config.get(
 )
 DOWNLOAD_PARTITION = config.get("slurm_download_partition", "cpu_il,cpu")
 GPU_GRES = config.get("slurm_gpu_gres", "gpu:1")
+REL_FORMAT_RUNTIME = int(config.get("rel_format_runtime", 120))
+REL_FORMAT_MEM_MB = int(config.get("rel_format_mem_mb", 48000))
+REL_PREDICTION_RUNTIME = int(config.get("rel_prediction_runtime", 600))
+REL_PREDICTION_MEM_MB = int(config.get("rel_prediction_mem_mb", 32000))
+REL_ROW_BATCH_SIZE = int(config.get("rel_row_batch_size", 8192))
+REL_INFERENCE_BATCH_SIZE = int(config.get("rel_inference_batch_size", 256))
 
 # Common resource configurations
 COMMON_RESOURCES = {
@@ -62,8 +68,8 @@ COMMON_RESOURCES = {
 GPU_RESOURCES = {
     "slurm_partition": GPU_PARTITION,
     "gres": GPU_GRES,
-    "runtime": 600,
-    "mem_mb": 24000,
+    "runtime": REL_PREDICTION_RUNTIME,
+    "mem_mb": REL_PREDICTION_MEM_MB,
 }
 
 
@@ -81,12 +87,14 @@ rule format_sentences:
         f"{preds}/NER_output/ner_preds.parquet",
     resources:
         slurm_partition=CPU_PARTITION,
-        runtime=60,
-        mem_mb=24000,
-    run:
-        df = pl.read_parquet(input[0])
-        df = add_formatted_text(df)
-        df.write_parquet(output[0], compression="snappy")
+        runtime=REL_FORMAT_RUNTIME,
+        mem_mb=REL_FORMAT_MEM_MB,
+    shell:
+        """
+        python scripts/format_relation_sentences.py \
+          {input[0]} \
+          --output {output[0]}
+        """
 
 
 rule make_device_file:
@@ -118,7 +126,13 @@ rule run_all_models:
             if [ "$m" = "{wildcards.l}" ]; then
                 export CUDA_VISIBLE_DEVICES=$d
                 python -c "import torch; print(f'Using GPU: {{torch.cuda.is_available()}}'); print(f'GPU Device: {{torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None"}}')"
-                python scripts/rel_prediction.py --model $m --device 0 --output {preds}/REL_output/$m.parquet --input {input[0]} 
+                python scripts/rel_prediction.py \
+                  --model $m \
+                  --device 0 \
+                  --output {preds}/REL_output/$m.parquet \
+                  --input {input[0]} \
+                  --row-batch-size {REL_ROW_BATCH_SIZE} \
+                  --inference-batch-size {REL_INFERENCE_BATCH_SIZE}
             fi
         done < {input[1]}
         """

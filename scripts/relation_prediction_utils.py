@@ -5,7 +5,9 @@ from __future__ import annotations
 import polars as pl
 
 
-def add_formatted_text(frame: pl.DataFrame) -> pl.DataFrame:
+def add_formatted_text(
+    frame: pl.DataFrame | pl.LazyFrame,
+) -> pl.DataFrame | pl.LazyFrame:
     """Insert both entity markers once, using offsets from the same sentence."""
     strain_first = (
         pl.col("text").str.slice(0, pl.col("start_strain"))

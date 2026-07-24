@@ -17,3 +17,9 @@ ner_prediction_runtime: 420
 ner_prediction_mem_mb: 32000
 ner_merge_runtime: 180
 ner_merge_mem_mb: 96000
+rel_format_runtime: 120
+rel_format_mem_mb: 48000
+rel_prediction_runtime: 600
+rel_prediction_mem_mb: 32000
+rel_row_batch_size: 8192
+rel_inference_batch_size: 256

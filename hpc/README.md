@@ -95,6 +95,12 @@ engine. Its `ner_merge_runtime` and `ner_merge_mem_mb` limits are also
 configured in `hpc/config.nbi.yaml`; the NBI profile retains 96 GB as headroom
 for join state while avoiding full Pandas materialization.
 
+Relation preparation also streams its formatted Parquet output. Each relation
+model scans that table in bounded row batches and writes positive predictions
+incrementally, controlled by `rel_row_batch_size` and
+`rel_inference_batch_size`. This avoids holding the full relation-candidate
+table or all model outputs in host memory.
+
 ## Monitor
 
 ```bash

@@ -37,6 +37,20 @@ class PredictionPostprocessTests(unittest.TestCase):
         self.assertEqual(formatted[0], "@STRAIN$ grows on @MEDIUM$")
         self.assertEqual(formatted[1], "@MEDIUM$ supports @STRAIN$")
 
+    def test_relation_format_supports_lazy_streaming_frames(self):
+        frame = pl.DataFrame(
+            {
+                "text": ["S grows on agar"],
+                "start_strain": [0],
+                "end_strain": [1],
+                "start": [11],
+                "end": [15],
+                "ner": ["MEDIUM"],
+            }
+        ).lazy()
+        result = add_formatted_text(frame).collect()
+        self.assertEqual(result["formatted_text"].to_list(), ["@STRAIN$ grows on @MEDIUM$"])
+
 
 if __name__ == "__main__":
     unittest.main()
