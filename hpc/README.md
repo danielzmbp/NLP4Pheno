@@ -84,9 +84,11 @@ Snakemake uses `--rerun-incomplete`, so rerunning the full list also resumes
 from valid outputs rather than starting from zero.
 
 Full-corpus predictions use the `ner_prediction_runtime` limit in
-`hpc/config.nbi.yaml` (minutes). The default NBI configuration reserves seven
-hours per non-`STRAIN` label; the current 3.8-million-sentence corpus takes
-about five to six hours per label on one A100.
+`hpc/config.nbi.yaml` (minutes) and `ner_prediction_mem_mb` host-memory limit.
+The default NBI configuration reserves seven hours and 32 GB per non-`STRAIN`
+label; the current 3.8-million-sentence corpus takes about five to six hours
+per label on one A100 and needs extra host memory to assemble the final
+Parquet table.
 
 ## Monitor
 

@@ -14,3 +14,4 @@ rel_training_runtime: 5760
 # sentences per label. Keep enough headroom for slower labels and Parquet
 # serialization; this value is in minutes.
 ner_prediction_runtime: 420
+ner_prediction_mem_mb: 32000

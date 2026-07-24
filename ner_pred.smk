@@ -44,6 +44,7 @@ GPU_PARTITION = config.get(
 )
 GPU_GRES = config.get("slurm_gpu_gres", "gpu:1")
 NER_PREDICTION_RUNTIME = int(config.get("ner_prediction_runtime", 420))
+NER_PREDICTION_MEM_MB = int(config.get("ner_prediction_mem_mb", 32000))
 
 STRAIN_PART_COUNT = 250
 
@@ -236,7 +237,7 @@ rule run_all_models:
         slurm_partition=GPU_PARTITION,
         gres=GPU_GRES,
         runtime=NER_PREDICTION_RUNTIME,
-        mem_mb=8000,
+        mem_mb=NER_PREDICTION_MEM_MB,
     shell:
         """
         while read -r d m; do
