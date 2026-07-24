@@ -45,6 +45,8 @@ GPU_PARTITION = config.get(
 GPU_GRES = config.get("slurm_gpu_gres", "gpu:1")
 NER_PREDICTION_RUNTIME = int(config.get("ner_prediction_runtime", 420))
 NER_PREDICTION_MEM_MB = int(config.get("ner_prediction_mem_mb", 32000))
+NER_MERGE_RUNTIME = int(config.get("ner_merge_runtime", 180))
+NER_MERGE_MEM_MB = int(config.get("ner_merge_mem_mb", 96000))
 
 STRAIN_PART_COUNT = 250
 
@@ -304,20 +306,14 @@ rule merge_preds:
         preds + "/NER_output/preds.parquet",
     resources:
         slurm_partition=CPU_PARTITION,
-        runtime=180,
-        mem_mb=32000,
+        runtime=NER_MERGE_RUNTIME,
+        mem_mb=NER_MERGE_MEM_MB,
         cpus_per_task=8,
-    run:
-        strains = pd.read_parquet(input[0])
-        others = pd.read_parquet(input[1])
-        others = others[others["score"] > cutoff]
-
-        strain_cols = strains.columns[1:]
-        strain_renamed = strains[strain_cols].add_suffix("_strain")
-        strains_processed = pd.concat([strains.iloc[:, [0]], strain_renamed], axis=1)
-
-        df = strains_processed.merge(
-            others.dropna(subset=["word"]), on="text", how="left"
-        )
-        df = df.dropna(subset=["word"])
-        df.to_parquet(output[0], compression="snappy")
+    shell:
+        """
+        python scripts/merge_ner_predictions.py \
+          {input[0]} \
+          {input[1]} \
+          --output {output[0]} \
+          --cutoff {cutoff}
+        """

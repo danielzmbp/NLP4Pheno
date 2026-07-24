@@ -90,6 +90,11 @@ label; the current 3.8-million-sentence corpus takes about five to six hours
 per label on one A100 and needs extra host memory to assemble the final
 Parquet table.
 
+The final STRAIN-to-entity candidate join uses Polars' streaming Parquet
+engine. Its `ner_merge_runtime` and `ner_merge_mem_mb` limits are also
+configured in `hpc/config.nbi.yaml`; the NBI profile retains 96 GB as headroom
+for join state while avoiding full Pandas materialization.
+
 ## Monitor
 
 ```bash
