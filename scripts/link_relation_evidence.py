@@ -28,7 +28,6 @@ def link_predictions_to_pmc(
         pl.scan_parquet(pmc_file).select(PMC_COLUMNS),
         on="text",
         how="left",
-        maintain_order="left",
     )
     output_file.parent.mkdir(parents=True, exist_ok=True)
     temporary = output_file.with_suffix(output_file.suffix + ".tmp")
