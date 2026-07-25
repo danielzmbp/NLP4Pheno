@@ -101,6 +101,12 @@ incrementally, controlled by `rel_row_batch_size` and
 `rel_inference_batch_size`. This avoids holding the full relation-candidate
 table or all model outputs in host memory.
 
+Near-duplicate entity grouping keeps the 95% token-sort similarity rule but
+computes it in bounded matrices instead of allocating a dense all-pairs
+matrix. `rel_group_matrix_mb` caps each temporary similarity block;
+`rel_group_workers`, `rel_group_mem_mb`, and `rel_group_runtime` control its
+Slurm allocation. The grouped relation table is written with Polars streaming.
+
 ## Monitor
 
 ```bash

@@ -1,9 +1,6 @@
 import pandas as pd
 import itertools
-from rapidfuzz import process
-from rapidfuzz import fuzz
 import numpy as np
-from collections import defaultdict
 import polars as pl
 import sys
 import os
@@ -55,6 +52,10 @@ REL_PREDICTION_RUNTIME = int(config.get("rel_prediction_runtime", 600))
 REL_PREDICTION_MEM_MB = int(config.get("rel_prediction_mem_mb", 32000))
 REL_ROW_BATCH_SIZE = int(config.get("rel_row_batch_size", 8192))
 REL_INFERENCE_BATCH_SIZE = int(config.get("rel_inference_batch_size", 256))
+REL_GROUP_RUNTIME = int(config.get("rel_group_runtime", 240))
+REL_GROUP_MEM_MB = int(config.get("rel_group_mem_mb", 64000))
+REL_GROUP_WORKERS = int(config.get("rel_group_workers", 20))
+REL_GROUP_MATRIX_MB = int(config.get("rel_group_matrix_mb", 256))
 
 # Common resource configurations
 COMMON_RESOURCES = {
@@ -211,85 +212,19 @@ rule group_entities:
         f"{preds}/REL_output/preds_straininfo_grouped.pqt",
     resources:
         slurm_partition=CPU_PARTITION,
-        runtime=80,
-        mem_mb=120000,
-        tasks=20,
-    run:
-        df = pd.read_parquet(input[0])
-        df = df.drop(columns=["label_rel", "label"])
-        df = df.rename(
-            columns={
-                "score": "ner_score",
-            }
-        )
-
-        l = []
-        for ner in df["ner"].unique():
-            df_filter = df[df["ner"] == ner]
-
-            words = df_filter[df_filter["ner"] == ner].word_qc.value_counts()
-            query_words = words[words > 1].index
-            all_words = words.index
-            cutoff = 95
-
-            # Use more workers for faster processing
-            result = process.cdist(
-                query_words,
-                all_words,
-                scorer=fuzz.token_sort_ratio,
-                score_cutoff=cutoff,
-                workers=20,
-            )
-            indices = np.argwhere(result >= cutoff)
-            word_indices = list(zip(query_words[indices[:, 0]], all_words[indices[:, 1]]))
-            matchesdf = pd.DataFrame(word_indices)
-
-            scores = result[indices[:, 0], indices[:, 1]]
-            matchesdf["score"] = scores
-            unique_matches = matchesdf[matchesdf[0] != matchesdf[1]]
-
-            word_counts = df_filter.word_qc.value_counts()
-            unique_matches.loc[:, "total_count_0"] = unique_matches[0].map(word_counts)
-            unique_matches.loc[:, "total_count_1"] = unique_matches[1].map(word_counts)
-
-            unique_matches.loc[:, "consensus_word"] = unique_matches.apply(
-                lambda x: x[0] if x["total_count_0"] > x["total_count_1"] else x[1],
-                axis=1,
-            )
-
-            # Create a dictionary to group words based on common connections
-            grouped_words = defaultdict(list)
-            for _, row in unique_matches.iterrows():
-                grouped_words[row["consensus_word"]].append(row)
-
-                # Create a dictionary to map each consensus word to all connected words
-            consensus_to_words = defaultdict(set)
-
-            # Iterate through each group to check their abundances and select the consensus word
-            for group_key, group_values in grouped_words.items():
-                # Calculate the total count for each word in the group
-                total_counts = {
-                    word: sum(
-                        unique_matches[unique_matches[0] == word]["total_count_0"]
-                    )
-                    + sum(unique_matches[unique_matches[1] == word]["total_count_1"])
-                    for word in [row[0] for row in group_values]
-                    + [row[1] for row in group_values]
-                }
-                # Select the word with the highest total count as the consensus word
-                consensus_word = max(total_counts, key=total_counts.get)
-
-                # Add all words in the group to the set of the consensus word
-                for row in group_values:
-                    consensus_to_words[consensus_word].update([row[0], row[1]])
-
-            df_filter["word_qc_group"] = df_filter["word_qc"].apply(
-                lambda x: next((k for k, v in consensus_to_words.items() if x in v), x)
-            )
-            l.append(df_filter)
-
-        finaldf = pd.concat(l, ignore_index=True)
-        finaldf.to_parquet(output[0], compression="snappy")
+        runtime=REL_GROUP_RUNTIME,
+        mem_mb=REL_GROUP_MEM_MB,
+        cpus_per_task=REL_GROUP_WORKERS,
+    threads: REL_GROUP_WORKERS
+    shell:
+        """
+        python scripts/group_relation_entities.py \
+          {input} \
+          --output {output} \
+          --cutoff 95 \
+          --workers {threads} \
+          --matrix-mb {REL_GROUP_MATRIX_MB}
+        """
 
 
 rule resolve_straininfo_assemblies:

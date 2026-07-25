@@ -23,3 +23,7 @@ rel_prediction_runtime: 600
 rel_prediction_mem_mb: 32000
 rel_row_batch_size: 8192
 rel_inference_batch_size: 256
+rel_group_runtime: 240
+rel_group_mem_mb: 64000
+rel_group_workers: 20
+rel_group_matrix_mb: 256
