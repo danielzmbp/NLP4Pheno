@@ -1,6 +1,4 @@
-import pandas as pd
 import itertools
-import numpy as np
 import polars as pl
 import sys
 import os
@@ -56,6 +54,10 @@ REL_GROUP_RUNTIME = int(config.get("rel_group_runtime", 240))
 REL_GROUP_MEM_MB = int(config.get("rel_group_mem_mb", 64000))
 REL_GROUP_WORKERS = int(config.get("rel_group_workers", 20))
 REL_GROUP_MATRIX_MB = int(config.get("rel_group_matrix_mb", 256))
+REL_NETWORK_RUNTIME = int(config.get("rel_network_runtime", 60))
+REL_NETWORK_MEM_MB = int(config.get("rel_network_mem_mb", 16000))
+REL_LINK_RUNTIME = int(config.get("rel_link_runtime", 180))
+REL_LINK_MEM_MB = int(config.get("rel_link_mem_mb", 32000))
 
 # Common resource configurations
 COMMON_RESOURCES = {
@@ -238,7 +240,7 @@ rule resolve_straininfo_assemblies:
         slurm_partition=DOWNLOAD_PARTITION,
         runtime=240,
         mem_mb=8000,
-        cpus_per_task=straininfo_assembly_workers,
+        cpus_per_task=1,
     shell:
         "python scripts/fetch_straininfo_assemblies.py {input} --expected-version {straininfo_version} --workers {straininfo_assembly_workers} --max-failure-fraction {straininfo_max_failure_fraction} --output {output.assemblies} --manifest-output {output.manifest} --summary {output.summary}"
 
@@ -251,23 +253,17 @@ rule link_pmc:
         f"{preds}/REL_output/preds_straininfo_grouped_pmc.pqt",
     resources:
         slurm_partition=CPU_PARTITION,
-        runtime=80,
-        mem_mb=80000,
-        tasks=20,
-    run:
-        df = pl.scan_parquet(input[0])
-        pmc = (
-            pl.scan_parquet(input[1])
-            .select(
-                ["text", "pmcid", "article_version", "paragraph", "sentence_range"]
-            )
-        )
-
-        df_merged = df.join(pmc, on="text", how="left")
-
-        merged_df = df_merged.collect(engine="streaming")
-
-        merged_df.write_parquet(output[0], compression="snappy")
+        runtime=REL_LINK_RUNTIME,
+        mem_mb=REL_LINK_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/link_relation_evidence.py predictions \
+          {input[0]} \
+          {input[1]} \
+          --output {output}
+        """
 
 
 rule create_network:
@@ -277,51 +273,18 @@ rule create_network:
         f"{preds}/network.tsv",
         f"{preds}/strains.txt",
     resources:
-        **COMMON_RESOURCES,
-    run:
-        df = pd.read_parquet(input[0])
-        # filter out wrongly assigned strains
-        df = df[~df["word_strain_qc"].str.contains("adapted|covid", na=False)]
-
-        matched = df[df["straininfo_si_id"].notna()].copy()
-        matched.loc[:, "strain_id"] = matched["straininfo_si_id"].astype(int).map(
-            lambda value: f"SI-ID{value}"
-        )
-
-        network = (
-            matched.loc[:, ["strain_id", "word_qc_group", "rel"]]
-            .drop_duplicates(["strain_id", "word_qc_group", "rel"])
-        )
-        network.loc[:, "source"] = np.where(
-            network["rel"].str.startswith("STRAIN"),
-            network.strain_id,
-            network.word_qc_group,
-        )
-        network.loc[:, "target"] = np.where(
-            network["rel"].str.startswith("STRAIN") == False,
-            network.strain_id,
-            network.word_qc_group,
-        )
-
-        network = network.loc[:, ["source", "target", "rel"]]
-
-        network = pd.concat(
-            [
-                network,
-                network.rel.str.split(":", expand=True)[0]
-                .str.split("-", expand=True)
-                .rename(columns={0: "source_ner", 1: "target_ner"}),
-            ],
-            axis=1,
-        )
-
-        network["rel"] = network.rel.str.split(":", expand=True)[1]
-
-        network.to_csv(output[0], index=False, sep="\t")
-
-        with open(output[1], "w") as f:
-            for s in sorted(set(matched.strain_id.to_list())):
-                f.write(f"{s}\n")
+        slurm_partition=CPU_PARTITION,
+        runtime=REL_NETWORK_RUNTIME,
+        mem_mb=REL_NETWORK_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/create_relation_network.py \
+          {input} \
+          --network-output {output[0]} \
+          --strains-output {output[1]}
+        """
 
 rule link_pmc_network:
     input:
@@ -330,46 +293,15 @@ rule link_pmc_network:
     output:
         f"{preds}/network_pmc.tsv",
     resources:
-        **COMMON_RESOURCES,
-    run:
-        df = pl.read_parquet(input[1])
-        network = pl.read_csv(input[0], separator="\t")
-        evidence = (
-            df.filter(pl.col("straininfo_si_id").is_not_null())
-            .with_columns(
-                pl.concat_str(
-                    pl.lit("SI-ID"),
-                    pl.col("straininfo_si_id").cast(pl.Int64).cast(pl.String),
-                ).alias("strain_id"),
-            )
-            .with_columns(
-                pl.when(pl.col("rel").str.starts_with("STRAIN"))
-                .then(pl.col("strain_id"))
-                .otherwise(pl.col("word_qc_group"))
-                .alias("source"),
-                pl.when(pl.col("rel").str.starts_with("STRAIN"))
-                .then(pl.col("word_qc_group"))
-                .otherwise(pl.col("strain_id"))
-                .alias("target"),
-                pl.col("rel").str.split(":").list.get(1).alias("rel_name"),
-            )
-            .select(
-                [
-                    "source",
-                    "target",
-                    "rel_name",
-                    "pmcid",
-                    "article_version",
-                    "paragraph",
-                    "sentence_range",
-                ]
-            )
-            .unique()
-        )
-        network = network.join(
-            evidence,
-            left_on=["source", "target", "rel"],
-            right_on=["source", "target", "rel_name"],
-            how="left",
-        )
-        network.write_csv(output[0], separator="\t")
+        slurm_partition=CPU_PARTITION,
+        runtime=REL_LINK_RUNTIME,
+        mem_mb=REL_LINK_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/link_relation_evidence.py network \
+          {input[0]} \
+          {input[1]} \
+          --output {output}
+        """

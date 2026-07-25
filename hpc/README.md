@@ -106,6 +106,10 @@ computes it in bounded matrices instead of allocating a dense all-pairs
 matrix. `rel_group_matrix_mb` caps each temporary similarity block;
 `rel_group_workers`, `rel_group_mem_mb`, and `rel_group_runtime` control its
 Slurm allocation. The grouped relation table is written with Polars streaming.
+Network construction and PMC evidence joins also stream their outputs, using
+the `rel_network_*` and `rel_link_*` limits in the NBI configuration. The
+StrainInfo assembly resolver requests one CPU on `nbi-download`; its configured
+worker count is an I/O thread pool rather than a CPU allocation.
 
 ## Monitor
 
