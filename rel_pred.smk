@@ -34,6 +34,14 @@ cuda = config["cuda_devices"]
 pmc_file = config["pmc_parquet_file"]
 straininfo_designations = config["straininfo_designations_file"]
 straininfo_version = config["straininfo_version"]
+ontology_aliases = config.get(
+    "ontology_aliases_file",
+    "resources/ontologies/runtime/aliases.parquet",
+)
+ontology_manifest = config.get(
+    "ontology_manifest_file",
+    "resources/ontologies/runtime/manifest.json",
+)
 straininfo_assembly_workers = int(config.get("straininfo_assembly_workers", 8))
 straininfo_max_failure_fraction = float(
     config.get("straininfo_max_failure_fraction", 0.01)
@@ -54,6 +62,8 @@ REL_GROUP_RUNTIME = int(config.get("rel_group_runtime", 240))
 REL_GROUP_MEM_MB = int(config.get("rel_group_mem_mb", 64000))
 REL_GROUP_WORKERS = int(config.get("rel_group_workers", 20))
 REL_GROUP_MATRIX_MB = int(config.get("rel_group_matrix_mb", 256))
+REL_GROUND_RUNTIME = int(config.get("rel_ground_runtime", 180))
+REL_GROUND_MEM_MB = int(config.get("rel_ground_mem_mb", 64000))
 REL_NETWORK_RUNTIME = int(config.get("rel_network_runtime", 60))
 REL_NETWORK_MEM_MB = int(config.get("rel_network_mem_mb", 16000))
 REL_LINK_RUNTIME = int(config.get("rel_link_runtime", 180))
@@ -81,6 +91,11 @@ rule all:
         f"{preds}/REL_output/strains_assemblies.txt",
         f"{preds}/network.tsv",
         f"{preds}/network_pmc.tsv",
+        f"{preds}/REL_output/preds_straininfo_grounded.pqt",
+        f"{preds}/REL_output/ontology_groundings.parquet",
+        f"{preds}/REL_output/ontology_grounding_summary.json",
+        f"{preds}/network_ontology.tsv",
+        f"{preds}/network_ontology_pmc.tsv",
 
 
 rule format_sentences:
@@ -229,6 +244,33 @@ rule group_entities:
         """
 
 
+rule ground_ontology:
+    input:
+        predictions=f"{preds}/REL_output/preds_straininfo_grouped.pqt",
+        aliases=ontology_aliases,
+        manifest=ontology_manifest,
+    output:
+        grounded=f"{preds}/REL_output/preds_straininfo_grounded.pqt",
+        mapping=f"{preds}/REL_output/ontology_groundings.parquet",
+        summary=f"{preds}/REL_output/ontology_grounding_summary.json",
+    resources:
+        slurm_partition=CPU_PARTITION,
+        runtime=REL_GROUND_RUNTIME,
+        mem_mb=REL_GROUND_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/ground_relation_ontology.py \
+          {input.predictions} \
+          {input.aliases} \
+          {input.manifest} \
+          --output {output.grounded} \
+          --mapping-output {output.mapping} \
+          --summary {output.summary}
+        """
+
+
 rule resolve_straininfo_assemblies:
     input:
         f"{preds}/REL_output/preds_straininfo_grouped.pqt",
@@ -292,6 +334,69 @@ rule link_pmc_network:
         f"{preds}/REL_output/preds_straininfo_grouped_pmc.pqt",
     output:
         f"{preds}/network_pmc.tsv",
+    resources:
+        slurm_partition=CPU_PARTITION,
+        runtime=REL_LINK_RUNTIME,
+        mem_mb=REL_LINK_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/link_relation_evidence.py network \
+          {input[0]} \
+          {input[1]} \
+          --output {output}
+        """
+
+
+rule link_ontology_pmc:
+    input:
+        f"{preds}/REL_output/preds_straininfo_grounded.pqt",
+        pmc_file,
+    output:
+        f"{preds}/REL_output/preds_straininfo_grounded_pmc.pqt",
+    resources:
+        slurm_partition=CPU_PARTITION,
+        runtime=REL_LINK_RUNTIME,
+        mem_mb=REL_LINK_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/link_relation_evidence.py predictions \
+          {input[0]} \
+          {input[1]} \
+          --output {output}
+        """
+
+
+rule create_ontology_network:
+    input:
+        f"{preds}/REL_output/preds_straininfo_grounded.pqt",
+    output:
+        f"{preds}/network_ontology.tsv",
+        f"{preds}/strains_ontology.txt",
+    resources:
+        slurm_partition=CPU_PARTITION,
+        runtime=REL_NETWORK_RUNTIME,
+        mem_mb=REL_NETWORK_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/create_relation_network.py \
+          {input} \
+          --network-output {output[0]} \
+          --strains-output {output[1]}
+        """
+
+
+rule link_ontology_pmc_network:
+    input:
+        f"{preds}/network_ontology.tsv",
+        f"{preds}/REL_output/preds_straininfo_grounded_pmc.pqt",
+    output:
+        f"{preds}/network_ontology_pmc.tsv",
     resources:
         slurm_partition=CPU_PARTITION,
         runtime=REL_LINK_RUNTIME,

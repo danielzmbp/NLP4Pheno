@@ -111,6 +111,16 @@ the `rel_network_*` and `rel_link_*` limits in the NBI configuration. The
 StrainInfo assembly resolver requests one CPU on `nbi-download`; its configured
 worker count is an I/O thread pool rather than a CPU allocation.
 
+After grouping, `ground_ontology` resolves each unique entity string against
+the versioned offline alias index prepared under
+`resources/ontologies/runtime/`. It requires no compute-node internet access.
+Only unique conservative matches are accepted; ambiguous and unsupported
+strings remain text nodes. The `rel_ground_runtime` and `rel_ground_mem_mb`
+settings control this CPU job. The workflow retains the original text network
+and additionally writes `network_ontology.tsv`,
+`network_ontology_pmc.tsv`, an auditable mapping Parquet, and a JSON coverage
+summary.
+
 ## Monitor
 
 ```bash

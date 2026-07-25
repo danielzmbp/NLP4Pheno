@@ -44,22 +44,29 @@ def link_network_to_evidence(
     predictions_file: Path,
     output_file: Path,
 ) -> None:
+    predictions = pl.scan_parquet(predictions_file)
+    prediction_columns = set(predictions.collect_schema().names())
+    entity_node = (
+        pl.coalesce("ontology_node_id", "word_qc_group")
+        if "ontology_node_id" in prediction_columns
+        else pl.col("word_qc_group")
+    )
     evidence = (
-        pl.scan_parquet(predictions_file)
-        .filter(pl.col("straininfo_si_id").is_not_null())
+        predictions.filter(pl.col("straininfo_si_id").is_not_null())
         .with_columns(
             pl.concat_str(
                 pl.lit("SI-ID"),
                 pl.col("straininfo_si_id").cast(pl.Int64).cast(pl.String),
-            ).alias("strain_id")
+            ).alias("strain_id"),
+            entity_node.alias("entity_node_id"),
         )
         .with_columns(
             pl.when(pl.col("rel").str.starts_with("STRAIN"))
             .then(pl.col("strain_id"))
-            .otherwise(pl.col("word_qc_group"))
+            .otherwise(pl.col("entity_node_id"))
             .alias("source"),
             pl.when(pl.col("rel").str.starts_with("STRAIN"))
-            .then(pl.col("word_qc_group"))
+            .then(pl.col("entity_node_id"))
             .otherwise(pl.col("strain_id"))
             .alias("target"),
             pl.col("rel").str.split(":").list.get(1).alias("rel_name"),

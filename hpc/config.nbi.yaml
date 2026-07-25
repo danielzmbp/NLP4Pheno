@@ -27,6 +27,8 @@ rel_group_runtime: 240
 rel_group_mem_mb: 64000
 rel_group_workers: 20
 rel_group_matrix_mb: 256
+rel_ground_runtime: 180
+rel_ground_mem_mb: 64000
 rel_network_runtime: 60
 rel_network_mem_mb: 16000
 rel_link_runtime: 180

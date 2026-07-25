@@ -96,6 +96,59 @@ class RelationNetworkStreamingTests(unittest.TestCase):
         self.assertEqual(result.get_column("pmcid").to_list(), ["PMC1"])
         self.assertEqual(result.get_column("sentence_range").to_list(), ["0:10"])
 
+    def test_grounded_synonyms_collapse_to_one_concept_edge(self):
+        predictions = pl.DataFrame(
+            {
+                "text": ["sentence a", "sentence b"],
+                "word_strain_qc": ["strain x", "strain x"],
+                "straininfo_si_id": [10, 10],
+                "word_qc_group": ["D-glucose", "dextrose"],
+                "ner": ["COMPOUND", "COMPOUND"],
+                "rel": [
+                    "STRAIN-COMPOUND:PRODUCES",
+                    "STRAIN-COMPOUND:PRODUCES",
+                ],
+                "ontology_status": ["matched", "matched"],
+                "ontology": ["CHEBI", "CHEBI"],
+                "ontology_id": ["CHEBI:17234", "CHEBI:17234"],
+                "ontology_node_id": ["CHEBI:17234", "CHEBI:17234"],
+                "ontology_node_label": ["glucose", "glucose"],
+                "ontology_match_method": ["direct_exact", "direct_exact"],
+                "ontology_match_confidence": [0.99, 0.99],
+                "ontology_matched_alias": ["D-glucose", "dextrose"],
+                "ontology_alias_scope": ["EXACT", "EXACT"],
+                "pmcid": ["PMC1", "PMC2"],
+                "article_version": ["v1", "v1"],
+                "paragraph": [1, 2],
+                "sentence_range": ["0:10", "0:10"],
+            }
+        )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            predictions_file = root / "predictions.parquet"
+            network_file = root / "network.tsv"
+            strains_file = root / "strains.txt"
+            network_pmc_file = root / "network_pmc.tsv"
+            predictions.write_parquet(predictions_file)
+
+            create_relation_network(predictions_file, network_file, strains_file)
+            link_network_to_evidence(
+                network_file,
+                predictions_file,
+                network_pmc_file,
+            )
+            network = pl.read_csv(network_file, separator="\t")
+            evidence = pl.read_csv(network_pmc_file, separator="\t").sort("pmcid")
+
+        self.assertEqual(network.height, 1)
+        edge = network.row(0, named=True)
+        self.assertEqual(edge["source"], "SI-ID10")
+        self.assertEqual(edge["target"], "CHEBI:17234")
+        self.assertEqual(edge["entity_label"], "glucose")
+        self.assertEqual(edge["entity_surfaces"], "D-glucose | dextrose")
+        self.assertEqual(edge["ontology_status"], "matched")
+        self.assertEqual(evidence.get_column("pmcid").to_list(), ["PMC1", "PMC2"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -325,6 +325,27 @@ measures resolvable coverage, not concept-level accuracy, so newly introduced
 sources should still be sampled before their matches are used in the final
 network.
 
+The relation workflow applies the same policy to every unique grouped entity
+string after `group_entities`. It preserves every prediction and its original
+`word_qc_group`, while adding the ontology ID, canonical label, match method,
+rule-based evidence strength, and ambiguity status. It produces:
+
+- `REL_output/preds_straininfo_grounded.pqt`: row-preserving predictions with
+  ontology columns.
+- `REL_output/ontology_groundings.parquet`: one auditable mapping per entity
+  type and grouped string, including all candidates for ambiguous mappings.
+- `REL_output/ontology_grounding_summary.json`: coverage by entity type,
+  ontology, and matching rule, plus frequent unresolved strings.
+- `network_ontology.tsv` and `network_ontology_pmc.tsv`: concept-aware network
+  and evidence table. Unique matches use the ontology ID as the node, so
+  synonymous surfaces merge; ambiguous, unmatched, and unsupported values keep
+  their original grouped text as the node.
+
+The original `network.tsv` and `network_pmc.tsv` remain unchanged as a
+text-node baseline. `STRAIN` is still identified by StrainInfo, and
+`SPECIES`/`ORGANISM` remain explicitly unsupported until a taxonomy-aware
+resolver is added.
+
 For uniquely resolved SI-IDs, the detailed API can provide genome accessions.
 The resolver retains the response hash for each genome and selects one assembly
 per SI-ID by assembly level, then recency, avoiding multiple near-identical

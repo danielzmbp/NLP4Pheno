@@ -49,3 +49,5 @@ straininfo_strains_file: resources/straininfo/strains.parquet
 straininfo_designations_file: resources/straininfo/designations_union.parquet
 straininfo_assembly_workers: 8
 straininfo_max_failure_fraction: 0.01
+ontology_aliases_file: resources/ontologies/runtime/aliases.parquet
+ontology_manifest_file: resources/ontologies/runtime/manifest.json

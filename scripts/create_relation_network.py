@@ -16,6 +16,12 @@ def create_relation_network(
     strains_file: Path,
 ) -> None:
     source = pl.scan_parquet(predictions_file)
+    source_columns = set(source.collect_schema().names())
+    ontology_grounded_input = {
+        "ontology_status",
+        "ontology_node_id",
+        "ontology_node_label",
+    }.issubset(source_columns)
     matched = (
         source.filter(
             ~pl.col("word_strain_qc")
@@ -30,17 +36,95 @@ def create_relation_network(
             ).alias("strain_id")
         )
     )
+    if ontology_grounded_input:
+        matched = matched.with_columns(
+            pl.coalesce("ontology_node_id", "word_qc_group").alias("entity_node_id"),
+            pl.coalesce("ontology_node_label", "word_qc_group").alias(
+                "entity_node_label"
+            ),
+        )
+    else:
+        matched = matched.with_columns(
+            pl.col("word_qc_group").alias("entity_node_id"),
+            pl.col("word_qc_group").alias("entity_node_label"),
+            pl.lit("not_run").alias("ontology_status"),
+            pl.lit(None, dtype=pl.String).alias("ontology"),
+            pl.lit(None, dtype=pl.String).alias("ontology_id"),
+            pl.lit(None, dtype=pl.String).alias("ontology_match_method"),
+            pl.lit(None, dtype=pl.Float64).alias("ontology_match_confidence"),
+            pl.lit(None, dtype=pl.String).alias("ontology_matched_alias"),
+            pl.lit(None, dtype=pl.String).alias("ontology_alias_scope"),
+        )
 
     network = (
-        matched.select("strain_id", "word_qc_group", "rel")
-        .unique()
+        matched.select(
+            "strain_id",
+            "word_qc_group",
+            "rel",
+            "entity_node_id",
+            "entity_node_label",
+            "ontology_status",
+            "ontology",
+            "ontology_id",
+            "ontology_match_method",
+            "ontology_match_confidence",
+            "ontology_matched_alias",
+            "ontology_alias_scope",
+        )
+        .group_by(
+            "strain_id",
+            "rel",
+            "entity_node_id",
+            "entity_node_label",
+            "ontology_status",
+            "ontology",
+            "ontology_id",
+        )
+        .agg(
+            pl.col("word_qc_group").unique().sort().alias("_entity_surfaces"),
+            pl.col("ontology_match_method")
+            .drop_nulls()
+            .unique()
+            .sort()
+            .alias("_ontology_methods"),
+            pl.col("ontology_match_confidence")
+            .max()
+            .alias("ontology_match_confidence"),
+            pl.col("ontology_matched_alias")
+            .drop_nulls()
+            .unique()
+            .sort()
+            .alias("_ontology_aliases"),
+            pl.col("ontology_alias_scope")
+            .drop_nulls()
+            .unique()
+            .sort()
+            .alias("_ontology_scopes"),
+        )
+        .with_columns(
+            pl.col("_entity_surfaces")
+            .list.join(" | ")
+            .alias("entity_surfaces"),
+            pl.when(pl.col("_ontology_methods").list.len() > 0)
+            .then(pl.col("_ontology_methods").list.join(" | "))
+            .otherwise(None)
+            .alias("ontology_match_method"),
+            pl.when(pl.col("_ontology_aliases").list.len() > 0)
+            .then(pl.col("_ontology_aliases").list.join(" | "))
+            .otherwise(None)
+            .alias("ontology_matched_alias"),
+            pl.when(pl.col("_ontology_scopes").list.len() > 0)
+            .then(pl.col("_ontology_scopes").list.join(" | "))
+            .otherwise(None)
+            .alias("ontology_alias_scope"),
+        )
         .with_columns(
             pl.when(pl.col("rel").str.starts_with("STRAIN"))
             .then(pl.col("strain_id"))
-            .otherwise(pl.col("word_qc_group"))
+            .otherwise(pl.col("entity_node_id"))
             .alias("source"),
             pl.when(pl.col("rel").str.starts_with("STRAIN"))
-            .then(pl.col("word_qc_group"))
+            .then(pl.col("entity_node_id"))
             .otherwise(pl.col("strain_id"))
             .alias("target"),
             pl.col("rel").str.split(":").list.get(0).alias("entity_pair"),
@@ -56,8 +140,25 @@ def create_relation_network(
             pl.col("relation_name").alias("rel"),
             "source_ner",
             "target_ner",
+            pl.col("entity_node_label").alias("entity_label"),
+            "entity_surfaces",
+            "ontology_status",
+            "ontology",
+            "ontology_id",
+            "ontology_match_method",
+            "ontology_match_confidence",
+            "ontology_matched_alias",
+            "ontology_alias_scope",
         )
     )
+    if not ontology_grounded_input:
+        network = network.select(
+            "source",
+            "target",
+            "rel",
+            "source_ner",
+            "target_ner",
+        )
     strains = matched.select("strain_id").unique().sort("strain_id")
 
     network_file.parent.mkdir(parents=True, exist_ok=True)
