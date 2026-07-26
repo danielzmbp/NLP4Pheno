@@ -53,3 +53,8 @@ by at least two existing annotations of the same surface. All tasks were
 reviewed on 2026-07-23: 134 omissions were accepted, four were rejected, and 15
 relations were added by the reviewer. The result is merged into
 `label/project-10-reviewed-2026-07-23.json`.
+
+The full-PMC model-assisted audit under `prediction_batch1/` is the first
+active-learning batch generated after full-corpus inference. Codex curated 27
+of its short cases with tracked rationales; project 4 contains a balanced
+55-task human queue drawn from the remaining relation and error strata.

@@ -1,0 +1,10 @@
+{
+  "completed_tasks": 0,
+  "created": false,
+  "created_at": "2026-07-26T16:08:47.455073+00:00",
+  "project_id": 4,
+  "queue": "label/review_queue/prediction_batch1/human-queue.json",
+  "tasks": 55,
+  "title": "PMC model prediction audit \u2014 batch 1",
+  "url": "http://127.0.0.1:8080/projects/4/data"
+}

@@ -1,0 +1,5495 @@
+[
+  {
+    "data": {
+      "text": "The therapeutic efficacy of Bifidobacterium animalis subsp. lactis BB‐12 ® in infant colic: A randomised, double blind, placebo‐controlled trial",
+      "candidate_id": "pmc_candidate_30421a46ddad43",
+      "review_rank": 13,
+      "review_tier": "entity_tension",
+      "review_summary": "entity_tension | STRAIN-DISEASE:ASSOCIATED_WITH | RE 0.942 | entity 0.806 | strain 0.992 | ontology unmatched",
+      "sampled_relation": "STRAIN-DISEASE:ASSOCIATED_WITH",
+      "pmcid": "PMC6973258",
+      "article_version": "PMC6973258.1",
+      "paragraph": 1,
+      "sentence_range": "1",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 39654,
+      "straininfo_taxon": "Escherichia coli",
+      "curation_status": "accepted",
+      "curation_notes": "The title directly evaluates BB-12 in infant colic; both spans and ASSOCIATED_WITH are supported."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_30421a46ddad43",
+      "review_tier": "entity_tension",
+      "seeded_entities": 2,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "accepted"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9424007534980774,
+        "result": [
+          {
+            "id": "pred_entity_39aea672a4d54b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 28,
+              "end": 74,
+              "text": "Bifidobacterium animalis subsp. lactis BB‐12 ®",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_95810bd118bb29",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 78,
+              "end": 90,
+              "text": "infant colic",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_39aea672a4d54b",
+            "to_id": "pred_entity_95810bd118bb29",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "ASSOCIATED_WITH"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -1,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_39aea672a4d54b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 28,
+              "end": 74,
+              "text": "Bifidobacterium animalis subsp. lactis BB‐12 ®",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_95810bd118bb29",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 78,
+              "end": 90,
+              "text": "infant colic",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_39aea672a4d54b",
+            "to_id": "pred_entity_95810bd118bb29",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "ASSOCIATED_WITH"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9424007534980774,
+          "result": [
+            {
+              "id": "pred_entity_39aea672a4d54b",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 28,
+                "end": 74,
+                "text": "Bifidobacterium animalis subsp. lactis BB‐12 ®",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_95810bd118bb29",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 78,
+                "end": 90,
+                "text": "infant colic",
+                "labels": [
+                  "DISEASE"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_39aea672a4d54b",
+              "to_id": "pred_entity_95810bd118bb29",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "ASSOCIATED_WITH"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "For example, STEC strains lacking eae gene were responsible for human illness outbreaks in the United States and Australia ( 33 – 35 ). This study did not reveal any instance of O157:H7 STEC, which is in accord with some data from Canada, Australia and the UK (Scotland) ( 21 , 29 , 36 ). However, there are several reports of presence of O157:H7 STEC in raw milk in other studies ( 37 , 38 ).",
+      "candidate_id": "pmc_candidate_166a577731db36",
+      "review_rank": 15,
+      "review_tier": "entity_tension",
+      "review_summary": "entity_tension | STRAIN-DISEASE:ASSOCIATED_WITH | RE 0.948 | entity 0.793 | strain 0.657 | ontology unmatched",
+      "sampled_relation": "STRAIN-DISEASE:ASSOCIATED_WITH",
+      "pmcid": "PMC3895560",
+      "article_version": "PMC3895560.1",
+      "paragraph": 21,
+      "sentence_range": "4-6",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 362271,
+      "straininfo_taxon": "Paraliobacillus ryukyuensis",
+      "curation_status": "hard_negative",
+      "curation_notes": "Human illness refers to earlier eae-negative STEC strains, whereas both O157:H7 mentions occur in later statements about absence/presence; the predicted cross-sentence edges are unsupported."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_166a577731db36",
+      "review_tier": "entity_tension",
+      "seeded_entities": 3,
+      "seeded_relations": 2,
+      "curator": "Codex",
+      "curation_status": "hard_negative"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9479139447212219,
+        "result": [
+          {
+            "id": "pred_entity_c5de4e83bb1ebe",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 64,
+              "end": 77,
+              "text": "human illness",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_357e972055e646",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 178,
+              "end": 185,
+              "text": "O157:H7",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_f9b4721cfbdf00",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 339,
+              "end": 346,
+              "text": "O157:H7",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_357e972055e646",
+            "to_id": "pred_entity_c5de4e83bb1ebe",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "ASSOCIATED_WITH"
+            ]
+          },
+          {
+            "from_id": "pred_entity_f9b4721cfbdf00",
+            "to_id": "pred_entity_c5de4e83bb1ebe",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "ASSOCIATED_WITH"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -2,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_c5de4e83bb1ebe",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 64,
+              "end": 77,
+              "text": "human illness",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_357e972055e646",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 178,
+              "end": 185,
+              "text": "O157:H7",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_f9b4721cfbdf00",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 339,
+              "end": 346,
+              "text": "O157:H7",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9479139447212219,
+          "result": [
+            {
+              "id": "pred_entity_c5de4e83bb1ebe",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 64,
+                "end": 77,
+                "text": "human illness",
+                "labels": [
+                  "DISEASE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_357e972055e646",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 178,
+                "end": 185,
+                "text": "O157:H7",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_f9b4721cfbdf00",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 339,
+                "end": 346,
+                "text": "O157:H7",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_357e972055e646",
+              "to_id": "pred_entity_c5de4e83bb1ebe",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "ASSOCIATED_WITH"
+              ]
+            },
+            {
+              "from_id": "pred_entity_f9b4721cfbdf00",
+              "to_id": "pred_entity_c5de4e83bb1ebe",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "ASSOCIATED_WITH"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Adult zebrafish model for pneumococcal meningitis has been evolved by the injection of pneumococcal strain TIGR4, which caused infection by its infiltration of the blood–brain barrier and induced disease progression. Moreover, infection with mutant bacteria has no virulent component in them attenuated in the disease model [ 107 ].",
+      "candidate_id": "pmc_candidate_386b4407c44628",
+      "review_rank": 25,
+      "review_tier": "entity_tension",
+      "review_summary": "entity_tension | STRAIN-ORGANISM:INFECTS | RE 0.974 | entity 0.803 | strain 0.942 | ontology unsupported",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC11167310",
+      "article_version": "PMC11167310.1",
+      "paragraph": 18,
+      "sentence_range": "7-8",
+      "ontology_status": "unsupported",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 100088,
+      "straininfo_taxon": "Streptococcus pneumoniae",
+      "curation_status": "corrected",
+      "curation_notes": "TIGR4 explicitly infects zebrafish and causes the pneumococcal meningitis model; added the disease association."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_386b4407c44628",
+      "review_tier": "entity_tension",
+      "seeded_entities": 3,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "corrected"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9742884635925293,
+        "result": [
+          {
+            "id": "pred_entity_f574b327ceb7fd",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 15,
+              "text": "Adult zebrafish",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_29acf3e32b1081",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 26,
+              "end": 49,
+              "text": "pneumococcal meningitis",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_61e454bb150551",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 107,
+              "end": 112,
+              "text": "TIGR4",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_61e454bb150551",
+            "to_id": "pred_entity_f574b327ceb7fd",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -3,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_f574b327ceb7fd",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 15,
+              "text": "Adult zebrafish",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_29acf3e32b1081",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 26,
+              "end": 49,
+              "text": "pneumococcal meningitis",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_61e454bb150551",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 107,
+              "end": 112,
+              "text": "TIGR4",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_61e454bb150551",
+            "to_id": "pred_entity_f574b327ceb7fd",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          },
+          {
+            "from_id": "pred_entity_61e454bb150551",
+            "to_id": "pred_entity_29acf3e32b1081",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "ASSOCIATED_WITH"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9742884635925293,
+          "result": [
+            {
+              "id": "pred_entity_f574b327ceb7fd",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 0,
+                "end": 15,
+                "text": "Adult zebrafish",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_29acf3e32b1081",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 26,
+                "end": 49,
+                "text": "pneumococcal meningitis",
+                "labels": [
+                  "DISEASE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_61e454bb150551",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 107,
+                "end": 112,
+                "text": "TIGR4",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_61e454bb150551",
+              "to_id": "pred_entity_f574b327ceb7fd",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INFECTS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "To model the evolution of fluoroquinolone resistance in vivo , three groups of 7-week-old female BALB/c mice (Jackson Laboratory) were intranasally infected with 100 µL containing 10 6 CFUs of TIGR4. This inoculum was chosen to permit a large enough population to be recovered for downstream applications while ensuring mouse survival. Six hours post-infection, mice were administered levofloxacin intraperitoneally.",
+      "candidate_id": "pmc_candidate_ed535a90a90d7a",
+      "review_rank": 26,
+      "review_tier": "entity_tension",
+      "review_summary": "entity_tension | STRAIN-ORGANISM:INFECTS | RE 0.988 | entity 0.716 | strain 0.975 | ontology unsupported",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC10865975",
+      "article_version": "PMC10865975.1",
+      "paragraph": 38,
+      "sentence_range": "1-3",
+      "ontology_status": "unsupported",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 100088,
+      "straininfo_taxon": "Streptococcus pneumoniae",
+      "curation_status": "corrected",
+      "curation_notes": "The mice are explicitly infected with TIGR4. The passage describes an experiment on evolution of resistance but does not assert that this inoculum already resists fluoroquinolone."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_ed535a90a90d7a",
+      "review_tier": "entity_tension",
+      "seeded_entities": 4,
+      "seeded_relations": 2,
+      "curator": "Codex",
+      "curation_status": "corrected"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.988244891166687,
+        "result": [
+          {
+            "id": "pred_entity_4ed2f966d4a6a1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 26,
+              "end": 41,
+              "text": "fluoroquinolone",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_739684f1dc03cf",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 90,
+              "end": 108,
+              "text": "female BALB/c mice",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2f10d8ce375e2d",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 193,
+              "end": 198,
+              "text": "TIGR4",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_11ff601e31c7bb",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 385,
+              "end": 397,
+              "text": "levofloxacin",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_2f10d8ce375e2d",
+            "to_id": "pred_entity_4ed2f966d4a6a1",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "RESISTS"
+            ]
+          },
+          {
+            "from_id": "pred_entity_2f10d8ce375e2d",
+            "to_id": "pred_entity_739684f1dc03cf",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -4,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_4ed2f966d4a6a1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 26,
+              "end": 41,
+              "text": "fluoroquinolone",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_739684f1dc03cf",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 90,
+              "end": 108,
+              "text": "female BALB/c mice",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2f10d8ce375e2d",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 193,
+              "end": 198,
+              "text": "TIGR4",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_11ff601e31c7bb",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 385,
+              "end": 397,
+              "text": "levofloxacin",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_2f10d8ce375e2d",
+            "to_id": "pred_entity_739684f1dc03cf",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.988244891166687,
+          "result": [
+            {
+              "id": "pred_entity_4ed2f966d4a6a1",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 26,
+                "end": 41,
+                "text": "fluoroquinolone",
+                "labels": [
+                  "COMPOUND"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_739684f1dc03cf",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 90,
+                "end": 108,
+                "text": "female BALB/c mice",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_2f10d8ce375e2d",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 193,
+                "end": 198,
+                "text": "TIGR4",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_11ff601e31c7bb",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 385,
+                "end": 397,
+                "text": "levofloxacin",
+                "labels": [
+                  "COMPOUND"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_2f10d8ce375e2d",
+              "to_id": "pred_entity_4ed2f966d4a6a1",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "RESISTS"
+              ]
+            },
+            {
+              "from_id": "pred_entity_2f10d8ce375e2d",
+              "to_id": "pred_entity_739684f1dc03cf",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INFECTS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Long-term acclimation or adaptation to high salt is associated with strain-specific remodeling of PSI. UWO241 exhibits downregulated PSI fluorescence emission (at 77 K) across a broad range of treatments and growth conditions (Cook et al. 2019 ; Morgan et al. 1998 ), which is associated with reduced levels or loss of LHCI polypeptides (Morgan et al. 1998 ; Kalra et al. 2020 ).",
+      "candidate_id": "pmc_candidate_586db07ace5a52",
+      "review_rank": 35,
+      "review_tier": "entity_tension",
+      "review_summary": "entity_tension | STRAIN-PHENOTYPE:PRESENTS | RE 0.997 | entity 0.556 | strain 0.995 | ontology unmatched",
+      "sampled_relation": "STRAIN-PHENOTYPE:PRESENTS",
+      "pmcid": "PMC10484818",
+      "article_version": "PMC10484818.1",
+      "paragraph": 40,
+      "sentence_range": "1-2",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 344285,
+      "straininfo_taxon": "Chlamydomonas raudensis",
+      "curation_status": "hard_negative",
+      "curation_notes": "The token 'to' is not a phenotype; removed the false entity and relation."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_586db07ace5a52",
+      "review_tier": "entity_tension",
+      "seeded_entities": 2,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "hard_negative"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9972261786460876,
+        "result": [
+          {
+            "id": "pred_entity_b6fe60948bae4d",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 36,
+              "end": 38,
+              "text": "to",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_6dab0af1286ee0",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 103,
+              "end": 109,
+              "text": "UWO241",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_6dab0af1286ee0",
+            "to_id": "pred_entity_b6fe60948bae4d",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -5,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_6dab0af1286ee0",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 103,
+              "end": 109,
+              "text": "UWO241",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9972261786460876,
+          "result": [
+            {
+              "id": "pred_entity_b6fe60948bae4d",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 36,
+                "end": 38,
+                "text": "to",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_6dab0af1286ee0",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 103,
+                "end": 109,
+                "text": "UWO241",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_6dab0af1286ee0",
+              "to_id": "pred_entity_b6fe60948bae4d",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Earlier studies in our laboratory have revealed that GapA + M. gallisepticum (MG) ts-11 vaccine was more immunogenic and induced higher antibody response than the GapA − ts-11 population [ 30 ]. In MG, the GapA is determined as the primary cytadhesin molecule and is known to play role in prolonged colonization and survival of MG [ 31 , 32 ].",
+      "candidate_id": "pmc_candidate_7f86405b885341",
+      "review_rank": 38,
+      "review_tier": "entity_tension",
+      "review_summary": "entity_tension | STRAIN-PHENOTYPE:PROMOTES | RE 0.973 | entity 0.614 | strain 0.751 | ontology unmatched",
+      "sampled_relation": "STRAIN-PHENOTYPE:PROMOTES",
+      "pmcid": "PMC7456371",
+      "article_version": "PMC7456371.1",
+      "paragraph": 35,
+      "sentence_range": "1-2",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 404540,
+      "straininfo_taxon": "Bacillus pumilus",
+      "curation_status": "corrected",
+      "curation_notes": "Only the first ts-11 mention is the vaccine population explicitly linked to the higher antibody response."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_7f86405b885341",
+      "review_tier": "entity_tension",
+      "seeded_entities": 3,
+      "seeded_relations": 2,
+      "curator": "Codex",
+      "curation_status": "corrected"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9725714921951294,
+        "result": [
+          {
+            "id": "pred_entity_7c8280ba21bc95",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 82,
+              "end": 87,
+              "text": "ts-11",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_06b4e6ff1915d5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 136,
+              "end": 153,
+              "text": "antibody response",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_62c275f639d902",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 170,
+              "end": 175,
+              "text": "ts-11",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_7c8280ba21bc95",
+            "to_id": "pred_entity_06b4e6ff1915d5",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PROMOTES"
+            ]
+          },
+          {
+            "from_id": "pred_entity_62c275f639d902",
+            "to_id": "pred_entity_06b4e6ff1915d5",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PROMOTES"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -6,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_7c8280ba21bc95",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 82,
+              "end": 87,
+              "text": "ts-11",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_06b4e6ff1915d5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 136,
+              "end": 153,
+              "text": "antibody response",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_62c275f639d902",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 170,
+              "end": 175,
+              "text": "ts-11",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_7c8280ba21bc95",
+            "to_id": "pred_entity_06b4e6ff1915d5",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PROMOTES"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9725714921951294,
+          "result": [
+            {
+              "id": "pred_entity_7c8280ba21bc95",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 82,
+                "end": 87,
+                "text": "ts-11",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_06b4e6ff1915d5",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 136,
+                "end": 153,
+                "text": "antibody response",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_62c275f639d902",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 170,
+                "end": 175,
+                "text": "ts-11",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_7c8280ba21bc95",
+              "to_id": "pred_entity_06b4e6ff1915d5",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PROMOTES"
+              ]
+            },
+            {
+              "from_id": "pred_entity_62c275f639d902",
+              "to_id": "pred_entity_06b4e6ff1915d5",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PROMOTES"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "At the same time, the survival of A . baumannii were not influenced by E . coli and there were no significant differences in the survival of A . baumannii among different groups (Fig. 1C ). These results suggest that AsaA is critical for bacterial competition in A . baumannii ATCC 17978.",
+      "candidate_id": "pmc_candidate_f6be5482152e70",
+      "review_rank": 40,
+      "review_tier": "entity_tension",
+      "review_summary": "entity_tension | STRAIN-SPECIES:INHIBITS | RE 0.982 | entity 0.676 | strain 0.991 | ontology unsupported",
+      "sampled_relation": "STRAIN-SPECIES:INHIBITS",
+      "pmcid": "PMC6602968",
+      "article_version": "PMC6602968.1",
+      "paragraph": 8,
+      "sentence_range": "12-13",
+      "ontology_status": "unsupported",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 13527,
+      "straininfo_taxon": "Acinetobacter baumannii",
+      "curation_status": "corrected",
+      "curation_notes": "The passage says E. coli did not influence A. baumannii survival, so the interspecies inhibition edge is contradicted. AsaA is linked to bacterial competition in ATCC 17978."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_f6be5482152e70",
+      "review_tier": "entity_tension",
+      "seeded_entities": 4,
+      "seeded_relations": 2,
+      "curator": "Codex",
+      "curation_status": "corrected"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9822707772254944,
+        "result": [
+          {
+            "id": "pred_entity_92288f2148051c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 71,
+              "end": 79,
+              "text": "E . coli",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_8c705edeb418f1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 141,
+              "end": 154,
+              "text": "A . baumannii",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2f83cbd0e1013f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 238,
+              "end": 259,
+              "text": "bacterial competition",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_9d0dd832a84a92",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 263,
+              "end": 287,
+              "text": "A . baumannii ATCC 17978",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_9d0dd832a84a92",
+            "to_id": "pred_entity_8c705edeb418f1",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          },
+          {
+            "from_id": "pred_entity_9d0dd832a84a92",
+            "to_id": "pred_entity_2f83cbd0e1013f",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -7,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_92288f2148051c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 71,
+              "end": 79,
+              "text": "E . coli",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_8c705edeb418f1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 141,
+              "end": 154,
+              "text": "A . baumannii",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2f83cbd0e1013f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 238,
+              "end": 259,
+              "text": "bacterial competition",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_9d0dd832a84a92",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 263,
+              "end": 287,
+              "text": "A . baumannii ATCC 17978",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_9d0dd832a84a92",
+            "to_id": "pred_entity_2f83cbd0e1013f",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9822707772254944,
+          "result": [
+            {
+              "id": "pred_entity_92288f2148051c",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 71,
+                "end": 79,
+                "text": "E . coli",
+                "labels": [
+                  "SPECIES"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_8c705edeb418f1",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 141,
+                "end": 154,
+                "text": "A . baumannii",
+                "labels": [
+                  "SPECIES"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_2f83cbd0e1013f",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 238,
+                "end": 259,
+                "text": "bacterial competition",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_9d0dd832a84a92",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 263,
+                "end": 287,
+                "text": "A . baumannii ATCC 17978",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_9d0dd832a84a92",
+              "to_id": "pred_entity_8c705edeb418f1",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            },
+            {
+              "from_id": "pred_entity_9d0dd832a84a92",
+              "to_id": "pred_entity_2f83cbd0e1013f",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "To account for growth rate disparities, anaerobes were added at 100 times higher than K. pneumoniae SGH10. However, instead of the gut commensals inhibiting K. pneumoniae SGH10, SGH10 was observed to inhibit the growth of these gut commensals by various degrees. Growth of B. thetaiotaomicron in the presence of SGH10 was relatively unperturbed as compared to its growth as a monoculture ( Fig. 1A ).",
+      "candidate_id": "pmc_candidate_e40f0476668297",
+      "review_rank": 41,
+      "review_tier": "entity_tension",
+      "review_summary": "entity_tension | STRAIN-SPECIES:INHIBITS | RE 0.893 | entity 0.761 | strain 0.982 | ontology unsupported",
+      "sampled_relation": "STRAIN-SPECIES:INHIBITS",
+      "pmcid": "PMC10900885",
+      "article_version": "PMC10900885.1",
+      "paragraph": 18,
+      "sentence_range": "1-3",
+      "ontology_status": "unsupported",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 215435,
+      "straininfo_taxon": "Cystobacter badius",
+      "curation_status": "hard_negative",
+      "curation_notes": "Although SGH10 inhibited some gut commensals, B. thetaiotaomicron was specifically described as relatively unperturbed."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_e40f0476668297",
+      "review_tier": "entity_tension",
+      "seeded_entities": 2,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "hard_negative"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.8932861089706421,
+        "result": [
+          {
+            "id": "pred_entity_4d5e65b38b2e2a",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 178,
+              "end": 183,
+              "text": "SGH10",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_dfced099151242",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 273,
+              "end": 292,
+              "text": "B. thetaiotaomicron",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_4d5e65b38b2e2a",
+            "to_id": "pred_entity_dfced099151242",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -8,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_4d5e65b38b2e2a",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 178,
+              "end": 183,
+              "text": "SGH10",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_dfced099151242",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 273,
+              "end": 292,
+              "text": "B. thetaiotaomicron",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.8932861089706421,
+          "result": [
+            {
+              "id": "pred_entity_4d5e65b38b2e2a",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 178,
+                "end": 183,
+                "text": "SGH10",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_dfced099151242",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 273,
+                "end": 292,
+                "text": "B. thetaiotaomicron",
+                "labels": [
+                  "SPECIES"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_4d5e65b38b2e2a",
+              "to_id": "pred_entity_dfced099151242",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "More research is needed to optimize the application of E. coli O157:H7-specific bacteriophages against E. coli O157:H7 on leafy greens under field- and facility-processing conditions.",
+      "candidate_id": "pmc_candidate_7d79c098ebbdb3",
+      "review_rank": 42,
+      "review_tier": "entity_tension",
+      "review_summary": "entity_tension | STRAIN-SPECIES:INHIBITS | RE 0.859 | entity 0.592 | strain 0.922 | ontology unsupported",
+      "sampled_relation": "STRAIN-SPECIES:INHIBITS",
+      "pmcid": "PMC3694057",
+      "article_version": "PMC3694057.1",
+      "paragraph": 13,
+      "sentence_range": "7",
+      "ontology_status": "unsupported",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 362271,
+      "straininfo_taxon": "Paraliobacillus ryukyuensis",
+      "curation_status": "hard_negative",
+      "curation_notes": "Bacteriophages inhibit E. coli O157:H7; the strain does not inhibit its own species. The predicted strain span also begins mid-token."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_7d79c098ebbdb3",
+      "review_tier": "entity_tension",
+      "seeded_entities": 2,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "hard_negative"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.8594279289245605,
+        "result": [
+          {
+            "id": "pred_entity_5b33269698b4f6",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 55,
+              "end": 62,
+              "text": "E. coli",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_8ed445a9760669",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 104,
+              "end": 118,
+              "text": ". coli O157:H7",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_8ed445a9760669",
+            "to_id": "pred_entity_5b33269698b4f6",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -9,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_5b33269698b4f6",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 55,
+              "end": 62,
+              "text": "E. coli",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.8594279289245605,
+          "result": [
+            {
+              "id": "pred_entity_5b33269698b4f6",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 55,
+                "end": 62,
+                "text": "E. coli",
+                "labels": [
+                  "SPECIES"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_8ed445a9760669",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 104,
+                "end": 118,
+                "text": ". coli O157:H7",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_8ed445a9760669",
+              "to_id": "pred_entity_5b33269698b4f6",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Whole-genome sequence of Bacillus solimangrovi GH 2-4 T , isolated from mangrove soil",
+      "candidate_id": "pmc_candidate_d0d29e882883e5",
+      "review_rank": 62,
+      "review_tier": "high_grounded",
+      "review_summary": "high_grounded | STRAIN-ISOLATE:INHABITS | RE 1.000 | entity 0.918 | strain 0.996 | ontology matched",
+      "sampled_relation": "STRAIN-ISOLATE:INHABITS",
+      "pmcid": "PMC5061058",
+      "article_version": "PMC5061058.1",
+      "paragraph": 1,
+      "sentence_range": "1",
+      "ontology_status": "matched",
+      "ontology": "ENVO",
+      "ontology_id": "ENVO:02000138",
+      "ontology_label": "mangrove biome soil",
+      "straininfo_si_id": 399162,
+      "straininfo_taxon": "Bacillus solimangrovi",
+      "curation_status": "accepted",
+      "curation_notes": "The title explicitly states that GH 2-4T was isolated from mangrove soil."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_d0d29e882883e5",
+      "review_tier": "high_grounded",
+      "seeded_entities": 2,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "accepted"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.999958872795105,
+        "result": [
+          {
+            "id": "pred_entity_29522faf7d2061",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 25,
+              "end": 53,
+              "text": "Bacillus solimangrovi GH 2-4",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_e02fd5f6c8c76c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 72,
+              "end": 85,
+              "text": "mangrove soil",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_29522faf7d2061",
+            "to_id": "pred_entity_e02fd5f6c8c76c",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -10,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_29522faf7d2061",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 25,
+              "end": 53,
+              "text": "Bacillus solimangrovi GH 2-4",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_e02fd5f6c8c76c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 72,
+              "end": 85,
+              "text": "mangrove soil",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_29522faf7d2061",
+            "to_id": "pred_entity_e02fd5f6c8c76c",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.999958872795105,
+          "result": [
+            {
+              "id": "pred_entity_29522faf7d2061",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 25,
+                "end": 53,
+                "text": "Bacillus solimangrovi GH 2-4",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_e02fd5f6c8c76c",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 72,
+                "end": 85,
+                "text": "mangrove soil",
+                "labels": [
+                  "ISOLATE"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_29522faf7d2061",
+              "to_id": "pred_entity_e02fd5f6c8c76c",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHABITS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Zhouia amylolytica CL16 was isolated from the mangrove soil of Tanjung Piai, Malaysia. The present work reports the draft genome sequence of this bacterium. The genome consists of 113 glycoside hydrolases, 40 glycosyltransferases, 4 polysaccharide lyases, 23 carbohydrate esterases, 5 auxiliary activities, and 27 carbohydrate-binding modules, which warrant further investigation.",
+      "candidate_id": "pmc_candidate_d40574d8dc46ac",
+      "review_rank": 63,
+      "review_tier": "high_grounded",
+      "review_summary": "high_grounded | STRAIN-ISOLATE:INHABITS | RE 1.000 | entity 0.910 | strain 0.997 | ontology matched",
+      "sampled_relation": "STRAIN-ISOLATE:INHABITS",
+      "pmcid": "PMC10190629",
+      "article_version": "PMC10190629.1",
+      "paragraph": 2,
+      "sentence_range": "1-3",
+      "ontology_status": "matched",
+      "ontology": "ENVO",
+      "ontology_id": "ENVO:02000138",
+      "ontology_label": "mangrove biome soil",
+      "straininfo_si_id": 202518,
+      "straininfo_taxon": "Clavispora lusitaniae",
+      "curation_status": "accepted",
+      "curation_notes": "CL16 is explicitly stated to have been isolated from mangrove soil."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_d40574d8dc46ac",
+      "review_tier": "high_grounded",
+      "seeded_entities": 2,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "accepted"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9999580383300781,
+        "result": [
+          {
+            "id": "pred_entity_cae0114d8f032f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 23,
+              "text": "Zhouia amylolytica CL16",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_f99acb10f46933",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 46,
+              "end": 59,
+              "text": "mangrove soil",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_cae0114d8f032f",
+            "to_id": "pred_entity_f99acb10f46933",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -11,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_cae0114d8f032f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 23,
+              "text": "Zhouia amylolytica CL16",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_f99acb10f46933",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 46,
+              "end": 59,
+              "text": "mangrove soil",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_cae0114d8f032f",
+            "to_id": "pred_entity_f99acb10f46933",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9999580383300781,
+          "result": [
+            {
+              "id": "pred_entity_cae0114d8f032f",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 0,
+                "end": 23,
+                "text": "Zhouia amylolytica CL16",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_f99acb10f46933",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 46,
+                "end": 59,
+                "text": "mangrove soil",
+                "labels": [
+                  "ISOLATE"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_cae0114d8f032f",
+              "to_id": "pred_entity_f99acb10f46933",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHABITS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "In particular, the analysis of CAZome revealed the presence of 32 putative GHs, indicating that A. mali FL18 possesses a palette of interesting activities for the biodegradation of the holocellulosic component of the cell wall. In silico analyses suggest that at least four of these GHs might be involved in cellulose degradation; among them, a novel thermophilic GH9, AmCel9, was biochemically characterized.",
+      "candidate_id": "pmc_candidate_1d4b5172091bc8",
+      "review_rank": 77,
+      "review_tier": "high_unresolved",
+      "review_summary": "high_unresolved | STRAIN-COMPOUND:DEGRADES | RE 0.975 | entity 0.959 | strain 0.987 | ontology unmatched",
+      "sampled_relation": "STRAIN-COMPOUND:DEGRADES",
+      "pmcid": "PMC9820247",
+      "article_version": "PMC9820247.1",
+      "paragraph": 43,
+      "sentence_range": "3-4",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 42909,
+      "straininfo_taxon": "Rhizorhapis",
+      "curation_status": "corrected",
+      "curation_notes": "Cellulose degradation is supported by the strain's GH repertoire. 'Thermophilic' modifies GH9, not the strain phenotype."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_1d4b5172091bc8",
+      "review_tier": "high_unresolved",
+      "seeded_entities": 3,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "corrected"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9750834703445435,
+        "result": [
+          {
+            "id": "pred_entity_25694949a8c8c6",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 96,
+              "end": 108,
+              "text": "A. mali FL18",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_22f23fefe52f5a",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 308,
+              "end": 317,
+              "text": "cellulose",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_26ba554034634e",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 351,
+              "end": 363,
+              "text": "thermophilic",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_25694949a8c8c6",
+            "to_id": "pred_entity_22f23fefe52f5a",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "DEGRADES"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -12,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_25694949a8c8c6",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 96,
+              "end": 108,
+              "text": "A. mali FL18",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_22f23fefe52f5a",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 308,
+              "end": 317,
+              "text": "cellulose",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_25694949a8c8c6",
+            "to_id": "pred_entity_22f23fefe52f5a",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "DEGRADES"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9750834703445435,
+          "result": [
+            {
+              "id": "pred_entity_25694949a8c8c6",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 96,
+                "end": 108,
+                "text": "A. mali FL18",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_22f23fefe52f5a",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 308,
+                "end": 317,
+                "text": "cellulose",
+                "labels": [
+                  "COMPOUND"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_26ba554034634e",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 351,
+                "end": 363,
+                "text": "thermophilic",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_25694949a8c8c6",
+              "to_id": "pred_entity_22f23fefe52f5a",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "DEGRADES"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Furthermore, it showed bacteriostatic activity against P. aeruginosa DSM 102273 resistant strain with a MIC value of 1250 μg/mL. These results could depend not only on the increased solubility of RTN by the complexation, but also on the permeabilization of the bacterial wall produced by the macrocycle [ 28 , 71 ].",
+      "candidate_id": "pmc_candidate_2d452c454d862d",
+      "review_rank": 81,
+      "review_tier": "high_unresolved",
+      "review_summary": "high_unresolved | STRAIN-COMPOUND:RESISTS | RE 0.965 | entity 0.957 | strain 0.993 | ontology unmatched",
+      "sampled_relation": "STRAIN-COMPOUND:RESISTS",
+      "pmcid": "PMC10892075",
+      "article_version": "PMC10892075.1",
+      "paragraph": 47,
+      "sentence_range": "14-15",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 400301,
+      "straininfo_taxon": "Pseudomonas aeruginosa",
+      "curation_status": "corrected",
+      "curation_notes": "RTN shows bacteriostatic activity against the strain. A high MIC and the phrase 'resistant strain' do not establish strain-specific resistance to RTN."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_2d452c454d862d",
+      "review_tier": "high_unresolved",
+      "seeded_entities": 4,
+      "seeded_relations": 2,
+      "curator": "Codex",
+      "curation_status": "corrected"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9648882150650024,
+        "result": [
+          {
+            "id": "pred_entity_b256eea4359a52",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 23,
+              "end": 46,
+              "text": "bacteriostatic activity",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_14e30702e1233e",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 55,
+              "end": 79,
+              "text": "P. aeruginosa DSM 102273",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_cfae8d36c3d1d0",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 196,
+              "end": 199,
+              "text": "RTN",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_30f467df80a95b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 237,
+              "end": 275,
+              "text": "permeabilization of the bacterial wall",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_cfae8d36c3d1d0",
+            "to_id": "pred_entity_14e30702e1233e",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          },
+          {
+            "from_id": "pred_entity_14e30702e1233e",
+            "to_id": "pred_entity_cfae8d36c3d1d0",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "RESISTS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -13,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_b256eea4359a52",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 23,
+              "end": 46,
+              "text": "bacteriostatic activity",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_14e30702e1233e",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 55,
+              "end": 79,
+              "text": "P. aeruginosa DSM 102273",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_cfae8d36c3d1d0",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 196,
+              "end": 199,
+              "text": "RTN",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_30f467df80a95b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 237,
+              "end": 275,
+              "text": "permeabilization of the bacterial wall",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_cfae8d36c3d1d0",
+            "to_id": "pred_entity_14e30702e1233e",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9648882150650024,
+          "result": [
+            {
+              "id": "pred_entity_b256eea4359a52",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 23,
+                "end": 46,
+                "text": "bacteriostatic activity",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_14e30702e1233e",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 55,
+                "end": 79,
+                "text": "P. aeruginosa DSM 102273",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_cfae8d36c3d1d0",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 196,
+                "end": 199,
+                "text": "RTN",
+                "labels": [
+                  "COMPOUND"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_30f467df80a95b",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 237,
+                "end": 275,
+                "text": "permeabilization of the bacterial wall",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_cfae8d36c3d1d0",
+              "to_id": "pred_entity_14e30702e1233e",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            },
+            {
+              "from_id": "pred_entity_14e30702e1233e",
+              "to_id": "pred_entity_cfae8d36c3d1d0",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "RESISTS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Typhimurium ST34 isolates, was the main driving force associated with the resistance of NTS to cephalosporins. Therefore, close attention to the clonal dissemination of bla CTX-M-55 -carrying S. Typhimurium ST34 in clinical settings must be monitored carefully.",
+      "candidate_id": "pmc_candidate_d0749e25b9ec60",
+      "review_rank": 82,
+      "review_tier": "high_unresolved",
+      "review_summary": "high_unresolved | STRAIN-COMPOUND:RESISTS | RE 1.000 | entity 0.977 | strain 0.994 | ontology unmatched",
+      "sampled_relation": "STRAIN-COMPOUND:RESISTS",
+      "pmcid": "PMC9241639",
+      "article_version": "PMC9241639.1",
+      "paragraph": 2,
+      "sentence_range": "16-18",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 206262,
+      "straininfo_taxon": "Sugiyamaella smithiae",
+      "curation_status": "corrected",
+      "curation_notes": "The first ST34 mention is explicitly linked to NTS cephalosporin resistance; the later mention concerns clonal dissemination."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_d0749e25b9ec60",
+      "review_tier": "high_unresolved",
+      "seeded_entities": 3,
+      "seeded_relations": 2,
+      "curator": "Codex",
+      "curation_status": "corrected"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9997219443321228,
+        "result": [
+          {
+            "id": "pred_entity_f3d3c267377f3c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 16,
+              "text": "Typhimurium ST34",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2bf6a66226152f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 95,
+              "end": 109,
+              "text": "cephalosporins",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_de248f840d1f09",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 192,
+              "end": 211,
+              "text": "S. Typhimurium ST34",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_f3d3c267377f3c",
+            "to_id": "pred_entity_2bf6a66226152f",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "RESISTS"
+            ]
+          },
+          {
+            "from_id": "pred_entity_de248f840d1f09",
+            "to_id": "pred_entity_2bf6a66226152f",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "RESISTS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -14,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_f3d3c267377f3c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 16,
+              "text": "Typhimurium ST34",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2bf6a66226152f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 95,
+              "end": 109,
+              "text": "cephalosporins",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_de248f840d1f09",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 192,
+              "end": 211,
+              "text": "S. Typhimurium ST34",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_f3d3c267377f3c",
+            "to_id": "pred_entity_2bf6a66226152f",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "RESISTS"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9997219443321228,
+          "result": [
+            {
+              "id": "pred_entity_f3d3c267377f3c",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 0,
+                "end": 16,
+                "text": "Typhimurium ST34",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_2bf6a66226152f",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 95,
+                "end": 109,
+                "text": "cephalosporins",
+                "labels": [
+                  "COMPOUND"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_de248f840d1f09",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 192,
+                "end": 211,
+                "text": "S. Typhimurium ST34",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_f3d3c267377f3c",
+              "to_id": "pred_entity_2bf6a66226152f",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "RESISTS"
+              ]
+            },
+            {
+              "from_id": "pred_entity_de248f840d1f09",
+              "to_id": "pred_entity_2bf6a66226152f",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "RESISTS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Similarly, Luerce et al. (2014) demonstrated that L. lactis NCDO 2118 improved the clinical signs of colitis by reducing the macroscopic inflammatory score of the disease, also seen by Rabah et. al (2020) who observed a reduction in the signs of UC induced by DSS by the consumption of a probiotic Emmental cheese.",
+      "candidate_id": "pmc_candidate_7ca58c75182c5a",
+      "review_rank": 87,
+      "review_tier": "high_unresolved",
+      "review_summary": "high_unresolved | STRAIN-DISEASE:INHIBITS | RE 0.981 | entity 0.915 | strain 0.996 | ontology unmatched",
+      "sampled_relation": "STRAIN-DISEASE:INHIBITS",
+      "pmcid": "PMC7960676",
+      "article_version": "PMC7960676.1",
+      "paragraph": 44,
+      "sentence_range": "3",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 61670,
+      "straininfo_taxon": "Lactococcus lactis subsp. lactis",
+      "curation_status": "corrected",
+      "curation_notes": "NCDO 2118 improved colitis signs. The later UC result is attributed to a different probiotic intervention."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_7ca58c75182c5a",
+      "review_tier": "high_unresolved",
+      "seeded_entities": 3,
+      "seeded_relations": 2,
+      "curator": "Codex",
+      "curation_status": "corrected"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9812029004096985,
+        "result": [
+          {
+            "id": "pred_entity_5f6a6809c6b409",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 50,
+              "end": 69,
+              "text": "L. lactis NCDO 2118",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_a13e2f686fb260",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 101,
+              "end": 108,
+              "text": "colitis",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_79b45e3df7cbf5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 246,
+              "end": 248,
+              "text": "UC",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_5f6a6809c6b409",
+            "to_id": "pred_entity_a13e2f686fb260",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          },
+          {
+            "from_id": "pred_entity_5f6a6809c6b409",
+            "to_id": "pred_entity_79b45e3df7cbf5",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -15,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_5f6a6809c6b409",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 50,
+              "end": 69,
+              "text": "L. lactis NCDO 2118",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_a13e2f686fb260",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 101,
+              "end": 108,
+              "text": "colitis",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_79b45e3df7cbf5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 246,
+              "end": 248,
+              "text": "UC",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_5f6a6809c6b409",
+            "to_id": "pred_entity_a13e2f686fb260",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9812029004096985,
+          "result": [
+            {
+              "id": "pred_entity_5f6a6809c6b409",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 50,
+                "end": 69,
+                "text": "L. lactis NCDO 2118",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_a13e2f686fb260",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 101,
+                "end": 108,
+                "text": "colitis",
+                "labels": [
+                  "DISEASE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_79b45e3df7cbf5",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 246,
+                "end": 248,
+                "text": "UC",
+                "labels": [
+                  "DISEASE"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_5f6a6809c6b409",
+              "to_id": "pred_entity_a13e2f686fb260",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            },
+            {
+              "from_id": "pred_entity_5f6a6809c6b409",
+              "to_id": "pred_entity_79b45e3df7cbf5",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The type strain 2st14 T was isolated from a ditch sediment collected near the University of Konstanz, Germany. This is the first completed genome sequence of a member of the order Desulfarculales . The 3,655,731 bp long single replicon genome with its 3,303 protein-coding and 52 RNA genes is a part of the G enomic E ncyclopedia of B acteria and A rchaea project.",
+      "candidate_id": "pmc_candidate_f3d2f9ef609d12",
+      "review_rank": 92,
+      "review_tier": "high_unresolved",
+      "review_summary": "high_unresolved | STRAIN-ISOLATE:INHABITS | RE 1.000 | entity 0.912 | strain 0.994 | ontology unmatched",
+      "sampled_relation": "STRAIN-ISOLATE:INHABITS",
+      "pmcid": "PMC3035298",
+      "article_version": "PMC3035298.1",
+      "paragraph": 2,
+      "sentence_range": "4-6",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 2184,
+      "straininfo_taxon": "Desulfarculus baarsii",
+      "curation_status": "accepted",
+      "curation_notes": "The type strain is explicitly stated to have been isolated from ditch sediment."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_f3d2f9ef609d12",
+      "review_tier": "high_unresolved",
+      "seeded_entities": 2,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "accepted"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9999591112136841,
+        "result": [
+          {
+            "id": "pred_entity_4d47a05dbc8a2c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 16,
+              "end": 21,
+              "text": "2st14",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_04277da4f4d4ef",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 44,
+              "end": 58,
+              "text": "ditch sediment",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_4d47a05dbc8a2c",
+            "to_id": "pred_entity_04277da4f4d4ef",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -16,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_4d47a05dbc8a2c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 16,
+              "end": 21,
+              "text": "2st14",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_04277da4f4d4ef",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 44,
+              "end": 58,
+              "text": "ditch sediment",
+              "labels": [
+                "ISOLATE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_4d47a05dbc8a2c",
+            "to_id": "pred_entity_04277da4f4d4ef",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9999591112136841,
+          "result": [
+            {
+              "id": "pred_entity_4d47a05dbc8a2c",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 16,
+                "end": 21,
+                "text": "2st14",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_04277da4f4d4ef",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 44,
+                "end": 58,
+                "text": "ditch sediment",
+                "labels": [
+                  "ISOLATE"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_4d47a05dbc8a2c",
+              "to_id": "pred_entity_04277da4f4d4ef",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHABITS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The Fischer 344 rats challenged with the lethal toxin can be protected by PA21 at a concentration of 0.067 mg/kg. All six rats remained alive although PA21 was injected 24 h before the toxin challenge. PA21 did not influence the binding of PA to cell receptors and that of a lethal factor to PA.",
+      "candidate_id": "pmc_candidate_6e75152db5aa42",
+      "review_rank": 98,
+      "review_tier": "high_unresolved",
+      "review_summary": "high_unresolved | STRAIN-ORGANISM:INFECTS | RE 0.941 | entity 0.920 | strain 0.926 | ontology unsupported",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC6288905",
+      "article_version": "PMC6288905.1",
+      "paragraph": 4,
+      "sentence_range": "1-3",
+      "ontology_status": "unsupported",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 249511,
+      "straininfo_taxon": "Candida albicans",
+      "curation_status": "hard_negative",
+      "curation_notes": "PA21 is administered in mg/kg and refers to a protective antibody/reagent, not a microbial strain."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_6e75152db5aa42",
+      "review_tier": "high_unresolved",
+      "seeded_entities": 3,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "hard_negative"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9408984184265137,
+        "result": [
+          {
+            "id": "pred_entity_3f97f57dc30b7a",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 4,
+              "end": 20,
+              "text": "Fischer 344 rats",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_fffd1a24bc3b7f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 74,
+              "end": 78,
+              "text": "PA21",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_27205991d8b2eb",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 202,
+              "end": 206,
+              "text": "PA21",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_fffd1a24bc3b7f",
+            "to_id": "pred_entity_3f97f57dc30b7a",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -17,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_3f97f57dc30b7a",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 4,
+              "end": 20,
+              "text": "Fischer 344 rats",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9408984184265137,
+          "result": [
+            {
+              "id": "pred_entity_3f97f57dc30b7a",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 4,
+                "end": 20,
+                "text": "Fischer 344 rats",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_fffd1a24bc3b7f",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 74,
+                "end": 78,
+                "text": "PA21",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_27205991d8b2eb",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 202,
+                "end": 206,
+                "text": "PA21",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_fffd1a24bc3b7f",
+              "to_id": "pred_entity_3f97f57dc30b7a",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INFECTS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Agrobacterium sp. isolate CHB3 exhibited no inhibitory effect on downy mildew.",
+      "candidate_id": "pmc_candidate_1d4c348843cb34",
+      "review_rank": 100,
+      "review_tier": "high_unresolved",
+      "review_summary": "high_unresolved | STRAIN-ORGANISM:INHIBITS | RE 0.993 | entity 0.905 | strain 0.984 | ontology unsupported",
+      "sampled_relation": "STRAIN-ORGANISM:INHIBITS",
+      "pmcid": "PMC8468208",
+      "article_version": "PMC8468208.1",
+      "paragraph": 14,
+      "sentence_range": "6",
+      "ontology_status": "unsupported",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 61832,
+      "straininfo_taxon": "Streptococcus alactolyticus",
+      "curation_status": "hard_negative",
+      "curation_notes": "The sentence explicitly reports no inhibitory effect. Downy mildew is retained as DISEASE, not duplicated as ORGANISM."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_1d4c348843cb34",
+      "review_tier": "high_unresolved",
+      "seeded_entities": 3,
+      "seeded_relations": 2,
+      "curator": "Codex",
+      "curation_status": "hard_negative"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9931228756904602,
+        "result": [
+          {
+            "id": "pred_entity_a25e83dcf70376",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 30,
+              "text": "Agrobacterium sp. isolate CHB3",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2ee7f3b46ca2e9",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 65,
+              "end": 77,
+              "text": "downy mildew",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_ac9109c9d1aa49",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 65,
+              "end": 77,
+              "text": "downy mildew",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_a25e83dcf70376",
+            "to_id": "pred_entity_2ee7f3b46ca2e9",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          },
+          {
+            "from_id": "pred_entity_a25e83dcf70376",
+            "to_id": "pred_entity_ac9109c9d1aa49",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -18,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_a25e83dcf70376",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 30,
+              "text": "Agrobacterium sp. isolate CHB3",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2ee7f3b46ca2e9",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 65,
+              "end": 77,
+              "text": "downy mildew",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9931228756904602,
+          "result": [
+            {
+              "id": "pred_entity_a25e83dcf70376",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 0,
+                "end": 30,
+                "text": "Agrobacterium sp. isolate CHB3",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_2ee7f3b46ca2e9",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 65,
+                "end": 77,
+                "text": "downy mildew",
+                "labels": [
+                  "DISEASE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_ac9109c9d1aa49",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 65,
+                "end": 77,
+                "text": "downy mildew",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_a25e83dcf70376",
+              "to_id": "pred_entity_2ee7f3b46ca2e9",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            },
+            {
+              "from_id": "pred_entity_a25e83dcf70376",
+              "to_id": "pred_entity_ac9109c9d1aa49",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "No genome-scale metabolic model is currently available for the satellite strain Rhodococcus opacus DSM 43205. Instead, a genome-scale metabolic model i GR1773 has been reconstructed for the related strain R. opacus PD630, which is known for its potential in triacylglyceride production [ 113 ].",
+      "candidate_id": "pmc_candidate_faaaf192b27081",
+      "review_rank": 106,
+      "review_tier": "high_unresolved",
+      "review_summary": "high_unresolved | STRAIN-PHENOTYPE:PRESENTS | RE 0.923 | entity 0.952 | strain 0.996 | ontology unmatched",
+      "sampled_relation": "STRAIN-PHENOTYPE:PRESENTS",
+      "pmcid": "PMC12843989",
+      "article_version": "PMC12843989.1",
+      "paragraph": 37,
+      "sentence_range": "1-2",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 50519,
+      "straininfo_taxon": "Rhodococcus wratislaviensis",
+      "curation_status": "accepted",
+      "curation_notes": "PD630 is explicitly described as having potential for triacylglyceride production."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_faaaf192b27081",
+      "review_tier": "high_unresolved",
+      "seeded_entities": 4,
+      "seeded_relations": 2,
+      "curator": "Codex",
+      "curation_status": "accepted"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9231084585189819,
+        "result": [
+          {
+            "id": "pred_entity_20117ff09e41b4",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 80,
+              "end": 108,
+              "text": "Rhodococcus opacus DSM 43205",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_cf6d2e2b11be21",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 205,
+              "end": 220,
+              "text": "R. opacus PD630",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_55b12c451ab5a2",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 258,
+              "end": 274,
+              "text": "triacylglyceride",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2b627347610bcb",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 258,
+              "end": 285,
+              "text": "triacylglyceride production",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_cf6d2e2b11be21",
+            "to_id": "pred_entity_55b12c451ab5a2",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRODUCES"
+            ]
+          },
+          {
+            "from_id": "pred_entity_cf6d2e2b11be21",
+            "to_id": "pred_entity_2b627347610bcb",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -19,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_20117ff09e41b4",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 80,
+              "end": 108,
+              "text": "Rhodococcus opacus DSM 43205",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_cf6d2e2b11be21",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 205,
+              "end": 220,
+              "text": "R. opacus PD630",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_55b12c451ab5a2",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 258,
+              "end": 274,
+              "text": "triacylglyceride",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2b627347610bcb",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 258,
+              "end": 285,
+              "text": "triacylglyceride production",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_cf6d2e2b11be21",
+            "to_id": "pred_entity_55b12c451ab5a2",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRODUCES"
+            ]
+          },
+          {
+            "from_id": "pred_entity_cf6d2e2b11be21",
+            "to_id": "pred_entity_2b627347610bcb",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9231084585189819,
+          "result": [
+            {
+              "id": "pred_entity_20117ff09e41b4",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 80,
+                "end": 108,
+                "text": "Rhodococcus opacus DSM 43205",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_cf6d2e2b11be21",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 205,
+                "end": 220,
+                "text": "R. opacus PD630",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_55b12c451ab5a2",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 258,
+                "end": 274,
+                "text": "triacylglyceride",
+                "labels": [
+                  "COMPOUND"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_2b627347610bcb",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 258,
+                "end": 285,
+                "text": "triacylglyceride production",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_cf6d2e2b11be21",
+              "to_id": "pred_entity_55b12c451ab5a2",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRODUCES"
+              ]
+            },
+            {
+              "from_id": "pred_entity_cf6d2e2b11be21",
+              "to_id": "pred_entity_2b627347610bcb",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Interestingly, while it could be shown that the non-invasive i.g. administration of M. vaccae NCTC 11659 promotes immunoregulation via an increased secretion of the typical Treg cytokine IL-10 from mesLNC and splenocytes [ 75 ], repeated administration of M. vaccae NCTC 11659 (100 μg in BBS) via the i.n. route does not affect spleen and mesLN Treg counts in a model of chronic psychosocial stress (Reber et al., unpublished data).",
+      "candidate_id": "pmc_candidate_6a3b9b6bf1a412",
+      "review_rank": 108,
+      "review_tier": "high_unresolved",
+      "review_summary": "high_unresolved | STRAIN-PHENOTYPE:PROMOTES | RE 0.999 | entity 0.931 | strain 0.996 | ontology unmatched",
+      "sampled_relation": "STRAIN-PHENOTYPE:PROMOTES",
+      "pmcid": "PMC8657684",
+      "article_version": "PMC8657684.1",
+      "paragraph": 42,
+      "sentence_range": "1",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 403136,
+      "straininfo_taxon": "Mycobacterium kyogaense",
+      "curation_status": "corrected",
+      "curation_notes": "The first administration is explicitly reported to promote immunoregulation; the second occurrence describes a separate null result."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_6a3b9b6bf1a412",
+      "review_tier": "high_unresolved",
+      "seeded_entities": 3,
+      "seeded_relations": 2,
+      "curator": "Codex",
+      "curation_status": "corrected"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9988190531730652,
+        "result": [
+          {
+            "id": "pred_entity_521a548aa8bbce",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 84,
+              "end": 104,
+              "text": "M. vaccae NCTC 11659",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_6be0039b4f5a96",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 114,
+              "end": 130,
+              "text": "immunoregulation",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_9a229f179dee41",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 256,
+              "end": 276,
+              "text": "M. vaccae NCTC 11659",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_521a548aa8bbce",
+            "to_id": "pred_entity_6be0039b4f5a96",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PROMOTES"
+            ]
+          },
+          {
+            "from_id": "pred_entity_9a229f179dee41",
+            "to_id": "pred_entity_6be0039b4f5a96",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PROMOTES"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -20,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_521a548aa8bbce",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 84,
+              "end": 104,
+              "text": "M. vaccae NCTC 11659",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_6be0039b4f5a96",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 114,
+              "end": 130,
+              "text": "immunoregulation",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_9a229f179dee41",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 256,
+              "end": 276,
+              "text": "M. vaccae NCTC 11659",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_521a548aa8bbce",
+            "to_id": "pred_entity_6be0039b4f5a96",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PROMOTES"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9988190531730652,
+          "result": [
+            {
+              "id": "pred_entity_521a548aa8bbce",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 84,
+                "end": 104,
+                "text": "M. vaccae NCTC 11659",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_6be0039b4f5a96",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 114,
+                "end": 130,
+                "text": "immunoregulation",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_9a229f179dee41",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 256,
+                "end": 276,
+                "text": "M. vaccae NCTC 11659",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_521a548aa8bbce",
+              "to_id": "pred_entity_6be0039b4f5a96",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PROMOTES"
+              ]
+            },
+            {
+              "from_id": "pred_entity_9a229f179dee41",
+              "to_id": "pred_entity_6be0039b4f5a96",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PROMOTES"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Thus, MAC 101 can be considered as a standard strain to investigate M. avium infection studies.",
+      "candidate_id": "pmc_candidate_b3dd9942744184",
+      "review_rank": 113,
+      "review_tier": "high_unresolved",
+      "review_summary": "high_unresolved | STRAIN-SPECIES:INHIBITS | RE 1.000 | entity 0.929 | strain 0.976 | ontology unsupported",
+      "sampled_relation": "STRAIN-SPECIES:INHIBITS",
+      "pmcid": "PMC9890051",
+      "article_version": "PMC9890051.1",
+      "paragraph": 4,
+      "sentence_range": "9",
+      "ontology_status": "unsupported",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 44198,
+      "straininfo_taxon": "Mycobacterium avium",
+      "curation_status": "hard_negative",
+      "curation_notes": "MAC 101 is a standard strain used to investigate M. avium infection; it is not said to inhibit M. avium."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_b3dd9942744184",
+      "review_tier": "high_unresolved",
+      "seeded_entities": 2,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "hard_negative"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.9995025396347046,
+        "result": [
+          {
+            "id": "pred_entity_7faf67a879e598",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 6,
+              "end": 13,
+              "text": "MAC 101",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_3dfc194dd2b3f1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 68,
+              "end": 76,
+              "text": "M. avium",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_7faf67a879e598",
+            "to_id": "pred_entity_3dfc194dd2b3f1",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -21,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_7faf67a879e598",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 6,
+              "end": 13,
+              "text": "MAC 101",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_3dfc194dd2b3f1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 68,
+              "end": 76,
+              "text": "M. avium",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.9995025396347046,
+          "result": [
+            {
+              "id": "pred_entity_7faf67a879e598",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 6,
+                "end": 13,
+                "text": "MAC 101",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_3dfc194dd2b3f1",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 68,
+                "end": 76,
+                "text": "M. avium",
+                "labels": [
+                  "SPECIES"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_7faf67a879e598",
+              "to_id": "pred_entity_3dfc194dd2b3f1",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "In the present study both oxygen supply and temperature were shown to be key parameters affecting the fermentation capability of sugars in the K. marxianus CBS712 strain. In particular, a direct correlation was observed between the decreased efficiency to consume xylose with the reduced specific activity of the two main enzymes ( Km XR and Km XDH) involved in its catabolism.",
+      "candidate_id": "pmc_candidate_bc4d3c3a798cde",
+      "review_rank": 117,
+      "review_tier": "relation_boundary",
+      "review_summary": "relation_boundary | STRAIN-COMPOUND:DEGRADES | RE 0.581 | entity 0.979 | strain 0.982 | ontology matched",
+      "sampled_relation": "STRAIN-COMPOUND:DEGRADES",
+      "pmcid": "PMC3991920",
+      "article_version": "PMC3991920.1",
+      "paragraph": 4,
+      "sentence_range": "1-2",
+      "ontology_status": "matched",
+      "ontology": "CHEBI",
+      "ontology_id": "CHEBI:18222",
+      "ontology_label": "xylose",
+      "straininfo_si_id": 90379,
+      "straininfo_taxon": "Kluyveromyces marxianus",
+      "curation_status": "accepted",
+      "curation_notes": "CBS712 fermentation capability and reduced xylose consumption/catabolism directly support both seeded relations."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_bc4d3c3a798cde",
+      "review_tier": "relation_boundary",
+      "seeded_entities": 3,
+      "seeded_relations": 2,
+      "curator": "Codex",
+      "curation_status": "accepted"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.5811842679977417,
+        "result": [
+          {
+            "id": "pred_entity_765b615a57695d",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 102,
+              "end": 135,
+              "text": "fermentation capability of sugars",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_b6cbe6de620122",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 143,
+              "end": 162,
+              "text": "K. marxianus CBS712",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_8c397adfc5f894",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 264,
+              "end": 270,
+              "text": "xylose",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_b6cbe6de620122",
+            "to_id": "pred_entity_765b615a57695d",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          },
+          {
+            "from_id": "pred_entity_b6cbe6de620122",
+            "to_id": "pred_entity_8c397adfc5f894",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "DEGRADES"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -22,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_765b615a57695d",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 102,
+              "end": 135,
+              "text": "fermentation capability of sugars",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_b6cbe6de620122",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 143,
+              "end": 162,
+              "text": "K. marxianus CBS712",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_8c397adfc5f894",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 264,
+              "end": 270,
+              "text": "xylose",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_b6cbe6de620122",
+            "to_id": "pred_entity_765b615a57695d",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          },
+          {
+            "from_id": "pred_entity_b6cbe6de620122",
+            "to_id": "pred_entity_8c397adfc5f894",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "DEGRADES"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.5811842679977417,
+          "result": [
+            {
+              "id": "pred_entity_765b615a57695d",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 102,
+                "end": 135,
+                "text": "fermentation capability of sugars",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_b6cbe6de620122",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 143,
+                "end": 162,
+                "text": "K. marxianus CBS712",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_8c397adfc5f894",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 264,
+                "end": 270,
+                "text": "xylose",
+                "labels": [
+                  "COMPOUND"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_b6cbe6de620122",
+              "to_id": "pred_entity_765b615a57695d",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            },
+            {
+              "from_id": "pred_entity_b6cbe6de620122",
+              "to_id": "pred_entity_8c397adfc5f894",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "DEGRADES"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "This synergistic and specific interaction of the three described enzymes from P. copri DSM 18205 might imply a competitive advantage developed by this microorganism to utilize xylan fraction of diary fibers in the complex environment of the mammalian gut.",
+      "candidate_id": "pmc_candidate_90a3990f169cc8",
+      "review_rank": 119,
+      "review_tier": "relation_boundary",
+      "review_summary": "relation_boundary | STRAIN-COMPOUND:DEGRADES | RE 0.520 | entity 0.962 | strain 0.996 | ontology matched",
+      "sampled_relation": "STRAIN-COMPOUND:DEGRADES",
+      "pmcid": "PMC8631079",
+      "article_version": "PMC8631079.1",
+      "paragraph": 76,
+      "sentence_range": "6",
+      "ontology_status": "matched",
+      "ontology": "CHEBI",
+      "ontology_id": "CHEBI:37166",
+      "ontology_label": "xylan",
+      "straininfo_si_id": 308623,
+      "straininfo_taxon": "Prevotella copri",
+      "curation_status": "accepted",
+      "curation_notes": "The strain's enzymes are described as enabling utilization of xylan, supporting DEGRADES."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_90a3990f169cc8",
+      "review_tier": "relation_boundary",
+      "seeded_entities": 2,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "accepted"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.5197650790214539,
+        "result": [
+          {
+            "id": "pred_entity_8d6d83c88082a0",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 78,
+              "end": 96,
+              "text": "P. copri DSM 18205",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_da8183334894ed",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 176,
+              "end": 181,
+              "text": "xylan",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_8d6d83c88082a0",
+            "to_id": "pred_entity_da8183334894ed",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "DEGRADES"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -23,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_8d6d83c88082a0",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 78,
+              "end": 96,
+              "text": "P. copri DSM 18205",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_da8183334894ed",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 176,
+              "end": 181,
+              "text": "xylan",
+              "labels": [
+                "COMPOUND"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_8d6d83c88082a0",
+            "to_id": "pred_entity_da8183334894ed",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "DEGRADES"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.5197650790214539,
+          "result": [
+            {
+              "id": "pred_entity_8d6d83c88082a0",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 78,
+                "end": 96,
+                "text": "P. copri DSM 18205",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_da8183334894ed",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 176,
+                "end": 181,
+                "text": "xylan",
+                "labels": [
+                  "COMPOUND"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_8d6d83c88082a0",
+              "to_id": "pred_entity_da8183334894ed",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "DEGRADES"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Building upon the observed microbial dysbiosis in IBD patients—particularly the significant enrichment of beneficial species such as Christensenella intestinihominis in the healthy control (HC) group (Fig. 1D, E ), which was markedly depleted in UC patients—we selected AF73-05CM02 for therapeutic evaluation in a dextran sulfate sodium (DSS)-induced colitis model 33 .",
+      "candidate_id": "pmc_candidate_050af93ac8605c",
+      "review_rank": 130,
+      "review_tier": "relation_boundary",
+      "review_summary": "relation_boundary | STRAIN-DISEASE:INHIBITS | RE 0.522 | entity 0.910 | strain 0.978 | ontology matched",
+      "sampled_relation": "STRAIN-DISEASE:INHIBITS",
+      "pmcid": "PMC13265760",
+      "article_version": "PMC13265760.1",
+      "paragraph": 16,
+      "sentence_range": "1",
+      "ontology_status": "matched",
+      "ontology": "MONDO",
+      "ontology_id": "MONDO:0005265",
+      "ontology_label": "inflammatory bowel disease",
+      "straininfo_si_id": 399843,
+      "straininfo_taxon": "Christensenella intestinihominis",
+      "curation_status": "hard_negative",
+      "curation_notes": "Selection for later therapeutic evaluation does not establish that AF73-05CM02 inhibits IBD."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_050af93ac8605c",
+      "review_tier": "relation_boundary",
+      "seeded_entities": 4,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "hard_negative"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.5217757821083069,
+        "result": [
+          {
+            "id": "pred_entity_bfbb4b2157c06c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 50,
+              "end": 53,
+              "text": "IBD",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_97712762063386",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 133,
+              "end": 165,
+              "text": "Christensenella intestinihominis",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_79b45e3df7cbf5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 246,
+              "end": 248,
+              "text": "UC",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_0458081a81e79b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 270,
+              "end": 281,
+              "text": "AF73-05CM02",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_0458081a81e79b",
+            "to_id": "pred_entity_bfbb4b2157c06c",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -24,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_bfbb4b2157c06c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 50,
+              "end": 53,
+              "text": "IBD",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_97712762063386",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 133,
+              "end": 165,
+              "text": "Christensenella intestinihominis",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_79b45e3df7cbf5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 246,
+              "end": 248,
+              "text": "UC",
+              "labels": [
+                "DISEASE"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_0458081a81e79b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 270,
+              "end": 281,
+              "text": "AF73-05CM02",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.5217757821083069,
+          "result": [
+            {
+              "id": "pred_entity_bfbb4b2157c06c",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 50,
+                "end": 53,
+                "text": "IBD",
+                "labels": [
+                  "DISEASE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_97712762063386",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 133,
+                "end": 165,
+                "text": "Christensenella intestinihominis",
+                "labels": [
+                  "SPECIES"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_79b45e3df7cbf5",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 246,
+                "end": 248,
+                "text": "UC",
+                "labels": [
+                  "DISEASE"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_0458081a81e79b",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 270,
+                "end": 281,
+                "text": "AF73-05CM02",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_0458081a81e79b",
+              "to_id": "pred_entity_bfbb4b2157c06c",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Only the Pinot Noir leaves and stem explants transformed with R. rhizogenes ATCC15834 by immersion in the bacterial suspension or by wounding with an infected scalpel yielded a particularly large amount of transformed roots. Over the 200 explants tested, several hundreds of roots developed after two weeks, mostly along the petioles and leaf veins.",
+      "candidate_id": "pmc_candidate_0dc811a8d53d45",
+      "review_rank": 135,
+      "review_tier": "relation_boundary",
+      "review_summary": "relation_boundary | STRAIN-ORGANISM:INFECTS | RE 0.533 | entity 0.979 | strain 0.981 | ontology unsupported",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC6273728",
+      "article_version": "PMC6273728.1",
+      "paragraph": 8,
+      "sentence_range": "1-2",
+      "ontology_status": "unsupported",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 444,
+      "straininfo_taxon": "Rhizobium rhizogenes",
+      "curation_status": "accepted",
+      "curation_notes": "Plant tissues were transformed by R. rhizogenes, supporting the configured host infection relation."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_0dc811a8d53d45",
+      "review_tier": "relation_boundary",
+      "seeded_entities": 2,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "accepted"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.532880961894989,
+        "result": [
+          {
+            "id": "pred_entity_a2b4da808ad695",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 9,
+              "end": 19,
+              "text": "Pinot Noir",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_fc98e720262109",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 62,
+              "end": 85,
+              "text": "R. rhizogenes ATCC15834",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_fc98e720262109",
+            "to_id": "pred_entity_a2b4da808ad695",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -25,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_a2b4da808ad695",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 9,
+              "end": 19,
+              "text": "Pinot Noir",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_fc98e720262109",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 62,
+              "end": 85,
+              "text": "R. rhizogenes ATCC15834",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_fc98e720262109",
+            "to_id": "pred_entity_a2b4da808ad695",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.532880961894989,
+          "result": [
+            {
+              "id": "pred_entity_a2b4da808ad695",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 9,
+                "end": 19,
+                "text": "Pinot Noir",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_fc98e720262109",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 62,
+                "end": 85,
+                "text": "R. rhizogenes ATCC15834",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_fc98e720262109",
+              "to_id": "pred_entity_a2b4da808ad695",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INFECTS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Also, MH96 is highly virulent against G. mellonella during intrahemocoelic infection but the LD 50 of a Yen-TC deficient strain (ΔTC) was comparable to that of wild type (∼3 cells). It was also found that both wild type and ΔTC had the same ability to reduce the phenoloxidase activity of G. mellonella hemolymph 24 hpi, findings that suggest the presence of additional hemocytic VFs during intrahemocoelic infection by MH96 ( Hurst et al. 2015 ).",
+      "candidate_id": "pmc_candidate_f84a5119e790ac",
+      "review_rank": 137,
+      "review_tier": "relation_boundary",
+      "review_summary": "relation_boundary | STRAIN-ORGANISM:INFECTS | RE 0.644 | entity 0.992 | strain 0.985 | ontology unsupported",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC7849909",
+      "article_version": "PMC7849909.2",
+      "paragraph": 48,
+      "sentence_range": "6-7",
+      "ontology_status": "unsupported",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 377109,
+      "straininfo_taxon": "Yersinia entomophaga",
+      "curation_status": "accepted",
+      "curation_notes": "MH96 is explicitly described as virulent during intrahemocoelic infection of G. mellonella."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_f84a5119e790ac",
+      "review_tier": "relation_boundary",
+      "seeded_entities": 4,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "accepted"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.6444628238677979,
+        "result": [
+          {
+            "id": "pred_entity_e6fb5eb1f0e077",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 6,
+              "end": 10,
+              "text": "MH96",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_35dd7d838b6fd0",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 38,
+              "end": 51,
+              "text": "G. mellonella",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_bd49553aabeead",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 289,
+              "end": 302,
+              "text": "G. mellonella",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_cba96e8ce3eb88",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 420,
+              "end": 424,
+              "text": "MH96",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_e6fb5eb1f0e077",
+            "to_id": "pred_entity_35dd7d838b6fd0",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -26,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_e6fb5eb1f0e077",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 6,
+              "end": 10,
+              "text": "MH96",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_35dd7d838b6fd0",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 38,
+              "end": 51,
+              "text": "G. mellonella",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_bd49553aabeead",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 289,
+              "end": 302,
+              "text": "G. mellonella",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_cba96e8ce3eb88",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 420,
+              "end": 424,
+              "text": "MH96",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_e6fb5eb1f0e077",
+            "to_id": "pred_entity_35dd7d838b6fd0",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.6444628238677979,
+          "result": [
+            {
+              "id": "pred_entity_e6fb5eb1f0e077",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 6,
+                "end": 10,
+                "text": "MH96",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_35dd7d838b6fd0",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 38,
+                "end": 51,
+                "text": "G. mellonella",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_bd49553aabeead",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 289,
+                "end": 302,
+                "text": "G. mellonella",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_cba96e8ce3eb88",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 420,
+                "end": 424,
+                "text": "MH96",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_e6fb5eb1f0e077",
+              "to_id": "pred_entity_35dd7d838b6fd0",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INFECTS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Similarly, Friedman et al. ( 2017 ) reported that plant extracts rich in phytochemicals had inhibitory potential against E. coli O157:H7 but not against Salmonella enterica in an essential oil/wine mixture, suggesting some synergistic effects of the phytochemicals present in plant extracts, components of added essential oils or natively present in the food wine (Rota et al., 2008 ).",
+      "candidate_id": "pmc_candidate_4cde432284de0d",
+      "review_rank": 149,
+      "review_tier": "relation_boundary",
+      "review_summary": "relation_boundary | STRAIN-SPECIES:INHIBITS | RE 0.623 | entity 0.920 | strain 0.983 | ontology unsupported",
+      "sampled_relation": "STRAIN-SPECIES:INHIBITS",
+      "pmcid": "PMC5511825",
+      "article_version": "PMC5511825.1",
+      "paragraph": 45,
+      "sentence_range": "3",
+      "ontology_status": "unsupported",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 362271,
+      "straininfo_taxon": "Paraliobacillus ryukyuensis",
+      "curation_status": "hard_negative",
+      "curation_notes": "Plant extracts, not E. coli O157:H7, provide the inhibition, and Salmonella is explicitly not inhibited."
+    },
+    "meta": {
+      "source": "full_pmc_model_prediction",
+      "candidate_id": "pmc_candidate_4cde432284de0d",
+      "review_tier": "relation_boundary",
+      "seeded_entities": 2,
+      "seeded_relations": 1,
+      "curator": "Codex",
+      "curation_status": "hard_negative"
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-2509-ontology-review",
+        "score": 0.6226887702941895,
+        "result": [
+          {
+            "id": "pred_entity_4f4638d25eb48b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 121,
+              "end": 136,
+              "text": "E. coli O157:H7",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_bea2fa187f8367",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 153,
+              "end": 172,
+              "text": "Salmonella enterica",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_4f4638d25eb48b",
+            "to_id": "pred_entity_bea2fa187f8367",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "id": -27,
+        "completed_by": "Codex",
+        "result": [
+          {
+            "id": "pred_entity_4f4638d25eb48b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 121,
+              "end": 136,
+              "text": "E. coli O157:H7",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_bea2fa187f8367",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 153,
+              "end": 172,
+              "text": "Salmonella enterica",
+              "labels": [
+                "SPECIES"
+              ]
+            }
+          }
+        ],
+        "ground_truth": true,
+        "was_cancelled": false,
+        "lead_time": 0.0,
+        "prediction": {
+          "model_version": "NLP4Pheno-2509-ontology-review",
+          "score": 0.6226887702941895,
+          "result": [
+            {
+              "id": "pred_entity_4f4638d25eb48b",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 121,
+                "end": 136,
+                "text": "E. coli O157:H7",
+                "labels": [
+                  "STRAIN"
+                ]
+              }
+            },
+            {
+              "id": "pred_entity_bea2fa187f8367",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 153,
+                "end": 172,
+                "text": "Salmonella enterica",
+                "labels": [
+                  "SPECIES"
+                ]
+              }
+            },
+            {
+              "from_id": "pred_entity_4f4638d25eb48b",
+              "to_id": "pred_entity_bea2fa187f8367",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+]
