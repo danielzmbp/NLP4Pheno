@@ -7,7 +7,10 @@ submits two dependent Slurm jobs:
    environment, downloads BioLinkBERT-large, caches the Hugging Face evaluation
    modules used during training, snapshots the pinned StrainInfo catalog, and
    builds the versioned ontology alias index used by postprocessing.
-2. `run_model_pipeline.sbatch` runs as an offline controller and executes, in
+2. `link_annotations.sbatch` scans the exact PMC corpus on `nbi-medium` and
+   recovers unambiguous article provenance for annotation texts. Training
+   splits use those PMCIDs as groups to prevent source-article leakage.
+3. `run_model_pipeline.sbatch` runs as an offline controller and executes, in
    order, `ner.smk`, `rel.smk`, `ner_pred.smk`, and `rel_pred.smk`. Snakemake
    sends GPU rules to `ei-gpu`, CPU rules to `nbi-medium`, and the one online
    StrainInfo assembly-resolution rule back to `nbi-download`.
@@ -67,10 +70,15 @@ export NLP4PHENO_ENV_PREFIX=/shared/path/nlp4pheno-conda
 export NLP4PHENO_HF_HOME=/shared/path/huggingface-cache
 export NLP4PHENO_DRY_RUN=1
 export NLP4PHENO_REFRESH_ONTOLOGIES=1
+export NLP4PHENO_LINK_ANNOTATIONS=0
 ```
 
 `NLP4PHENO_REFRESH_ONTOLOGIES=1` intentionally downloads fresh ontology
 releases; omit it to reuse the local snapshots and their manifest.
+
+`NLP4PHENO_LINK_ANNOTATIONS=0` skips provenance regeneration and should only be
+used when the configured match Parquet already corresponds to the exact
+annotation export and PMC corpus used by the run.
 
 `NLP4PHENO_STAGES` makes a retry or partial run straightforward. For example,
 after training has completed:

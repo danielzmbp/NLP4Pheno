@@ -29,7 +29,7 @@ cases plus one low-complexity representative from each remaining
 relation/error stratum, for 55 tasks total. The other 69 candidates remain in
 the source queue for later rounds.
 
-The local Label Studio project is **PMC model prediction audit — batch 1**
+The local Label Studio project was **PMC model prediction audit — batch 1**
 (project 4):
 
 <http://127.0.0.1:8080/projects/4/data>
@@ -37,6 +37,44 @@ The local Label Studio project is **PMC model prediction audit — batch 1**
 Predictions are suggestions. Before submitting a task, check all displayed
 entities and relations, remove false predictions, add missed entities, and add
 any other supported configured relations within the text.
+
+## Completed review
+
+All 55 human-review tasks were submitted on 2026-07-26. The untouched Label
+Studio export is `reviewed-export-2026-07-26.json`. A complete second semantic
+pass corrected 33 tasks without modifying that source export:
+
+- 8 missed entities were added, 12 false entities removed, and 22 entity
+  boundaries or labels corrected;
+- 17 missed relations were added and 22 false or malformed relations removed;
+- the corrected 55-task export has no invalid or mismatched spans, duplicate
+  spans or relations, missing endpoints, unlabeled relations, or relation types
+  outside `config.yaml`.
+
+Every second-pass change and its rationale is recorded in
+`second-pass-corrections.json`; `second-pass-report.json` is the generated
+summary. Reproduce the corrected export with:
+
+```bash
+python scripts/apply_annotation_corrections.py \
+  label/review_queue/prediction_batch1/reviewed-export-2026-07-26.json \
+  label/review_queue/prediction_batch1/second-pass-corrections.json \
+  --output label/review_queue/prediction_batch1/reviewed-export-2026-07-26-second-pass.json \
+  --report label/review_queue/prediction_batch1/second-pass-report.json
+```
+
+The 27 Codex-curated tasks and 55 corrected human-reviewed tasks were appended
+to the previous 3,979-task gold export. The new versioned training file is
+`label/project-10-reviewed-2026-07-26.json` with 4,061 tasks:
+
+```bash
+python scripts/append_prediction_reviews.py \
+  label/project-10-reviewed-2026-07-23.json \
+  --reviewed label/review_queue/prediction_batch1/codex-curated.json \
+  --reviewed label/review_queue/prediction_batch1/reviewed-export-2026-07-26-second-pass.json \
+  --output label/project-10-reviewed-2026-07-26.json \
+  --report label/review_queue/prediction_batch1/append-report.json
+```
 
 Regenerate the source batch on a machine containing the full prediction files:
 
@@ -64,6 +102,5 @@ python scripts/apply_prediction_curation.py \
   --report label/review_queue/prediction_batch1/curation-report.json
 ```
 
-After the Label Studio review is exported, append it together with the
-Codex-curated tasks to a new versioned annotation file using
-`scripts/append_prediction_reviews.py`. Never overwrite the 2026-07-23 source.
+Never overwrite the 2026-07-23 source export; it is the reproducible parent of
+the new version.
