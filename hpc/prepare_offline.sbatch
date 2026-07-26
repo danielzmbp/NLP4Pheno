@@ -137,7 +137,6 @@ for path in (
     "resources/straininfo/strains.parquet",
     "resources/straininfo/designations.parquet",
     "resources/straininfo/designations_union.parquet",
-    "resources/ontologies/runtime/terms.parquet",
     "resources/ontologies/runtime/aliases.parquet",
 ):
     metadata = pq.read_metadata(path)

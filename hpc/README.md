@@ -127,7 +127,9 @@ strings remain text nodes. The `rel_ground_runtime` and `rel_ground_mem_mb`
 settings control this CPU job. The workflow retains the original text network
 and additionally writes `network_ontology.tsv`,
 `network_ontology_pmc.tsv`, an auditable mapping Parquet, and a JSON coverage
-summary.
+summary. The runtime requirement is `aliases.parquet` plus `manifest.json`;
+`terms.parquet` is a build intermediate and is not required when reusing a
+prepared index.
 
 ## Monitor
 
