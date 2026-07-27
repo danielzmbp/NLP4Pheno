@@ -9,7 +9,9 @@ submits two dependent Slurm jobs:
    builds the versioned ontology alias index used by postprocessing.
 2. `link_annotations.sbatch` scans the exact PMC corpus on `nbi-medium` and
    recovers unambiguous article provenance for annotation texts. Training
-   splits use those PMCIDs as groups to prevent source-article leakage.
+   splits use those PMCIDs as groups to prevent source-article leakage. The
+   matcher forces Polars' streaming engine so the full text column is not
+   materialized in memory.
 3. `run_model_pipeline.sbatch` runs as an offline controller and executes, in
    order, `ner.smk`, `rel.smk`, `ner_pred.smk`, and `rel_pred.smk`. Snakemake
    sends GPU rules to `ei-gpu`, CPU rules to `nbi-medium`, and the one online

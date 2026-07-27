@@ -92,7 +92,12 @@ def match_annotations(
             "match_kind",
         )
         .agg(pl.len().alias("occurrences"))
-        .collect()
+        # The PMC corpus is tens of gigabytes. The default in-memory engine can
+        # materialize the projected text column and exceed 64 GB even though
+        # the final literal-match table is small. Force Polars' streaming
+        # engine so Parquet row groups are matched and aggregated in bounded
+        # batches.
+        .collect(engine="streaming")
     )
 
     if occurrences.height:

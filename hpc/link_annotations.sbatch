@@ -19,6 +19,7 @@ conda_base="$(conda info --base)"
 # shellcheck disable=SC1091
 source "${conda_base}/etc/profile.d/conda.sh"
 conda activate "${NLP4PHENO_ENV_PREFIX}"
+export POLARS_MAX_THREADS="${SLURM_CPUS_PER_TASK:-4}"
 
 readarray -t annotation_paths < <(
     python - <<'PY'
