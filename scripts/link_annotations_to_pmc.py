@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 import polars as pl
+import pyarrow.dataset as ds
 
 from annotation_utils import load_annotations
 
@@ -54,51 +55,87 @@ def annotation_frame(tasks: list[dict[str, Any]]) -> pl.DataFrame:
 def match_annotations(
     tasks: list[dict[str, Any]],
     corpus_paths: list[str | Path],
+    *,
+    batch_size: int = 65_536,
 ) -> tuple[pl.DataFrame, dict[str, Any]]:
     """Return all literal annotation occurrences and a task-level summary."""
+    if batch_size < 1:
+        raise ValueError(f"batch_size must be positive, received {batch_size}")
     annotations = annotation_frame(tasks)
     patterns = annotations.get_column("annotation_text").unique().implode()
 
-    corpus = pl.scan_parquet([str(path) for path in corpus_paths])
-    missing = set(PROVENANCE_COLUMNS) - set(corpus.collect_schema().names())
+    corpus = ds.dataset([str(path) for path in corpus_paths], format="parquet")
+    missing = set(PROVENANCE_COLUMNS) - set(corpus.schema.names)
     if missing:
         raise ValueError(f"Corpus is missing required columns: {sorted(missing)}")
 
-    occurrences = (
-        corpus.select(
+    occurrence_batches: list[pl.DataFrame] = []
+    scanner = corpus.scanner(columns=PROVENANCE_COLUMNS, batch_size=batch_size)
+    for batch in scanner.to_batches():
+        corpus_batch = pl.from_arrow(batch)
+        matched = (
+            corpus_batch.select(
             *[pl.col(column) for column in PROVENANCE_COLUMNS[:-1]],
             pl.col("text").str.replace_all(r"\s+", " ").str.strip_chars().alias("corpus_text"),
+            )
+            .with_columns(
+                pl.col("corpus_text")
+                .str.extract_many(patterns)
+                .alias("annotation_text")
+            )
+            .filter(pl.col("annotation_text").list.len() > 0)
+            .explode("annotation_text", empty_as_null=False)
+            .join(annotations, on="annotation_text", how="inner")
+            .with_columns(
+                pl.when(pl.col("corpus_text") == pl.col("annotation_text"))
+                .then(pl.lit("row_exact"))
+                .otherwise(pl.lit("contained_exact"))
+                .alias("match_kind")
+            )
+            .group_by(
+                "task_id",
+                "annotation_text",
+                "pmcid",
+                "article_version",
+                "section",
+                "paragraph",
+                "sentence_range",
+                "match_kind",
+            )
+            .agg(pl.len().alias("occurrences"))
         )
-        .with_columns(
-            pl.col("corpus_text").str.extract_many(patterns).alias("annotation_text")
+        if matched.height:
+            occurrence_batches.append(matched)
+
+    if occurrence_batches:
+        occurrences = (
+            pl.concat(occurrence_batches, how="vertical_relaxed")
+            .group_by(
+                "task_id",
+                "annotation_text",
+                "pmcid",
+                "article_version",
+                "section",
+                "paragraph",
+                "sentence_range",
+                "match_kind",
+            )
+            .agg(pl.col("occurrences").sum())
         )
-        .filter(pl.col("annotation_text").list.len() > 0)
-        .explode("annotation_text", empty_as_null=False)
-        .join(annotations.lazy(), on="annotation_text", how="inner")
-        .with_columns(
-            pl.when(pl.col("corpus_text") == pl.col("annotation_text"))
-            .then(pl.lit("row_exact"))
-            .otherwise(pl.lit("contained_exact"))
-            .alias("match_kind")
+    else:
+        occurrences = pl.DataFrame(
+            schema={
+                "task_id": pl.String,
+                "annotation_text": pl.String,
+                "pmcid": pl.String,
+                "article_version": pl.String,
+                "section": pl.String,
+                "paragraph": pl.Int64,
+                "sentence_range": pl.String,
+                "match_kind": pl.String,
+                "occurrences": pl.UInt64,
+            }
         )
-        .group_by(
-            "task_id",
-            "annotation_text",
-            "pmcid",
-            "article_version",
-            "section",
-            "paragraph",
-            "sentence_range",
-            "match_kind",
-        )
-        .agg(pl.len().alias("occurrences"))
-        # The PMC corpus is tens of gigabytes. The default in-memory engine can
-        # materialize the projected text column and exceed 64 GB even though
-        # the final literal-match table is small. Force Polars' streaming
-        # engine so Parquet row groups are matched and aggregated in bounded
-        # batches.
-        .collect(engine="streaming")
-    )
 
     if occurrences.height:
         task_counts = occurrences.group_by("task_id").agg(
@@ -148,12 +185,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("corpus", nargs="+", type=Path)
     parser.add_argument("--matches-output", required=True, type=Path)
     parser.add_argument("--summary-output", required=True, type=Path)
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=65_536,
+        help="Arrow rows processed per bounded matching batch",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    matches, summary = match_annotations(load_annotations(args.annotations), args.corpus)
+    matches, summary = match_annotations(
+        load_annotations(args.annotations),
+        args.corpus,
+        batch_size=args.batch_size,
+    )
     args.matches_output.parent.mkdir(parents=True, exist_ok=True)
     args.summary_output.parent.mkdir(parents=True, exist_ok=True)
     matches.write_parquet(args.matches_output, compression="zstd")
