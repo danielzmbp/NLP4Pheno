@@ -13,6 +13,7 @@ from straininfo_matching import (  # noqa: E402
     resolve_candidates,
     resolve_mentions,
     scientific_name_hint,
+    serotype_like_key,
     taxon_compatible,
 )
 
@@ -31,6 +32,20 @@ class StrainInfoMatchingTests(unittest.TestCase):
         )
         self.assertFalse(
             taxon_compatible("A. baumannii ATCC 17978", "Bacillus pumilus")
+        )
+
+    def test_taxon_hint_accepts_lowercase_normalized_mention(self):
+        self.assertEqual(
+            scientific_name_hint("e. coli o157:h7"), ("e", "coli")
+        )
+        self.assertTrue(
+            taxon_compatible("e. coli atcc 25922", "Escherichia coli")
+        )
+        self.assertFalse(
+            taxon_compatible(
+                "e. coli o157:h7",
+                "Paraliobacillus ryukyuensis",
+            )
         )
 
     def test_exact_alias_is_unique(self):
@@ -68,6 +83,58 @@ class StrainInfoMatchingTests(unittest.TestCase):
             ],
         )
         self.assertEqual(result["status"], "unique")
+
+    def test_serotype_alias_is_never_treated_as_a_strain_identifier(self):
+        self.assertTrue(serotype_like_key("O157"))
+        candidate = {
+            "designation_key": "O157",
+            "si_id": 362271,
+            "taxon": "Paraliobacillus ryukyuensis",
+            "type_strain": True,
+        }
+        self.assertEqual(
+            resolve_candidates("O157", [candidate])["status"],
+            "unmatched",
+        )
+        self.assertEqual(
+            resolve_candidates("e. coli o157:h7", [candidate])["status"],
+            "unmatched",
+        )
+
+    def test_short_other_designation_requires_taxonomic_support(self):
+        result = resolve_candidates(
+            "SA187",
+            [
+                {
+                    "designation_key": "SA187",
+                    "si_id": 63472,
+                    "taxon": "Trichophyton mentagrophytes",
+                    "type_strain": False,
+                    "in_compact": False,
+                    "in_detailed_deposit": False,
+                    "in_detailed_other": True,
+                }
+            ],
+        )
+        self.assertEqual(result["status"], "unmatched")
+        self.assertEqual(result["method"], "exact_weak_rejected")
+
+    def test_short_type_strain_designation_remains_eligible(self):
+        result = resolve_candidates(
+            "B. amyloliquefaciens FZB42",
+            [
+                {
+                    "designation_key": "FZB42",
+                    "si_id": 378027,
+                    "taxon": "Bacillus velezensis",
+                    "type_strain": True,
+                    "in_compact": False,
+                    "in_detailed_deposit": False,
+                }
+            ],
+        )
+        self.assertEqual(result["status"], "unique")
+        self.assertEqual(result["si_id"], 378027)
 
     def test_taxonomy_resolves_alias_collision(self):
         candidates = [

@@ -91,6 +91,7 @@ rule all:
         f"{preds}/REL_output/strains_assemblies.txt",
         f"{preds}/network.tsv",
         f"{preds}/network_pmc.tsv",
+        f"{preds}/REL_output/reconciliation_summary.json",
         f"{preds}/REL_output/preds_straininfo_grounded.pqt",
         f"{preds}/REL_output/ontology_groundings.parquet",
         f"{preds}/REL_output/ontology_grounding_summary.json",
@@ -244,9 +245,30 @@ rule group_entities:
         """
 
 
+rule reconcile_relation_predictions:
+    input:
+        f"{preds}/REL_output/preds_straininfo_grouped.pqt",
+    output:
+        reconciled=f"{preds}/REL_output/preds_straininfo_reconciled.pqt",
+        summary=f"{preds}/REL_output/reconciliation_summary.json",
+    resources:
+        slurm_partition=CPU_PARTITION,
+        runtime=REL_GROUP_RUNTIME,
+        mem_mb=REL_GROUP_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/reconcile_relation_predictions.py \
+          {input} \
+          --output {output.reconciled} \
+          --summary {output.summary}
+        """
+
+
 rule ground_ontology:
     input:
-        predictions=f"{preds}/REL_output/preds_straininfo_grouped.pqt",
+        predictions=f"{preds}/REL_output/preds_straininfo_reconciled.pqt",
         aliases=ontology_aliases,
         manifest=ontology_manifest,
     output:
@@ -273,7 +295,7 @@ rule ground_ontology:
 
 rule resolve_straininfo_assemblies:
     input:
-        f"{preds}/REL_output/preds_straininfo_grouped.pqt",
+        f"{preds}/REL_output/preds_straininfo_reconciled.pqt",
     output:
         assemblies=f"{preds}/straininfo/assemblies.parquet",
         manifest=f"{preds}/REL_output/strains_assemblies.txt",
@@ -289,7 +311,7 @@ rule resolve_straininfo_assemblies:
 
 rule link_pmc:
     input:
-        f"{preds}/REL_output/preds_straininfo_grouped.pqt",
+        f"{preds}/REL_output/preds_straininfo_reconciled.pqt",
         pmc_file,
     output:
         f"{preds}/REL_output/preds_straininfo_grouped_pmc.pqt",
@@ -310,7 +332,7 @@ rule link_pmc:
 
 rule create_network:
     input:
-        f"{preds}/REL_output/preds_straininfo_grouped.pqt",
+        f"{preds}/REL_output/preds_straininfo_reconciled.pqt",
     output:
         f"{preds}/network.tsv",
         f"{preds}/strains.txt",

@@ -50,8 +50,10 @@ def match_predictions(
     matched_rows = output.filter(pl.col("straininfo_si_id").is_not_null()).height
     summary = {
         "policy": (
-            "strong exact or token-bounded alias; weak exact aliases require taxonomy; "
-            "taxonomy and compact provenance resolve collisions; no fuzzy fallback"
+            "serotype labels are rejected; long aliases or authoritative short "
+            "designations may match exactly; short contained aliases require "
+            "authoritative provenance or compatible taxonomy; explicit taxonomy "
+            "contradictions are rejected; no fuzzy fallback"
         ),
         "prediction_rows": predictions.height,
         "matched_prediction_rows": matched_rows,

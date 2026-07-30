@@ -16,20 +16,48 @@ import polars as pl
 
 
 NON_ALNUM = re.compile(r"[^A-Z0-9]+")
+SEROTYPE_LIKE = re.compile(r"^[OHK]\d+(?:[OHK]\d+)*$")
 SCIENTIFIC_NAME = re.compile(
-    r"\b(?P<genus>[A-Z][a-z]+|[A-Z])\.?\s+(?P<species>[a-z][a-z-]+)\b"
+    r"\b(?P<genus>[A-Za-z][A-Za-z-]+|[A-Za-z])\.?\s+"
+    r"(?P<species>[A-Za-z][A-Za-z-]+)\b",
+    re.IGNORECASE,
 )
 GENUS_BEFORE_DESIGNATION = re.compile(
-    r"\b(?P<genus>[A-Z][a-z]{2,})\s+(?=(?:strain\s+)?[A-Z0-9][A-Za-z0-9._#/+-]*\b)"
+    r"\b(?P<genus>[A-Za-z][A-Za-z-]{2,})\s+"
+    r"(?=(?:strain\s+)?[A-Za-z0-9][A-Za-z0-9._#/+-]*\b)",
+    re.IGNORECASE,
 )
 NON_TAXONOMIC_GENUS_WORDS = {
-    "Culture",
-    "Isolate",
-    "Mutant",
-    "Sample",
-    "Strain",
-    "Type",
+    "atcc",
+    "cbs",
+    "ccm",
+    "cctcc",
+    "ccug",
+    "cect",
+    "cip",
+    "clinical",
+    "culture",
+    "dsm",
+    "environmental",
+    "iam",
+    "ifm",
+    "isolate",
+    "jcm",
+    "kctc",
+    "laboratory",
+    "lmg",
+    "mtcc",
+    "mutant",
+    "nbrc",
+    "nctc",
+    "pcm",
+    "reference",
+    "sample",
+    "strain",
+    "type",
+    "unknown",
 }
+NON_SPECIFIC_SPECIES_WORDS = {"sp", "spp", "species"}
 
 
 def designation_key(value: str) -> str:
@@ -40,7 +68,7 @@ def designation_key(value: str) -> str:
 def eligible_contained_key(key: str) -> bool:
     """Reject aliases too weak to recognize safely inside a longer mention."""
     return (
-        len(key) >= 4
+        len(key) >= 6
         and any(character.isalpha() for character in key)
         and any(character.isdigit() for character in key)
     )
@@ -48,7 +76,20 @@ def eligible_contained_key(key: str) -> bool:
 
 def eligible_exact_key(key: str) -> bool:
     """Require enough identifying structure for an uncontextualized exact match."""
-    return len(key) >= 4 and any(character.isalpha() for character in key)
+    return len(key) >= 6 and any(character.isalpha() for character in key)
+
+
+def serotype_like_key(key: str) -> bool:
+    """Reject serogroup/serotype labels that do not identify one strain."""
+    return SEROTYPE_LIKE.fullmatch(key) is not None
+
+
+def strong_catalog_support(row: Mapping[str, Any]) -> bool:
+    """Return whether a short alias has authoritative catalogue provenance."""
+    return any(
+        row.get(field) is True
+        for field in ("type_strain", "in_compact", "in_detailed_deposit")
+    )
 
 
 def _normalized_positions(value: str) -> tuple[str, list[int]]:
@@ -83,18 +124,20 @@ def has_complete_occurrence(mention: str, key: str) -> bool:
 
 def scientific_name_hint(value: str) -> tuple[str, str] | None:
     """Extract the first binomial-looking genus/species hint from text."""
-    match = SCIENTIFIC_NAME.search(value)
-    if match is None:
-        return None
-    return match.group("genus").lower(), match.group("species").lower()
+    for match in SCIENTIFIC_NAME.finditer(value):
+        genus = match.group("genus").lower()
+        if genus not in NON_TAXONOMIC_GENUS_WORDS:
+            return genus, match.group("species").lower()
+    return None
 
 
 def scientific_genus_hint(value: str) -> str | None:
     """Extract a full genus immediately before a strain-like designation."""
     match = GENUS_BEFORE_DESIGNATION.search(value)
-    if match is None or match.group("genus") in NON_TAXONOMIC_GENUS_WORDS:
+    if match is None:
         return None
-    return match.group("genus").lower()
+    genus = match.group("genus").lower()
+    return None if genus in NON_TAXONOMIC_GENUS_WORDS else genus
 
 
 def taxon_compatible(mention: str, taxon: str | None) -> bool | None:
@@ -118,7 +161,16 @@ def taxon_compatible(mention: str, taxon: str | None) -> bool | None:
         if len(hint_genus) > 1
         else hint_genus[0] == taxon_genus[0]
     )
-    return genus_matches and hint_species == taxon_species
+    if not genus_matches:
+        return False
+    if hint_species in NON_SPECIFIC_SPECIES_WORDS:
+        return True
+    if hint_species == taxon_species:
+        return True
+    # Same-genus species disagreements are often nomenclature changes. They
+    # are not positive support, but should not overrule an authoritative
+    # collection or type-strain designation.
+    return None
 
 
 def _prefer_taxonomic_support(
@@ -151,8 +203,12 @@ def resolve_candidates(
         accepted = [
             row
             for row in accepted
-            if eligible_exact_key(row["designation_key"])
-            or taxon_compatible(mention, row.get("taxon")) is True
+            if not serotype_like_key(row["designation_key"])
+            and (
+                eligible_exact_key(row["designation_key"])
+                or strong_catalog_support(row)
+                or taxon_compatible(mention, row.get("taxon")) is True
+            )
         ]
         if not accepted:
             return {
@@ -168,7 +224,25 @@ def resolve_candidates(
         bounded = [
             row
             for row in rows
-            if eligible_contained_key(row["designation_key"])
+            if not serotype_like_key(row["designation_key"])
+            and (
+                eligible_contained_key(row["designation_key"])
+                or (
+                    len(row["designation_key"]) >= 4
+                    and any(
+                        character.isalpha()
+                        for character in row["designation_key"]
+                    )
+                    and any(
+                        character.isdigit()
+                        for character in row["designation_key"]
+                    )
+                    and (
+                        strong_catalog_support(row)
+                        or taxon_compatible(mention, row.get("taxon")) is True
+                    )
+                )
+            )
             and has_complete_occurrence(mention, row["designation_key"])
         ]
         bounded = _prefer_taxonomic_support(mention, bounded)

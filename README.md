@@ -325,10 +325,15 @@ measures resolvable coverage, not concept-level accuracy, so newly introduced
 sources should still be sampled before their matches are used in the final
 network.
 
-The relation workflow applies the same policy to every unique grouped entity
-string after `group_entities`. It preserves every prediction and its original
-`word_qc_group`, while adding the ontology ID, canonical label, match method,
-rule-based evidence strength, and ambiguity status. It produces:
+After `group_entities`, the relation workflow reconciles competing entity
+types for the same strain/entity/relation edge using mean joint NER/RE
+confidence. It also removes same-taxon `INHABITS`, `INFECTS`, and
+`SYMBIONT_OF` candidates, while retaining potentially meaningful conspecific
+`INHIBITS` predictions. `REL_output/reconciliation_summary.json` records the
+effect of this step. Ontology grounding then preserves every reconciled
+prediction and its original `word_qc_group`, while adding the ontology ID,
+canonical label, match method, rule-based evidence strength, and ambiguity
+status. It produces:
 
 - `REL_output/preds_straininfo_grounded.pqt`: row-preserving predictions with
   ontology columns.
@@ -345,6 +350,12 @@ The original `network.tsv` and `network_pmc.tsv` remain unchanged as a
 text-node baseline. `STRAIN` is still identified by StrainInfo, and
 `SPECIES`/`ORGANISM` remain explicitly unsupported until a taxonomy-aware
 resolver is added.
+
+StrainInfo matching rejects serogroup/serotype labels such as `O157` as strain
+identifiers. Taxonomy checks accept normalized lowercase scientific names,
+and short catalogue aliases require authoritative provenance or compatible
+taxonomy. This avoids turning common serotype or short laboratory labels into
+unrelated SI-IDs.
 
 For uniquely resolved SI-IDs, the detailed API can provide genome accessions.
 The resolver retains the response hash for each genome and selects one assembly
