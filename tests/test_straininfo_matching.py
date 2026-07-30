@@ -136,6 +136,26 @@ class StrainInfoMatchingTests(unittest.TestCase):
         self.assertEqual(result["status"], "unique")
         self.assertEqual(result["si_id"], 378027)
 
+    def test_short_type_strain_alias_requires_compatible_genus(self):
+        candidate = {
+            "designation_key": "BL21",
+            "si_id": 399905,
+            "taxon": "Acidovorax soli",
+            "type_strain": True,
+            "in_compact": False,
+            "in_detailed_deposit": False,
+        }
+        self.assertEqual(
+            resolve_candidates("BL21", [candidate])["status"], "unmatched"
+        )
+        self.assertEqual(
+            resolve_candidates("E. coli BL21", [candidate])["status"], "unmatched"
+        )
+        self.assertEqual(
+            resolve_candidates("Acidovorax soli BL21", [candidate])["status"],
+            "unique",
+        )
+
     def test_taxonomy_resolves_alias_collision(self):
         candidates = [
             {

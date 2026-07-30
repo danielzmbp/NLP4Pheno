@@ -51,9 +51,9 @@ def match_predictions(
     summary = {
         "policy": (
             "serotype labels are rejected; long aliases or authoritative short "
-            "designations may match exactly; short contained aliases require "
-            "authoritative provenance or compatible taxonomy; explicit taxonomy "
-            "contradictions are rejected; no fuzzy fallback"
+            "designations with compatible taxonomic context may match; short "
+            "aliases require compatible explicit genus/species context; explicit "
+            "taxonomy contradictions are rejected; no fuzzy fallback"
         ),
         "prediction_rows": predictions.height,
         "matched_prediction_rows": matched_rows,

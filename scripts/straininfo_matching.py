@@ -183,6 +183,32 @@ def taxon_compatible(mention: str, taxon: str | None) -> bool | None:
     return None
 
 
+def taxon_genus_compatible(mention: str, taxon: str | None) -> bool | None:
+    """Compare only explicit genus context for conservative short-alias use."""
+    hint = scientific_name_hint(mention)
+    genus_hint = scientific_genus_hint(mention) if hint is None else hint[0]
+    if genus_hint is None or not taxon:
+        return None
+    taxon_tokens = re.findall(r"[A-Za-z][A-Za-z-]*", taxon.lower())
+    if len(taxon_tokens) < 2:
+        return None
+    taxon_genus = taxon_tokens[0]
+    return (
+        genus_hint == taxon_genus
+        if len(genus_hint) > 1
+        else genus_hint[0] == taxon_genus[0]
+    )
+
+
+def short_alias_supported(mention: str, row: Mapping[str, Any]) -> bool:
+    """Require taxonomic context before accepting a 4–5 character alias."""
+    compatible = taxon_compatible(mention, row.get("taxon"))
+    return compatible is True or (
+        strong_catalog_support(row)
+        and taxon_genus_compatible(mention, row.get("taxon")) is True
+    )
+
+
 def _prefer_taxonomic_support(
     mention: str, rows: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
@@ -216,8 +242,7 @@ def resolve_candidates(
             if not serotype_like_key(row["designation_key"])
             and (
                 eligible_exact_key(row["designation_key"])
-                or strong_catalog_support(row)
-                or taxon_compatible(mention, row.get("taxon")) is True
+                or short_alias_supported(mention, row)
             )
         ]
         if not accepted:
@@ -247,10 +272,7 @@ def resolve_candidates(
                         character.isdigit()
                         for character in row["designation_key"]
                     )
-                    and (
-                        strong_catalog_support(row)
-                        or taxon_compatible(mention, row.get("taxon")) is True
-                    )
+                    and short_alias_supported(mention, row)
                 )
             )
             and has_complete_occurrence(mention, row["designation_key"])
