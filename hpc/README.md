@@ -93,6 +93,15 @@ bash hpc/submit_model_pipeline.sh
 Snakemake uses `--rerun-incomplete`, so rerunning the full list also resumes
 from valid outputs rather than starting from zero.
 
+To force a named rule and its downstream dependencies without deleting
+outputs, select the relevant stage and pass a space-separated rule list:
+
+```bash
+export NLP4PHENO_STAGES="rel_pred"
+export NLP4PHENO_FORCE_RULES="match_straininfo"
+bash hpc/submit_model_pipeline.sh
+```
+
 Full-corpus predictions use the `ner_prediction_runtime` limit in
 `hpc/config.nbi.yaml` (minutes) and `ner_prediction_mem_mb` host-memory limit.
 The default NBI configuration reserves seven hours and 32 GB per non-`STRAIN`

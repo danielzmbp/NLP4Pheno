@@ -18,6 +18,7 @@ set -euo pipefail
 
 NLP4PHENO_JOBS="${NLP4PHENO_JOBS:-48}"
 NLP4PHENO_STAGES="${NLP4PHENO_STAGES:-ner rel ner_pred rel_pred}"
+NLP4PHENO_FORCE_RULES="${NLP4PHENO_FORCE_RULES:-}"
 
 cd "${NLP4PHENO_PROJECT}"
 
@@ -78,6 +79,8 @@ fi
 run_stage() {
     local stage="$1"
     local snakefile
+    local -a stage_args=()
+    local -a force_rules=()
     case "${stage}" in
         ner) snakefile="ner.smk" ;;
         rel) snakefile="rel.smk" ;;
@@ -88,8 +91,12 @@ run_stage() {
             return 2
             ;;
     esac
+    if [[ -n "${NLP4PHENO_FORCE_RULES}" ]]; then
+        read -r -a force_rules <<< "${NLP4PHENO_FORCE_RULES}"
+        stage_args+=(--forcerun "${force_rules[@]}")
+    fi
     echo "===== Starting ${stage} with ${snakefile} at $(date --iso-8601=seconds) ====="
-    snakemake --snakefile "${snakefile}" "${common_args[@]}"
+    snakemake --snakefile "${snakefile}" "${common_args[@]}" "${stage_args[@]}"
     echo "===== Completed ${stage} at $(date --iso-8601=seconds) ====="
 }
 
