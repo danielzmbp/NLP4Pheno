@@ -239,6 +239,25 @@ class StrainInfoMatchingTests(unittest.TestCase):
         self.assertEqual(result["straininfo_status"], "unmatched")
         self.assertEqual(result["straininfo_method"], "exact_weak_rejected")
 
+    def test_batch_resolution_accepts_short_authoritative_contained_alias(self):
+        aliases = pl.DataFrame(
+            {
+                "designation_key": ["FZB42"],
+                "designation": ["FZB42"],
+                "si_id": [378027],
+                "taxon": ["Bacillus velezensis"],
+                "type_strain": [True],
+                "in_compact": [False],
+                "in_detailed_deposit": [False],
+            }
+        )
+        result = resolve_mentions(
+            ["B. amyloliquefaciens strain FZB42"], aliases
+        ).row(0, named=True)
+        self.assertEqual(result["straininfo_status"], "unique")
+        self.assertEqual(result["straininfo_method"], "contained_bounded")
+        self.assertEqual(result["straininfo_si_id"], 378027)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -74,6 +74,16 @@ def eligible_contained_key(key: str) -> bool:
     )
 
 
+def candidate_contained_key(key: str) -> bool:
+    """Retain short structured aliases for later evidence-based validation."""
+    return (
+        len(key) >= 4
+        and any(character.isalpha() for character in key)
+        and any(character.isdigit() for character in key)
+        and not serotype_like_key(key)
+    )
+
+
 def eligible_exact_key(key: str) -> bool:
     """Require enough identifying structure for an uncontextualized exact match."""
     return len(key) >= 6 and any(character.isalpha() for character in key)
@@ -297,7 +307,10 @@ def resolve_mentions(mentions: Iterable[str], aliases: pl.DataFrame) -> pl.DataF
         pl.col("designation_key").is_not_null()
     )
     alias_keys = alias_frame.get_column("designation_key").unique().to_list()
-    contained_keys = [key for key in alias_keys if eligible_contained_key(key)]
+    # Short structured designations must reach ``resolve_candidates`` so it can
+    # accept authoritative/taxonomically supported cases such as FZB42 while
+    # still rejecting weak aliases such as SA187 and serotype labels.
+    contained_keys = [key for key in alias_keys if candidate_contained_key(key)]
     mention_frame = pl.DataFrame(
         {
             "mention": mention_values,
