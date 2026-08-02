@@ -1,5 +1,7 @@
+import io
 import json
 import sys
+import tarfile
 import tempfile
 import unittest
 from pathlib import Path
@@ -9,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
 from build_ontology_index import (  # noqa: E402
     iter_mediadive_terms,
+    iter_ncbi_taxdump_terms,
     iter_obo_terms,
     iter_rdfxml_terms,
     looks_like_chemical_formula,
@@ -99,6 +102,26 @@ is_obsolete: true
         self.assertIn(("MRS", "EXACT"), terms[0]["synonyms"])
         self.assertIn(("LB", "EXACT"), terms[1]["synonyms"])
         self.assertIn(("Luria-Bertani", "EXACT"), terms[1]["synonyms"])
+
+    def test_ncbi_taxdump_parser_keeps_names_but_not_authorities(self):
+        content = """9606\t|\tHomo sapiens\t|\t\t|\tscientific name\t|
+9606\t|\thuman\t|\t\t|\tgenbank common name\t|
+9606\t|\tHomo sapiens Linnaeus, 1758\t|\t\t|\tauthority\t|
+10090\t|\tMus musculus\t|\t\t|\tscientific name\t|
+10090\t|\thouse mouse\t|\t\t|\tcommon name\t|
+""".encode()
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "taxdump.tar.gz"
+            with tarfile.open(path, mode="w:gz") as archive:
+                info = tarfile.TarInfo("names.dmp")
+                info.size = len(content)
+                archive.addfile(info, io.BytesIO(content))
+            terms = list(iter_ncbi_taxdump_terms(path))
+
+        self.assertEqual(terms[0]["id"], "NCBITaxon:9606")
+        self.assertEqual(terms[0]["name"], "Homo sapiens")
+        self.assertEqual(terms[0]["synonyms"], [("human", "EXACT")])
+        self.assertEqual(terms[1]["synonyms"], [("house mouse", "EXACT")])
 
     def test_chemical_formula_policy_rejects_bare_acronyms(self):
         for formula in ("NaCl", "H2O2", "MgSO4", "Fe(III)", "iso-C15:0"):

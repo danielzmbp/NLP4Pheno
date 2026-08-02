@@ -68,3 +68,9 @@ sources:
     format: mediadive
     url: https://mediadive.dsmz.de/rest/media
     filename: mediadive_media.json
+
+  NCBITAXON:
+    entity_types: [SPECIES, ORGANISM]
+    format: ncbi_taxdump
+    url: https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
+    filename: ncbi_taxdump.tar.gz

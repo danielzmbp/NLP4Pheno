@@ -29,6 +29,10 @@ derives only aliases stated directly by a canonical resource label, such as
 `MRS MEDIUM` → `MRS` and `LB (Luria-Bertani) MEDIUM` → `LB` and
 `Luria-Bertani`. If an alias names several records it remains ambiguous.
 
+`SPECIES` and `ORGANISM` use the official NCBI Taxonomy dump. Scientific
+names and selected synonym/common-name classes are indexed; names shared by
+multiple taxids remain ambiguous and are not auto-grounded.
+
 Run the reviewed-annotation pilot with:
 
 ```bash

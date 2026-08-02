@@ -300,6 +300,7 @@ spellings. The pilot terminology index currently covers:
 | `DISEASE` | Mondo |
 | `ISOLATE` | ENVO, UBERON, FoodOn |
 | `MEDIUM` | MCO, MediaDive |
+| `SPECIES`, `ORGANISM` | NCBI Taxonomy |
 
 Build a local, versioned index and benchmark it against the reviewed
 annotations:
@@ -320,7 +321,8 @@ exact ontology synonym, source-derived MediaDive alias, locally defined
 abbreviation, or case-preserving ChEBI formula must identify one concept.
 Multiple candidates remain `ambiguous`; fuzzy and embedding similarities are
 not auto-accepted. `STRAIN` continues to use the StrainInfo resolver, while
-`SPECIES` and `ORGANISM` need a separate taxonomy-aware resolver. The pilot
+`SPECIES` and `ORGANISM` use unique exact names and conservative synonyms from
+NCBI Taxonomy. The pilot
 measures resolvable coverage, not concept-level accuracy, so newly introduced
 sources should still be sampled before their matches are used in the final
 network.
@@ -347,9 +349,7 @@ status. It produces:
   their original grouped text as the node.
 
 The original `network.tsv` and `network_pmc.tsv` remain unchanged as a
-text-node baseline. `STRAIN` is still identified by StrainInfo, and
-`SPECIES`/`ORGANISM` remain explicitly unsupported until a taxonomy-aware
-resolver is added.
+text-node baseline. `STRAIN` is still identified by StrainInfo.
 
 StrainInfo matching rejects serogroup/serotype labels such as `O157` as strain
 identifiers. Taxonomy checks accept normalized lowercase scientific names,

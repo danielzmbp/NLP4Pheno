@@ -8,6 +8,7 @@ import hashlib
 import html
 import json
 import re
+import tarfile
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
@@ -260,6 +261,65 @@ def iter_mediadive_terms(path: Path) -> Iterator[dict[str, Any]]:
         }
 
 
+NCBI_EXACT_NAME_CLASSES = {
+    "anamorph",
+    "common name",
+    "equivalent name",
+    "genbank common name",
+    "genbank synonym",
+    "synonym",
+    "teleomorph",
+}
+
+
+def iter_ncbi_taxdump_terms(path: Path) -> Iterator[dict[str, Any]]:
+    """Stream scientific names and conservative synonyms from NCBI taxdump."""
+    with tarfile.open(path, mode="r:gz") as archive:
+        member = archive.extractfile("names.dmp")
+        if member is None:
+            raise ValueError(f"NCBI taxdump is missing names.dmp: {path}")
+
+        current_tax_id: int | None = None
+        scientific_name: str | None = None
+        synonyms: list[tuple[str, str]] = []
+
+        def emit() -> dict[str, Any] | None:
+            if current_tax_id is None or not scientific_name:
+                return None
+            return {
+                "id": f"NCBITaxon:{current_tax_id}",
+                "name": scientific_name,
+                "synonyms": synonyms,
+            }
+
+        for raw_line in member:
+            fields = [
+                field.strip() for field in raw_line.decode("utf-8").split("|")
+            ]
+            if len(fields) < 4:
+                continue
+            tax_id = int(fields[0])
+            name = fields[1]
+            name_class = fields[3].casefold()
+            if current_tax_id is not None and tax_id < current_tax_id:
+                raise ValueError("NCBI names.dmp is not sorted by tax_id")
+            if tax_id != current_tax_id:
+                completed = emit()
+                if completed:
+                    yield completed
+                current_tax_id = tax_id
+                scientific_name = None
+                synonyms = []
+            if name_class == "scientific name":
+                scientific_name = name
+            elif name_class in NCBI_EXACT_NAME_CLASSES and name:
+                synonyms.append((name, "EXACT"))
+
+        completed = emit()
+        if completed:
+            yield completed
+
+
 def looks_like_chemical_formula(alias: str) -> bool:
     """Recognize formula-like ChEBI aliases without admitting bare acronyms."""
     compact = re.sub(r"\s+", "", alias).strip("[]")
@@ -371,6 +431,9 @@ def build_index(
         elif source_format == "mediadive":
             header = {}
             terms = iter_mediadive_terms(path)
+        elif source_format == "ncbi_taxdump":
+            header = {}
+            terms = iter_ncbi_taxdump_terms(path)
         else:
             raise ValueError(f"Unsupported source format {source_format!r}")
 
