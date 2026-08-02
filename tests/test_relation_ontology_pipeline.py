@@ -202,6 +202,16 @@ class RelationOntologyPipelineTests(unittest.TestCase):
             ["NCBITaxon:1423"],
         )
         self.assertEqual(summary["strain_taxonomy"]["same_taxon_rows_removed"], 1)
+        self.assertEqual(
+            summary["strain_taxonomy"]["removed_rows_by_relation"],
+            {"STRAIN-ORGANISM:INHABITS": 1},
+        )
+        self.assertEqual(
+            summary["strain_taxonomy"]["top_removed_taxon_pairs"][0][
+                "ontology_id"
+            ],
+            "NCBITaxon:1423",
+        )
 
 
 if __name__ == "__main__":

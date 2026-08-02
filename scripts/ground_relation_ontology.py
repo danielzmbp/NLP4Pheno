@@ -394,8 +394,29 @@ def ground_relation_predictions(
             & (pl.col("strain_taxonomy_status") == "matched")
             & (pl.col("ontology_id") == pl.col("strain_taxonomy_id"))
         ).fill_null(False)
-        strain_taxonomy_summary["same_taxon_rows_removed"] = int(
-            grounded.select(same_taxon.sum()).collect(engine="streaming").item()
+        removed_same_taxon = grounded.filter(same_taxon).select(
+            "rel",
+            "straininfo_taxon",
+            "word_qc_group",
+            "ontology_id",
+        ).collect(engine="streaming")
+        strain_taxonomy_summary["same_taxon_rows_removed"] = (
+            removed_same_taxon.height
+        )
+        strain_taxonomy_summary["removed_rows_by_relation"] = dict(
+            sorted(Counter(removed_same_taxon.get_column("rel").to_list()).items())
+        )
+        strain_taxonomy_summary["top_removed_taxon_pairs"] = (
+            removed_same_taxon.group_by(
+                "straininfo_taxon", "word_qc_group", "ontology_id"
+            )
+            .len(name="prediction_rows")
+            .sort(
+                ["prediction_rows", "straininfo_taxon", "word_qc_group"],
+                descending=[True, False, False],
+            )
+            .head(25)
+            .to_dicts()
         )
         grounded = grounded.filter(~same_taxon)
     grounded_output.parent.mkdir(parents=True, exist_ok=True)
