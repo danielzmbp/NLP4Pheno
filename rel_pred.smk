@@ -95,12 +95,17 @@ rule all:
         f"{preds}/REL_output/strains_assemblies.txt",
         f"{preds}/network.tsv",
         f"{preds}/network_pmc.tsv",
+        f"{preds}/network_evidence_summary.tsv",
+        f"{preds}/network_core.tsv",
         f"{preds}/REL_output/reconciliation_summary.json",
         f"{preds}/REL_output/preds_straininfo_grounded.pqt",
         f"{preds}/REL_output/ontology_groundings.parquet",
+        f"{preds}/REL_output/strain_taxonomy_groundings.parquet",
         f"{preds}/REL_output/ontology_grounding_summary.json",
         f"{preds}/network_ontology.tsv",
         f"{preds}/network_ontology_pmc.tsv",
+        f"{preds}/network_ontology_evidence_summary.tsv",
+        f"{preds}/network_ontology_core.tsv",
 
 
 rule format_sentences:
