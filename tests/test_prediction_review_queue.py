@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -9,10 +10,67 @@ sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 from build_prediction_review_queue import (  # noqa: E402
     build_queue,
     build_results,
+    select_candidate_sentences,
 )
 
 
 class PredictionReviewQueueTests(unittest.TestCase):
+    def test_selection_can_focus_on_underrepresented_relations(self):
+        rows = []
+        for index, relation in enumerate(
+            ["STRAIN-ORGANISM:INHIBITS", "STRAIN-COMPOUND:PRODUCES"]
+        ):
+            text = f"Strain X evidence sentence {index}."
+            rows.append(
+                {
+                    "text": text,
+                    "pmcid": f"PMC{index + 1}",
+                    "article_version": "v1",
+                    "paragraph": index,
+                    "sentence_range": "0:30",
+                    "rel": relation,
+                    "score_rel": 0.97,
+                    "ner_score": 0.96,
+                    "score_strain": 0.98,
+                    "ner": "ORGANISM" if index == 0 else "COMPOUND",
+                    "word": "evidence",
+                    "word_qc_group": "evidence",
+                    "word_strain": "Strain X",
+                    "word_strain_qc": "strain x",
+                    "straininfo_si_id": 10,
+                    "straininfo_taxon": "Example species",
+                    "straininfo_status": "matched",
+                    "straininfo_method": "exact",
+                    "start": 9,
+                    "end": 17,
+                    "start_strain": 0,
+                    "end_strain": 8,
+                    "ontology_status": "matched",
+                    "ontology_candidate_count": 1,
+                    "ontology": "NCBITAXON",
+                    "ontology_id": "NCBITaxon:1",
+                    "ontology_label": "evidence",
+                    "ontology_match_method": "direct_exact",
+                    "ontology_match_confidence": 1.0,
+                }
+            )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            path = Path(temporary_directory) / "predictions.parquet"
+            pl.DataFrame(rows).write_parquet(path)
+            selected = select_candidate_sentences(
+                path,
+                set(),
+                per_relation_tier=2,
+                seed=1,
+                max_text_chars=100,
+                include_relations={"STRAIN-ORGANISM:INHIBITS"},
+            )
+
+        self.assertEqual(
+            selected.get_column("rel").to_list(),
+            ["STRAIN-ORGANISM:INHIBITS"],
+        )
+
     def test_results_include_all_entities_and_preserve_relation_direction(self):
         text = "Strain X produces glucose and inhibits yeast."
         strain_start = text.index("Strain X")

@@ -73,6 +73,7 @@ def select_candidate_sentences(
     per_relation_tier: int,
     seed: int,
     max_text_chars: int,
+    include_relations: set[str] | None = None,
 ) -> pl.DataFrame:
     columns = [
         "text",
@@ -105,8 +106,11 @@ def select_candidate_sentences(
         "ontology_match_method",
         "ontology_match_confidence",
     ]
+    source = pl.scan_parquet(predictions_file)
+    if include_relations:
+        source = source.filter(pl.col("rel").is_in(sorted(include_relations)))
     candidates = (
-        pl.scan_parquet(predictions_file)
+        source
         .select(columns)
         .filter(
             pl.col("pmcid").is_not_null()
@@ -518,6 +522,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--issues-output", required=True, type=Path)
     parser.add_argument("--summary-output", required=True, type=Path)
     parser.add_argument("--per-relation-tier", type=int, default=3)
+    parser.add_argument(
+        "--include-relation",
+        action="append",
+        default=[],
+        help="Restrict sampling to this typed relation; repeat as needed",
+    )
     parser.add_argument("--seed", type=int, default=2509)
     parser.add_argument("--max-text-chars", type=int, default=450)
     return parser.parse_args()
@@ -535,6 +545,7 @@ def main() -> None:
         per_relation_tier=args.per_relation_tier,
         seed=args.seed,
         max_text_chars=args.max_text_chars,
+        include_relations=set(args.include_relation) or None,
     )
     ner, relations = collect_sentence_predictions(
         selected,
@@ -558,6 +569,7 @@ def main() -> None:
         "annotations": str(args.annotations),
         "seed": args.seed,
         "per_relation_tier": args.per_relation_tier,
+        "include_relations": sorted(set(args.include_relation)),
         "max_text_chars": args.max_text_chars,
         "tasks": len(tasks),
         "tier_counts": dict(sorted(tier_counts.items())),
