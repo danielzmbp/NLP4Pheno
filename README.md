@@ -39,6 +39,10 @@ Before running any pipeline, adjust `config.yaml` to match your setup.
 | `ner_test` | Test split ratio for NER | `0.2` |
 | `rel_test` | Test split ratio for RE | `0.3` |
 | `cutoff_prediction` | Confidence threshold for predictions | `0.50` |
+| `core_min_pmcs` | Independent PMC articles needed for multi-article core support | `2` |
+| `core_min_relation_score` | RE threshold for single-article core evidence | `0.90` |
+| `core_min_entity_score` | NER threshold for single-article core evidence | `0.90` |
+| `core_min_strain_score` | Strain-match threshold for single-article core evidence | `0.95` |
 | `model` | Model size (base/large) | `"large"` |
 | `seed` | Random seed for reproducibility | `97` |
 | `output_path` | Base output directory | `/pfs/work9/workspace/scratch/tu_kmpaj01-link` |
@@ -332,15 +336,19 @@ types for the same strain/entity/relation edge using mean joint NER/RE
 confidence. It also removes same-taxon `INHABITS`, `INFECTS`, and
 `SYMBIONT_OF` candidates, while retaining potentially meaningful conspecific
 `INHIBITS` predictions. `REL_output/reconciliation_summary.json` records the
-effect of this step. Ontology grounding then preserves every reconciled
-prediction and its original `word_qc_group`, while adding the ontology ID,
-canonical label, match method, rule-based evidence strength, and ambiguity
-status. It produces:
+effect of this step. Ontology grounding then retains each reconciled prediction
+and its original `word_qc_group`, while adding the ontology ID, canonical
+label, match method, rule-based evidence strength, and ambiguity status.
+StrainInfo taxon names are independently grounded to the same NCBI snapshot;
+exact taxon-ID agreement removes additional impossible same-taxon rows that
+spelling comparison missed. It produces:
 
-- `REL_output/preds_straininfo_grounded.pqt`: row-preserving predictions with
-  ontology columns.
+- `REL_output/preds_straininfo_grounded.pqt`: predictions with ontology and
+  strain-taxonomy columns after the taxon-ID consistency guard.
 - `REL_output/ontology_groundings.parquet`: one auditable mapping per entity
   type and grouped string, including all candidates for ambiguous mappings.
+- `REL_output/strain_taxonomy_groundings.parquet`: the independent NCBI
+  mapping of StrainInfo taxon strings used by the same-taxon guard.
 - `REL_output/ontology_grounding_summary.json`: coverage by entity type,
   ontology, and matching rule, plus frequent unresolved strings.
 - `network_ontology.tsv` and `network_ontology_pmc.tsv`: concept-aware network
@@ -348,8 +356,16 @@ status. It produces:
   synonymous surfaces merge; ambiguous, unmatched, and unsupported values keep
   their original grouped text as the node.
 
-The original `network.tsv` and `network_pmc.tsv` remain unchanged as a
-text-node baseline. `STRAIN` is still identified by StrainInfo.
+`network.tsv` remains the text-node baseline, and `network_pmc.tsv` adds its
+sentence-level evidence and confidence columns. `STRAIN` is still identified
+by StrainInfo.
+
+Both network variants also produce an edge-level evidence summary and a
+conservative core (`network_evidence_summary.tsv`, `network_core.tsv`,
+`network_ontology_evidence_summary.tsv`, and `network_ontology_core.tsv`). The
+core keeps edges supported by at least `core_min_pmcs` distinct PMC articles,
+or by one sentence whose RE, NER, and strain scores all pass the configured
+strict thresholds. The complete evidence tables are always retained.
 
 StrainInfo matching rejects serogroup/serotype labels such as `O157` as strain
 identifiers. Taxonomy checks accept normalized lowercase scientific names,

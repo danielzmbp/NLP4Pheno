@@ -141,12 +141,20 @@ the versioned offline alias index prepared under
 `resources/ontologies/runtime/`. It requires no compute-node internet access.
 Only unique conservative matches are accepted; ambiguous and unsupported
 strings remain text nodes. The `rel_ground_runtime` and `rel_ground_mem_mb`
-settings control this CPU job. The workflow retains the original text network
-and additionally writes `network_ontology.tsv`,
+settings control this CPU job. StrainInfo taxon strings are grounded against
+the same NCBI snapshot to catch impossible same-taxon host/pathogen relations
+that differ only in spelling or synonym choice. The workflow retains the
+original text network and additionally writes `network_ontology.tsv`,
 `network_ontology_pmc.tsv`, an auditable mapping Parquet, and a JSON coverage
 summary. The runtime requirement is `aliases.parquet` plus `manifest.json`;
 `terms.parquet` is a build intermediate and is not required when reusing a
 prepared index.
+
+Each text and ontology network also gets an edge-level evidence summary and a
+conservative core view. Multi-article edges enter the core directly; a
+single-article edge must have at least one evidence sentence passing the RE,
+NER, and strain thresholds in `config.yaml`. These views do not replace or
+delete the complete network/evidence artifacts.
 
 ## Monitor
 

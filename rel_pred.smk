@@ -27,6 +27,10 @@ if HF_HOME:
 
 
 cutoff = config["cutoff_prediction"]
+core_min_pmcs = config.get("core_min_pmcs", 2)
+core_min_relation_score = config.get("core_min_relation_score", 0.90)
+core_min_entity_score = config.get("core_min_entity_score", 0.90)
+core_min_strain_score = config.get("core_min_strain_score", 0.95)
 output_path = config["output_path"]
 preds = f"{output_path}/preds" + str(config["dataset"])
 labels = config["rel_labels"]
@@ -274,6 +278,7 @@ rule ground_ontology:
     output:
         grounded=f"{preds}/REL_output/preds_straininfo_grounded.pqt",
         mapping=f"{preds}/REL_output/ontology_groundings.parquet",
+        strain_mapping=f"{preds}/REL_output/strain_taxonomy_groundings.parquet",
         summary=f"{preds}/REL_output/ontology_grounding_summary.json",
     resources:
         slurm_partition=CPU_PARTITION,
@@ -289,6 +294,7 @@ rule ground_ontology:
           {input.manifest} \
           --output {output.grounded} \
           --mapping-output {output.mapping} \
+          --strain-taxonomy-mapping-output {output.strain_mapping} \
           --summary {output.summary}
         """
 
@@ -355,7 +361,9 @@ rule link_pmc_network:
         f"{preds}/network.tsv",
         f"{preds}/REL_output/preds_straininfo_grouped_pmc.pqt",
     output:
-        f"{preds}/network_pmc.tsv",
+        evidence=f"{preds}/network_pmc.tsv",
+        summary=f"{preds}/network_evidence_summary.tsv",
+        core=f"{preds}/network_core.tsv",
     resources:
         slurm_partition=CPU_PARTITION,
         runtime=REL_LINK_RUNTIME,
@@ -367,7 +375,15 @@ rule link_pmc_network:
         python scripts/link_relation_evidence.py network \
           {input[0]} \
           {input[1]} \
-          --output {output}
+          --output {output.evidence}
+        python scripts/summarize_network_evidence.py \
+          {output.evidence} \
+          --summary-output {output.summary} \
+          --core-output {output.core} \
+          --min-pmcs {core_min_pmcs} \
+          --min-relation-score {core_min_relation_score} \
+          --min-entity-score {core_min_entity_score} \
+          --min-strain-score {core_min_strain_score}
         """
 
 
@@ -418,7 +434,9 @@ rule link_ontology_pmc_network:
         f"{preds}/network_ontology.tsv",
         f"{preds}/REL_output/preds_straininfo_grounded_pmc.pqt",
     output:
-        f"{preds}/network_ontology_pmc.tsv",
+        evidence=f"{preds}/network_ontology_pmc.tsv",
+        summary=f"{preds}/network_ontology_evidence_summary.tsv",
+        core=f"{preds}/network_ontology_core.tsv",
     resources:
         slurm_partition=CPU_PARTITION,
         runtime=REL_LINK_RUNTIME,
@@ -430,5 +448,13 @@ rule link_ontology_pmc_network:
         python scripts/link_relation_evidence.py network \
           {input[0]} \
           {input[1]} \
-          --output {output}
+          --output {output.evidence}
+        python scripts/summarize_network_evidence.py \
+          {output.evidence} \
+          --summary-output {output.summary} \
+          --core-output {output.core} \
+          --min-pmcs {core_min_pmcs} \
+          --min-relation-score {core_min_relation_score} \
+          --min-entity-score {core_min_entity_score} \
+          --min-strain-score {core_min_strain_score}
         """

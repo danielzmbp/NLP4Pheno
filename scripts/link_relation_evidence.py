@@ -51,6 +51,12 @@ def link_network_to_evidence(
         if "ontology_node_id" in prediction_columns
         else pl.col("word_qc_group")
     )
+    optional_evidence = [
+        pl.col(name)
+        if name in prediction_columns
+        else pl.lit(None, dtype=pl.Float64).alias(name)
+        for name in ("score_rel", "ner_score", "score_strain")
+    ]
     evidence = (
         predictions.filter(pl.col("straininfo_si_id").is_not_null())
         .with_columns(
@@ -79,8 +85,24 @@ def link_network_to_evidence(
             "article_version",
             "paragraph",
             "sentence_range",
+            "text",
+            *optional_evidence,
         )
-        .unique()
+        .group_by(
+            "source",
+            "target",
+            "rel_name",
+            "pmcid",
+            "article_version",
+            "paragraph",
+            "sentence_range",
+            "text",
+        )
+        .agg(
+            pl.col("score_rel").max(),
+            pl.col("ner_score").max(),
+            pl.col("score_strain").max(),
+        )
     )
     linked = pl.scan_csv(network_file, separator="\t").join(
         evidence,

@@ -60,6 +60,21 @@ OUTPUT_GROUNDING_COLUMNS = [
     "ontology_grounded",
 ]
 
+GUARDED_SAME_TAXON_RELATIONS = {"INFECTS", "INHABITS", "SYMBIONT_OF"}
+TAXON_ENTITY_TYPES = {"ORGANISM", "SPECIES"}
+STRAIN_TAXONOMY_COLUMNS = {
+    "ontology_status": "strain_taxonomy_status",
+    "ontology_candidate_count": "strain_taxonomy_candidate_count",
+    "ontology_match_method": "strain_taxonomy_match_method",
+    "ontology_match_confidence": "strain_taxonomy_match_confidence",
+    "ontology": "strain_taxonomy_ontology",
+    "ontology_id": "strain_taxonomy_id",
+    "ontology_label": "strain_taxonomy_label",
+    "ontology_matched_alias": "strain_taxonomy_matched_alias",
+    "ontology_alias_scope": "strain_taxonomy_alias_scope",
+    "ontology_grounded": "strain_taxonomy_grounded",
+}
+
 
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
@@ -255,6 +270,56 @@ def summarize_mapping(
     return summary
 
 
+def build_strain_taxonomy_mapping(
+    source: pl.LazyFrame,
+    aliases_file: Path,
+    manifest: dict[str, Any],
+) -> pl.DataFrame | None:
+    """Ground each matched StrainInfo taxon through the same NCBI snapshot."""
+    columns = set(source.collect_schema().names())
+    ncbi = manifest.get("sources", {}).get("NCBITAXON", {})
+    if "straininfo_taxon" not in columns or "SPECIES" not in ncbi.get(
+        "entity_types", []
+    ):
+        return None
+    grouped_counts = (
+        source.select("straininfo_taxon")
+        .filter(pl.col("straininfo_taxon").is_not_null())
+        .group_by("straininfo_taxon")
+        .len(name="prediction_rows")
+        .with_columns(pl.lit("SPECIES").alias("ner"))
+        .rename({"straininfo_taxon": "word_qc_group"})
+        .select("ner", "word_qc_group", "prediction_rows")
+        .collect(engine="streaming")
+        .sort("word_qc_group")
+    )
+    if grouped_counts.is_empty():
+        return None
+    return build_mapping(grouped_counts, aliases_file, manifest)
+
+
+def _strain_taxonomy_summary(mapping: pl.DataFrame | None) -> dict[str, Any]:
+    if mapping is None:
+        return {"available": False, "same_taxon_rows_removed": 0}
+    statuses = Counter(mapping.get_column("ontology_status").to_list())
+    return {
+        "available": True,
+        "unique_taxa": mapping.height,
+        "status_counts": dict(sorted(statuses.items())),
+        "matched_row_coverage": round(
+            int(
+                mapping.filter(pl.col("ontology_status") == "matched")
+                .get_column("prediction_rows")
+                .sum()
+            )
+            / int(mapping.get_column("prediction_rows").sum()),
+            6,
+        ),
+        "guarded_relations": sorted(GUARDED_SAME_TAXON_RELATIONS),
+        "same_taxon_rows_removed": 0,
+    }
+
+
 def ground_relation_predictions(
     predictions_file: Path,
     aliases_file: Path,
@@ -262,6 +327,7 @@ def ground_relation_predictions(
     grounded_output: Path,
     mapping_output: Path,
     summary_output: Path,
+    strain_taxonomy_mapping_output: Path | None = None,
 ) -> dict[str, Any]:
     source = pl.scan_parquet(predictions_file)
     grouped_counts = (
@@ -279,11 +345,24 @@ def ground_relation_predictions(
     with manifest_file.open() as handle:
         manifest = json.load(handle)
     mapping = build_mapping(grouped_counts, aliases_file, manifest)
+    strain_taxonomy_mapping = build_strain_taxonomy_mapping(
+        source, aliases_file, manifest
+    )
 
     mapping_output.parent.mkdir(parents=True, exist_ok=True)
     mapping_temporary = mapping_output.with_suffix(mapping_output.suffix + ".tmp")
     mapping.write_parquet(mapping_temporary, compression="zstd")
     os.replace(mapping_temporary, mapping_output)
+
+    if strain_taxonomy_mapping is not None and strain_taxonomy_mapping_output:
+        strain_taxonomy_mapping_output.parent.mkdir(parents=True, exist_ok=True)
+        strain_mapping_temporary = strain_taxonomy_mapping_output.with_suffix(
+            strain_taxonomy_mapping_output.suffix + ".tmp"
+        )
+        strain_taxonomy_mapping.write_parquet(
+            strain_mapping_temporary, compression="zstd"
+        )
+        os.replace(strain_mapping_temporary, strain_taxonomy_mapping_output)
 
     join_mapping = pl.scan_parquet(mapping_output).select(
         pl.col("entity_type").alias("ner"),
@@ -295,6 +374,30 @@ def ground_relation_predictions(
         on=["ner", "word_qc_group"],
         how="left",
     )
+    strain_taxonomy_summary = _strain_taxonomy_summary(strain_taxonomy_mapping)
+    if strain_taxonomy_mapping is not None:
+        strain_join = strain_taxonomy_mapping.select(
+            pl.col("grouped_surface").alias("straininfo_taxon"),
+            *[
+                pl.col(source_name).alias(output_name)
+                for source_name, output_name in STRAIN_TAXONOMY_COLUMNS.items()
+            ],
+        ).lazy()
+        grounded = grounded.join(strain_join, on="straininfo_taxon", how="left")
+        same_taxon = (
+            pl.col("ner").is_in(TAXON_ENTITY_TYPES)
+            & pl.col("rel")
+            .str.split(":")
+            .list.get(1)
+            .is_in(GUARDED_SAME_TAXON_RELATIONS)
+            & (pl.col("ontology_status") == "matched")
+            & (pl.col("strain_taxonomy_status") == "matched")
+            & (pl.col("ontology_id") == pl.col("strain_taxonomy_id"))
+        ).fill_null(False)
+        strain_taxonomy_summary["same_taxon_rows_removed"] = int(
+            grounded.select(same_taxon.sum()).collect(engine="streaming").item()
+        )
+        grounded = grounded.filter(~same_taxon)
     grounded_output.parent.mkdir(parents=True, exist_ok=True)
     grounded_temporary = grounded_output.with_suffix(grounded_output.suffix + ".tmp")
     grounded.sink_parquet(
@@ -305,6 +408,7 @@ def ground_relation_predictions(
     os.replace(grounded_temporary, grounded_output)
 
     summary = summarize_mapping(mapping, manifest, aliases_file, manifest_file)
+    summary["strain_taxonomy"] = strain_taxonomy_summary
     summary_output.parent.mkdir(parents=True, exist_ok=True)
     summary_temporary = summary_output.with_suffix(summary_output.suffix + ".tmp")
     summary_temporary.write_text(
@@ -328,6 +432,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("manifest", type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--mapping-output", required=True, type=Path)
+    parser.add_argument("--strain-taxonomy-mapping-output", type=Path)
     parser.add_argument("--summary", required=True, type=Path)
     return parser.parse_args()
 
@@ -341,6 +446,7 @@ def main() -> None:
         args.output,
         args.mapping_output,
         args.summary,
+        args.strain_taxonomy_mapping_output,
     )
 
 

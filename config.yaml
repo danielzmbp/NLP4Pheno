@@ -35,6 +35,10 @@ input_file: label/project-10-reviewed-2026-07-26.json
 # used for training/prediction. Only unique PMCIDs become split groups.
 annotation_pmc_matches_file: label/annotation_pmc_matches_2026-07-26.parquet
 cutoff_prediction: 0.50
+core_min_pmcs: 2
+core_min_relation_score: 0.90
+core_min_entity_score: 0.90
+core_min_strain_score: 0.95
 # cuda_devices: [1,2,3]
 cuda_devices: [0]
 ner_test: 0.2

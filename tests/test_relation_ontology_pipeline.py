@@ -133,6 +133,76 @@ class RelationOntologyPipelineTests(unittest.TestCase):
             1.0,
         )
 
+    def test_ncbi_taxonomy_removes_impossible_same_taxon_host_relation(self):
+        aliases = pl.DataFrame(
+            {
+                "entity_type": ["SPECIES", "ORGANISM"],
+                "ontology": ["NCBITAXON", "NCBITAXON"],
+                "concept_id": ["NCBITaxon:1423", "NCBITaxon:1423"],
+                "concept_label": ["Bacillus subtilis", "Bacillus subtilis"],
+                "alias": ["Bacillus subtilis", "B. subtilis"],
+                "normalized_alias": ["bacillus subtilis", "b. subtilis"],
+                "relaxed_alias": ["bacillus subtilis", "b subtilis"],
+                "formula_alias": [None, None],
+                "scope": ["LABEL", "EXACT"],
+                "auto_eligible": [True, True],
+            }
+        )
+        predictions = pl.DataFrame(
+            {
+                "ner": ["ORGANISM", "ORGANISM"],
+                "word_qc_group": ["B. subtilis", "mouse"],
+                "straininfo_taxon": ["Bacillus subtilis", "Bacillus subtilis"],
+                "rel": ["STRAIN-ORGANISM:INHABITS", "STRAIN-ORGANISM:INHABITS"],
+                "row_id": [1, 2],
+            }
+        )
+        manifest = {
+            "created_at": "2026-01-01T00:00:00Z",
+            "sources": {
+                "NCBITAXON": {
+                    "entity_types": ["SPECIES", "ORGANISM"],
+                    "terms": 1,
+                    "aliases": 2,
+                    "sha256": "ncbi-hash",
+                    "ontology_header": {},
+                }
+            },
+        }
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            predictions_file = root / "predictions.parquet"
+            aliases_file = root / "aliases.parquet"
+            manifest_file = root / "manifest.json"
+            grounded_file = root / "grounded.parquet"
+            mapping_file = root / "mapping.parquet"
+            strain_mapping_file = root / "strain_mapping.parquet"
+            summary_file = root / "summary.json"
+            predictions.write_parquet(predictions_file)
+            aliases.write_parquet(aliases_file)
+            manifest_file.write_text(json.dumps(manifest))
+
+            summary = ground_relation_predictions(
+                predictions_file,
+                aliases_file,
+                manifest_file,
+                grounded_file,
+                mapping_file,
+                summary_file,
+                strain_mapping_file,
+            )
+            grounded = pl.read_parquet(grounded_file)
+            strain_mapping = pl.read_parquet(strain_mapping_file)
+
+        self.assertEqual(grounded.get_column("row_id").to_list(), [2])
+        self.assertEqual(strain_mapping.height, 1)
+        self.assertEqual(
+            grounded.get_column("strain_taxonomy_id").to_list(),
+            ["NCBITaxon:1423"],
+        )
+        self.assertEqual(summary["strain_taxonomy"]["same_taxon_rows_removed"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

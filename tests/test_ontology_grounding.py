@@ -199,6 +199,24 @@ class GroundingTests(unittest.TestCase):
         self.assertEqual(rows[1]["status"], "ambiguous")
         self.assertEqual(json.loads(rows[1]["candidates_json"])[0]["ontology"], "OMP")
 
+    def test_ncbi_taxonomy_root_is_not_auto_grounded(self):
+        root = Candidate("NCBITAXON", "NCBITaxon:1", "root", "all", "EXACT")
+        mentions = [
+            {
+                "entity_type": "ORGANISM",
+                "normalized_surface": "all",
+                "relaxed_surface": "all",
+                "expanded_form": None,
+            }
+        ]
+        rows = ground_mentions(
+            mentions,
+            {("ORGANISM", "all"): [root]},
+            {},
+        )
+        self.assertEqual(rows[0]["status"], "unmatched")
+        self.assertEqual(rows[0]["candidate_count"], 0)
+
     def test_unsupported_entity_types_are_explicit(self):
         mentions = [
             {

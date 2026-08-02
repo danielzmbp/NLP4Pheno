@@ -163,6 +163,11 @@ def _deduplicate_candidates(candidates: Iterable[Candidate]) -> list[Candidate]:
     scope_order = {"LABEL": 0, "EXACT": 1, "BROAD": 2, "NARROW": 3, "RELATED": 4}
     best: dict[tuple[str, str], Candidate] = {}
     for candidate in candidates:
+        # Taxonomy root is a technical container, not a biologically useful
+        # entity.  Its synonym "all" otherwise creates a unique but spurious
+        # exact match for ordinary prose.
+        if candidate.ontology == "NCBITAXON" and candidate.concept_id == "NCBITaxon:1":
+            continue
         key = _candidate_key(candidate)
         previous = best.get(key)
         if previous is None or scope_order.get(candidate.scope, 99) < scope_order.get(

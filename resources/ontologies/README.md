@@ -31,7 +31,10 @@ derives only aliases stated directly by a canonical resource label, such as
 
 `SPECIES` and `ORGANISM` use the official NCBI Taxonomy dump. Scientific
 names and selected synonym/common-name classes are indexed; names shared by
-multiple taxids remain ambiguous and are not auto-grounded.
+multiple taxids remain ambiguous and are not auto-grounded. The taxonomy root
+is never a valid automatic match. StrainInfo taxon labels are grounded through
+the same snapshot so guarded relation types can be rejected by taxon ID rather
+than spelling alone.
 
 Run the reviewed-annotation pilot with:
 

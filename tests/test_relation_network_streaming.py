@@ -12,6 +12,7 @@ from link_relation_evidence import (  # noqa: E402
     link_network_to_evidence,
     link_predictions_to_pmc,
 )
+from summarize_network_evidence import summarize_network_evidence  # noqa: E402
 
 
 class RelationNetworkStreamingTests(unittest.TestCase):
@@ -95,6 +96,41 @@ class RelationNetworkStreamingTests(unittest.TestCase):
 
         self.assertEqual(result.get_column("pmcid").to_list(), ["PMC1"])
         self.assertEqual(result.get_column("sentence_range").to_list(), ["0:10"])
+
+    def test_evidence_summary_and_core_keep_multi_article_or_high_confidence_edges(self):
+        evidence = pl.DataFrame(
+            {
+                "source": ["SI-ID1", "SI-ID1", "SI-ID2", "SI-ID3"],
+                "target": ["host", "host", "compound", "disease"],
+                "rel": ["INHABITS", "INHABITS", "PRODUCES", "CAUSES"],
+                "source_ner": ["STRAIN"] * 4,
+                "target_ner": ["ORGANISM", "ORGANISM", "COMPOUND", "DISEASE"],
+                "pmcid": ["PMC1", "PMC2", "PMC3", "PMC4"],
+                "article_version": ["v1"] * 4,
+                "paragraph": [1, 2, 3, 4],
+                "sentence_range": ["0:10"] * 4,
+                "text": ["a", "b", "c", "d"],
+                "score_rel": [0.60, 0.65, 0.96, 0.70],
+                "ner_score": [0.70, 0.75, 0.94, 0.80],
+                "score_strain": [0.96, 0.96, 0.99, 0.99],
+            }
+        )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            evidence_file = root / "network_pmc.tsv"
+            summary_file = root / "summary.tsv"
+            core_file = root / "core.tsv"
+            evidence.write_csv(evidence_file, separator="\t")
+            summarize_network_evidence(evidence_file, summary_file, core_file)
+            summary = pl.read_csv(summary_file, separator="\t").sort("source")
+            core = pl.read_csv(core_file, separator="\t").sort("source")
+
+        self.assertEqual(summary.height, 3)
+        self.assertEqual(core.get_column("source").to_list(), ["SI-ID1", "SI-ID2"])
+        self.assertEqual(
+            core.get_column("evidence_tier").to_list(),
+            ["multi_article", "high_confidence_single_article"],
+        )
 
     def test_grounded_synonyms_collapse_to_one_concept_edge(self):
         predictions = pl.DataFrame(
