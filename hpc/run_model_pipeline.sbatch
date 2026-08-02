@@ -19,13 +19,17 @@ set -euo pipefail
 NLP4PHENO_JOBS="${NLP4PHENO_JOBS:-48}"
 NLP4PHENO_STAGES="${NLP4PHENO_STAGES:-ner rel ner_pred rel_pred}"
 NLP4PHENO_FORCE_RULES="${NLP4PHENO_FORCE_RULES:-}"
+NLP4PHENO_ONTOLOGY_ALIASES="${NLP4PHENO_ONTOLOGY_ALIASES:-${NLP4PHENO_PROJECT}/resources/ontologies/runtime/aliases.parquet}"
+NLP4PHENO_ONTOLOGY_MANIFEST="${NLP4PHENO_ONTOLOGY_MANIFEST:-${NLP4PHENO_PROJECT}/resources/ontologies/runtime/manifest.json}"
 
 cd "${NLP4PHENO_PROJECT}"
 
 for required in \
     "${NLP4PHENO_CORPUS}" \
     "${NLP4PHENO_MODEL_DIR}/config.json" \
-    resources/straininfo/designations_union.parquet; do
+    resources/straininfo/designations_union.parquet \
+    "${NLP4PHENO_ONTOLOGY_ALIASES}" \
+    "${NLP4PHENO_ONTOLOGY_MANIFEST}"; do
     if [[ ! -s "${required}" ]]; then
         echo "Required offline input is missing or empty: ${required}" >&2
         exit 1
@@ -70,6 +74,8 @@ common_args=(
     "hf_home=${NLP4PHENO_HF_HOME}"
     "straininfo_strains_file=${NLP4PHENO_PROJECT}/resources/straininfo/strains.parquet"
     "straininfo_designations_file=${NLP4PHENO_PROJECT}/resources/straininfo/designations_union.parquet"
+    "ontology_aliases_file=${NLP4PHENO_ONTOLOGY_ALIASES}"
+    "ontology_manifest_file=${NLP4PHENO_ONTOLOGY_MANIFEST}"
 )
 
 if [[ "${NLP4PHENO_DRY_RUN:-0}" == "1" ]]; then
