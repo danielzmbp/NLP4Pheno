@@ -58,3 +58,8 @@ The full-PMC model-assisted audit under `prediction_batch1/` is the first
 active-learning batch generated after full-corpus inference. Codex curated 27
 of its short cases with tracked rationales; project 4 contains a balanced
 55-task human queue drawn from the remaining relation and error strata.
+
+The follow-up `weak_relations_20260802/` queue targets the five relation
+classifiers that remain below 50 positive source tasks after the 4,061-task
+gold update. Its 68 pre-annotated tasks are available in Label Studio project
+5, with high-confidence candidates presented before boundary/tension cases.

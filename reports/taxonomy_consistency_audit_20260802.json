@@ -1,0 +1,317 @@
+{
+  "guarded_relations": [
+    "INFECTS",
+    "INHABITS",
+    "SYMBIONT_OF"
+  ],
+  "predictions": "/ei/projects/c/ce37e266-dd0b-4c54-9b26-3cf53be99d1b/daniel/nlp4pheno/results_20260802_taxonomy_c88a57f/preds2509/REL_output/preds_straininfo_grounded_pmc.pqt",
+  "rows_by_relation": {
+    "STRAIN-ORGANISM:INFECTS": 3,
+    "STRAIN-ORGANISM:INHABITS": 236,
+    "STRAIN-ORGANISM:SYMBIONT_OF": 5
+  },
+  "same_taxon_rows": 244,
+  "strain_mapping": "/ei/projects/c/ce37e266-dd0b-4c54-9b26-3cf53be99d1b/daniel/nlp4pheno/results_20260802_taxonomy_core_df6c495/preds2509/REL_output/strain_taxonomy_groundings.parquet",
+  "top_taxon_pairs": [
+    {
+      "ontology_id": "NCBITaxon:5478",
+      "prediction_rows": 20,
+      "straininfo_taxon": "Nakaseomyces glabratus",
+      "word_qc_group": "candida glabrata"
+    },
+    {
+      "ontology_id": "NCBITaxon:4909",
+      "prediction_rows": 18,
+      "straininfo_taxon": "Pichia kudriavzevii",
+      "word_qc_group": "candida krusei"
+    },
+    {
+      "ontology_id": "NCBITaxon:1205",
+      "prediction_rows": 11,
+      "straininfo_taxon": "Trichodesmium",
+      "word_qc_group": "trichodesmium"
+    },
+    {
+      "ontology_id": "NCBITaxon:70447",
+      "prediction_rows": 9,
+      "straininfo_taxon": "Ostreococcus",
+      "word_qc_group": "ostreococcus"
+    },
+    {
+      "ontology_id": "NCBITaxon:2822231",
+      "prediction_rows": 5,
+      "straininfo_taxon": "Phanerodontia chrysosporium",
+      "word_qc_group": "phanerochaete chrysosporium"
+    },
+    {
+      "ontology_id": "NCBITaxon:64495",
+      "prediction_rows": 5,
+      "straininfo_taxon": "Rhizopus arrhizus",
+      "word_qc_group": "rhizopus oryzae"
+    },
+    {
+      "ontology_id": "NCBITaxon:4772",
+      "prediction_rows": 4,
+      "straininfo_taxon": "Schizochytrium",
+      "word_qc_group": "schizochytrium"
+    },
+    {
+      "ontology_id": "NCBITaxon:78579",
+      "prediction_rows": 4,
+      "straininfo_taxon": "Thermothelomyces thermophilus",
+      "word_qc_group": "myceliophthora thermophila"
+    },
+    {
+      "ontology_id": "NCBITaxon:35140",
+      "prediction_rows": 3,
+      "straininfo_taxon": "Chrysochromulina",
+      "word_qc_group": "chrysochromulina"
+    },
+    {
+      "ontology_id": "NCBITaxon:57679",
+      "prediction_rows": 3,
+      "straininfo_taxon": "Cutaneotrichosporon curvatum",
+      "word_qc_group": "cryptococcus curvatus"
+    },
+    {
+      "ontology_id": "NCBITaxon:4922",
+      "prediction_rows": 3,
+      "straininfo_taxon": "Komagataella pastoris",
+      "word_qc_group": "pichia pastoris"
+    },
+    {
+      "ontology_id": "NCBITaxon:2511165",
+      "prediction_rows": 3,
+      "straininfo_taxon": "Microchloropsis salina",
+      "word_qc_group": "nannochloropsis salina"
+    },
+    {
+      "ontology_id": "NCBITaxon:5270",
+      "prediction_rows": 3,
+      "straininfo_taxon": "Mycosarcoma maydis",
+      "word_qc_group": "ustilago maydis"
+    },
+    {
+      "ontology_id": "NCBITaxon:4896",
+      "prediction_rows": 3,
+      "straininfo_taxon": "Schizosaccharomyces pombe",
+      "word_qc_group": "fission yeast"
+    },
+    {
+      "ontology_id": "NCBITaxon:128442",
+      "prediction_rows": 3,
+      "straininfo_taxon": "Talaromyces pinophilus",
+      "word_qc_group": "penicillium pinophilum"
+    },
+    {
+      "ontology_id": "NCBITaxon:41047",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Aspergillus thermomutatus",
+      "word_qc_group": "neosartorya pseudofischeri"
+    },
+    {
+      "ontology_id": "NCBITaxon:87102",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Aurantiochytrium limacinum",
+      "word_qc_group": "schizochytrium limacinum"
+    },
+    {
+      "ontology_id": "NCBITaxon:3071",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Chlorella",
+      "word_qc_group": "chlorella"
+    },
+    {
+      "ontology_id": "NCBITaxon:36911",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Clavispora lusitaniae",
+      "word_qc_group": "candida lusitaniae"
+    },
+    {
+      "ontology_id": "NCBITaxon:1577725",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Conticribra weissflogii",
+      "word_qc_group": "thalassiosira weissflogii"
+    },
+    {
+      "ontology_id": "NCBITaxon:5741",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Giardia intestinalis",
+      "word_qc_group": "giardia lamblia"
+    },
+    {
+      "ontology_id": "NCBITaxon:102231",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Gloeocapsa",
+      "word_qc_group": "gloeocapsa"
+    },
+    {
+      "ontology_id": "NCBITaxon:5736",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Monocercomonas",
+      "word_qc_group": "monocercomonas"
+    },
+    {
+      "ontology_id": "NCBITaxon:5748",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Nannochloropsis",
+      "word_qc_group": "nannochloropsis"
+    },
+    {
+      "ontology_id": "NCBITaxon:1077377",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Plenodomus tracheiphilus",
+      "word_qc_group": "cephalosporium chrysanthemi"
+    },
+    {
+      "ontology_id": "NCBITaxon:45512",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Scheffersomyces segobiensis",
+      "word_qc_group": "pichia segobiensis"
+    },
+    {
+      "ontology_id": "NCBITaxon:89043",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Spumella",
+      "word_qc_group": "spumella"
+    },
+    {
+      "ontology_id": "NCBITaxon:119933",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Stemphylium vesicarium",
+      "word_qc_group": "pleospora herbarum"
+    },
+    {
+      "ontology_id": "NCBITaxon:119933",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Stemphylium vesicarium",
+      "word_qc_group": "stemphylium herbarum"
+    },
+    {
+      "ontology_id": "NCBITaxon:209285",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Thermochaetoides thermophila",
+      "word_qc_group": "chaetomium thermophilum"
+    },
+    {
+      "ontology_id": "NCBITaxon:5643",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Trametes cinnabarina",
+      "word_qc_group": "pycnoporus cinnabarinus"
+    },
+    {
+      "ontology_id": "NCBITaxon:498011",
+      "prediction_rows": 2,
+      "straininfo_taxon": "Trichosphaerium",
+      "word_qc_group": "trichosphaerium"
+    },
+    {
+      "ontology_id": "NCBITaxon:314172",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Acanthohelicospora guianensis",
+      "word_qc_group": "helicosporium guianense"
+    },
+    {
+      "ontology_id": "NCBITaxon:1515",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Acetivibrio thermocellus",
+      "word_qc_group": "clostridium thermocellum"
+    },
+    {
+      "ontology_id": "NCBITaxon:286007",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Acrogenospora carmichaeliana",
+      "word_qc_group": "acrogenospora sphaerocephala"
+    },
+    {
+      "ontology_id": "NCBITaxon:64504",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Allomyces arbusculus",
+      "word_qc_group": "allomyces arbuscula"
+    },
+    {
+      "ontology_id": "NCBITaxon:76122",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Alloprevotella tannerae",
+      "word_qc_group": "prevotella tannerae"
+    },
+    {
+      "ontology_id": "NCBITaxon:180776",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Aphanoascus verrucosus",
+      "word_qc_group": "chrysosporium tropicum"
+    },
+    {
+      "ontology_id": "NCBITaxon:82516",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Apiotrichum gracile",
+      "word_qc_group": "trichosporon gracile"
+    },
+    {
+      "ontology_id": "NCBITaxon:105984",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Apiotrichum porosum",
+      "word_qc_group": "trichosporon porosum"
+    },
+    {
+      "ontology_id": "NCBITaxon:859442",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Aquanectria submersa",
+      "word_qc_group": "heliscus submersus"
+    },
+    {
+      "ontology_id": "NCBITaxon:1697446",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Aspergillus tonophilus",
+      "word_qc_group": "eurotium tonophilum"
+    },
+    {
+      "ontology_id": "NCBITaxon:1836197",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Aureobasidium lini",
+      "word_qc_group": "kabatiella lini"
+    },
+    {
+      "ontology_id": "NCBITaxon:5580",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Aureobasidium pullulans",
+      "word_qc_group": "dematium pullulans"
+    },
+    {
+      "ontology_id": "NCBITaxon:1196532",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Backusella grandis",
+      "word_qc_group": "mucor grandis"
+    },
+    {
+      "ontology_id": "NCBITaxon:124036",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Berkeleyomyces basicola",
+      "word_qc_group": "thielaviopsis basicola"
+    },
+    {
+      "ontology_id": "NCBITaxon:409370",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Blastobotrys adeninivorans",
+      "word_qc_group": "arxula adeninivorans"
+    },
+    {
+      "ontology_id": "NCBITaxon:2060905",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Blastomyces parvus",
+      "word_qc_group": "emmonsia parva"
+    },
+    {
+      "ontology_id": "NCBITaxon:5007",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Brettanomyces bruxellensis",
+      "word_qc_group": "dekkera bruxellensis"
+    },
+    {
+      "ontology_id": "NCBITaxon:1036766",
+      "prediction_rows": 1,
+      "straininfo_taxon": "Bulbithecium spinosum",
+      "word_qc_group": "cephalosporium spinosum"
+    }
+  ]
+}
