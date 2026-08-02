@@ -210,14 +210,28 @@ def load_candidate_indexes(
     }
 
     dataset = ds.dataset(aliases_path, format="parquet")
+    alias_expressions = []
+    if normalized_values:
+        alias_expressions.append(
+            ds.field("normalized_alias").isin(sorted(normalized_values))
+        )
+    if relaxed_values:
+        alias_expressions.append(
+            ds.field("relaxed_alias").isin(sorted(relaxed_values))
+        )
+    if formula_values:
+        alias_expressions.append(
+            ds.field("formula_alias").isin(sorted(formula_values))
+        )
+    if not alias_expressions:
+        return {}, {}, {}
+    alias_expression = alias_expressions[0]
+    for additional_expression in alias_expressions[1:]:
+        alias_expression = alias_expression | additional_expression
     expression = (
         ds.field("auto_eligible")
         & ds.field("entity_type").isin(entity_types)
-        & (
-            ds.field("normalized_alias").isin(sorted(normalized_values))
-            | ds.field("relaxed_alias").isin(sorted(relaxed_values))
-            | ds.field("formula_alias").isin(sorted(formula_values))
-        )
+        & alias_expression
     )
     table = dataset.to_table(
         columns=[
