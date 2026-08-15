@@ -17,6 +17,11 @@ submits two dependent Slurm jobs:
    sends GPU rules to `ei-gpu`, CPU rules to `nbi-medium`, and the one online
    StrainInfo assembly-resolution rule back to `nbi-download`.
 
+When `frozen_split_manifest` is configured, NER and relation dev/test tasks are
+kept identical to the recorded baseline. New non-overlapping article groups are
+training-only, while new tasks from an evaluation article are excluded. The
+split summaries report frozen counts and exclusions for verification.
+
 All paths must be on storage shared by the login, download, CPU, and GPU nodes.
 Do not use node-local `/tmp` for the environment, model cache, corpus, or output.
 The checkout itself should be on high-capacity shared/project storage because

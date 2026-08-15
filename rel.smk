@@ -10,6 +10,7 @@ import sys
 
 sys.path.append("scripts")
 from annotation_utils import load_annotations, merged_pmc_groups, source_group
+from frozen_splits import frozen_split_indices, load_frozen_split_manifest
 from relation_data import build_relation_rows, relation_membership, split_by_task
 
 
@@ -38,6 +39,7 @@ input_file = config["input_file"]
 cuda = config["cuda_devices"]
 test_size = config["rel_test"]
 annotation_pmc_matches_file = config.get("annotation_pmc_matches_file")
+frozen_split_manifest_file = config.get("frozen_split_manifest")
 CPU_PARTITION = config.get("slurm_cpu_partition", "cpu")
 GPU_PARTITION = config.get(
     "slurm_gpu_partition", "gpu_h100,gpu_a100_il,gpu_h100_il"
@@ -131,6 +133,7 @@ rule split_sets:
         expand("REL/{ENT}/all.tsv", ENT=labels),
         input_file,
         *([annotation_pmc_matches_file] if annotation_pmc_matches_file else []),
+        *([frozen_split_manifest_file] if frozen_split_manifest_file else []),
     output:
         datasets=expand("REL/{ENT}/{SET}.json", ENT=labels, SET=model_sets),
         summary="REL/split_summary.json",
@@ -143,6 +146,7 @@ rule split_sets:
         pmc_groups = merged_pmc_groups(
             load_json_data(input_file), annotation_pmc_matches_file
         )
+        frozen_manifest = load_frozen_split_manifest(frozen_split_manifest_file)
         for label in labels:
             rel_label = label.split(":")[1]
             df = pd.read_csv(f"REL/{label}/all.tsv", sep="\t")
@@ -152,12 +156,26 @@ rule split_sets:
             df.loc[:, "split_group"] = df["task_id"].map(
                 lambda task_id: source_group(task_id, pmc_groups)
             )
-            data_sets = split_by_task(
-                df,
-                test_and_dev_size=test_size,
-                seed=params.seed,
-                group_column="split_group",
-            )
+            frozen_stats = None
+            if frozen_manifest is not None:
+                split_spec = frozen_manifest["rel"][label]
+                split_indices, frozen_stats = frozen_split_indices(
+                    df["task_id"].tolist(),
+                    df["split_group"].tolist(),
+                    dev_task_ids=split_spec["dev_task_ids"],
+                    test_task_ids=split_spec["test_task_ids"],
+                )
+                data_sets = {
+                    split: df.iloc[row_indices].copy()
+                    for split, row_indices in split_indices.items()
+                }
+            else:
+                data_sets = split_by_task(
+                    df,
+                    test_and_dev_size=test_size,
+                    seed=params.seed,
+                    group_column="split_group",
+                )
             split_task_ids = {
                 split: set(data["task_id"].unique()) for split, data in data_sets.items()
             }
@@ -190,6 +208,8 @@ rule split_sets:
                 },
                 "splits": {},
             }
+            if frozen_stats is not None:
+                summary[label]["frozen_assignment"] = frozen_stats
 
             for data_set, data in data_sets.items():
                 summary[label]["splits"][data_set] = {
@@ -216,7 +236,11 @@ rule split_sets:
         with open(output.summary, "w") as handle:
             json.dump(
                 {
-                    "grouping": "unique_pmcid_else_task_id",
+                    "grouping": (
+                        "frozen_dev_test_plus_train_only_new_groups"
+                        if frozen_manifest is not None
+                        else "unique_pmcid_else_task_id"
+                    ),
                     "pmc_linked_tasks": len(pmc_groups),
                     "relations": summary,
                 },

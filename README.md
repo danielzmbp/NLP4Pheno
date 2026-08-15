@@ -153,6 +153,12 @@ auditable sources.
 When a task has multiple active annotations, preprocessing selects a marked
 ground-truth record or otherwise the most recently updated record.
 
+`config.yaml` also pins `label/frozen_splits_gold4061_4a6ea98.json`. These are
+the exact dev/test task IDs used by the 2026-07-27 gold-4061 model. Later tasks
+are added to training only; a task sharing a PMC article with frozen dev/test
+data is excluded. This keeps model comparisons fair and prevents article-level
+leakage.
+
 Audit the raw exports and their agreement with `config.yaml` before training:
 
 ```bash

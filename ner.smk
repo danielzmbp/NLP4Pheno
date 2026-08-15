@@ -9,6 +9,7 @@ from operator import itemgetter
 
 sys.path.append("scripts")
 from annotation_utils import load_annotations, merged_pmc_groups, source_group
+from frozen_splits import frozen_split_indices, load_frozen_split_manifest
 from ner_data import build_dataset
 from split_utils import three_way_group_split
 
@@ -38,8 +39,11 @@ input_file = config["input_file"]
 cuda = config["cuda_devices"]
 test_size = config["ner_test"]
 annotation_pmc_matches_file = config.get("annotation_pmc_matches_file")
+frozen_split_manifest_file = config.get("frozen_split_manifest")
 split_inputs = [input_file] + (
     [annotation_pmc_matches_file] if annotation_pmc_matches_file else []
+) + (
+    [frozen_split_manifest_file] if frozen_split_manifest_file else []
 )
 CPU_PARTITION = config.get("slurm_cpu_partition", "cpu")
 GPU_PARTITION = config.get(
@@ -114,6 +118,7 @@ rule make_split:
         # Load JSON data once and reuse
         json_file = load_json_data(input_file)
         pmc_groups = merged_pmc_groups(json_file, annotation_pmc_matches_file)
+        frozen_manifest = load_frozen_split_manifest(frozen_split_manifest_file)
 
         for label in labels:
             sentences = []
@@ -141,12 +146,22 @@ rule make_split:
             source_groups = [
                 source_group(item.get("id"), pmc_groups) for item in sentences
             ]
-            split_indices = three_way_group_split(
-                ners,
-                source_groups,
-                test_and_dev_size=test_size,
-                seed=params.seed,
-            )
+            frozen_stats = None
+            if frozen_manifest is not None:
+                split_spec = frozen_manifest["ner"][label]
+                split_indices, frozen_stats = frozen_split_indices(
+                    [item.get("id") for item in sentences],
+                    source_groups,
+                    dev_task_ids=split_spec["dev_task_ids"],
+                    test_task_ids=split_spec["test_task_ids"],
+                )
+            else:
+                split_indices = three_way_group_split(
+                    ners,
+                    source_groups,
+                    test_and_dev_size=test_size,
+                    seed=params.seed,
+                )
             sentence_split = tuple(
                 [sentences[index] for index in split_indices[split]]
                 for split in model_sets
@@ -184,10 +199,16 @@ rule make_split:
                 with open(f"NER/{label}/{s}.jsonls", "w") as f:
                     json.dump(list(y), f)
                     f.write("\n")
+            if frozen_stats is not None:
+                summary[label]["frozen_assignment"] = frozen_stats
         with open(output.summary, "w") as handle:
             json.dump(
                 {
-                    "grouping": "unique_pmcid_else_task_id",
+                    "grouping": (
+                        "frozen_dev_test_plus_train_only_new_groups"
+                        if frozen_manifest is not None
+                        else "unique_pmcid_else_task_id"
+                    ),
                     "pmc_linked_tasks": len(pmc_groups),
                     "labels": summary,
                 },
