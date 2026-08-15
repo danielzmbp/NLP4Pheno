@@ -54,6 +54,7 @@ mkdir -p \
     resources/ontologies/runtime
 
 export NLP4PHENO_MODEL_ID NLP4PHENO_MODEL_DIR
+if [[ "${NLP4PHENO_SKIP_HF_DOWNLOAD:-0}" != "1" ]]; then
 python - <<'PY'
 import os
 from pathlib import Path
@@ -79,6 +80,9 @@ if not weights:
     raise RuntimeError(f"No model weights were downloaded to {model_dir}")
 print(f"Cached model files: {len(list(model_dir.iterdir()))}")
 PY
+else
+    echo "Reusing the existing Hugging Face model and metric cache"
+fi
 
 if [[ ! -s resources/straininfo/strains.parquet \
       || ! -s resources/straininfo/designations.parquet \

@@ -80,10 +80,16 @@ export NLP4PHENO_ONTOLOGY_MANIFEST=/shared/path/ontology/manifest.json
 export NLP4PHENO_DRY_RUN=1
 export NLP4PHENO_REFRESH_ONTOLOGIES=1
 export NLP4PHENO_LINK_ANNOTATIONS=0
+export NLP4PHENO_SKIP_HF_DOWNLOAD=1
 ```
 
 `NLP4PHENO_REFRESH_ONTOLOGIES=1` intentionally downloads fresh ontology
 releases; omit it to reuse the local snapshots and their manifest.
+
+`NLP4PHENO_SKIP_HF_DOWNLOAD=1` avoids contacting Hugging Face when the model,
+tokenizer, and `evaluate` metric modules are already cached. The preparation
+job still performs the strict offline load checks before allowing dependent
+compute jobs to start, so a missing or incomplete cache fails early.
 
 `NLP4PHENO_LINK_ANNOTATIONS=0` skips provenance regeneration and should only be
 used when the configured match Parquet already corresponds to the exact
