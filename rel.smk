@@ -9,7 +9,7 @@ import jsonlines
 import sys
 
 sys.path.append("scripts")
-from annotation_utils import load_annotations, load_unique_pmc_groups, source_group
+from annotation_utils import load_annotations, merged_pmc_groups, source_group
 from relation_data import build_relation_rows, relation_membership, split_by_task
 
 
@@ -140,7 +140,9 @@ rule split_sets:
         seed=config["seed"],
     run:
         summary = {}
-        pmc_groups = load_unique_pmc_groups(annotation_pmc_matches_file)
+        pmc_groups = merged_pmc_groups(
+            load_json_data(input_file), annotation_pmc_matches_file
+        )
         for label in labels:
             rel_label = label.split(":")[1]
             df = pd.read_csv(f"REL/{label}/all.tsv", sep="\t")

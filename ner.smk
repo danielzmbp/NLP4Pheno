@@ -8,7 +8,7 @@ import sys
 from operator import itemgetter
 
 sys.path.append("scripts")
-from annotation_utils import load_annotations, load_unique_pmc_groups, source_group
+from annotation_utils import load_annotations, merged_pmc_groups, source_group
 from ner_data import build_dataset
 from split_utils import three_way_group_split
 
@@ -113,7 +113,7 @@ rule make_split:
         summary = {}
         # Load JSON data once and reuse
         json_file = load_json_data(input_file)
-        pmc_groups = load_unique_pmc_groups(annotation_pmc_matches_file)
+        pmc_groups = merged_pmc_groups(json_file, annotation_pmc_matches_file)
 
         for label in labels:
             sentences = []

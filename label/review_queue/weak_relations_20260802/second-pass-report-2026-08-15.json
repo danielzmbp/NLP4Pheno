@@ -1,0 +1,197 @@
+{
+  "changes": [
+    {
+      "candidate_id": "pmc_candidate_008a2e7d9c62ef",
+      "entities_edited": 5,
+      "human_review_rank": null,
+      "notes": "Expanded the two oils and three abbreviated culture collection spans to their complete textual mentions.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_38891e77e4c362",
+      "human_review_rank": null,
+      "notes": "Removed disease effects attributed to TMA lyase inhibitors rather than the engineered strain; retained the strain's stated metabolic action and added its indole-acetate production.",
+      "relations_added": 1,
+      "relations_dropped": 2
+    },
+    {
+      "candidate_id": "pmc_candidate_3f26e7f129b228",
+      "entities_dropped": 1,
+      "human_review_rank": null,
+      "notes": "Removed mango as an isolation source and its false INHABITS relation; the strain acted through fermented mango extract but was not stated to inhabit mango.",
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_4ca84f07bbb6ba",
+      "human_review_rank": null,
+      "notes": "Removed a self-category symbiosis error and added the three explicit strain-host symbioses while retaining their broader INHABITS links.",
+      "relations_added": 3,
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_5385bc0a9b0928",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Removed reversed causal relations: LI0758 inhibited yeast growth; W303-1A and BY4741 were affected strains, not inhibitory agents. Also trimmed punctuation.",
+      "relations_dropped": 4
+    },
+    {
+      "candidate_id": "pmc_candidate_62c24b24228ad5",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Trimmed sentence punctuation from the disease span.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_63c631a223d24d",
+      "human_review_rank": null,
+      "notes": "Removed the organism-level inhibition inferred from disruption of an infection effect; the explicit inhibition of stomatal reopening remains.",
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_69d9a5c1fffc01",
+      "entities_edited": 4,
+      "human_review_rank": null,
+      "notes": "Trimmed punctuation from manually added compounds and expanded the cardiovascular disease span to include symptoms.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_6ff4e45604edf7",
+      "entities_edited": 2,
+      "human_review_rank": null,
+      "notes": "Expanded bare ATCC identifiers to complete strain mentions.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_7d400562d14ef5",
+      "human_review_rank": null,
+      "notes": "Removed all four symbiosis positives because the sentence explicitly describes these strain-cultivar combinations as incompatible.",
+      "relations_dropped": 4
+    },
+    {
+      "candidate_id": "pmc_candidate_8d9c4786f985ed",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Corrected NEC from a phenotype phrase to the disease mention used by the explicit protective relation.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_8ee7a95a728fe5",
+      "human_review_rank": null,
+      "notes": "Moved the symbiosis relation from the unrelated Azolla host to the cycad from which this Nostoc strain was isolated.",
+      "relations_added": 1,
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_94720c443c975a",
+      "entities_added": 1,
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Trimmed Tucson, added the separately listed IS strain, and retained only sentence-local strain-host symbiosis links.",
+      "relations_added": 1,
+      "relations_dropped": 4
+    },
+    {
+      "candidate_id": "pmc_candidate_9c7a0a8eaa2d67",
+      "entities_edited": 2,
+      "human_review_rank": null,
+      "notes": "Converted verb-containing phenotype spans and PRESENTS links into the explicit inhibition of biofilm formation and virulence.",
+      "relations_added": 2,
+      "relations_dropped": 2
+    },
+    {
+      "candidate_id": "pmc_candidate_aa33b83154d9f5",
+      "entities_dropped": 1,
+      "human_review_rank": null,
+      "notes": "Removed a word-fragment phenotype and two relations contradicted by sentence scope: NGR234 is contrasted with nitrogen fixation, and V. unguiculata belongs to the G49 host list.",
+      "relations_dropped": 3
+    },
+    {
+      "candidate_id": "pmc_candidate_ba443a4c05b939",
+      "human_review_rank": null,
+      "notes": "Reassigned relations to the entities actually described: AC1100 degrades the xenobiotic, BR3459a is the Mimosa symbiont, and the Piptadenia statement applies to the species rather than either strain.",
+      "relations_added": 2,
+      "relations_dropped": 5
+    },
+    {
+      "candidate_id": "pmc_candidate_beb867bbd5c3ca",
+      "entities_added": 1,
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Split the malformed combined OR191/LPU83 strain span and retained a conservative Medicago symbiosis link for the added OR191 mention.",
+      "relations_added": 1,
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_c1c743a51fb841",
+      "human_review_rank": null,
+      "notes": "Replaced indirect strain-DIO effects with the explicitly stated production of the protective fatty-acid metabolite by each listed strain.",
+      "relations_added": 3,
+      "relations_dropped": 3
+    },
+    {
+      "candidate_id": "pmc_candidate_c20e36d9633675",
+      "entities_edited": 2,
+      "human_review_rank": null,
+      "notes": "Trimmed two strain boundaries and retyped Candidatus Evansia muelleri as a species; the resulting species-host relation is outside the configured strain relation taxonomy and was removed.",
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_c6abdaa1a10120",
+      "human_review_rank": null,
+      "notes": "Removed the out-of-taxonomy strain-species PROMOTES edge and a contextual biofilm PRESENTS edge; the configured strain-phenotype growth promotion relation captures the stated effect.",
+      "relations_dropped": 2
+    },
+    {
+      "candidate_id": "pmc_candidate_dd75f1bfdefd34",
+      "entities_dropped": 1,
+      "human_review_rank": null,
+      "notes": "Removed the nested marmoset ISOLATE span; marmoset is the host organism, not a stated isolation material in this sentence.",
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_e176b52f5b9904",
+      "entities_edited": 2,
+      "human_review_rank": null,
+      "notes": "Expanded both observed phenotypes to include their direction and linked the strain to the enhanced biomass phenotype as well as impaired biofilm formation.",
+      "relations_added": 1,
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_ea678738f5bb26",
+      "entities_edited": 2,
+      "human_review_rank": null,
+      "notes": "Trimmed commas from two strain spans.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_f5d9d5e347c686",
+      "entities_dropped": 2,
+      "entities_edited": 2,
+      "human_review_rank": null,
+      "notes": "Removed an adjective and an exact cross-type duplicate, and represented A. flavus as a microbial species.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_f6d93f9a27a238",
+      "entities_dropped": 1,
+      "human_review_rank": null,
+      "notes": "Removed food security as a phenotype; it is a metaphorical description, not an organism phenotype.",
+      "relations_dropped": 1
+    }
+  ],
+  "corrected_tasks": 25,
+  "corrections": "label/review_queue/weak_relations_20260802/second-pass-corrections-2026-08-15.json",
+  "corrections_sha256": "3384a01f8b603985c07afa670e672c83b82b83df6a89b36e05030f355fc5b6ab",
+  "created_at": "2026-08-15T20:33:27.549875+00:00",
+  "entities_added": 2,
+  "entities_dropped": 6,
+  "entities_edited": 26,
+  "output": "label/review_queue/weak_relations_20260802/reviewed-export-2026-08-15-second-pass.json",
+  "output_sha256": "a547a3289ee546be4e0f23c2fa27d7223b5de7e53fc110acc2a74dac7cce637d",
+  "relations_added": 15,
+  "relations_dropped": 36,
+  "source": "label/review_queue/weak_relations_20260802/reviewed-export-2026-08-15.json",
+  "source_sha256": "03b1d37f9697626439e74a68bdfa071a1e68aaa19395d768cd7071c7b12886b2",
+  "source_tasks": 68
+}

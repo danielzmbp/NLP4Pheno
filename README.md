@@ -146,8 +146,9 @@ See `hpc/README.md` for resumable stage selection, cache paths, and monitoring.
 
 ### Annotation Data
 The current manually reviewed dataset is provided in
-`label/project-10-reviewed-2026-07-23.json` (Label Studio JSON format). The
-2025 export and intermediate 2026 review batches are retained unchanged as
+`label/project-10-reviewed-2026-08-15.json` (Label Studio JSON format). It
+contains 4,129 tasks, including the audited 68-task weak-relation review batch.
+The 2025 export and intermediate 2026 review batches are retained unchanged as
 auditable sources.
 When a task has multiple active annotations, preprocessing selects a marked
 ground-truth record or otherwise the most recently updated record.
@@ -157,10 +158,10 @@ Audit the raw exports and their agreement with `config.yaml` before training:
 ```bash
 python scripts/audit_annotations.py \
   label/project-10-at-2025-08-21-21-08-cb43bf25.json \
-  label/project-10-reviewed-2026-07-23.json \
+  label/project-10-reviewed-2026-08-15.json \
   --config config.yaml \
-  --json-output label/annotation_audit_reviewed.json \
-  --markdown-output label/annotation_audit_reviewed.md
+  --json-output label/annotation_audit_2026-08-15.json \
+  --markdown-output label/annotation_audit_2026-08-15.md
 ```
 
 **Format Requirements:**
@@ -176,7 +177,7 @@ corpus, recover only verifiable literal matches and retain ambiguous sources:
 
 ```bash
 python scripts/link_annotations_to_pmc.py \
-  label/project-10-reviewed-2026-07-23.json \
+  label/project-10-reviewed-2026-08-15.json \
   snakemake_PMC/output/data/pmc_filtered.parquet \
   --matches-output label/annotation_pmc_matches.parquet \
   --summary-output label/annotation_pmc_summary.json

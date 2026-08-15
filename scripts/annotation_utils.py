@@ -76,6 +76,41 @@ def load_unique_pmc_groups(path: str | Path | None) -> dict[str, str]:
     return {task_id: next(iter(values)) for task_id, values in groups.items()}
 
 
+def embedded_pmc_groups(tasks: list[dict[str, Any]]) -> dict[str, str]:
+    """Return task-to-PMC groups carried directly by annotation tasks."""
+    groups: dict[str, str] = {}
+    for task in tasks:
+        task_id = str(task.get("id") or "")
+        pmcid = str(task.get("data", {}).get("pmcid") or "").strip()
+        if not task_id or not pmcid:
+            continue
+        previous = groups.get(task_id)
+        if previous is not None and previous != pmcid:
+            raise ValueError(
+                f"Annotation task {task_id} has conflicting embedded PMCIDs: "
+                f"{previous!r} and {pmcid!r}"
+            )
+        groups[task_id] = pmcid
+    return groups
+
+
+def merged_pmc_groups(
+    tasks: list[dict[str, Any]],
+    external_path: str | Path | None,
+) -> dict[str, str]:
+    """Merge historical recovered PMCIDs with provenance in newer tasks."""
+    groups = load_unique_pmc_groups(external_path)
+    for task_id, pmcid in embedded_pmc_groups(tasks).items():
+        previous = groups.get(task_id)
+        if previous is not None and previous != pmcid:
+            raise ValueError(
+                f"Task {task_id} has conflicting external and embedded PMCIDs: "
+                f"{previous!r} and {pmcid!r}"
+            )
+        groups[task_id] = pmcid
+    return groups
+
+
 def source_group(task_id: Any, pmc_groups: dict[str, str]) -> str:
     """Group a linked task by article and keep each unlinked task independent."""
     task_key = str(task_id)

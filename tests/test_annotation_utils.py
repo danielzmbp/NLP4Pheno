@@ -1,11 +1,18 @@
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
-from annotation_utils import canonicalize_tasks, select_annotation, source_group  # noqa: E402
+from annotation_utils import (  # noqa: E402
+    canonicalize_tasks,
+    embedded_pmc_groups,
+    merged_pmc_groups,
+    select_annotation,
+    source_group,
+)
 
 
 class AnnotationSelectionTests(unittest.TestCase):
@@ -48,6 +55,26 @@ class AnnotationSelectionTests(unittest.TestCase):
         groups = {"1": "PMC123"}
         self.assertEqual(source_group(1, groups), "pmcid:PMC123")
         self.assertEqual(source_group(2, groups), "task:2")
+
+    def test_embedded_pmcids_group_new_annotation_tasks(self):
+        tasks = [
+            {"id": 10, "data": {"pmcid": "PMC123"}},
+            {"id": 11, "data": {"pmcid": "PMC123"}},
+            {"id": 12, "data": {}},
+        ]
+        groups = embedded_pmc_groups(tasks)
+        self.assertEqual(groups, {"10": "PMC123", "11": "PMC123"})
+        self.assertEqual(source_group(10, groups), source_group(11, groups))
+        self.assertEqual(source_group(12, groups), "task:12")
+
+    def test_embedded_pmcid_conflict_with_external_map_is_rejected(self):
+        tasks = [{"id": 10, "data": {"pmcid": "PMC999"}}]
+        with patch(
+            "annotation_utils.load_unique_pmc_groups",
+            return_value={"10": "PMC123"},
+        ):
+            with self.assertRaisesRegex(ValueError, "conflicting"):
+                merged_pmc_groups(tasks, "matches.parquet")
 
 
 if __name__ == "__main__":
