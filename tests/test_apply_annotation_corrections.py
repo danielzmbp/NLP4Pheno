@@ -106,6 +106,74 @@ class ApplyAnnotationCorrectionsTests(unittest.TestCase):
         self.assertEqual(report["relations_dropped"], 1)
         self.assertEqual(report["relations_added"], 1)
 
+    def test_can_address_historical_task_without_candidate_id_by_task_id(self):
+        text = "AM-19226 was killed by V52."
+        source = [
+            {
+                "id": 19324,
+                "data": {"text": text},
+                "annotations": [
+                    {
+                        "result": [
+                            {
+                                "id": "victim",
+                                "type": "labels",
+                                "value": {
+                                    "start": 0,
+                                    "end": 8,
+                                    "text": "AM-19226",
+                                    "labels": ["STRAIN"],
+                                },
+                            },
+                            {
+                                "id": "actor",
+                                "type": "labels",
+                                "value": {
+                                    "start": 23,
+                                    "end": 26,
+                                    "text": "V52",
+                                    "labels": ["STRAIN"],
+                                },
+                            },
+                            {
+                                "from_id": "victim",
+                                "to_id": "actor",
+                                "type": "relation",
+                                "labels": ["INHIBITS"],
+                            },
+                        ]
+                    }
+                ],
+            }
+        ]
+        corrections = [
+            {
+                "task_id": 19324,
+                "drop_relations": [["victim", "actor", "INHIBITS"]],
+                "add_relations": [["actor", "victim", "INHIBITS"]],
+            }
+        ]
+
+        corrected, report = apply_corrections(source, corrections)
+        relations = [
+            result
+            for result in corrected[0]["annotations"][0]["result"]
+            if result["type"] == "relation"
+        ]
+        self.assertEqual(
+            (relations[0]["from_id"], relations[0]["to_id"]),
+            ("actor", "victim"),
+        )
+        self.assertEqual(report["changes"][0]["task_id"], "19324")
+
+    def test_rejects_ambiguous_correction_locator(self):
+        source = [{"id": 1, "data": {"candidate_id": "one", "text": ""}}]
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            apply_corrections(
+                source,
+                [{"task_id": 1, "candidate_id": "one"}],
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -45,6 +45,22 @@ def requested_relation_key(values: list[Any]) -> tuple[str, str, str]:
     return tuple(str(value) for value in values)  # type: ignore[return-value]
 
 
+def correction_locator(correction: dict[str, Any]) -> tuple[str, str]:
+    """Return the single stable task locator supplied by a correction."""
+    candidate_id = str(correction.get("candidate_id") or "")
+    task_id = str(correction.get("task_id") or "")
+    if bool(candidate_id) == bool(task_id):
+        raise ValueError(
+            "Each correction must provide exactly one of candidate_id or task_id"
+        )
+    return ("candidate_id", candidate_id) if candidate_id else ("task_id", task_id)
+
+
+def locator_label(correction: dict[str, Any]) -> str:
+    kind, value = correction_locator(correction)
+    return f"{kind}={value}"
+
+
 def make_entity(
     *,
     result_id: str,
@@ -75,7 +91,7 @@ def apply_one(
     corrected = copy.deepcopy(task)
     annotation = select_annotation(corrected)
     if annotation is None:
-        raise ValueError(f"Task has no submitted annotation: {correction['candidate_id']}")
+        raise ValueError(f"Task has no submitted annotation: {locator_label(correction)}")
     text = str(corrected.get("data", {}).get("text") or "")
     results = copy.deepcopy(annotation.get("result", []))
     counts: Counter[str] = Counter()
@@ -172,7 +188,7 @@ def apply_one(
     missing_relations = drop_relations - found_drop_relations
     if missing_relations:
         raise ValueError(
-            f"Unknown relations to drop for {correction['candidate_id']}: "
+            f"Unknown relations to drop for {locator_label(correction)}: "
             f"{sorted(missing_relations)}"
         )
     results = [
@@ -213,7 +229,7 @@ def apply_one(
         existing_relations.add(key)
         counts["relations_added"] += 1
 
-    validate_results(text, results, str(correction["candidate_id"]))
+    validate_results(text, results, locator_label(correction))
     annotation["result"] = results
     annotation["ground_truth"] = True
     annotation["second_pass_review"] = {
@@ -229,32 +245,44 @@ def apply_corrections(
     corrections: list[dict[str, Any]],
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     corrected_tasks = copy.deepcopy(tasks)
-    task_indexes: dict[str, int] = {}
+    candidate_indexes: dict[str, int] = {}
+    id_indexes: dict[str, int] = {}
     for index, task in enumerate(corrected_tasks):
         candidate_id = str(task.get("data", {}).get("candidate_id") or "")
-        if not candidate_id:
-            raise ValueError(f"Task at index {index} lacks candidate_id")
-        if candidate_id in task_indexes:
+        if candidate_id and candidate_id in candidate_indexes:
             raise ValueError(f"Duplicate candidate_id in tasks: {candidate_id}")
-        task_indexes[candidate_id] = index
+        if candidate_id:
+            candidate_indexes[candidate_id] = index
+        task_id = str(task.get("id") or "")
+        if not task_id:
+            raise ValueError(f"Task at index {index} lacks id")
+        if task_id in id_indexes:
+            raise ValueError(f"Duplicate task id in tasks: {task_id}")
+        id_indexes[task_id] = index
 
-    seen: set[str] = set()
+    seen: set[tuple[str, str]] = set()
     totals: Counter[str] = Counter()
     changed: list[dict[str, Any]] = []
     for correction in corrections:
-        candidate_id = str(correction.get("candidate_id") or "")
-        if not candidate_id or candidate_id in seen:
-            raise ValueError(f"Missing or duplicate correction candidate_id: {candidate_id!r}")
-        if candidate_id not in task_indexes:
-            raise ValueError(f"Unknown correction candidate_id: {candidate_id}")
-        seen.add(candidate_id)
-        index = task_indexes[candidate_id]
+        kind, value = correction_locator(correction)
+        key = (kind, value)
+        if key in seen:
+            raise ValueError(f"Duplicate correction locator: {kind}={value}")
+        indexes = candidate_indexes if kind == "candidate_id" else id_indexes
+        if value not in indexes:
+            raise ValueError(f"Unknown correction locator: {kind}={value}")
+        seen.add(key)
+        index = indexes[value]
         corrected, counts = apply_one(corrected_tasks[index], correction)
         corrected_tasks[index] = corrected
         totals.update(counts)
         changed.append(
             {
-                "candidate_id": candidate_id,
+                kind: value,
+                "task_id": str(corrected.get("id") or ""),
+                "candidate_id": str(
+                    corrected.get("data", {}).get("candidate_id") or ""
+                ),
                 "human_review_rank": corrected.get("data", {}).get(
                     "human_review_rank"
                 ),
@@ -271,6 +299,7 @@ def apply_corrections(
             changed,
             key=lambda row: (
                 int(row.get("human_review_rank") or 0),
+                row["task_id"],
                 row["candidate_id"],
             ),
         ),

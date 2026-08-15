@@ -146,8 +146,11 @@ See `hpc/README.md` for resumable stage selection, cache paths, and monitoring.
 
 ### Annotation Data
 The current manually reviewed dataset is provided in
-`label/project-10-reviewed-2026-08-15.json` (Label Studio JSON format). It
-contains 4,129 tasks, including the audited 68-task weak-relation review batch.
+`label/project-10-reviewed-2026-08-15-taxonomy-pass.json` (Label Studio JSON
+format). It contains 4,129 tasks, including the audited 68-task weak-relation
+review batch and a reproducible correction pass over eight historical tasks.
+The correction decisions and post-correction audit are retained under
+`label/review_queue/relation_taxonomy_20260815/`.
 The 2025 export and intermediate 2026 review batches are retained unchanged as
 auditable sources.
 When a task has multiple active annotations, preprocessing selects a marked
@@ -164,10 +167,10 @@ Audit the raw exports and their agreement with `config.yaml` before training:
 ```bash
 python scripts/audit_annotations.py \
   label/project-10-at-2025-08-21-21-08-cb43bf25.json \
-  label/project-10-reviewed-2026-08-15.json \
+  label/project-10-reviewed-2026-08-15-taxonomy-pass.json \
   --config config.yaml \
-  --json-output label/annotation_audit_2026-08-15.json \
-  --markdown-output label/annotation_audit_2026-08-15.md
+  --json-output label/review_queue/relation_taxonomy_20260815/audit-after-corrections.json \
+  --markdown-output label/review_queue/relation_taxonomy_20260815/audit-after-corrections.md
 ```
 
 **Format Requirements:**
@@ -183,7 +186,7 @@ corpus, recover only verifiable literal matches and retain ambiguous sources:
 
 ```bash
 python scripts/link_annotations_to_pmc.py \
-  label/project-10-reviewed-2026-08-15.json \
+  label/project-10-reviewed-2026-08-15-taxonomy-pass.json \
   snakemake_PMC/output/data/pmc_filtered.parquet \
   --matches-output label/annotation_pmc_matches.parquet \
   --summary-output label/annotation_pmc_summary.json
