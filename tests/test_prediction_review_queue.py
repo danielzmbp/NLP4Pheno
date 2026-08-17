@@ -15,6 +15,65 @@ from build_prediction_review_queue import (  # noqa: E402
 
 
 class PredictionReviewQueueTests(unittest.TestCase):
+    def test_selection_orders_high_confidence_tiers_first(self):
+        rows = []
+        tiers = [
+            ("high_grounded", 0.97, 0.96, 0.98, "matched"),
+            ("high_unresolved", 0.92, 0.96, 0.98, "unmatched"),
+            ("relation_boundary", 0.60, 0.96, 0.98, "matched"),
+            ("entity_tension", 0.90, 0.70, 0.98, "matched"),
+        ]
+        for index, (_, rel_score, ner_score, strain_score, ontology_status) in enumerate(tiers):
+            text = f"Strain X evidence sentence {index}."
+            rows.append(
+                {
+                    "text": text,
+                    "pmcid": f"PMC{index + 1}",
+                    "article_version": "v1",
+                    "paragraph": index,
+                    "sentence_range": "0:30",
+                    "rel": "STRAIN-ORGANISM:SYMBIONT_OF",
+                    "score_rel": rel_score,
+                    "ner_score": ner_score,
+                    "score_strain": strain_score,
+                    "ner": "ORGANISM",
+                    "word": "evidence",
+                    "word_qc_group": "evidence",
+                    "word_strain": "Strain X",
+                    "word_strain_qc": "strain x",
+                    "straininfo_si_id": 10,
+                    "straininfo_taxon": "Example species",
+                    "straininfo_status": "matched",
+                    "straininfo_method": "exact",
+                    "start": 9,
+                    "end": 17,
+                    "start_strain": 0,
+                    "end_strain": 8,
+                    "ontology_status": ontology_status,
+                    "ontology_candidate_count": 1,
+                    "ontology": "NCBITAXON",
+                    "ontology_id": "NCBITaxon:1",
+                    "ontology_label": "evidence",
+                    "ontology_match_method": "direct_exact",
+                    "ontology_match_confidence": 1.0,
+                }
+            )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            path = Path(temporary_directory) / "predictions.parquet"
+            pl.DataFrame(rows).write_parquet(path)
+            selected = select_candidate_sentences(
+                path,
+                set(),
+                per_relation_tier=1,
+                seed=1,
+                max_text_chars=100,
+            )
+
+        self.assertEqual(
+            selected.get_column("review_tier").to_list(),
+            [name for name, *_ in tiers],
+        )
+
     def test_selection_can_focus_on_underrepresented_relations(self):
         rows = []
         for index, relation in enumerate(

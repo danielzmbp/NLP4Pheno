@@ -170,7 +170,13 @@ def select_candidate_sentences(
         .sort(["rel", "review_tier", "_sample_hash"])
         .group_by("rel", "review_tier", maintain_order=True)
         .head(per_relation_tier)
-        .sort(["review_tier", "rel", "_sample_hash"])
+        .with_columns(
+            pl.col("review_tier")
+            .replace_strict(TIER_ORDER)
+            .alias("_tier_order")
+        )
+        .sort(["_tier_order", "rel", "_sample_hash"])
+        .drop("_tier_order")
     )
 
     # A sentence is one review unit even when several sampled edges selected it.
