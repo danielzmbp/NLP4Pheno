@@ -1,0 +1,10 @@
+{
+  "completed_tasks": 0,
+  "created": true,
+  "created_at": "2026-08-17T19:26:03.686081+00:00",
+  "project_id": 7,
+  "queue": "label/review_queue/targeted_regressions_20260817/queue.json",
+  "tasks": 55,
+  "title": "PMC targeted regression audit \u2014 2026-08-17",
+  "url": "http://127.0.0.1:8080/projects/7/data"
+}
