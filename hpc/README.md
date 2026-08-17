@@ -188,6 +188,16 @@ The default relation list contains the two classifiers changed by the
 2026-08-15 taxonomy pass. Override `NLP4PHENO_RESCORE_RELATIONS` with a
 space-separated list for future correction batches.
 
+## Mine a targeted review queue
+
+Large full-PMC prediction tables should be scanned in a scheduled CPU job, not
+on the login node. `build_targeted_review_queue.sbatch` wraps the streaming
+queue builder and excludes every sentence already present in the supplied gold
+annotation export. Set `NLP4PHENO_REVIEW_RELATIONS` to the regressed or sparse
+typed classifiers and adjust `NLP4PHENO_REVIEW_PER_RELATION_TIER` to control
+queue size. The generated `queue.json` remains prediction-only until it is
+reviewed and exported from Label Studio.
+
 ## Monitor
 
 ```bash
