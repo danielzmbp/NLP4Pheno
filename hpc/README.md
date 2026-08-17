@@ -167,6 +167,27 @@ single-article edge must have at least one evidence sentence passing the RE,
 NER, and strain thresholds in `config.yaml`. These views do not replace or
 delete the complete network/evidence artifacts.
 
+## Re-score a baseline after holdout corrections
+
+When annotation corrections alter labels inside a frozen evaluation task, the
+task IDs remain leakage-safe but the old and new metric tables are no longer
+directly comparable. Evaluate the saved baseline models against the corrected
+dev/test JSON without retraining them:
+
+```bash
+export NLP4PHENO_PROJECT=/shared/path/current-code-snapshot
+export NLP4PHENO_BASELINE_RUN=/shared/path/baseline-run
+export NLP4PHENO_CORRECTED_RUN=/shared/path/corrected-run
+export NLP4PHENO_RESCORE_OUTPUT=/shared/path/baseline-on-corrected-holdout
+export NLP4PHENO_ENV_PREFIX=/shared/path/nlp4pheno-conda
+export NLP4PHENO_HF_HOME=/shared/path/huggingface-cache
+sbatch --export=ALL hpc/rescore_rel_models.sbatch
+```
+
+The default relation list contains the two classifiers changed by the
+2026-08-15 taxonomy pass. Override `NLP4PHENO_RESCORE_RELATIONS` with a
+space-separated list for future correction batches.
+
 ## Monitor
 
 ```bash
