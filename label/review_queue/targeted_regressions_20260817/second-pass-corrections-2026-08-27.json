@@ -1,0 +1,192 @@
+[
+  {
+    "candidate_id": "pmc_candidate_a76a93757bcbae",
+    "reviewer": "Codex",
+    "notes": "The sentence explicitly says that DSM22707 produced no H2; retain the four positively stated fermentation products but remove the negated production edge.",
+    "drop_relations": [
+      ["pred_entity_b9554629317beb", "pred_entity_cfae8d36c3d1d0", "PRODUCES"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_3bb537edbff22f",
+    "reviewer": "Codex",
+    "notes": "Both NCTC identifiers denote the isolates recovered from feces of children with enteritis; retain their source relations and add the explicit disease associations.",
+    "add_relations": [
+      ["pred_entity_0f6570fe80505f", "pred_entity_032f52256a2abf", "ASSOCIATED_WITH"],
+      ["pred_entity_8e39485408f328", "pred_entity_032f52256a2abf", "ASSOCIATED_WITH"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_24f425e49b7898",
+    "reviewer": "Codex",
+    "notes": "Gymnostoma is explicitly excluded from the stated host families, so it cannot be retained as a symbiont target for ACN14a or CcI3.",
+    "drop_relations": [
+      ["pred_entity_2209d88dfc525b", "pred_entity_87492f8d457985", "SYMBIONT_OF"],
+      ["pred_entity_cad37664f9e0ca", "pred_entity_87492f8d457985", "SYMBIONT_OF"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_7bfd8718c0faf3",
+    "reviewer": "Codex",
+    "notes": "The title directly calls LUT6 a Lupinus microsymbiont. Keep the accepted broader INHABITS relation and restore its more specific SYMBIONT_OF subcategory.",
+    "add_relations": [
+      ["pred_entity_7fe585604263f6", "pred_entity_a9b3f12f1aa1f8", "SYMBIONT_OF"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_c3ed0a955acabe",
+    "reviewer": "Codex",
+    "notes": "Carbon and nitrogen describe nutritional roles in the parentheticals; sucrose and casein hydrolysate are the actual substances. Remove the two role-word spans.",
+    "drop_entity_ids": [
+      "vDLrwTQAET",
+      "HomLmU3ZOv"
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_9147cf35aa5356",
+    "reviewer": "Codex",
+    "notes": "The restrictive clause says that other Gardnerella isolates came from BV patients, while the next sentence excludes other urogenital infections. It does not support disease edges from the E. coli reference strain.",
+    "drop_relations": [
+      ["pred_entity_377a594ba76f3d", "pred_entity_e777022fae6da3", "ASSOCIATED_WITH"],
+      ["pred_entity_377a594ba76f3d", "pred_entity_02467e889b9fd2", "ASSOCIATED_WITH"],
+      ["pred_entity_377a594ba76f3d", "pred_entity_76d507f914d7e5", "ASSOCIATED_WITH"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_15dc1e734c16e0",
+    "reviewer": "Codex",
+    "notes": "CWBI-2.3 is isolated from Aphis fabae and called a symbiotic bacterium of aphids. Link the specific host with both the broad inhabitation label and its specific symbiosis subcategory; remove the unsupported cross-sentence link to Cinara cedri.",
+    "drop_relations": [
+      ["pred_entity_ef9c6cafe8ce16", "pred_entity_02f655246b2c94", "SYMBIONT_OF"]
+    ],
+    "add_relations": [
+      ["pred_entity_ef9c6cafe8ce16", "pred_entity_c75e6127d54a1c", "SYMBIONT_OF"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_f8d9619ffabc57",
+    "reviewer": "Codex",
+    "notes": "Ag nanoparticles inhibit the biofilm; the S. epidermidis strain causes the biofilm and is not the inhibitor. Remove the reversed strain-to-phenotype inhibition edge.",
+    "drop_relations": [
+      ["pred_entity_b74b600d959b60", "pred_entity_83d5ca01b0cedd", "INHIBITS"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_5d8447c907ade4",
+    "reviewer": "Codex",
+    "notes": "The strains completely down-regulated polyol formation and did not accumulate polyols under the stated condition. Remove the positive PRESENTS and PRODUCES edges contradicted by this negation.",
+    "drop_relations": [
+      ["pred_entity_46748a769a1156", "pred_entity_4b9988e30d0041", "PRESENTS"],
+      ["pred_entity_0dc5790ce852ca", "pred_entity_4b9988e30d0041", "PRESENTS"],
+      ["pred_entity_0dc5790ce852ca", "pred_entity_90219e5927907a", "PRODUCES"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_f16b73f0918e5b",
+    "reviewer": "Codex",
+    "notes": "The pH-tolerance clause explicitly compares R. jostii RHA1, R. opacus KCTC 9811 and DK17. Add PRESENTS edges from the mentions in that clause to the reviewed phenotype span.",
+    "add_relations": [
+      ["pred_entity_cc01adba4ae196", "VV4J5d-gaX", "PRESENTS"],
+      ["pred_entity_d0434e2bbb15fc", "VV4J5d-gaX", "PRESENTS"],
+      ["pred_entity_2376ad68b31ca4", "VV4J5d-gaX", "PRESENTS"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_588cbf7776d564",
+    "reviewer": "Codex",
+    "notes": "Exclude the sentence-final period from the bacteriocin SH01 compound span while retaining its production relation.",
+    "edit_entities": [
+      {
+        "id": "qYDKIgyzFa",
+        "text": "bacteriocin SH01",
+        "occurrence": 1,
+        "label": "COMPOUND"
+      }
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_615d60440671f2",
+    "reviewer": "Codex",
+    "notes": "The two blank Label Studio relation records are the missing CP-A0/93R links to the enterotoxemia shared by the first enumerated strain group.",
+    "drop_relations": [
+      ["pred_entity_f01f2ce85b9e31", "pred_entity_cd62b8a3fbe860", ""],
+      ["pred_entity_5e54f285a4de73", "pred_entity_cd62b8a3fbe860", ""]
+    ],
+    "add_relations": [
+      ["pred_entity_f01f2ce85b9e31", "pred_entity_cd62b8a3fbe860", "ASSOCIATED_WITH"],
+      ["pred_entity_5e54f285a4de73", "pred_entity_cd62b8a3fbe860", "ASSOCIATED_WITH"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_a6a7a35730f90c",
+    "reviewer": "Codex",
+    "notes": "Expand the incomplete lignin- span to the complete compound-class phrase lignin-derived phenolics.",
+    "edit_entities": [
+      {
+        "id": "43E3xvFoMx",
+        "text": "lignin-derived phenolics",
+        "occurrence": 1,
+        "label": "COMPOUND"
+      }
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_953c631a2254c1",
+    "reviewer": "Codex",
+    "notes": "Alveolar bone loss is the induced phenotype, not a disease name. Restore PHENOTYPE spans and retain only the configured STRAIN-PHENOTYPE:PROMOTES labels.",
+    "edit_entities": [
+      {
+        "id": "pred_entity_34b21b334a2458",
+        "start": 31,
+        "end": 49,
+        "label": "PHENOTYPE"
+      },
+      {
+        "id": "pred_entity_f148a856953293",
+        "start": 297,
+        "end": 337,
+        "label": "PHENOTYPE"
+      }
+    ],
+    "drop_relations": [
+      ["pred_entity_3bdc532b913ac5", "pred_entity_34b21b334a2458", "PROMOTES"],
+      ["pred_entity_324b89935fda31", "pred_entity_f148a856953293", "PROMOTES"]
+    ],
+    "add_relations": [
+      ["pred_entity_3bdc532b913ac5", "pred_entity_34b21b334a2458", "PROMOTES"],
+      ["pred_entity_324b89935fda31", "pred_entity_f148a856953293", "PROMOTES"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_cc2005d544a283",
+    "reviewer": "Codex",
+    "notes": "C. albicans is already represented by the coincident SPECIES span; remove the duplicate ORGANISM label, which is reserved here for hosts and other non-microbial organisms.",
+    "drop_entity_ids": [
+      "pred_entity_8d177848a436ba"
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_075af1ef2614a8",
+    "reviewer": "Codex",
+    "notes": "The complete C. albicans SC5314 mention is a strain and already has the STRAIN span used by the disease relation. Remove the coincident ORGANISM duplicate.",
+    "drop_entity_ids": [
+      "pred_entity_f373335b0d83a3"
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_22064b1f5ce6bc",
+    "reviewer": "Codex",
+    "notes": "Sponge is the host organism, not a phenotype presented by FO-BEG1. Remove the coincident PHENOTYPE span and its endpoint relation; retain the reviewed ORGANISM symbiosis links.",
+    "drop_entity_ids": [
+      "pred_entity_25850d3d8128b6"
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_de362e3aadcf64",
+    "reviewer": "Codex",
+    "notes": "ETEC K88 is already correctly represented as a STRAIN that promotes intestinal barrier dysfunction. Remove its coincident PHENOTYPE duplicate.",
+    "drop_entity_ids": [
+      "pred_entity_1f6f207c1c1631"
+    ]
+  }
+]

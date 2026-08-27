@@ -146,11 +146,13 @@ See `hpc/README.md` for resumable stage selection, cache paths, and monitoring.
 
 ### Annotation Data
 The current manually reviewed dataset is provided in
-`label/project-10-reviewed-2026-08-15-taxonomy-pass.json` (Label Studio JSON
-format). It contains 4,129 tasks, including the audited 68-task weak-relation
-review batch and a reproducible correction pass over eight historical tasks.
-The correction decisions and post-correction audit are retained under
-`label/review_queue/relation_taxonomy_20260815/`.
+`label/project-10-reviewed-2026-08-27-targeted-pass.json` (Label Studio JSON
+format). It contains 4,184 tasks, including the audited 68-task weak-relation
+review batch, a reproducible correction pass over eight historical tasks, and
+55 newly reviewed full-PMC examples targeting relation regressions. The
+latest export, second-pass decisions, append report, and audits are retained
+under `label/review_queue/targeted_regressions_20260817/`; the earlier taxonomy
+correction artifacts remain under `label/review_queue/relation_taxonomy_20260815/`.
 The 2025 export and intermediate 2026 review batches are retained unchanged as
 auditable sources.
 When a task has multiple active annotations, preprocessing selects a marked
