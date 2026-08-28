@@ -68,6 +68,8 @@ REL_GROUP_WORKERS = int(config.get("rel_group_workers", 20))
 REL_GROUP_MATRIX_MB = int(config.get("rel_group_matrix_mb", 256))
 REL_GROUND_RUNTIME = int(config.get("rel_ground_runtime", 180))
 REL_GROUND_MEM_MB = int(config.get("rel_ground_mem_mb", 64000))
+REL_SPECIES_QC_RUNTIME = int(config.get("rel_species_qc_runtime", 180))
+REL_SPECIES_QC_MEM_MB = int(config.get("rel_species_qc_mem_mb", 64000))
 REL_NETWORK_RUNTIME = int(config.get("rel_network_runtime", 60))
 REL_NETWORK_MEM_MB = int(config.get("rel_network_mem_mb", 16000))
 REL_LINK_RUNTIME = int(config.get("rel_link_runtime", 180))
@@ -102,10 +104,18 @@ rule all:
         f"{preds}/REL_output/ontology_groundings.parquet",
         f"{preds}/REL_output/strain_taxonomy_groundings.parquet",
         f"{preds}/REL_output/ontology_grounding_summary.json",
+        f"{preds}/REL_output/preds_straininfo_species_qc.pqt",
+        f"{preds}/REL_output/species_qc_quarantine.parquet",
+        f"{preds}/REL_output/species_qc_audit.parquet",
+        f"{preds}/REL_output/species_qc_summary.json",
         f"{preds}/network_ontology.tsv",
         f"{preds}/network_ontology_pmc.tsv",
         f"{preds}/network_ontology_evidence_summary.tsv",
         f"{preds}/network_ontology_core.tsv",
+        f"{preds}/network_species_qc.tsv",
+        f"{preds}/network_species_qc_pmc.tsv",
+        f"{preds}/network_species_qc_evidence_summary.tsv",
+        f"{preds}/network_species_qc_core.tsv",
 
 
 rule format_sentences:
@@ -304,6 +314,35 @@ rule ground_ontology:
         """
 
 
+rule qc_species_predictions:
+    input:
+        predictions=f"{preds}/REL_output/preds_straininfo_grounded.pqt",
+        aliases=ontology_aliases,
+        manifest=ontology_manifest,
+    output:
+        accepted=f"{preds}/REL_output/preds_straininfo_species_qc.pqt",
+        quarantine=f"{preds}/REL_output/species_qc_quarantine.parquet",
+        audit=f"{preds}/REL_output/species_qc_audit.parquet",
+        summary=f"{preds}/REL_output/species_qc_summary.json",
+    resources:
+        slurm_partition=CPU_PARTITION,
+        runtime=REL_SPECIES_QC_RUNTIME,
+        mem_mb=REL_SPECIES_QC_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/qc_species_predictions.py \
+          {input.predictions} \
+          {input.aliases} \
+          {input.manifest} \
+          --accepted-output {output.accepted} \
+          --quarantine-output {output.quarantine} \
+          --audit-output {output.audit} \
+          --summary-output {output.summary}
+        """
+
+
 rule resolve_straininfo_assemblies:
     input:
         f"{preds}/REL_output/preds_straininfo_reconciled.pqt",
@@ -442,6 +481,79 @@ rule link_ontology_pmc_network:
         evidence=f"{preds}/network_ontology_pmc.tsv",
         summary=f"{preds}/network_ontology_evidence_summary.tsv",
         core=f"{preds}/network_ontology_core.tsv",
+    resources:
+        slurm_partition=CPU_PARTITION,
+        runtime=REL_LINK_RUNTIME,
+        mem_mb=REL_LINK_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/link_relation_evidence.py network \
+          {input[0]} \
+          {input[1]} \
+          --output {output.evidence}
+        python scripts/summarize_network_evidence.py \
+          {output.evidence} \
+          --summary-output {output.summary} \
+          --core-output {output.core} \
+          --min-pmcs {core_min_pmcs} \
+          --min-relation-score {core_min_relation_score} \
+          --min-entity-score {core_min_entity_score} \
+          --min-strain-score {core_min_strain_score}
+        """
+
+
+rule link_species_qc_pmc:
+    input:
+        f"{preds}/REL_output/preds_straininfo_species_qc.pqt",
+        pmc_file,
+    output:
+        f"{preds}/REL_output/preds_straininfo_species_qc_pmc.pqt",
+    resources:
+        slurm_partition=CPU_PARTITION,
+        runtime=REL_LINK_RUNTIME,
+        mem_mb=REL_LINK_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/link_relation_evidence.py predictions \
+          {input[0]} \
+          {input[1]} \
+          --output {output}
+        """
+
+
+rule create_species_qc_network:
+    input:
+        f"{preds}/REL_output/preds_straininfo_species_qc.pqt",
+    output:
+        f"{preds}/network_species_qc.tsv",
+        f"{preds}/strains_species_qc.txt",
+    resources:
+        slurm_partition=CPU_PARTITION,
+        runtime=REL_NETWORK_RUNTIME,
+        mem_mb=REL_NETWORK_MEM_MB,
+        cpus_per_task=4,
+    threads: 4
+    shell:
+        """
+        python scripts/create_relation_network.py \
+          {input} \
+          --network-output {output[0]} \
+          --strains-output {output[1]}
+        """
+
+
+rule link_species_qc_pmc_network:
+    input:
+        f"{preds}/network_species_qc.tsv",
+        f"{preds}/REL_output/preds_straininfo_species_qc_pmc.pqt",
+    output:
+        evidence=f"{preds}/network_species_qc_pmc.tsv",
+        summary=f"{preds}/network_species_qc_evidence_summary.tsv",
+        core=f"{preds}/network_species_qc_core.tsv",
     resources:
         slurm_partition=CPU_PARTITION,
         runtime=REL_LINK_RUNTIME,

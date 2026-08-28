@@ -161,6 +161,30 @@ summary. The runtime requirement is `aliases.parquet` plus `manifest.json`;
 `terms.parquet` is a build intermediate and is not required when reusing a
 prepared index.
 
+The additive `qc_species_predictions` stage then checks relation endpoints
+labelled `SPECIES`. Existing unique taxonomy matches and well-formed species
+surfaces are retained. Fragmentary spans are extended only across adjacent
+sentence tokens. A unique taxonomy match receives an NCBI identifier; a
+uniquely reconstructed, well-formed surface with globally ambiguous taxonomy
+is retained as an ungrounded text node. Only unresolved fragments and cases
+with competing contextual repairs are written to
+`species_qc_quarantine.parquet`, while every context-level decision remains
+auditable in `species_qc_audit.parquet` and `species_qc_summary.json`. Raw
+text and ontology networks remain unchanged; the filtered branch is emitted
+as `network_species_qc.tsv`, its PMC evidence table, summary, and conservative
+core.
+
+The QC algorithm can be benchmarked independently against a completed grounded
+prediction table without rerunning NER or RE:
+
+```bash
+export NLP4PHENO_PROJECT=/shared/path/code-snapshot
+export NLP4PHENO_ENV_PREFIX=/shared/path/nlp4pheno-conda
+export NLP4PHENO_SPECIES_QC_INPUT=/shared/path/preds_straininfo_grounded.pqt
+export NLP4PHENO_SPECIES_QC_OUTPUT_DIR=/shared/path/species-qc-benchmark
+sbatch --export=ALL hpc/qc_species_predictions.sbatch
+```
+
 Each text and ontology network also gets an edge-level evidence summary and a
 conservative core view. Multi-article edges enter the core directly; a
 single-article edge must have at least one evidence sentence passing the RE,
