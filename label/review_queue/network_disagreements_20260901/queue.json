@@ -1,0 +1,2882 @@
+[
+  {
+    "data": {
+      "text": "On the other hand, R. pseudosolanaceraum strain SL1931 is not virulent to A. thaliana but causes severe disease symptoms in Nicotiana benthamiana .",
+      "candidate_id": "network_disagreement_4c0b98ae9208c5",
+      "review_rank": 1,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INFECTS | RE 0.907 | entity 0.967 | strain 0.963",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC9302119",
+      "article_version": "PMC9302119.1",
+      "paragraph": 3,
+      "sentence_range": "7",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:4100",
+      "ontology_label": "Nicotiana benthamiana",
+      "straininfo_si_id": 233177,
+      "straininfo_taxon": "Ralstonia solanacearum"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_4c0b98ae9208c5",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.907394289970398,
+        "result": [
+          {
+            "id": "pred_entity_380ae294d3c34b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 48,
+              "end": 54,
+              "text": "SL1931",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_08f03bb0da4810",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 124,
+              "end": 145,
+              "text": "Nicotiana benthamiana",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_380ae294d3c34b",
+            "to_id": "pred_entity_08f03bb0da4810",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Scarcely a handful of cases have serological evidence of immune response against Leptospira serovar Bratislava representing serogroup Australis, a serovar associated with poor reproductive performance in swine and horses, and recently with cats.",
+      "candidate_id": "network_disagreement_6a54a9bd055447",
+      "review_rank": 2,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INFECTS | RE 0.887 | entity 0.885 | strain 0.637",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC7048021",
+      "article_version": "PMC7048021.1",
+      "paragraph": 2,
+      "sentence_range": "3",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:9685",
+      "ontology_label": "Felis catus",
+      "straininfo_si_id": 373062,
+      "straininfo_taxon": "Leptospira borgpetersenii"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_6a54a9bd055447",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.8873999118804932,
+        "result": [
+          {
+            "id": "pred_entity_3b5717e08d2f58",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 100,
+              "end": 110,
+              "text": "Bratislava",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_dc94c97bc63876",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 240,
+              "end": 244,
+              "text": "cats",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_3b5717e08d2f58",
+            "to_id": "pred_entity_dc94c97bc63876",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Additionally, MGAS315 is highly virulent (requiring a low inoculum), and it is used in a variety of animal models including a non-human primate model of lower respiratory tract infection.",
+      "candidate_id": "network_disagreement_fbd349d6a620cd",
+      "review_rank": 3,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INFECTS | RE 0.886 | entity 0.810 | strain 0.987",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC10566429",
+      "article_version": "PMC10566429.1",
+      "paragraph": 21,
+      "sentence_range": "5",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 118386,
+      "straininfo_taxon": "Streptococcus pyogenes"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_fbd349d6a620cd",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.8858291506767273,
+        "result": [
+          {
+            "id": "pred_entity_8c58266229ecd6",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 14,
+              "end": 21,
+              "text": "MGAS315",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_b13a76f4e13e22",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 126,
+              "end": 143,
+              "text": "non-human primate",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_8c58266229ecd6",
+            "to_id": "pred_entity_b13a76f4e13e22",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "A549 human lung cancer epithelial cells (American Type Culture Collection, Manassas, VA, USA) were rinsed and incubated in a serum-free medium for 1 h. Subsequently, the cells were infected with P. aeruginosa PA14, prepared in PBS from the logarithmic growth phase, at a multiplicity of infection of 100:1 [ 36 ]. Cytotoxic effects were assessed 4 h post-infection using Trypan blue (Sigma-Aldrich, St. Louis, MO), which stained non-viable cells blue.",
+      "candidate_id": "network_disagreement_1252c8cb9b6672",
+      "review_rank": 4,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INFECTS | RE 0.885 | entity 0.566 | strain 0.988",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC12504166",
+      "article_version": "PMC12504166.1",
+      "paragraph": 14,
+      "sentence_range": "1-4",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 404498,
+      "straininfo_taxon": "Pseudomonas aeruginosa"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_1252c8cb9b6672",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.8848377466201782,
+        "result": [
+          {
+            "id": "pred_entity_58ada7f8b8a719",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 22,
+              "text": "A549 human lung cancer",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_33694a6b51b4ef",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 195,
+              "end": 213,
+              "text": "P. aeruginosa PA14",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_33694a6b51b4ef",
+            "to_id": "pred_entity_58ada7f8b8a719",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "BMECs were infected with S. aureus (ATCC 27543) for 2 h at an MOI of 30, and the extracellular bacteria were killed and lysed with antibiotics and lysozyme. Intracellularly infected cell cultures were continued and maintained in medium for 2, 4, and 8 h. The cells were lysed, and the number of intracellular bacteria was determined by spread plate method.",
+      "candidate_id": "network_disagreement_0d25f4fe5e9266",
+      "review_rank": 5,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INFECTS | RE 0.880 | entity 0.673 | strain 0.691",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC8636274",
+      "article_version": "PMC8636274.1",
+      "paragraph": 13,
+      "sentence_range": "1-3",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 39056,
+      "straininfo_taxon": "Staphylococcus aureus subsp. aureus"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_0d25f4fe5e9266",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.8800774812698364,
+        "result": [
+          {
+            "id": "pred_entity_d4db2ab174892c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 5,
+              "text": "BMECs",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_ea8df8b3e46e5e",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 36,
+              "end": 47,
+              "text": "ATCC 27543)",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_ea8df8b3e46e5e",
+            "to_id": "pred_entity_d4db2ab174892c",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Apoptosis is usually also characterized by the presence of proteolytically active caspases [ 62 ]. To investigate the involvement of caspases, HeLa cells were treated with the pan-caspase inhibitor Z-VAD-fmk, infected with S . aureus RN4220 p hld - scp AB and cytotoxicity was determined six hours post-infection by measurement of LDH release ( Fig 6B ).",
+      "candidate_id": "network_disagreement_7daf6545bb2c12",
+      "review_rank": 6,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INFECTS | RE 0.876 | entity 0.805 | strain 0.990",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC8443034",
+      "article_version": "PMC8443034.1",
+      "paragraph": 23,
+      "sentence_range": "4-5",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 413604,
+      "straininfo_taxon": null
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_7daf6545bb2c12",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.8756807446479797,
+        "result": [
+          {
+            "id": "pred_entity_da484f75ae1591",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 143,
+              "end": 147,
+              "text": "HeLa",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_433fa47d836e7b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 223,
+              "end": 240,
+              "text": "S . aureus RN4220",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_433fa47d836e7b",
+            "to_id": "pred_entity_da484f75ae1591",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "M. fermentans is a human pathogen causing respiratory illness and arthritis, whereas M. agalactiae infects sheep and goats and causes mastitis, arthritis, and pneumonia, and M. bovis PG45 causes respiratory disease, mastitis, and arthritis in cattle. The reptilian pathogen M. crocodyli is the third most similar mycoplasmal species compared with M. fermentans that causes exudative polyarthritis in crocodiles.",
+      "candidate_id": "network_disagreement_4e8d39d6c1db9b",
+      "review_rank": 7,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INFECTS | RE 0.875 | entity 0.911 | strain 0.903",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC3335035",
+      "article_version": "PMC3335035.1",
+      "paragraph": 22,
+      "sentence_range": "8-9",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:8493",
+      "ontology_label": "Crocodylidae",
+      "straininfo_si_id": 38578,
+      "straininfo_taxon": "Mycoplasmopsis bovis"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_4e8d39d6c1db9b",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.8752548694610596,
+        "result": [
+          {
+            "id": "pred_entity_08e0ad312fe669",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 174,
+              "end": 187,
+              "text": "M. bovis PG45",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2f454f2b380730",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 400,
+              "end": 410,
+              "text": "crocodiles",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_08e0ad312fe669",
+            "to_id": "pred_entity_2f454f2b380730",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Leptospiral burden was significantly higher in liver tissues of hamsters infected with serovar Manilae as opposed to serovar Hebdomadis (p < 0.01; Fig 1 ); significant differences were not observed in other tissues of hamsters infected with strains of the two serovars.",
+      "candidate_id": "network_disagreement_57755a130b394f",
+      "review_rank": 8,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INFECTS | RE 0.865 | entity 0.921 | strain 0.803",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC4492770",
+      "article_version": "PMC4492770.1",
+      "paragraph": 20,
+      "sentence_range": "1",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:10026",
+      "ontology_label": "Cricetinae",
+      "straininfo_si_id": 372627,
+      "straininfo_taxon": "Leptospira interrogans"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_57755a130b394f",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.8648820519447327,
+        "result": [
+          {
+            "id": "pred_entity_c88d0d25b34675",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 64,
+              "end": 72,
+              "text": "hamsters",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_e707323de7ae82",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 125,
+              "end": 135,
+              "text": "Hebdomadis",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_e707323de7ae82",
+            "to_id": "pred_entity_c88d0d25b34675",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Domestic pigs have been recently used as a model to understand domestic animals and human TB [ 30 , 305 , 306 , 307 ]. Pigs experimentally infected with M. bovis AF2122/97 exhibited greater morbidity, rapid onset mortality, severe pathology, and weight loss, as compared to less severe disease in those infected with M. tuberculosis Erdman [ 30 ].",
+      "candidate_id": "network_disagreement_6de4d773688c26",
+      "review_rank": 9,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INFECTS | RE 0.859 | entity 0.768 | strain 0.976",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC9503773",
+      "article_version": "PMC9503773.1",
+      "paragraph": 33,
+      "sentence_range": "1-2",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 204628,
+      "straininfo_taxon": "Mycobacterium tuberculosis variant bovis"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_6de4d773688c26",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.8586000204086304,
+        "result": [
+          {
+            "id": "pred_entity_ca7c2338ca46f5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 63,
+              "end": 71,
+              "text": "domestic",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_ac6b0d4b47afde",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 153,
+              "end": 171,
+              "text": "M. bovis AF2122/97",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_ac6b0d4b47afde",
+            "to_id": "pred_entity_ca7c2338ca46f5",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Compared to other R. salmoninarum strains, R. salmoninarum ATCC 33209 has a reduced virulence. For example, this strain showed lower virulence in chinook and coho salmon compared to the other isolates, and it is not capable of causing BKD in rainbow trout ( 45 , 64 ).",
+      "candidate_id": "network_disagreement_ff0b9831be1f4d",
+      "review_rank": 10,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INFECTS | RE 0.858 | entity 0.916 | strain 0.954",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC8645940",
+      "article_version": "PMC8645940.1",
+      "paragraph": 44,
+      "sentence_range": "4-5",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:8022",
+      "ontology_label": "Oncorhynchus mykiss",
+      "straininfo_si_id": 4758,
+      "straininfo_taxon": "Renibacterium salmoninarum"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_ff0b9831be1f4d",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.8577680587768555,
+        "result": [
+          {
+            "id": "pred_entity_12ebf5f005f623",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 43,
+              "end": 69,
+              "text": "R. salmoninarum ATCC 33209",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_613af49b8991d6",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 242,
+              "end": 255,
+              "text": "rainbow trout",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_12ebf5f005f623",
+            "to_id": "pred_entity_613af49b8991d6",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Some species are associated with other marine organisms, e.g., Thalassococcus halodurans DSM 26915 T has been isolated from the marine sponge Halichondria panicea [ 5 ], and Phaeobacter gallaeciensis DSM 26640 T is an isolate from the scallop Pecten maximus [ 6 ].",
+      "candidate_id": "network_disagreement_70ef92519c0a3f",
+      "review_rank": 11,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.965 | strain 0.984",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC7884881",
+      "article_version": "PMC7884881.1",
+      "paragraph": 3,
+      "sentence_range": "3",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:6063",
+      "ontology_label": "Halichondria panicea",
+      "straininfo_si_id": 296447,
+      "straininfo_taxon": "Thalassococcus halodurans"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_70ef92519c0a3f",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.9998770952224731,
+        "result": [
+          {
+            "id": "pred_entity_caa41c1ee4f98e",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 63,
+              "end": 98,
+              "text": "Thalassococcus halodurans DSM 26915",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_1b0074be08cd98",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 142,
+              "end": 162,
+              "text": "Halichondria panicea",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_caa41c1ee4f98e",
+            "to_id": "pred_entity_1b0074be08cd98",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The genome is composed of 6,270,711 bp, with a calculated G+C content of 32.9%. It possesses 5,530 coding sequences in addition to 40 tRNA and five rRNAs. Aquimarina sp. EL33 presents the highest 16S rRNA gene similarity (99.7%) with Aquimarina sp. Aq349, isolated from the marine sponge Sarcotragus spinosulus ( 6 ). Aquimarina megaterium XH134, isolated from surface seawater ( 10 ), is the closest described type strain (99.2% 16S rRNA gene similarity).",
+      "candidate_id": "network_disagreement_4faac437739859",
+      "review_rank": 12,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.783 | strain 0.986",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC4991720",
+      "article_version": "PMC4991720.1",
+      "paragraph": 4,
+      "sentence_range": "1-4",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 281667,
+      "straininfo_taxon": "Aquimarina spinulae"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_4faac437739859",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.999873161315918,
+        "result": [
+          {
+            "id": "pred_entity_a2d5d719e75cae",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 234,
+              "end": 254,
+              "text": "Aquimarina sp. Aq349",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_5986d9bb872050",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 281,
+              "end": 310,
+              "text": "sponge Sarcotragus spinosulus",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_a2d5d719e75cae",
+            "to_id": "pred_entity_5986d9bb872050",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Genome sequence of Ensifer arboris strain LMG 14919 T ; a microsymbiont of the legume Prosopis chilensis growing in Kosti, Sudan",
+      "candidate_id": "network_disagreement_9678a00ee345c6",
+      "review_rank": 13,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.854 | strain 0.974",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC4148966",
+      "article_version": "PMC4148966.1",
+      "paragraph": 1,
+      "sentence_range": "1",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 13015,
+      "straininfo_taxon": "Ensifer arboris"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_9678a00ee345c6",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.9998711347579956,
+        "result": [
+          {
+            "id": "pred_entity_27517fc029062c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 19,
+              "end": 51,
+              "text": "Ensifer arboris strain LMG 14919",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_c279d73d512da8",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 79,
+              "end": 104,
+              "text": "legume Prosopis chilensis",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_27517fc029062c",
+            "to_id": "pred_entity_c279d73d512da8",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Complete Genome Sequence of Spiroplasma turonicum Tab4c T , a Bacterium Isolated from Horse Flies ( Haematopota sp.)",
+      "candidate_id": "network_disagreement_9c4aa46f5dc55c",
+      "review_rank": 14,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.895 | strain 0.951",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC5034139",
+      "article_version": "PMC5034139.1",
+      "paragraph": 1,
+      "sentence_range": "1",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 43857,
+      "straininfo_taxon": "Spiroplasma turonicum"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_9c4aa46f5dc55c",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.9998701810836792,
+        "result": [
+          {
+            "id": "pred_entity_15d6fda9d02c0a",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 28,
+              "end": 55,
+              "text": "Spiroplasma turonicum Tab4c",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_7256ca8ad47733",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 86,
+              "end": 115,
+              "text": "Horse Flies ( Haematopota sp.",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_15d6fda9d02c0a",
+            "to_id": "pred_entity_7256ca8ad47733",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Using a local blast service with an all-versus-all strategy, we observed a high diversity and divergence of the Endozoicomonas strains (ASVs) across different developmental stages ( Supplementary Table S7 ). Notably, 60 out of the 258 ASVs were identified as a known Endozoicomonas species, showing the highest 16S rRNA gene similarity (99.86%) to Endozoicomonas atrinae WP70 T , which was isolated from the gut of a comb pen shell ( Atrina pectinata ) collected from the southern sea of Yeosu in Korea [ 53 ].",
+      "candidate_id": "network_disagreement_85439db61ff3c9",
+      "review_rank": 15,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.964 | strain 0.960",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC11919647",
+      "article_version": "PMC11919647.1",
+      "paragraph": 27,
+      "sentence_range": "4-5",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:49198",
+      "ontology_label": "Atrina pectinata",
+      "straininfo_si_id": 407598,
+      "straininfo_taxon": "Endozoicomonas atrinae"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_85439db61ff3c9",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.9998681545257568,
+        "result": [
+          {
+            "id": "pred_entity_f99b41cf02c22f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 348,
+              "end": 375,
+              "text": "Endozoicomonas atrinae WP70",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_0a0106cbb207b7",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 434,
+              "end": 450,
+              "text": "Atrina pectinata",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_f99b41cf02c22f",
+            "to_id": "pred_entity_0a0106cbb207b7",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Sphingomonas morindae sp. NBD5 was isolated and identified from Noni ( Morinda citrifolia L.) branch [ 12 ]. Sphingopyxis sp. USTB-05, which we previously sequenced, was isolated and identified from the sediment of Dianchi Lake in Kunming, Yunnan, China [ 15 ]. Strain NBD5 and USTB-05 were grown in LB media (3.3 g/L peptone, 1.7 g/L yeast extract, 3.3 g/L NaCl), and incubated aerobically at 30 °C.",
+      "candidate_id": "network_disagreement_fb62f040b591c9",
+      "review_rank": 16,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.860 | strain 0.984",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC9967899",
+      "article_version": "PMC9967899.1",
+      "paragraph": 6,
+      "sentence_range": "1-3",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 406158,
+      "straininfo_taxon": "Sphingomonas morindae"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_fb62f040b591c9",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.9998681545257568,
+        "result": [
+          {
+            "id": "pred_entity_a25e83dcf70376",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 30,
+              "text": "Sphingomonas morindae sp. NBD5",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_41663b459432a8",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 71,
+              "end": 92,
+              "text": "Morinda citrifolia L.",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_a25e83dcf70376",
+            "to_id": "pred_entity_41663b459432a8",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Streptomyces palmae CMU-AB204 T was previously isolated from the rhizosphere of an oil palm tree collected from the oil palm plantation at Chiang Mai University, Chiang Mai Province, Thailand, in October 2012. This strain has been characterized using a polyphasic approach and was previously proposed as S. palmae (type strain CMU-AB204 T = JCM 31289 T = TBRC 1999 T ) [ 31 ].",
+      "candidate_id": "network_disagreement_593335d5159a42",
+      "review_rank": 17,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.773 | strain 0.827",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC7142508",
+      "article_version": "PMC7142508.1",
+      "paragraph": 7,
+      "sentence_range": "1-2",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 399669,
+      "straininfo_taxon": "Streptomyces palmae"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_593335d5159a42",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.9998660087585449,
+        "result": [
+          {
+            "id": "pred_entity_43b2e42ad23d46",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 29,
+              "text": "Streptomyces palmae CMU-AB204",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_b4617da17698b3",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 83,
+              "end": 96,
+              "text": "oil palm tree",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_43b2e42ad23d46",
+            "to_id": "pred_entity_b4617da17698b3",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The first one was isolated from Scotland and Norway aquacultures and included isolates related to the strain ATCC 33209 T , originally isolated from Chinook salmon ( Oncorhynchus tshawytscha ) in North America. The other group includes NCIBM 1114 and NCIBM 1116 strains that were also isolated from wild Atlantic salmon and related to Dee disease [ 19 ].",
+      "candidate_id": "network_disagreement_29480299eb011c",
+      "review_rank": 18,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.938 | strain 0.990",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC7602803",
+      "article_version": "PMC7602803.1",
+      "paragraph": 11,
+      "sentence_range": "3-4",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 4758,
+      "straininfo_taxon": "Renibacterium salmoninarum"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_29480299eb011c",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.9998655319213867,
+        "result": [
+          {
+            "id": "pred_entity_0f6570fe80505f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 109,
+              "end": 119,
+              "text": "ATCC 33209",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_b42e337932f474",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 149,
+              "end": 190,
+              "text": "Chinook salmon ( Oncorhynchus tshawytscha",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_0f6570fe80505f",
+            "to_id": "pred_entity_b42e337932f474",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Complete Genome Sequence of Campylobacter iguaniorum Strain 1485E T , Isolated from a Bearded Dragon ( Pogona vitticeps )",
+      "candidate_id": "network_disagreement_cf00bd6b31601b",
+      "review_rank": 19,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.919 | strain 0.979",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC4153485",
+      "article_version": "PMC4153485.1",
+      "paragraph": 1,
+      "sentence_range": "1",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 392052,
+      "straininfo_taxon": "Campylobacter iguaniorum"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_cf00bd6b31601b",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.9998644590377808,
+        "result": [
+          {
+            "id": "pred_entity_8a0a88bdf31373",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 28,
+              "end": 65,
+              "text": "Campylobacter iguaniorum Strain 1485E",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_a663d45fc8189b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 86,
+              "end": 119,
+              "text": "Bearded Dragon ( Pogona vitticeps",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_8a0a88bdf31373",
+            "to_id": "pred_entity_a663d45fc8189b",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Complete Genome Sequence Obtained by Nanopore and Illumina Hybrid Assembly of Xanthomonas arboricola pv. juglandis CPBF 427, Isolated from Buds of a Walnut Tree",
+      "candidate_id": "network_disagreement_4e05e7107cd7de",
+      "review_rank": 20,
+      "review_tier": "new_only",
+      "review_summary": "new_only (present after retraining, absent before) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.835 | strain 0.956",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC7953287",
+      "article_version": "PMC7953287.1",
+      "paragraph": 1,
+      "sentence_range": "1",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 272811,
+      "straininfo_taxon": "Xanthomonas arboricola pv. juglandis"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_4e05e7107cd7de",
+      "review_direction": "new_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-new_only",
+        "score": 0.9998644590377808,
+        "result": [
+          {
+            "id": "pred_entity_7ed6f340e76c0f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 78,
+              "end": 123,
+              "text": "Xanthomonas arboricola pv. juglandis CPBF 427",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_2d975f54c79c45",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 149,
+              "end": 160,
+              "text": "Walnut Tree",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_7ed6f340e76c0f",
+            "to_id": "pred_entity_2d975f54c79c45",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Xanthomonas campestris ATCC33913, pathogenic on crucifers, also appears to result from the genomic exchange with the ancestor of the commensal strains X. campestris (CFBP 13567 and CFBP 13568), both isolated from radish plants.",
+      "candidate_id": "network_disagreement_3825d3991a380c",
+      "review_rank": 21,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INFECTS | RE 1.000 | entity 0.973 | strain 0.978",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC11032200",
+      "article_version": "PMC11032200.1",
+      "paragraph": 24,
+      "sentence_range": "3",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 5268,
+      "straininfo_taxon": "Xanthomonas campestris"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_3825d3991a380c",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9998286962509155,
+        "result": [
+          {
+            "id": "pred_entity_4c5317b34cc578",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 32,
+              "text": "Xanthomonas campestris ATCC33913",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_769e66d8412952",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 48,
+              "end": 57,
+              "text": "crucifers",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_4c5317b34cc578",
+            "to_id": "pred_entity_769e66d8412952",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Tailocins were found not only in the symptomatic tissues caused by those strains that were pathogenic to potato ( P. versatile A69‐S13‐O15, D. dadantii 3937, D. chrysanthemi A604‐S21‐A17, D. zeae A586‐S18‐A17) but also in healthy tuber tissue surrounding the site where nonpathogenic strains ( P. aquaticum A212‐S19‐A16 and P. quasiaquaticum A411‐S4‐F17) were inoculated (Table 2 ; Figure S2 ).",
+      "candidate_id": "network_disagreement_d7307127824e48",
+      "review_rank": 22,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INFECTS | RE 1.000 | entity 0.976 | strain 0.856",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC11974492",
+      "article_version": "PMC11974492.1",
+      "paragraph": 33,
+      "sentence_range": "4",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:4113",
+      "ontology_label": "Solanum tuberosum",
+      "straininfo_si_id": 415028,
+      "straininfo_taxon": "Pectobacterium versatile"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_d7307127824e48",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9998225569725037,
+        "result": [
+          {
+            "id": "pred_entity_0a28a69cc260f9",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 105,
+              "end": 111,
+              "text": "potato",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_13ce11a831a9ad",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 114,
+              "end": 138,
+              "text": "P. versatile A69‐S13‐O15",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_13ce11a831a9ad",
+            "to_id": "pred_entity_0a28a69cc260f9",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Since P. luminescens TT01 and P. asymbiotica ATCC43949 are pathogenic towards insect, the role of ail and pagC genes was studied by cultivating recombinant E. coli in insect hemolymph, which is analogous to the mammalian blood regarding the immune system. The growth of the E. coli XL1Blue derivatives was not affected when cultivated in sterile hemolymph of Spodoptera littoralis fifth-instar larvae (data not shown).",
+      "candidate_id": "network_disagreement_ef405d2be6e836",
+      "review_rank": 23,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INFECTS | RE 1.000 | entity 0.941 | strain 0.985",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC4198210",
+      "article_version": "PMC4198210.1",
+      "paragraph": 26,
+      "sentence_range": "1-2",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 42144,
+      "straininfo_taxon": "Photorhabdus asymbiotica"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_ef405d2be6e836",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9998107552528381,
+        "result": [
+          {
+            "id": "pred_entity_ef21d890d04145",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 30,
+              "end": 54,
+              "text": "P. asymbiotica ATCC43949",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_905d3929861e00",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 78,
+              "end": 84,
+              "text": "insect",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_ef21d890d04145",
+            "to_id": "pred_entity_905d3929861e00",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Limited pathogenicity of A. corallicida , V. shiloi , and S. marcescens PDL100 may indicate the evolution of host-resistance to these pathogens [34] .",
+      "candidate_id": "network_disagreement_c5378d5d3c117d",
+      "review_rank": 24,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INFECTS | RE 1.000 | entity 0.816 | strain 0.986",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC3157384",
+      "article_version": "PMC3157384.1",
+      "paragraph": 20,
+      "sentence_range": "3",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 201627,
+      "straininfo_taxon": "Serratia marcescens"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_c5378d5d3c117d",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9998005032539368,
+        "result": [
+          {
+            "id": "pred_entity_27c96ba0e06376",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 25,
+              "end": 39,
+              "text": "A. corallicida",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_54536c663e8500",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 58,
+              "end": 78,
+              "text": "S. marcescens PDL100",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_54536c663e8500",
+            "to_id": "pred_entity_27c96ba0e06376",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "As model entomopathogenic bacterium Serratia marcescens DSM12481 (DSMZ Braunschweig, Germany) was used. This bacterium is pathogenic in a range of insects ( Grimont and Grimont, 2006 ) and has been detected in formicine ants, that is Anoplolepis gracilipes ( Cooling et al., 2018 ) and Camponotus floridanus ( Ratzka et al., 2011 ).",
+      "candidate_id": "network_disagreement_707be795d7fbb8",
+      "review_rank": 25,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INFECTS | RE 1.000 | entity 0.608 | strain 0.963",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC7609056",
+      "article_version": "PMC7609056.1",
+      "paragraph": 31,
+      "sentence_range": "1-2",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:50557",
+      "ontology_label": "Insecta",
+      "straininfo_si_id": 49295,
+      "straininfo_taxon": "Serratia marcescens"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_707be795d7fbb8",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9997889399528503,
+        "result": [
+          {
+            "id": "pred_entity_c36d2d0a048e3c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 36,
+              "end": 64,
+              "text": "Serratia marcescens DSM12481",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_847bdbed969841",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 147,
+              "end": 154,
+              "text": "insects",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_c36d2d0a048e3c",
+            "to_id": "pred_entity_847bdbed969841",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "P. aeruginosa stain PA14 is a clinical isolate that infects the model nematode C. elegans . This pathosystem was extensively studied by Tan et al. in [ 29 ]. An advantage of using this model is that it is genetically tractable because of the availability of a genome map for both the organisms and can be readily used as reference model for mammalian bacterial pathogenesis [ 29 , 30 , 31 ].",
+      "candidate_id": "network_disagreement_eb3b16de2f7086",
+      "review_rank": 26,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INFECTS | RE 1.000 | entity 0.818 | strain 0.961",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC3280538",
+      "article_version": "PMC3280538.1",
+      "paragraph": 8,
+      "sentence_range": "1-3",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 404498,
+      "straininfo_taxon": "Pseudomonas aeruginosa"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_eb3b16de2f7086",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9997851252555847,
+        "result": [
+          {
+            "id": "pred_entity_cabbdb26672037",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 24,
+              "text": "P. aeruginosa stain PA14",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_0596bd698e95d9",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 64,
+              "end": 89,
+              "text": "model nematode C. elegans",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_cabbdb26672037",
+            "to_id": "pred_entity_0596bd698e95d9",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "E. Coli ATCC25922 is a standard reference strain extensively used in microbiology as a quality-control organism for antimicrobial susceptibility testing and as a model in studies of bovine health, including endometritis research 31 – 33 . Although this strain is not pathogenic for cattle, it provides a reproducible benchmark for comparing antimicrobial results across laboratories and for this purpose is recommended as quality control strain by the CLSI 34 .",
+      "candidate_id": "network_disagreement_7e735334d0fa86",
+      "review_rank": 27,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INFECTS | RE 1.000 | entity 0.971 | strain 0.986",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC12698708",
+      "article_version": "PMC12698708.1",
+      "paragraph": 41,
+      "sentence_range": "1-3",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:9903",
+      "ontology_label": "Bos",
+      "straininfo_si_id": 2805,
+      "straininfo_taxon": "Escherichia coli"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_7e735334d0fa86",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9997826218605042,
+        "result": [
+          {
+            "id": "pred_entity_8dd03bed25d4b8",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 17,
+              "text": "E. Coli ATCC25922",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_1f6baebb487d20",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 282,
+              "end": 288,
+              "text": "cattle",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_8dd03bed25d4b8",
+            "to_id": "pred_entity_1f6baebb487d20",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The wild-type M. acridum ARSEF324 is a specific pathogen for acridids. To investigate if expressing toxins impacts host specificity we assayed transformants against the acridid Schistocerca americana , two other orthopterans (a katydid Microcentrum rhombifolium , and a gryllid Acheta domesticus ), the giant cockroach Periplaneta gigantea , a caterpillar ( Galleria mellonella ), and the human malaria mosquito Anopheles gambiae . The wild-type fungus and all transformants killed locusts.",
+      "candidate_id": "network_disagreement_55f4e5ee15db42",
+      "review_rank": 28,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INFECTS | RE 1.000 | entity 0.947 | strain 0.858",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC4256560",
+      "article_version": "PMC4256560.1",
+      "paragraph": 14,
+      "sentence_range": "1-3",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 298896,
+      "straininfo_taxon": "Metarhizium anisopliae"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_55f4e5ee15db42",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9997791647911072,
+        "result": [
+          {
+            "id": "pred_entity_54ba7cf69ecdd7",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 14,
+              "end": 33,
+              "text": "M. acridum ARSEF324",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_4b1675cdc14d01",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 61,
+              "end": 69,
+              "text": "acridids",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_54ba7cf69ecdd7",
+            "to_id": "pred_entity_4b1675cdc14d01",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "XENO-11 T , X. indica DSM 17382 T , X. khoisanae DSM 25463 T , and X. griffiniae DSM 17911 T were the most pathogenic strains, as they killed 100% of the insects at all concentrations tested within 24 h post-injection (Fig. S7 – S9 ).",
+      "candidate_id": "network_disagreement_ebe3de6b557154",
+      "review_rank": 29,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INFECTS | RE 1.000 | entity 0.808 | strain 0.981",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC11588968",
+      "article_version": "PMC11588968.1",
+      "paragraph": 21,
+      "sentence_range": "6",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:50557",
+      "ontology_label": "Insecta",
+      "straininfo_si_id": 297368,
+      "straininfo_taxon": "Xenorhabdus griffiniae"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_ebe3de6b557154",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9997788071632385,
+        "result": [
+          {
+            "id": "pred_entity_16e0c6119cc720",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 67,
+              "end": 90,
+              "text": "X. griffiniae DSM 17911",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_d1e6f020d49ab8",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 154,
+              "end": 161,
+              "text": "insects",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_16e0c6119cc720",
+            "to_id": "pred_entity_d1e6f020d49ab8",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "In a study by Marcoleta et al . [ 9 ], three types of K . pneumoniae were used to infect zebrafish larvae, but only one ( Kp RYC492) was found to be highly virulent and caused 75% mortality after 72 hours post-infection (h.p.i.). In another study by Cheepurupalli et al . [ 14 ], clinical MDR K . pneumoniae at 10 7 CFU/ml was used to infect the zebrafish resulting in 100% mortality at 24 h.p.i.",
+      "candidate_id": "network_disagreement_8ed808b1ddc852",
+      "review_rank": 30,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INFECTS | RE 1.000 | entity 0.697 | strain 0.903",
+      "sampled_relation": "STRAIN-ORGANISM:INFECTS",
+      "pmcid": "PMC7794032",
+      "article_version": "PMC7794032.1",
+      "paragraph": 27,
+      "sentence_range": "6-7",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 68955,
+      "straininfo_taxon": null
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_8ed808b1ddc852",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9997770190238953,
+        "result": [
+          {
+            "id": "pred_entity_09bd50950de558",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 89,
+              "end": 105,
+              "text": "zebrafish larvae",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_3ffd6eba71d2be",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 122,
+              "end": 131,
+              "text": "Kp RYC492",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_3ffd6eba71d2be",
+            "to_id": "pred_entity_09bd50950de558",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INFECTS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Spiroplasma alleghenense PLHS-1 T (ATCC 51752) was isolated from the gut of a scorpion fly ( Panorpa helena ) collected in West Virginia. The complete genome sequence of this bacterium, which consists of a single 1,336,077-bp circular chromosome, is reported in this work.",
+      "candidate_id": "network_disagreement_c8dedadadb4460",
+      "review_rank": 31,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.941 | strain 0.963",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC6486257",
+      "article_version": "PMC6486257.1",
+      "paragraph": 2,
+      "sentence_range": "1-2",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 43161,
+      "straininfo_taxon": "Spiroplasma alleghenense"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_c8dedadadb4460",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9999450445175171,
+        "result": [
+          {
+            "id": "pred_entity_a7de93dabbe2df",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 0,
+              "end": 31,
+              "text": "Spiroplasma alleghenense PLHS-1",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_9e451ba9e27f60",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 78,
+              "end": 90,
+              "text": "scorpion fly",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_a7de93dabbe2df",
+            "to_id": "pred_entity_9e451ba9e27f60",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Four isolates of V. tritonius sp. nov., JCM 16456 T = LMG 25401 T = AM2 T , JCM 16457 = LMG 25402 = MA12, JCM 16458 = LMG 25403 = MA17, and JCM 16459 = LMG 25404 = MA35, isolated from gut of a sea hare, Aplysia kurodai , were used in this study. The strains were cultured on ZoBell 2216E agar (Oppenheimer and ZoBell, 1952 ) and stored at −80°C in 10% glycerol-supplemented broth.",
+      "candidate_id": "network_disagreement_713543898f6d10",
+      "review_rank": 32,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.906 | strain 0.989",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC3873509",
+      "article_version": "PMC3873509.1",
+      "paragraph": 17,
+      "sentence_range": "1-2",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 271841,
+      "straininfo_taxon": "Vibrio tritonius"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_713543898f6d10",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9999450445175171,
+        "result": [
+          {
+            "id": "pred_entity_7456696ebb153f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 140,
+              "end": 149,
+              "text": "JCM 16459",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_faa3807cc9084e",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 193,
+              "end": 218,
+              "text": "sea hare, Aplysia kurodai",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_7456696ebb153f",
+            "to_id": "pred_entity_faa3807cc9084e",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "Bacteroides pyogenes JCM 6294 T and Bacteroides suis JCM 6292 T were isolated from pigs ( 1 ), and Bacteroides tectus JCM 10003 T was isolated from a cat ( 2 ). It was previously reported that the sequence similarities between B. pyogenes JCM 6294 T and B. suis JCM 6292 T are 100% for the hsp60 gene and 100% for the 16S rRNA gene ( 3 ).",
+      "candidate_id": "network_disagreement_a1c5e97e2f7eb3",
+      "review_rank": 33,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.714 | strain 0.988",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC3907732",
+      "article_version": "PMC3907732.1",
+      "paragraph": 3,
+      "sentence_range": "1-2",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 41777,
+      "straininfo_taxon": "Bacteroides pyogenes"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_a1c5e97e2f7eb3",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9999450445175171,
+        "result": [
+          {
+            "id": "pred_entity_6188da98090ff0",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 99,
+              "end": 127,
+              "text": "Bacteroides tectus JCM 10003",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_a02bc3654c709f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 148,
+              "end": 153,
+              "text": "a cat",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_6188da98090ff0",
+            "to_id": "pred_entity_a02bc3654c709f",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The type strain TSD-76 T (=ATCC TSD-76 T = LMG 29867 T ) was isolated from the sea sponge Verongula gigante . The 16S rRNA and genome accession number are KX896701 and SMMA00000000 , respectively.",
+      "candidate_id": "network_disagreement_81d2cbe7215820",
+      "review_rank": 34,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.868 | strain 0.988",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC12080928",
+      "article_version": "PMC12080928.1",
+      "paragraph": 36,
+      "sentence_range": "1-2",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 281369,
+      "straininfo_taxon": "Pseudovibrio flavus"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_81d2cbe7215820",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.999943733215332,
+        "result": [
+          {
+            "id": "pred_entity_6f73b689fb3bf8",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 43,
+              "end": 52,
+              "text": "LMG 29867",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_b4724cf4aed7c7",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 79,
+              "end": 107,
+              "text": "sea sponge Verongula gigante",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_6f73b689fb3bf8",
+            "to_id": "pred_entity_b4724cf4aed7c7",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The type strain is NCTC 12872 T (=M1063U/93 T =DSM 15746 T =CCUG 47322 T ), isolated from a harbour porpoise in Scotland. The genome assembly (2.18 Mbp; 36.17 mol% G+C content) and 16S rRNA gene sequence are available, respectively, through accession numbers GCF_900454895 and NR_027217 .",
+      "candidate_id": "network_disagreement_06325190b6573f",
+      "review_rank": 35,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.973 | strain 0.988",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC12281759",
+      "article_version": "PMC12281759.1",
+      "paragraph": 26,
+      "sentence_range": "1-2",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 46266,
+      "straininfo_taxon": "Phocoenobacter uteri"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_06325190b6573f",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9999434947967529,
+        "result": [
+          {
+            "id": "pred_entity_7c3377537481d0",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 34,
+              "end": 43,
+              "text": "M1063U/93",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_cfd4331277136b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 92,
+              "end": 108,
+              "text": "harbour porpoise",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_7c3377537481d0",
+            "to_id": "pred_entity_cfd4331277136b",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The cell-wall peptidoglycan of WF-MO7-1 T contains the amino acids alanine (Ala), glutamic acid (Glu), aspartic acid (Asp) and ornithine (Orn), with the molar ratio 1.5 (Ala):0.9 (Asp):1.0 (Glu):1.1 (Orn), suggesting the cell-wall peptidoglycan type A4α l -Orn –d -Asp by [ 38 ]. The DNA G+C content of WF-MO7-1 T is 39.1 mol%. The type strain is WF-MO7-1 T (=DSM 110576 T =LMG 31630 T ), which was isolated from the jejunum of root vole ( Microtus oeconomus ) caught in the Vilnius area in Lithuania [ 13 ].",
+      "candidate_id": "network_disagreement_50d7ae50592162",
+      "review_rank": 36,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.957 | strain 0.988",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC8346765",
+      "article_version": "PMC8346765.1",
+      "paragraph": 26,
+      "sentence_range": "8-10",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:2162900",
+      "ontology_label": "Alexandromys oeconomus",
+      "straininfo_si_id": 405326,
+      "straininfo_taxon": "Limosilactobacillus fastidiosus"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_50d7ae50592162",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9999427795410156,
+        "result": [
+          {
+            "id": "pred_entity_c9a1a619d1df48",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 374,
+              "end": 383,
+              "text": "LMG 31630",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_3a3603a642deec",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 428,
+              "end": 437,
+              "text": "root vole",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_c9a1a619d1df48",
+            "to_id": "pred_entity_3a3603a642deec",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The type strain R79 T (= DSM 113102 T = LMG 32444 T = CCM 9183 T ) was isolated from the rhizosphere of young M26 apple plantlets grown in a grassland soil from Ellerhoop (Germany).",
+      "candidate_id": "network_disagreement_edcffa6ea9293a",
+      "review_rank": 37,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.836 | strain 0.991",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC9300504",
+      "article_version": "PMC9300504.1",
+      "paragraph": 33,
+      "sentence_range": "1",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 403914,
+      "straininfo_taxon": "Rhodococcus pseudokoreensis"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_edcffa6ea9293a",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9999427795410156,
+        "result": [
+          {
+            "id": "pred_entity_f3b44e84522be6",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 25,
+              "end": 35,
+              "text": "DSM 113102",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_b3a1acc81d66fc",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 110,
+              "end": 129,
+              "text": "M26 apple plantlets",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_f3b44e84522be6",
+            "to_id": "pred_entity_b3a1acc81d66fc",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "This gene cluster was further categorized into three sub-classes: types A, B, and C, based on the order and orientations of the genes ( Fig. 3 ). Among these three sub-classes, the type B cluster was also found in genomes from at least three strains from different families from Roseobacteraceae , i.e., Thioclava dalianensis DLFJ1-1 T from Paracoccaceae ( 33 ) and Neorhizobium petrolearium DSM 26482 T and Martelella sp. AD-3 from Rhizobiaceae ( Fig. 3 ; Table 2 ).",
+      "candidate_id": "network_disagreement_d4f53ee816c165",
+      "review_rank": 38,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.820 | strain 0.977",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC11705938",
+      "article_version": "PMC11705938.1",
+      "paragraph": 11,
+      "sentence_range": "1-2",
+      "ontology_status": "matched",
+      "ontology": "NCBITAXON",
+      "ontology_id": "NCBITaxon:31989",
+      "ontology_label": "Paracoccaceae",
+      "straininfo_si_id": 382321,
+      "straininfo_taxon": "Thioclava dalianensis"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_d4f53ee816c165",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9999427795410156,
+        "result": [
+          {
+            "id": "pred_entity_cc3d2f6e25da8b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 304,
+              "end": 333,
+              "text": "Thioclava dalianensis DLFJ1-1",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_93788e6efa4bf4",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 341,
+              "end": 354,
+              "text": "Paracoccaceae",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_cc3d2f6e25da8b",
+            "to_id": "pred_entity_93788e6efa4bf4",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The type strain, RA15 T (=CECT 9079 T =LMG 29860 T ), was isolated from the rhizosphere of the halophyte plant Arthrocnemum macrostachyum . The GenBank/EMBL/DDBJ accession number for the 16S rRNA gene sequence is KU588400 . The GenBank/EMBL/DDBJ accession number for the draft genome is CABVLM01.",
+      "candidate_id": "network_disagreement_3577078607bb2b",
+      "review_rank": 39,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.881 | strain 0.987",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC7395622",
+      "article_version": "PMC7395622.1",
+      "paragraph": 20,
+      "sentence_range": "1-3",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 366515,
+      "straininfo_taxon": null
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_3577078607bb2b",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9999421834945679,
+        "result": [
+          {
+            "id": "pred_entity_6efd6baeac96b7",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 26,
+              "end": 35,
+              "text": "CECT 9079",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_6cda6529298c1e",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 95,
+              "end": 137,
+              "text": "halophyte plant Arthrocnemum macrostachyum",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_6efd6baeac96b7",
+            "to_id": "pred_entity_6cda6529298c1e",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "data": {
+      "text": "The type strain, EAR8 T (=CECT 9072 T =DSM 103900 T ), was isolated as a root endophyte of the halophyte Arthrocnemum macrostachyum .",
+      "candidate_id": "network_disagreement_750c50ec700b31",
+      "review_rank": 40,
+      "review_tier": "old_only",
+      "review_summary": "old_only (present before retraining, absent after) | STRAIN-ORGANISM:INHABITS | RE 1.000 | entity 0.852 | strain 0.985",
+      "sampled_relation": "STRAIN-ORGANISM:INHABITS",
+      "pmcid": "PMC8604163",
+      "article_version": "PMC8604163.1",
+      "paragraph": 31,
+      "sentence_range": "1",
+      "ontology_status": "unmatched",
+      "ontology": null,
+      "ontology_id": null,
+      "ontology_label": null,
+      "straininfo_si_id": 397915,
+      "straininfo_taxon": "Rossellomorea arthrocnemi"
+    },
+    "meta": {
+      "source": "network_run_disagreement",
+      "candidate_id": "network_disagreement_750c50ec700b31",
+      "review_direction": "old_only",
+      "seeded_entities": 2,
+      "seeded_relations": 1
+    },
+    "predictions": [
+      {
+        "model_version": "NLP4Pheno-old_only",
+        "score": 0.9999419450759888,
+        "result": [
+          {
+            "id": "pred_entity_a1e34fc031f474",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 39,
+              "end": 49,
+              "text": "DSM 103900",
+              "labels": [
+                "STRAIN"
+              ]
+            }
+          },
+          {
+            "id": "pred_entity_3e4dbf2b08a07f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "value": {
+              "start": 95,
+              "end": 131,
+              "text": "halophyte Arthrocnemum macrostachyum",
+              "labels": [
+                "ORGANISM"
+              ]
+            }
+          },
+          {
+            "from_id": "pred_entity_a1e34fc031f474",
+            "to_id": "pred_entity_3e4dbf2b08a07f",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

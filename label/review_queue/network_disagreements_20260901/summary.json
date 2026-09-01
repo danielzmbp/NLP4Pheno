@@ -1,0 +1,21 @@
+{
+  "annotations": "/ei/projects/c/ce37e266-dd0b-4c54-9b26-3cf53be99d1b/daniel/nlp4pheno/runs/run_20260828_fullpmc_318ff56/label/project-10-reviewed-2026-08-27-targeted-pass.json",
+  "created_at": "2026-09-01T07:39:27.571609+00:00",
+  "max_text_chars": 600,
+  "new_only_edges": 3224,
+  "new_predictions": "/ei/projects/c/ce37e266-dd0b-4c54-9b26-3cf53be99d1b/daniel/nlp4pheno/analysis/species_qc_20260901_v7/preds_straininfo_species_qc_pmc.pqt",
+  "old_only_edges": 11699,
+  "old_predictions": "/ei/projects/c/ce37e266-dd0b-4c54-9b26-3cf53be99d1b/daniel/nlp4pheno/analysis/species_qc_20260828_v4/preds_straininfo_species_qc_pmc.pqt",
+  "per_relation_direction": 10,
+  "relations": [
+    "STRAIN-ORGANISM:INFECTS",
+    "STRAIN-ORGANISM:INHABITS"
+  ],
+  "task_counts": {
+    "new_only:STRAIN-ORGANISM:INFECTS": 10,
+    "new_only:STRAIN-ORGANISM:INHABITS": 10,
+    "old_only:STRAIN-ORGANISM:INFECTS": 10,
+    "old_only:STRAIN-ORGANISM:INHABITS": 10
+  },
+  "tasks": 40
+}
