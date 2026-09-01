@@ -36,7 +36,7 @@ NCBI_TAXON = "NCBITAXON"
 GUARDED_SAME_TAXON_RELATIONS = {"INFECTS", "INHABITS", "SYMBIONT_OF"}
 CONTEXT_KEYS = ["text", "start", "end", "word_qc_group"]
 _GENUS = r"(?:Candidatus\s+)?[A-Z][a-z][A-Za-z-]*"
-_ABBREVIATED_GENUS = r"[A-Z][a-z]{0,2}\."
+_ABBREVIATED_GENUS = r"[A-Z][a-z]{0,7}\."
 _EPITHET = r"[A-Za-z][A-Za-z-]+"
 _INFRA = (
     rf"(?:\s+(?:subsp\.?|ssp\.?|var\.?|pv\.?|ser\.?|serovar)\s+{_EPITHET}"
@@ -48,10 +48,16 @@ _FULL_SPECIES_RE = re.compile(rf"^(?P<genus>{_GENUS})\s+(?P<epithet>{_EPITHET})(
 _ABBREVIATED_SPECIES_RE = re.compile(
     rf"^(?P<genus>{_ABBREVIATED_GENUS})\s*(?P<epithet>{_EPITHET})(?P<infra>{_INFRA})$"
 )
+_SAFE_ABBREVIATED_SPECIES_RE = re.compile(
+    rf"^(?P<genus>{_ABBREVIATED_GENUS})\s*"
+    rf"(?P<epithet>smeg\.)(?P<infra>{_INFRA})$",
+    re.IGNORECASE,
+)
 _INITIAL_WITHOUT_PERIOD_SPECIES_RE = re.compile(
     rf"^(?P<genus>[A-Z])\s+(?P<epithet>{_EPITHET})(?P<infra>{_INFRA})$"
 )
 _UNSPECIFIED_SPECIES_RE = re.compile(rf"^(?:{_GENUS}|{_ABBREVIATED_GENUS})\s+spp?\.?$")
+_GENUS_ONLY_RE = re.compile(rf"^{_GENUS}$")
 _TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z-]*|\.")
 
 
@@ -87,6 +93,7 @@ def parse_species_surface(value: str) -> tuple[str, str, str] | None:
     match = (
         _FULL_SPECIES_RE.fullmatch(value)
         or _ABBREVIATED_SPECIES_RE.fullmatch(value)
+        or _SAFE_ABBREVIATED_SPECIES_RE.fullmatch(value)
         or _INITIAL_WITHOUT_PERIOD_SPECIES_RE.fullmatch(value)
     )
     if not match:
@@ -99,14 +106,21 @@ def is_well_formed_species_surface(value: str) -> bool:
     return bool(parse_species_surface(value) or _UNSPECIFIED_SPECIES_RE.fullmatch(value))
 
 
-def abbreviation_key(value: str) -> tuple[str, str, str] | None:
+def abbreviation_key(value: str) -> tuple[str, str, str, bool] | None:
     parsed = parse_species_surface(value)
     if not parsed:
         return None
     genus, epithet, infra = parsed
     if not (genus.endswith(".") or len(genus) == 1):
         return None
-    return genus[0].casefold(), epithet.casefold(), normalize_surface(infra)
+    genus_prefix = genus.rstrip(".").casefold()
+    epithet_is_prefix = epithet.endswith(".")
+    return (
+        genus_prefix,
+        epithet.rstrip(".").casefold(),
+        normalize_surface(infra),
+        epithet_is_prefix,
+    )
 
 
 def is_safe_ungrounded_repair(value: str) -> bool:
@@ -116,17 +130,6 @@ def is_safe_ungrounded_repair(value: str) -> bool:
         return bool(_UNSPECIFIED_SPECIES_RE.fullmatch(canonical_taxon_surface(value)))
     genus, _, _ = parsed
     return genus.endswith(".") or len(genus.split()[-1]) > 1
-
-
-def preferred_label_abbreviation_key(value: str) -> tuple[str, str, str] | None:
-    parsed = parse_species_surface(value)
-    if not parsed:
-        return None
-    genus, epithet, infra = parsed
-    if genus.endswith("."):
-        return None
-    genus_word = genus.split()[-1]
-    return genus_word[0].casefold(), epithet.casefold(), normalize_surface(infra)
 
 
 def candidate_expansions(text: str, start: int, end: int) -> list[Expansion]:
@@ -202,20 +205,33 @@ def _direct_matches(
 def _abbreviation_matches(
     surfaces: Iterable[str], aliases_file: Path
 ) -> dict[str, list[TaxonMatch]]:
-    requested_by_key: dict[tuple[str, str, str], set[str]] = defaultdict(set)
+    requested_exact: dict[
+        tuple[str, str], list[tuple[str, str]]
+    ] = defaultdict(list)
+    requested_prefix: dict[
+        tuple[str, str], list[tuple[str, str, str]]
+    ] = defaultdict(list)
+    requested_labels: dict[str, set[str]] = defaultdict(set)
     for surface in surfaces:
         canonical = canonical_taxon_surface(surface)
         key = abbreviation_key(canonical)
         if key:
-            requested_by_key[key].add(canonical)
-    if not requested_by_key:
+            genus_prefix, epithet, infra, epithet_is_prefix = key
+            if epithet_is_prefix:
+                requested_prefix[(epithet[0], infra)].append(
+                    (genus_prefix, epithet, canonical)
+                )
+            else:
+                requested_exact[(epithet, infra)].append((genus_prefix, canonical))
+        elif _GENUS_ONLY_RE.fullmatch(canonical):
+            requested_labels[canonical.casefold()].add(canonical)
+    if not requested_exact and not requested_prefix and not requested_labels:
         return {}
 
     expression = (
         ds.field("auto_eligible")
         & (ds.field("entity_type") == SPECIES)
         & (ds.field("ontology") == NCBI_TAXON)
-        & (ds.field("scope") == "LABEL")
     )
     scanner = ds.dataset(aliases_file, format="parquet").scanner(
         columns=["ontology", "concept_id", "concept_label", "alias", "scope"],
@@ -225,10 +241,7 @@ def _abbreviation_matches(
     matches_by_surface: dict[str, dict[str, TaxonMatch]] = defaultdict(dict)
     for batch in scanner.to_batches():
         for row in batch.to_pylist():
-            key = preferred_label_abbreviation_key(row["concept_label"])
-            if key not in requested_by_key:
-                continue
-            match = TaxonMatch(
+            abbreviation_match = TaxonMatch(
                 ontology=row["ontology"],
                 concept_id=row["concept_id"],
                 concept_label=row["concept_label"],
@@ -237,8 +250,41 @@ def _abbreviation_matches(
                 method="species_qc_abbreviation",
                 confidence=0.98,
             )
-            for surface in requested_by_key[key]:
-                matches_by_surface[surface][match.concept_id] = match
+            label = canonical_taxon_surface(row["concept_label"])
+            if row["scope"] == "LABEL":
+                for surface in requested_labels.get(label.casefold(), ()):
+                    matches_by_surface[surface][abbreviation_match.concept_id] = TaxonMatch(
+                        ontology=abbreviation_match.ontology,
+                        concept_id=abbreviation_match.concept_id,
+                        concept_label=abbreviation_match.concept_label,
+                        alias=abbreviation_match.alias,
+                        scope=abbreviation_match.scope,
+                        method="species_qc_preferred_label",
+                        confidence=1.0,
+                    )
+            parsed = parse_species_surface(canonical_taxon_surface(row["alias"]))
+            if not parsed:
+                continue
+            genus, epithet, infra = parsed
+            genus_word = genus.split()[-1].casefold()
+            epithet_word = epithet.casefold()
+            infra_key = normalize_surface(infra)
+            for genus_prefix, surface in requested_exact.get(
+                (epithet_word, infra_key), ()
+            ):
+                if genus_word.startswith(genus_prefix):
+                    matches_by_surface[surface][abbreviation_match.concept_id] = (
+                        abbreviation_match
+                    )
+            for genus_prefix, epithet_prefix, surface in requested_prefix.get(
+                (epithet_word[0], infra_key), ()
+            ):
+                if genus_word.startswith(genus_prefix) and epithet_word.startswith(
+                    epithet_prefix
+                ):
+                    matches_by_surface[surface][abbreviation_match.concept_id] = (
+                        abbreviation_match
+                    )
     return {
         surface: sorted(values.values(), key=lambda item: item.concept_id)
         for surface, values in matches_by_surface.items()
@@ -435,7 +481,65 @@ def decide_contexts(
                     decision["species_qc_original_end"],
                 )
             }
-            if len(repaired_candidates) == 1:
+            most_specific = [
+                candidate
+                for candidate in repaired_candidates.values()
+                if all(
+                    candidate.start <= other.start and candidate.end >= other.end
+                    for other in repaired_candidates.values()
+                )
+            ]
+            if len(repaired_candidates) > 1 and len(most_specific) == 1:
+                candidate = most_specific[0]
+                candidate_matches = {
+                    match.concept_id: match
+                    for record_candidate, match in candidate_records
+                    if record_candidate == candidate
+                }
+                if len(candidate_matches) == 1:
+                    match = next(iter(candidate_matches.values()))
+                    relation_name = str(row.get("rel") or "").split(":")[-1]
+                    same_taxon = bool(
+                        row.get("strain_taxonomy_id")
+                        and row.get("strain_taxonomy_id") == match.concept_id
+                        and relation_name in GUARDED_SAME_TAXON_RELATIONS
+                    )
+                    decision.update(
+                        {
+                            "species_qc_surface": candidate.surface,
+                            "species_qc_start": candidate.start,
+                            "species_qc_end": candidate.end,
+                            "species_qc_repaired": True,
+                            "species_qc_status": (
+                                "rejected_same_taxon"
+                                if same_taxon
+                                else "repaired_grounded"
+                            ),
+                            "species_qc_reason": (
+                                "repaired_entity_matches_strain_taxon"
+                                if same_taxon
+                                else "unique_most_specific_contextual_ontology_repair"
+                            ),
+                            "species_qc_keep": not same_taxon,
+                        }
+                    )
+                    _apply_match(decision, match)
+                else:
+                    decision.update(
+                        {
+                            "species_qc_surface": candidate.surface,
+                            "species_qc_start": candidate.start,
+                            "species_qc_end": candidate.end,
+                            "species_qc_repaired": True,
+                            "species_qc_status": "repaired_ambiguous_surface",
+                            "species_qc_reason": (
+                                "most_specific_contextual_surface_with_multiple_"
+                                "taxonomy_candidates"
+                            ),
+                            "species_qc_keep": True,
+                        }
+                    )
+            elif len(repaired_candidates) == 1:
                 candidate = next(iter(repaired_candidates.values()))
                 decision.update(
                     {

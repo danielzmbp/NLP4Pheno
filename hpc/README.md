@@ -185,6 +185,17 @@ export NLP4PHENO_SPECIES_QC_OUTPUT_DIR=/shared/path/species-qc-benchmark
 sbatch --export=ALL hpc/qc_species_predictions.sbatch
 ```
 
+After validating an independent QC result, rebuild only its network and PMC
+evidence branch without rerunning NER or RE:
+
+```bash
+export NLP4PHENO_PROJECT=/shared/path/code-snapshot
+export NLP4PHENO_ENV_PREFIX=/shared/path/nlp4pheno-conda
+export NLP4PHENO_SPECIES_QC_OUTPUT_DIR=/shared/path/species-qc-benchmark
+export NLP4PHENO_PMC_PARQUET=/shared/path/pmc_filtered.parquet
+sbatch --export=ALL hpc/rebuild_species_qc_network.sbatch
+```
+
 Each text and ontology network also gets an edge-level evidence summary and a
 conservative core view. Multi-article edges enter the core directly; a
 single-article edge must have at least one evidence sentence passing the RE,
@@ -221,6 +232,21 @@ annotation export. Set `NLP4PHENO_REVIEW_RELATIONS` to the regressed or sparse
 typed classifiers and adjust `NLP4PHENO_REVIEW_PER_RELATION_TIER` to control
 queue size. The generated `queue.json` remains prediction-only until it is
 reviewed and exported from Label Studio.
+
+To inspect model changes directly, `build_network_disagreement_queue.sbatch`
+selects high-confidence `INFECTS` and `INHABITS` edges present in only the old
+or only the new linked prediction table. It creates a balanced, pre-annotated
+queue and excludes sentences in the supplied reviewed annotation export:
+
+```bash
+export NLP4PHENO_PROJECT=/shared/path/code-snapshot
+export NLP4PHENO_ENV_PREFIX=/shared/path/nlp4pheno-conda
+export NLP4PHENO_OLD_PREDICTIONS=/shared/path/old_grounded_pmc.pqt
+export NLP4PHENO_NEW_PREDICTIONS=/shared/path/new_grounded_pmc.pqt
+export NLP4PHENO_REVIEW_ANNOTATIONS=/shared/path/reviewed-annotations.json
+export NLP4PHENO_REVIEW_OUTPUT=/shared/path/network-disagreement-queue
+sbatch --export=ALL hpc/build_network_disagreement_queue.sbatch
+```
 
 ## Monitor
 
