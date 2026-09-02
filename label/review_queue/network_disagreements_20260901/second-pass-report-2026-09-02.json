@@ -1,0 +1,197 @@
+{
+  "changes": [
+    {
+      "candidate_id": "network_disagreement_6a54a9bd055447",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Exclude the list comma from the horses organism span.",
+      "relations_dropped": 0,
+      "task_id": "415"
+    },
+    {
+      "candidate_id": "network_disagreement_1252c8cb9b6672",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Expand the cell-line endpoint to the complete A549 human lung cancer epithelial cells mention.",
+      "relations_dropped": 0,
+      "task_id": "417"
+    },
+    {
+      "candidate_id": "network_disagreement_0d25f4fe5e9266",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Exclude the closing parenthesis from the ATCC strain designation.",
+      "relations_dropped": 0,
+      "task_id": "418"
+    },
+    {
+      "candidate_id": "network_disagreement_7daf6545bb2c12",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Expand the cell-line endpoint from HeLa to the complete HeLa cells mention.",
+      "relations_dropped": 0,
+      "task_id": "419"
+    },
+    {
+      "candidate_id": "network_disagreement_4e8d39d6c1db9b",
+      "entities_edited": 7,
+      "human_review_rank": null,
+      "notes": "Remove list and sentence punctuation from disease and host spans.",
+      "relations_dropped": 0,
+      "task_id": "420"
+    },
+    {
+      "candidate_id": "network_disagreement_6de4d773688c26",
+      "entities_edited": 4,
+      "human_review_rank": null,
+      "notes": "Morbidity, mortality, pathology, and weight loss are observed phenotypes rather than disease names; relabel them and use PRESENTS.",
+      "relations_added": 4,
+      "relations_dropped": 4,
+      "task_id": "422"
+    },
+    {
+      "candidate_id": "network_disagreement_ff0b9831be1f4d",
+      "human_review_rank": null,
+      "notes": "The only BKD statement is explicitly negated for this strain, so it must not become a positive disease association.",
+      "relations_dropped": 1,
+      "task_id": "423"
+    },
+    {
+      "candidate_id": "network_disagreement_4faac437739859",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Exclude the list comma from the XH134 strain span.",
+      "relations_dropped": 0,
+      "task_id": "425"
+    },
+    {
+      "candidate_id": "network_disagreement_9678a00ee345c6",
+      "entities_dropped": 1,
+      "human_review_rank": null,
+      "notes": "Microsymbiont describes the already annotated symbiotic relationship, not an independent phenotype endpoint.",
+      "relations_dropped": 1,
+      "task_id": "426"
+    },
+    {
+      "candidate_id": "network_disagreement_9c4aa46f5dc55c",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Complete the host span through the closing parenthesis.",
+      "relations_dropped": 0,
+      "task_id": "427"
+    },
+    {
+      "candidate_id": "network_disagreement_fb62f040b591c9",
+      "entities_edited": 4,
+      "human_review_rank": null,
+      "notes": "Remove list punctuation from the strain and medium-component spans.",
+      "relations_dropped": 0,
+      "task_id": "429"
+    },
+    {
+      "candidate_id": "network_disagreement_29480299eb011c",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Complete the Chinook salmon host span through its parenthetical scientific name.",
+      "relations_dropped": 0,
+      "task_id": "431"
+    },
+    {
+      "candidate_id": "network_disagreement_cf00bd6b31601b",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Complete the bearded dragon host span through its parenthetical scientific name.",
+      "relations_dropped": 0,
+      "task_id": "432"
+    },
+    {
+      "candidate_id": "network_disagreement_3825d3991a380c",
+      "entities_edited": 2,
+      "human_review_rank": null,
+      "notes": "Remove closing list punctuation from the second strain and host spans.",
+      "relations_dropped": 0,
+      "task_id": "434"
+    },
+    {
+      "candidate_id": "network_disagreement_d7307127824e48",
+      "entities_edited": 4,
+      "human_review_rank": null,
+      "notes": "All four strains in the first parenthetical are explicitly pathogenic to potato; restore the missing D. dadantii edge and trim list punctuation from strain spans.",
+      "relations_added": 1,
+      "relations_dropped": 0,
+      "task_id": "435"
+    },
+    {
+      "candidate_id": "network_disagreement_c5378d5d3c117d",
+      "entities_edited": 2,
+      "human_review_rank": null,
+      "notes": "A. corallicida and V. shiloi are microbial species, not host organisms.",
+      "relations_dropped": 0,
+      "task_id": "437"
+    },
+    {
+      "candidate_id": "network_disagreement_707be795d7fbb8",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "The strain is described as pathogenic to insects generally, but only detected in the named ants; use broad inhabitation rather than infection for the three ant targets.",
+      "relations_added": 3,
+      "relations_dropped": 3,
+      "task_id": "438"
+    },
+    {
+      "candidate_id": "network_disagreement_55f4e5ee15db42",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "The final sentence explicitly says that the wild-type strain killed locusts; add that infection edge and trim the sentence period.",
+      "relations_added": 1,
+      "relations_dropped": 0,
+      "task_id": "441"
+    },
+    {
+      "candidate_id": "network_disagreement_c8dedadadb4460",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Exclude the closing parenthesis from the ATCC alias span.",
+      "relations_dropped": 0,
+      "task_id": "444"
+    },
+    {
+      "candidate_id": "network_disagreement_713543898f6d10",
+      "entities_edited": 3,
+      "human_review_rank": null,
+      "notes": "Exclude list commas from the three MA strain aliases.",
+      "relations_dropped": 0,
+      "task_id": "445"
+    },
+    {
+      "candidate_id": "network_disagreement_50d7ae50592162",
+      "entities_edited": 4,
+      "human_review_rank": null,
+      "notes": "Trim parenthetical punctuation from amino-acid abbreviations and restore the missing DSM alias link to the scientific host name.",
+      "relations_added": 1,
+      "relations_dropped": 0,
+      "task_id": "449"
+    },
+    {
+      "candidate_id": "network_disagreement_d4f53ee816c165",
+      "entities_edited": 2,
+      "human_review_rank": null,
+      "notes": "Paracoccaceae and Rhizobiaceae are the bacterial taxonomic families of the strains, not habitats or host organisms.",
+      "relations_dropped": 3,
+      "task_id": "451"
+    }
+  ],
+  "corrected_tasks": 22,
+  "corrections": "label/review_queue/network_disagreements_20260901/second-pass-corrections-2026-09-02.json",
+  "corrections_sha256": "b78c7b30b76319a62c73062d57994313b2358c4c0c304c6d8b9f7e7e9c81dcb0",
+  "created_at": "2026-09-02T13:35:22.811642+00:00",
+  "entities_dropped": 1,
+  "entities_edited": 43,
+  "output": "label/review_queue/network_disagreements_20260901/reviewed-export-2026-09-02-second-pass.json",
+  "output_sha256": "7e1a84d503c101b201acca0e5cc861af003acb49e4f3e05f2b03f6104e072be5",
+  "relations_added": 10,
+  "relations_dropped": 12,
+  "source": "label/review_queue/network_disagreements_20260901/reviewed-export-2026-09-02.json",
+  "source_sha256": "ed2a2d586a7cd1cce7254186bb1e6a2ffa0341fd44282e995c3e437dea3115d0",
+  "source_tasks": 40
+}

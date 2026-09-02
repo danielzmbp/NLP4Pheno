@@ -1,0 +1,61 @@
+{
+  "added_by_source": {
+    "label/review_queue/network_disagreements_20260901/reviewed-export-2026-09-02-second-pass.json": 40
+  },
+  "added_tasks": 40,
+  "candidate_ids": [
+    "network_disagreement_06325190b6573f",
+    "network_disagreement_0d25f4fe5e9266",
+    "network_disagreement_1252c8cb9b6672",
+    "network_disagreement_29480299eb011c",
+    "network_disagreement_3577078607bb2b",
+    "network_disagreement_3825d3991a380c",
+    "network_disagreement_4c0b98ae9208c5",
+    "network_disagreement_4e05e7107cd7de",
+    "network_disagreement_4e8d39d6c1db9b",
+    "network_disagreement_4faac437739859",
+    "network_disagreement_50d7ae50592162",
+    "network_disagreement_55f4e5ee15db42",
+    "network_disagreement_57755a130b394f",
+    "network_disagreement_593335d5159a42",
+    "network_disagreement_6a54a9bd055447",
+    "network_disagreement_6de4d773688c26",
+    "network_disagreement_707be795d7fbb8",
+    "network_disagreement_70ef92519c0a3f",
+    "network_disagreement_713543898f6d10",
+    "network_disagreement_750c50ec700b31",
+    "network_disagreement_7daf6545bb2c12",
+    "network_disagreement_7e735334d0fa86",
+    "network_disagreement_81d2cbe7215820",
+    "network_disagreement_85439db61ff3c9",
+    "network_disagreement_8ed808b1ddc852",
+    "network_disagreement_9678a00ee345c6",
+    "network_disagreement_9c4aa46f5dc55c",
+    "network_disagreement_a1c5e97e2f7eb3",
+    "network_disagreement_c5378d5d3c117d",
+    "network_disagreement_c8dedadadb4460",
+    "network_disagreement_cf00bd6b31601b",
+    "network_disagreement_d4f53ee816c165",
+    "network_disagreement_d7307127824e48",
+    "network_disagreement_eb3b16de2f7086",
+    "network_disagreement_ebe3de6b557154",
+    "network_disagreement_edcffa6ea9293a",
+    "network_disagreement_ef405d2be6e836",
+    "network_disagreement_fb62f040b591c9",
+    "network_disagreement_fbd349d6a620cd",
+    "network_disagreement_ff0b9831be1f4d"
+  ],
+  "created_at": "2026-09-02T13:35:50.013650+00:00",
+  "output": "label/project-10-reviewed-2026-09-02-network-disagreement-pass.json",
+  "output_sha256": "a4ae63517a74f694b22d121095fd201020a3e2013c97b6942563b9ba22d5a133",
+  "output_tasks": 4224,
+  "reviewed": [
+    {
+      "path": "label/review_queue/network_disagreements_20260901/reviewed-export-2026-09-02-second-pass.json",
+      "sha256": "7e1a84d503c101b201acca0e5cc861af003acb49e4f3e05f2b03f6104e072be5"
+    }
+  ],
+  "source": "label/project-10-reviewed-2026-08-27-targeted-pass.json",
+  "source_sha256": "2f9ff63c3535c35fb96fbf81f4bd1f4d9c0a6fa39d6184ab58debb6522600f2b",
+  "source_tasks": 4184
+}

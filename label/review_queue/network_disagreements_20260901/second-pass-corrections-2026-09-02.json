@@ -1,0 +1,255 @@
+[
+  {
+    "candidate_id": "network_disagreement_1252c8cb9b6672",
+    "reviewer": "Codex",
+    "notes": "Expand the cell-line endpoint to the complete A549 human lung cancer epithelial cells mention.",
+    "edit_entities": [
+      {
+        "id": "pred_entity_58ada7f8b8a719",
+        "text": "A549 human lung cancer epithelial cells",
+        "occurrence": 1,
+        "label": "ORGANISM"
+      }
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_7daf6545bb2c12",
+    "reviewer": "Codex",
+    "notes": "Expand the cell-line endpoint from HeLa to the complete HeLa cells mention.",
+    "edit_entities": [
+      {
+        "id": "pred_entity_da484f75ae1591",
+        "text": "HeLa cells",
+        "occurrence": 1,
+        "label": "ORGANISM"
+      }
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_6a54a9bd055447",
+    "reviewer": "Codex",
+    "notes": "Exclude the list comma from the horses organism span.",
+    "edit_entities": [
+      {
+        "id": "jqUDO9igcF",
+        "text": "horses",
+        "occurrence": 1,
+        "label": "ORGANISM"
+      }
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_0d25f4fe5e9266",
+    "reviewer": "Codex",
+    "notes": "Exclude the closing parenthesis from the ATCC strain designation.",
+    "edit_entities": [
+      {
+        "id": "pred_entity_ea8df8b3e46e5e",
+        "text": "ATCC 27543",
+        "occurrence": 1,
+        "label": "STRAIN"
+      }
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_4e8d39d6c1db9b",
+    "reviewer": "Codex",
+    "notes": "Remove list and sentence punctuation from disease and host spans.",
+    "edit_entities": [
+      {"id": "PJmbrL65mE", "text": "pneumonia", "occurrence": 1, "label": "DISEASE"},
+      {"id": "gDF7jzY5Ov", "text": "arthritis", "occurrence": 1, "label": "DISEASE"},
+      {"id": "tF_nfLLx9X", "text": "mastitis", "occurrence": 1, "label": "DISEASE"},
+      {"id": "Jk_7kCjK2_", "text": "arthritis", "occurrence": 2, "label": "DISEASE"},
+      {"id": "Kk2UEcEgnp", "text": "respiratory disease", "occurrence": 1, "label": "DISEASE"},
+      {"id": "2yhkwljfPn", "text": "mastitis", "occurrence": 2, "label": "DISEASE"},
+      {"id": "HghjteGvfh", "text": "cattle", "occurrence": 1, "label": "ORGANISM"}
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_6de4d773688c26",
+    "reviewer": "Codex",
+    "notes": "Morbidity, mortality, pathology, and weight loss are observed phenotypes rather than disease names; relabel them and use PRESENTS.",
+    "edit_entities": [
+      {"id": "NIRqWNAB7f", "text": "morbidity", "occurrence": 1, "label": "PHENOTYPE"},
+      {"id": "heVljLjjWN", "text": "rapid onset mortality", "occurrence": 1, "label": "PHENOTYPE"},
+      {"id": "RqqzbGT80v", "text": "severe pathology", "occurrence": 1, "label": "PHENOTYPE"},
+      {"id": "egZ5LAIl6E", "text": "weight loss", "occurrence": 1, "label": "PHENOTYPE"}
+    ],
+    "drop_relations": [
+      ["pred_entity_ac6b0d4b47afde", "NIRqWNAB7f", "ASSOCIATED_WITH"],
+      ["pred_entity_ac6b0d4b47afde", "heVljLjjWN", "ASSOCIATED_WITH"],
+      ["pred_entity_ac6b0d4b47afde", "RqqzbGT80v", "ASSOCIATED_WITH"],
+      ["pred_entity_ac6b0d4b47afde", "egZ5LAIl6E", "ASSOCIATED_WITH"]
+    ],
+    "add_relations": [
+      ["pred_entity_ac6b0d4b47afde", "NIRqWNAB7f", "PRESENTS"],
+      ["pred_entity_ac6b0d4b47afde", "heVljLjjWN", "PRESENTS"],
+      ["pred_entity_ac6b0d4b47afde", "RqqzbGT80v", "PRESENTS"],
+      ["pred_entity_ac6b0d4b47afde", "egZ5LAIl6E", "PRESENTS"]
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_ff0b9831be1f4d",
+    "reviewer": "Codex",
+    "notes": "The only BKD statement is explicitly negated for this strain, so it must not become a positive disease association.",
+    "drop_relations": [
+      ["pred_entity_12ebf5f005f623", "mdso7OKsxF", "ASSOCIATED_WITH"]
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_4faac437739859",
+    "reviewer": "Codex",
+    "notes": "Exclude the list comma from the XH134 strain span.",
+    "edit_entities": [
+      {"id": "lGcEQLyQMo", "text": "Aquimarina megaterium XH134", "occurrence": 1, "label": "STRAIN"}
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_9678a00ee345c6",
+    "reviewer": "Codex",
+    "notes": "Microsymbiont describes the already annotated symbiotic relationship, not an independent phenotype endpoint.",
+    "drop_entity_ids": ["iKHs0JjeUK"]
+  },
+  {
+    "candidate_id": "network_disagreement_9c4aa46f5dc55c",
+    "reviewer": "Codex",
+    "notes": "Complete the host span through the closing parenthesis.",
+    "edit_entities": [
+      {"id": "pred_entity_7256ca8ad47733", "text": "Horse Flies ( Haematopota sp.)", "occurrence": 1, "label": "ORGANISM"}
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_fb62f040b591c9",
+    "reviewer": "Codex",
+    "notes": "Remove list punctuation from the strain and medium-component spans.",
+    "edit_entities": [
+      {"id": "MkqwUmCRDO", "text": "Sphingopyxis sp. USTB-05", "occurrence": 1, "label": "STRAIN"},
+      {"id": "5rJRXJXt3i", "text": "peptone", "occurrence": 1, "label": "COMPOUND"},
+      {"id": "7KP5hcyES5", "text": "yeast extract", "occurrence": 1, "label": "COMPOUND"},
+      {"id": "7et3DhozEE", "text": "NaCl", "occurrence": 1, "label": "COMPOUND"}
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_29480299eb011c",
+    "reviewer": "Codex",
+    "notes": "Complete the Chinook salmon host span through its parenthetical scientific name.",
+    "edit_entities": [
+      {"id": "pred_entity_b42e337932f474", "text": "Chinook salmon ( Oncorhynchus tshawytscha )", "occurrence": 1, "label": "ORGANISM"}
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_cf00bd6b31601b",
+    "reviewer": "Codex",
+    "notes": "Complete the bearded dragon host span through its parenthetical scientific name.",
+    "edit_entities": [
+      {"id": "pred_entity_a663d45fc8189b", "text": "Bearded Dragon ( Pogona vitticeps )", "occurrence": 1, "label": "ORGANISM"}
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_3825d3991a380c",
+    "reviewer": "Codex",
+    "notes": "Remove closing list punctuation from the second strain and host spans.",
+    "edit_entities": [
+      {"id": "84TNLsVGzm", "text": "CFBP 13568", "occurrence": 1, "label": "STRAIN"},
+      {"id": "m8GyOaRKFa", "text": "radish plants", "occurrence": 1, "label": "ORGANISM"}
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_d7307127824e48",
+    "reviewer": "Codex",
+    "notes": "All four strains in the first parenthetical are explicitly pathogenic to potato; restore the missing D. dadantii edge and trim list punctuation from strain spans.",
+    "edit_entities": [
+      {"id": "T82zRP_IvC", "text": "D. dadantii 3937", "occurrence": 1, "label": "STRAIN"},
+      {"id": "ltrj8A5eB8", "text": "D. chrysanthemi A604‐S21‐A17", "occurrence": 1, "label": "STRAIN"},
+      {"id": "ULwxQqERUz", "text": "D. zeae A586‐S18‐A17", "occurrence": 1, "label": "STRAIN"},
+      {"id": "9F0cjYFaoO", "text": "P. quasiaquaticum A411‐S4‐F17", "occurrence": 1, "label": "STRAIN"}
+    ],
+    "add_relations": [
+      ["T82zRP_IvC", "pred_entity_0a28a69cc260f9", "INFECTS"]
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_c5378d5d3c117d",
+    "reviewer": "Codex",
+    "notes": "A. corallicida and V. shiloi are microbial species, not host organisms.",
+    "edit_entities": [
+      {"id": "pred_entity_27c96ba0e06376", "text": "A. corallicida", "occurrence": 1, "label": "SPECIES"},
+      {"id": "iwfcuxZAnx", "text": "V. shiloi", "occurrence": 1, "label": "SPECIES"}
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_707be795d7fbb8",
+    "reviewer": "Codex",
+    "notes": "The strain is described as pathogenic to insects generally, but only detected in the named ants; use broad inhabitation rather than infection for the three ant targets.",
+    "edit_entities": [
+      {"id": "_HL6QrPApD", "text": "formicine ants", "occurrence": 1, "label": "ORGANISM"}
+    ],
+    "drop_relations": [
+      ["pred_entity_c36d2d0a048e3c", "_HL6QrPApD", "INFECTS"],
+      ["pred_entity_c36d2d0a048e3c", "R4gOZnsydU", "INFECTS"],
+      ["pred_entity_c36d2d0a048e3c", "JKP7ynmDdQ", "INFECTS"]
+    ],
+    "add_relations": [
+      ["pred_entity_c36d2d0a048e3c", "_HL6QrPApD", "INHABITS"],
+      ["pred_entity_c36d2d0a048e3c", "R4gOZnsydU", "INHABITS"],
+      ["pred_entity_c36d2d0a048e3c", "JKP7ynmDdQ", "INHABITS"]
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_55f4e5ee15db42",
+    "reviewer": "Codex",
+    "notes": "The final sentence explicitly says that the wild-type strain killed locusts; add that infection edge and trim the sentence period.",
+    "edit_entities": [
+      {"id": "7WLDBbNyiF", "text": "locusts", "occurrence": 1, "label": "ORGANISM"}
+    ],
+    "add_relations": [
+      ["pred_entity_54ba7cf69ecdd7", "7WLDBbNyiF", "INFECTS"]
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_c8dedadadb4460",
+    "reviewer": "Codex",
+    "notes": "Exclude the closing parenthesis from the ATCC alias span.",
+    "edit_entities": [
+      {"id": "lV1z7BjhNz", "text": "ATCC 51752", "occurrence": 1, "label": "STRAIN"}
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_713543898f6d10",
+    "reviewer": "Codex",
+    "notes": "Exclude list commas from the three MA strain aliases.",
+    "edit_entities": [
+      {"id": "iyaHFdb-XX", "text": "MA12", "occurrence": 1, "label": "STRAIN"},
+      {"id": "MstrPSMws6", "text": "MA17", "occurrence": 1, "label": "STRAIN"},
+      {"id": "0EUu8SyozU", "text": "MA35", "occurrence": 1, "label": "STRAIN"}
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_50d7ae50592162",
+    "reviewer": "Codex",
+    "notes": "Trim parenthetical punctuation from amino-acid abbreviations and restore the missing DSM alias link to the scientific host name.",
+    "edit_entities": [
+      {"id": "gMXrBXUXuv", "text": "Ala", "occurrence": 1, "label": "COMPOUND"},
+      {"id": "FQL9tYPBwh", "text": "Glu", "occurrence": 1, "label": "COMPOUND"},
+      {"id": "YIoefPBdVy", "text": "Asp", "occurrence": 1, "label": "COMPOUND"},
+      {"id": "QSsl01HKgK", "text": "Orn", "occurrence": 1, "label": "COMPOUND"}
+    ],
+    "add_relations": [
+      ["x9epLpbKsw", "RaUexF36aL", "INHABITS"]
+    ]
+  },
+  {
+    "candidate_id": "network_disagreement_d4f53ee816c165",
+    "reviewer": "Codex",
+    "notes": "Paracoccaceae and Rhizobiaceae are the bacterial taxonomic families of the strains, not habitats or host organisms.",
+    "edit_entities": [
+      {"id": "pred_entity_93788e6efa4bf4", "text": "Paracoccaceae", "occurrence": 1, "label": "SPECIES"},
+      {"id": "NkQkGsrLoO", "text": "Rhizobiaceae", "occurrence": 1, "label": "SPECIES"}
+    ],
+    "drop_relations": [
+      ["pred_entity_cc3d2f6e25da8b", "pred_entity_93788e6efa4bf4", "INHABITS"],
+      ["-1LUvWrRVv", "NkQkGsrLoO", "INHABITS"],
+      ["59yDwr8zH5", "NkQkGsrLoO", "INHABITS"]
+    ]
+  }
+]
