@@ -6,6 +6,8 @@ This repository contains the code to reproduce the analyses from the paper: [Int
 
 The pipeline integrates Named Entity Recognition (NER), Relation Extraction (RE), and XGBoost-based phenotype prediction using Snakemake workflows. 
 
+Explore the versioned literature-derived networks in the [interactive NLP4Pheno network explorer](https://danielzmbp.github.io/nlp4pheno-network/).
+
 ## Requirements
 
 ### System Requirements
