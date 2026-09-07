@@ -1,0 +1,29 @@
+{
+  "candidate_issues": 22,
+  "candidate_issues_by_category": {
+    "entity_omission": 20,
+    "relation_omission": 2
+  },
+  "candidate_tasks": 21,
+  "config": "config.yaml",
+  "selected_issues": 22,
+  "selected_issues_by_category": {
+    "entity_omission": 20,
+    "relation_omission": 2
+  },
+  "selected_tasks": 21,
+  "source": "label/project-10-reviewed-2026-07-21.json",
+  "source_sha256": "5ead7da8f68d47cdad5997a348b853e15a0ff37d0751d1660848dd43d0dddbb9",
+  "tasks_in_source": 3979,
+  "thresholds": {
+    "conflict_min_purity": 0.85,
+    "conflict_min_support": 5,
+    "include_label_conflicts": false,
+    "max_tasks": 250,
+    "omission_general_support": 20,
+    "omission_max_per_surface": 20,
+    "omission_specific_support": 8,
+    "relation_min_positive": 4,
+    "relation_min_rate": 0.8
+  }
+}

@@ -1,0 +1,103 @@
+[
+  {
+    "task_id": 19324,
+    "reviewer": "Codex",
+    "notes": "Reverse the inhibition edge: AM-19226 survives exposure to the attacking V52 strain.",
+    "drop_relations": [
+      ["35lfPL6YA0", "GhraL7Tbtw", "INHIBITS"]
+    ],
+    "add_relations": [
+      ["GhraL7Tbtw", "35lfPL6YA0", "INHIBITS"]
+    ]
+  },
+  {
+    "task_id": 19500,
+    "reviewer": "Codex",
+    "notes": "The four lung findings are phenotypes presented by PAO1 infection, not disease entities or generic associations.",
+    "edit_entities": [
+      {"id": "r2bx7rt1pa", "start": 44, "end": 66, "label": "PHENOTYPE"},
+      {"id": "WwzN1Trsew", "start": 68, "end": 87, "label": "PHENOTYPE"},
+      {"id": "I6h_MS8RG0", "start": 89, "end": 127, "label": "PHENOTYPE"},
+      {"id": "INhQVSAmWz", "start": 133, "end": 171, "label": "PHENOTYPE"}
+    ],
+    "drop_relations": [
+      ["iAPaMGfl3O", "r2bx7rt1pa", "ASSOCIATED_WITH"],
+      ["iAPaMGfl3O", "WwzN1Trsew", "ASSOCIATED_WITH"],
+      ["iAPaMGfl3O", "I6h_MS8RG0", "PROMOTES"],
+      ["iAPaMGfl3O", "INhQVSAmWz", "ASSOCIATED_WITH"]
+    ],
+    "add_relations": [
+      ["iAPaMGfl3O", "r2bx7rt1pa", "PRESENTS"],
+      ["iAPaMGfl3O", "WwzN1Trsew", "PRESENTS"],
+      ["iAPaMGfl3O", "I6h_MS8RG0", "PRESENTS"],
+      ["iAPaMGfl3O", "INhQVSAmWz", "PRESENTS"]
+    ]
+  },
+  {
+    "task_id": 19997,
+    "reviewer": "Codex",
+    "notes": "The links from isolate names to A. veronii encode taxonomic membership, not inhabitation; retain the separately annotated tilapia-host links.",
+    "drop_relations": [
+      ["2a3sMDYlrU", "K9eEAv1CCg", "INHABITS"],
+      ["sEckW3HhIX", "K9eEAv1CCg", "INHABITS"],
+      ["25iqYnAqwQ", "K9eEAv1CCg", "INHABITS"],
+      ["fk32Jw7lXg", "K9eEAv1CCg", "INHABITS"]
+    ]
+  },
+  {
+    "task_id": 20132,
+    "reviewer": "Codex",
+    "notes": "Salmonella enterica serovar Typhimurium is used here as a taxonomic target, not a specific strain identifier.",
+    "edit_entities": [
+      {"id": "376jIhy29N", "start": 121, "end": 160, "label": "SPECIES"}
+    ]
+  },
+  {
+    "task_id": 21216,
+    "reviewer": "Codex",
+    "notes": "Persistence within the RAW 264.7 macrophage cell line is an inhabitation relation, not resistance to the cell line.",
+    "drop_relations": [
+      ["TCnLRtM0Qq", "vfB4UOf0sZ", "RESISTS"],
+      ["yvfkNc8TBV", "vfB4UOf0sZ", "RESISTS"]
+    ],
+    "add_relations": [
+      ["TCnLRtM0Qq", "vfB4UOf0sZ", "INHABITS"],
+      ["yvfkNc8TBV", "vfB4UOf0sZ", "INHABITS"]
+    ]
+  },
+  {
+    "task_id": 22629,
+    "reviewer": "Codex",
+    "notes": "The first clause directly supports G9 inhibition of V. harveyi; Altermonas and Bacillus BY-9 occur in a malformed comparison to prior work and are not supported as G9 targets.",
+    "drop_relations": [
+      ["ONvIlnHQAn", "lZngmPu4Nh", "INHIBITS"],
+      ["ONvIlnHQAn", "jYSBT-2nRQ", "INHIBITS"]
+    ]
+  },
+  {
+    "task_id": 22778,
+    "reviewer": "Codex",
+    "notes": "The sentence says the strains are associated with coral hosts; it does not describe infection or relations to the taxonomic synonyms Labrenzia/Roseibium.",
+    "drop_relations": [
+      ["TQFExNUaTb", "3-CSBDvidd", "INFECTS"],
+      ["TQFExNUaTb", "OQQUU2hNc6", "INFECTS"],
+      ["TQFExNUaTb", "ZTiqvZfJzc", "INFECTS"],
+      ["9rT1_j64rz", "i-76IBbFwI", "INFECTS"]
+    ],
+    "add_relations": [
+      ["TQFExNUaTb", "3-CSBDvidd", "INHABITS"],
+      ["9rT1_j64rz", "i-76IBbFwI", "INHABITS"]
+    ]
+  },
+  {
+    "task_id": 23069,
+    "reviewer": "Codex",
+    "notes": "Biofilm is a phenotype presented by the strain; the sentence does not describe biofilm as a produced compound.",
+    "drop_relations": [
+      ["z2DWzxhTo9", "3I4c2M7Pa6", "PRODUCES"]
+    ],
+    "add_relations": [
+      ["z2DWzxhTo9", "3I4c2M7Pa6", "PRESENTS"]
+    ]
+  }
+]

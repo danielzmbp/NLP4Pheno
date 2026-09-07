@@ -1,0 +1,18 @@
+{
+  "ambiguous_designation_keys": 221,
+  "base_url": "https://api.straininfo.dsmz.de",
+  "created_at": "2026-07-20T23:48:39.125537+00:00",
+  "designation_count": 476098,
+  "designation_key_count": 475869,
+  "matching_policy": "exact normalized designation; ambiguous keys retained",
+  "page_sha256": [
+    "8ffa4a8a5191005f1dd623c3a59d2a9ff1d71c1786391fd3f6bed645beb6bf52",
+    "4f6d46c964e88fa064ed1efb1d7e8687a853cd5a07c1c325373d47ebee312775",
+    "1a6dd1115e64907a816adbe369ccf7e871f458f1cc63ccb5a1085bb20ccb876e",
+    "7cd6cec6e0cdc3cac60df79a24445e8cbf630ca67afc2ed180610e5709dcbd4a",
+    "d1db56b2de00f3a737f68c6c522522695d6a8ec7d854b5f77171e1c99d10127a"
+  ],
+  "pages": 5,
+  "service_version": "2025.10",
+  "strain_count": 314035
+}

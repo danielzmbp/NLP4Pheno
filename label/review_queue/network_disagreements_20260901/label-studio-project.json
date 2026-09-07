@@ -1,0 +1,10 @@
+{
+  "completed_tasks": 0,
+  "created": true,
+  "created_at": "2026-09-01T07:41:04.740510+00:00",
+  "project_id": 8,
+  "queue": "label/review_queue/network_disagreements_20260901/queue.json",
+  "tasks": 40,
+  "title": "PMC network disagreement audit \u2014 2026-09-01",
+  "url": "http://127.0.0.1:8080/projects/8/data"
+}

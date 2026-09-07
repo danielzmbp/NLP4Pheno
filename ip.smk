@@ -1,8 +1,8 @@
-import pandas as pd
-from Bio import Entrez
-from Bio import SeqIO
 import os
-import subprocess
+import sys
+
+sys.path.append("scripts")
+from assembly_manifest import load_assembly_manifest
 
 
 configfile: "config.yaml"
@@ -25,24 +25,47 @@ INTERPROSCAN_RESOURCES = {
 
 # InterProScan configuration
 INTERPROSCAN_PATH = (
-    "/home/tu/tu_tu/tu_kmpaj01/ip/interproscan-5.75-106.0/interproscan.sh"
+    config.get(
+        "interproscan_path",
+        "/home/tu/tu_tu/tu_kmpaj01/ip/interproscan-5.75-106.0/interproscan.sh",
+    )
 )
+NCBI_API_KEY_FILE = config.get("ncbi_api_key_file", ".ncbi_api_key")
 INTERPROSCAN_APPS = "Pfam"  # Can be expanded: SFLD,Hamap,PRINTS,ProSiteProfiles,SUPERFAMILY,SMART,CDD,PIRSR,ProSitePatterns,Pfam,PIRSF,NCBIfam
 
-# Load strain/assembly mappings
-assemblies = []
-strains = []
 strains_assemblies_file = f"{path}/preds{data}/REL_output/strains_assemblies.txt"
+validated_manifest_file = (
+    f"{path}/preds{data}/REL_output/strains_assemblies.validated.txt"
+)
 
-if os.path.exists(strains_assemblies_file):
-    with open(strains_assemblies_file, "r") as f:
-        for line in f:
-            s, a = line.strip().split("/")
-            strains.append(s)
-            assemblies.append(a)
-else:
-    # File doesn't exist yet - this is expected when rel_pred.smk hasn't run
-    print(f"Warning: {strains_assemblies_file} not found. Run rel_pred.smk first.")
+
+def checkpoint_manifest():
+    return str(checkpoints.validate_assembly_manifest.get().output.manifest)
+
+
+def assembly_records():
+    return load_assembly_manifest(checkpoint_manifest())
+
+
+def assembly_targets(_wildcards):
+    targets = []
+    for strain, assembly in assembly_records():
+        base = f"{output_path}{strain}/{assembly}"
+        targets.extend(
+            [
+                f"{base}/annotation.parquet",
+                f"{base}/protein.faa",
+                f"{base}/genomic.cds",
+            ]
+        )
+    return targets
+
+
+def assembly_markers(_wildcards):
+    return [
+        f"{output_path}{strain}/{assembly}.download_success"
+        for strain, assembly in assembly_records()
+    ]
 
 
 def get_interproscan_headers():
@@ -68,30 +91,23 @@ def get_interproscan_headers():
 
 rule final:
     input:
-        expand(
-            f"{output_path}{{strain}}/{{assembly}}/annotation.parquet",
-            zip,
-            strain=strains,
-            assembly=assemblies,
-        ),
-        expand(
-            f"{output_path}{{strain}}/{{assembly}}/protein.faa",
-            zip,
-            strain=strains,
-            assembly=assemblies,
-        ),
-        expand(
-            f"{output_path}{{strain}}/{{assembly}}/genomic.cds",
-            zip,
-            strain=strains,
-            assembly=assemblies,
-        ),
+        assembly_targets,
         f"{path}/preds{data}/REL_output/strains_assemblies_downloaded.txt",
 
 
-localrules:
-    download,
-    unzip,
+checkpoint validate_assembly_manifest:
+    input:
+        strains_assemblies_file,
+    output:
+        manifest=validated_manifest_file,
+    resources:
+        **COMMON_RESOURCES,
+    run:
+        records = load_assembly_manifest(input[0])
+        os.makedirs(os.path.dirname(output.manifest), exist_ok=True)
+        with open(output.manifest, "w", encoding="utf-8") as handle:
+            for strain, assembly in records:
+                handle.write(f"{strain}/{assembly}\n")
 
 
 rule download:
@@ -111,7 +127,11 @@ rule download:
         for attempt in 1 2 3; do
             echo "Download attempt $attempt for {wildcards.assembly}"
 
-            if datasets download genome accession {wildcards.assembly} --include gff3,cds,protein,genome,seq-report --filename {params.zip_file} --assembly-version 'latest' --api-key $(cat .ncbi_api_key) --fast-zip-validation --no-progressbar; then
+            API_KEY_ARGS=""
+            if [ -s "{NCBI_API_KEY_FILE}" ]; then
+                API_KEY_ARGS="--api-key $(cat {NCBI_API_KEY_FILE})"
+            fi
+            if datasets download genome accession {wildcards.assembly} --include gff3,cds,protein,genome,seq-report --filename {params.zip_file} --assembly-version 'latest' $API_KEY_ARGS --fast-zip-validation --no-progressbar; then
                 echo "Successfully downloaded {wildcards.assembly} on attempt $attempt"
                 touch {output[0]}
                 exit 0
@@ -264,12 +284,8 @@ rule ip:
 
 rule record_downloads:
     input:
-        expand(
-            output_path + "{strain}/{assembly}.download_success",
-            zip,
-            strain=strains,
-            assembly=assemblies,
-        ),
+        manifest=lambda wildcards: checkpoint_manifest(),
+        markers=assembly_markers,
     output:
         f"{path}/preds{data}/REL_output/strains_assemblies_downloaded.txt",
     resources:
@@ -278,7 +294,7 @@ rule record_downloads:
         successful_assemblies = []
         failed_assemblies = []
 
-        for strain, assembly in zip(strains, assemblies):
+        for strain, assembly in load_assembly_manifest(input.manifest):
             success_file = f"{output_path}{strain}/{assembly}.download_success"
             if os.path.exists(success_file):
                 with open(success_file, "r") as f:

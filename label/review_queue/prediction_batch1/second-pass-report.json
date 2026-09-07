@@ -1,0 +1,258 @@
+{
+  "changes": [
+    {
+      "candidate_id": "pmc_candidate_16f0d688f7edb5",
+      "entities_edited": 1,
+      "human_review_rank": 2,
+      "notes": "Trimmed punctuation from the benzene entity boundary.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_8cb6de42aedcfb",
+      "entities_edited": 1,
+      "human_review_rank": 3,
+      "notes": "Trimmed sentence punctuation from the PEG-GVs entity.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_c9cb6e193b70c5",
+      "entities_edited": 1,
+      "human_review_rank": 4,
+      "notes": "Completed the accidentally unlabeled quorum-sensing relation and trimmed its punctuation.",
+      "relations_added": 1,
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_61f15ea8b7033a",
+      "entities_added": 4,
+      "human_review_rank": 5,
+      "notes": "Added the four reference strains omitted from a complete six-strain list.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_9646deb87d083a",
+      "human_review_rank": 6,
+      "notes": "Added the two missing human-pathogen links so all seven explicitly listed STEC serotypes are treated consistently.",
+      "relations_added": 2,
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_9d0005eab31958",
+      "entities_edited": 2,
+      "human_review_rank": 7,
+      "notes": "Corrected Xanthomonas to a species span: the following Jones/Constantin text is mangled taxonomic authority and citation text, not a strain designation. Removed the resulting unsupported strain-disease edge and trimmed the disease punctuation.",
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_a30cfacbd60181",
+      "entities_dropped": 1,
+      "human_review_rank": 8,
+      "notes": "Removed probiotics as a phenotype and its derived PRESENTS relation; retained the curator-approved infection relation.",
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_7f39b4eb2644ff",
+      "entities_dropped": 1,
+      "human_review_rank": 9,
+      "notes": "Removed an exact duplicate carpenter-bee entity while retaining all curated host relations.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_5b505a0d61cc7d",
+      "entities_dropped": 1,
+      "entities_edited": 1,
+      "human_review_rank": 10,
+      "notes": "Expanded mitomycin C and removed TSB-GNB, which denotes a comparison rather than a culture medium.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_45a071399a85fe",
+      "entities_dropped": 1,
+      "human_review_rank": 11,
+      "notes": "Removed BSL2 and its growth relations because it is a biosafety level, not a culture medium.",
+      "relations_dropped": 3
+    },
+    {
+      "candidate_id": "pmc_candidate_541b78b13989e2",
+      "entities_added": 2,
+      "entities_edited": 1,
+      "human_review_rank": 12,
+      "notes": "Added the explicitly tested linear and cyclic peptide compound classes and their antifungal links to both strains; trimmed the H99 span.",
+      "relations_added": 4,
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_e3b9787952267f",
+      "entities_dropped": 1,
+      "human_review_rank": 14,
+      "notes": "Removed relations incorrectly transferred from Bradyrhizobium to the unrelated Nostoc strain.",
+      "relations_dropped": 2
+    },
+    {
+      "candidate_id": "pmc_candidate_92eccef994cc55",
+      "entities_edited": 3,
+      "human_review_rank": 17,
+      "notes": "Trimmed punctuation and added the explicit decrease in larval survival caused by D. hansenii CBS8339.",
+      "relations_added": 1,
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_647506d991be47",
+      "entities_edited": 1,
+      "human_review_rank": 18,
+      "notes": "Relabeled ground chicken as an isolation/sample matrix rather than an organism.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_408166981048a5",
+      "human_review_rank": 20,
+      "notes": "Removed unsupported PRODUCES edges: the sentence reports metabolite reassimilation ratios, not production.",
+      "relations_dropped": 5
+    },
+    {
+      "candidate_id": "pmc_candidate_07d5546a6a4433",
+      "entities_edited": 1,
+      "human_review_rank": 21,
+      "notes": "Trimmed punctuation from the opportunistic-pathogen phenotype.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_d40c5f96c35a79",
+      "entities_edited": 1,
+      "human_review_rank": 22,
+      "notes": "Corrected the isolation-source boundary from a phrase ending in 'with' to the actual sample, faeces.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_b100c49269199c",
+      "entities_dropped": 1,
+      "human_review_rank": 23,
+      "notes": "Removed probiotics as a phenotype and its PRESENTS link; retained the curator-approved disease and barrier-function links.",
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_8d136c81a172eb",
+      "entities_edited": 1,
+      "human_review_rank": 25,
+      "notes": "Relabeled H. pylori as a species rather than an isolation source.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_164c8451d46689",
+      "entities_edited": 1,
+      "human_review_rank": 27,
+      "notes": "Trimmed punctuation from the salt-stress phenotype.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_d10fbff9185c37",
+      "entities_dropped": 1,
+      "human_review_rank": 32,
+      "notes": "Removed an exact duplicate C. albicans span labeled as ORGANISM; retained the SPECIES annotation.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_f62e0f9e33e6c9",
+      "entities_added": 1,
+      "entities_edited": 1,
+      "human_review_rank": 35,
+      "notes": "Expanded the culture-medium boundary and added the explicitly listed yeast-extract component.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_5fb707e287b25b",
+      "entities_dropped": 1,
+      "human_review_rank": 36,
+      "notes": "Removed the adjectival 'murine' entity and false inhibition edge; changed poultry from habitat to an explicitly described infection host.",
+      "relations_added": 1,
+      "relations_dropped": 2
+    },
+    {
+      "candidate_id": "pmc_candidate_7d9b8ad84e9b51",
+      "entities_dropped": 1,
+      "human_review_rank": 38,
+      "notes": "Removed the broken token 'nitrogen-' from the compound annotations.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_69ee3c518aefbd",
+      "entities_edited": 2,
+      "human_review_rank": 40,
+      "notes": "Trimmed compound boundaries and removed an indirect USDA61-to-organogenesis edge not asserted by the passage.",
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_1e6b63a8a96d5f",
+      "human_review_rank": 41,
+      "notes": "Removed the false S. aureus inhibition edge because the passage explicitly reports no inhibition.",
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_9a634c8d81e52e",
+      "human_review_rank": 43,
+      "notes": "Added the lysine-degradation link implied by Rhizobium Root491 using the saccharopine pathway.",
+      "relations_added": 1,
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_0248c18244d641",
+      "entities_edited": 1,
+      "human_review_rank": 44,
+      "notes": "Expanded the predicted compound boundary to the complete phrase azinothricin derivatives.",
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_d39db0d70ba0eb",
+      "entities_edited": 1,
+      "human_review_rank": 47,
+      "notes": "Trimmed the HUS acronym and represented human-pathogen status as INFECTS rather than INHABITS.",
+      "relations_added": 1,
+      "relations_dropped": 1
+    },
+    {
+      "candidate_id": "pmc_candidate_75ac1aec1a913a",
+      "human_review_rank": 48,
+      "notes": "Added the three explicit bacterial-isolate inhibition links to citrus canker.",
+      "relations_added": 3,
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_f2a88f034b9db2",
+      "entities_added": 1,
+      "human_review_rank": 50,
+      "notes": "Removed relations attached to the wrong strains, linked EA011113 to the zebrafish infection trial, and added its explicit highly virulent phenotype.",
+      "relations_added": 2,
+      "relations_dropped": 3
+    },
+    {
+      "candidate_id": "pmc_candidate_3f64c670b6fe01",
+      "entities_dropped": 1,
+      "entities_edited": 2,
+      "human_review_rank": 54,
+      "notes": "Removed PGPR as a phenotype, corrected both nodulation boundaries, and added the explicit reduction of soybean nodulation.",
+      "relations_added": 1,
+      "relations_dropped": 0
+    },
+    {
+      "candidate_id": "pmc_candidate_155c130a632909",
+      "entities_dropped": 2,
+      "human_review_rank": 55,
+      "notes": "Removed generic carbon tokens that denote an abstract carbon-source class rather than specific compounds.",
+      "relations_dropped": 0
+    }
+  ],
+  "corrected_tasks": 33,
+  "corrections": "label/review_queue/prediction_batch1/second-pass-corrections.json",
+  "corrections_sha256": "a9684fa399cb540c0174a464a40596064b6da16054cc55b4d0f0f25b2f732345",
+  "created_at": "2026-07-26T19:55:01.103291+00:00",
+  "entities_added": 8,
+  "entities_dropped": 12,
+  "entities_edited": 22,
+  "output": "label/review_queue/prediction_batch1/reviewed-export-2026-07-26-second-pass.json",
+  "output_sha256": "c1712933081be07ed6588b84034419bea1aa9a76520b1a67f89354a455a1c6b8",
+  "relations_added": 17,
+  "relations_dropped": 22,
+  "source": "label/review_queue/prediction_batch1/reviewed-export-2026-07-26.json",
+  "source_sha256": "5aa2376d1f79d8ec32be1834fce7e3e06ac746dc2d4aa85a9ed0a2206fd4708d",
+  "source_tasks": 55
+}

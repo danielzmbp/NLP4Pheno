@@ -1,0 +1,10 @@
+{
+  "completed_tasks": 0,
+  "created": true,
+  "created_at": "2026-08-02T12:01:27.994939+00:00",
+  "project_id": 5,
+  "queue": "label/review_queue/weak_relations_20260802/queue.json",
+  "tasks": 68,
+  "title": "PMC weak relation audit \u2014 2026-08-02",
+  "url": "http://127.0.0.1:8080/projects/5/data"
+}

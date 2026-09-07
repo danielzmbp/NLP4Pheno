@@ -1,0 +1,31 @@
+<View>
+  <Header value="Full-PMC model prediction audit"/>
+  <View style="padding: 10px; margin-bottom: 8px; border: 1px solid #ddd; background: #fafafa;">
+    <Header value="$review_summary" size="4"/>
+    <Header value="$curation_notes" size="5"/>
+  </View>
+  <Relations>
+    <Relation value="ASSOCIATED_WITH"/>
+    <Relation value="DEGRADES"/>
+    <Relation value="GROWS_ON"/>
+    <Relation value="INFECTS"/>
+    <Relation value="INHABITS"/>
+    <Relation value="INHIBITS"/>
+    <Relation value="PRESENTS"/>
+    <Relation value="PRODUCES"/>
+    <Relation value="PROMOTES"/>
+    <Relation value="RESISTS"/>
+    <Relation value="SYMBIONT_OF"/>
+  </Relations>
+  <Labels name="label" toName="text">
+    <Label value="STRAIN" background="#E53935"/>
+    <Label value="SPECIES" background="#FB8C00"/>
+    <Label value="ISOLATE" background="#FDD835"/>
+    <Label value="COMPOUND" background="#43A047"/>
+    <Label value="MEDIUM" background="#00ACC1"/>
+    <Label value="ORGANISM" background="#1E88E5"/>
+    <Label value="PHENOTYPE" background="#8E24AA"/>
+    <Label value="DISEASE" background="#6D4C41"/>
+  </Labels>
+  <Text name="text" value="$text" granularity="word"/>
+</View>

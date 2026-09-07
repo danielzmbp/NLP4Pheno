@@ -1,0 +1,267 @@
+{
+  "comparisons": [],
+  "config": "config.yaml",
+  "exports": [
+    {
+      "annotations": {
+        "active_records": 68,
+        "annotator_profiles": {
+          "1": {
+            "empty_tasks": 0,
+            "entities": 438,
+            "entities_per_task": 6.441,
+            "entity_labels_per_100_tasks": {
+              "COMPOUND": 79.412,
+              "DISEASE": 45.588,
+              "ISOLATE": 4.412,
+              "MEDIUM": 4.412,
+              "ORGANISM": 129.412,
+              "PHENOTYPE": 101.471,
+              "SPECIES": 66.176,
+              "STRAIN": 213.235
+            },
+            "relation_labels_per_100_tasks": {
+              "DEGRADES": 1.471,
+              "INHABITS": 22.059,
+              "INHIBITS": 108.824,
+              "PRESENTS": 36.765,
+              "PRODUCES": 25.0,
+              "PROMOTES": 5.882,
+              "SYMBIONT_OF": 36.765
+            },
+            "relations": 161,
+            "relations_per_task": 2.368,
+            "tasks": 68
+          }
+        },
+        "annotators": {
+          "1": 68
+        },
+        "cancelled": 0,
+        "canonical": 68,
+        "per_task": {
+          "max": 1,
+          "mean": 1.0,
+          "median": 1.0,
+          "min": 1,
+          "p95": 1
+        },
+        "selection_policy": "ground_truth_else_latest_active",
+        "tasks_with_multiple": 0,
+        "tasks_with_multiple_annotators": 0
+      },
+      "duplicate_task_ids": 0,
+      "duplicate_text_groups": 0,
+      "empty_text_tasks": 0,
+      "entities": {
+        "by_label": {
+          "COMPOUND": 54,
+          "DISEASE": 31,
+          "ISOLATE": 3,
+          "MEDIUM": 3,
+          "ORGANISM": 88,
+          "PHENOTYPE": 69,
+          "SPECIES": 45,
+          "STRAIN": 145
+        },
+        "configured_but_unobserved": [],
+        "observed_but_unconfigured": [],
+        "per_task": {
+          "max": 14,
+          "mean": 6.441,
+          "median": 6.0,
+          "min": 2,
+          "p95": 12
+        },
+        "tasks_by_label": {
+          "COMPOUND": 18,
+          "DISEASE": 19,
+          "ISOLATE": 3,
+          "MEDIUM": 2,
+          "ORGANISM": 37,
+          "PHENOTYPE": 43,
+          "SPECIES": 25,
+          "STRAIN": 68
+        },
+        "total": 438
+      },
+      "integrity": {
+        "cross_entity_type_overlap_pairs": 26,
+        "duplicate_relations": 0,
+        "duplicate_spans": 0,
+        "invalid_spans": 0,
+        "missing_relation_endpoints": 0,
+        "multi_label_relations": 0,
+        "multi_label_spans": 0,
+        "overlapping_span_pairs": 26,
+        "same_entity_type_overlap_pairs": 0,
+        "self_relations": 0,
+        "span_text_mismatches": 0,
+        "unknown_result_types": {},
+        "unlabeled_relations": 0
+      },
+      "issue_samples": {},
+      "normalized_duplicate_text_groups": 0,
+      "path": "label/review_queue/weak_relations_20260802/reviewed-export-2026-08-15-second-pass.json",
+      "provenance": {
+        "data_fields": [
+          "article_version",
+          "candidate_id",
+          "ontology",
+          "ontology_id",
+          "ontology_label",
+          "ontology_status",
+          "paragraph",
+          "pmcid",
+          "review_rank",
+          "review_summary",
+          "review_tier",
+          "sampled_relation",
+          "sentence_range",
+          "straininfo_si_id",
+          "straininfo_taxon",
+          "text"
+        ],
+        "has_document_identifier": true,
+        "metadata_fields": [
+          "candidate_id",
+          "review_tier",
+          "second_pass_reviewed",
+          "seeded_entities",
+          "seeded_relations",
+          "source"
+        ]
+      },
+      "relations": {
+        "by_label": {
+          "DEGRADES": 1,
+          "INHABITS": 15,
+          "INHIBITS": 74,
+          "PRESENTS": 25,
+          "PRODUCES": 17,
+          "PROMOTES": 4,
+          "SYMBIONT_OF": 25
+        },
+        "by_typed_pattern": {
+          "COMPOUND-STRAIN:INHIBITS": 14,
+          "STRAIN-COMPOUND:DEGRADES": 1,
+          "STRAIN-COMPOUND:PRODUCES": 17,
+          "STRAIN-DISEASE:INHIBITS": 27,
+          "STRAIN-ISOLATE:INHABITS": 2,
+          "STRAIN-ORGANISM:INHABITS": 13,
+          "STRAIN-ORGANISM:INHIBITS": 10,
+          "STRAIN-ORGANISM:SYMBIONT_OF": 25,
+          "STRAIN-PHENOTYPE:INHIBITS": 10,
+          "STRAIN-PHENOTYPE:PRESENTS": 25,
+          "STRAIN-PHENOTYPE:PROMOTES": 4,
+          "STRAIN-SPECIES:INHIBITS": 13
+        },
+        "configured_but_unobserved": [
+          "STRAIN-COMPOUND:RESISTS",
+          "STRAIN-DISEASE:ASSOCIATED_WITH",
+          "STRAIN-MEDIUM:GROWS_ON",
+          "STRAIN-ORGANISM:INFECTS"
+        ],
+        "configured_support": {
+          "COMPOUND-STRAIN:INHIBITS": {
+            "positive_labels": 14,
+            "positive_tasks": 2
+          },
+          "STRAIN-COMPOUND:DEGRADES": {
+            "positive_labels": 1,
+            "positive_tasks": 1
+          },
+          "STRAIN-COMPOUND:PRODUCES": {
+            "positive_labels": 17,
+            "positive_tasks": 8
+          },
+          "STRAIN-COMPOUND:RESISTS": {
+            "positive_labels": 0,
+            "positive_tasks": 0
+          },
+          "STRAIN-DISEASE:ASSOCIATED_WITH": {
+            "positive_labels": 0,
+            "positive_tasks": 0
+          },
+          "STRAIN-DISEASE:INHIBITS": {
+            "positive_labels": 27,
+            "positive_tasks": 11
+          },
+          "STRAIN-ISOLATE:INHABITS": {
+            "positive_labels": 2,
+            "positive_tasks": 2
+          },
+          "STRAIN-MEDIUM:GROWS_ON": {
+            "positive_labels": 0,
+            "positive_tasks": 0
+          },
+          "STRAIN-ORGANISM:INFECTS": {
+            "positive_labels": 0,
+            "positive_tasks": 0
+          },
+          "STRAIN-ORGANISM:INHABITS": {
+            "positive_labels": 13,
+            "positive_tasks": 8
+          },
+          "STRAIN-ORGANISM:INHIBITS": {
+            "positive_labels": 10,
+            "positive_tasks": 5
+          },
+          "STRAIN-ORGANISM:SYMBIONT_OF": {
+            "positive_labels": 25,
+            "positive_tasks": 7
+          },
+          "STRAIN-PHENOTYPE:INHIBITS": {
+            "positive_labels": 10,
+            "positive_tasks": 7
+          },
+          "STRAIN-PHENOTYPE:PRESENTS": {
+            "positive_labels": 25,
+            "positive_tasks": 14
+          },
+          "STRAIN-PHENOTYPE:PROMOTES": {
+            "positive_labels": 4,
+            "positive_tasks": 4
+          },
+          "STRAIN-SPECIES:INHIBITS": {
+            "positive_labels": 13,
+            "positive_tasks": 8
+          }
+        },
+        "configured_with_fewer_than_50_positive_tasks": [
+          "COMPOUND-STRAIN:INHIBITS",
+          "STRAIN-COMPOUND:DEGRADES",
+          "STRAIN-COMPOUND:PRODUCES",
+          "STRAIN-COMPOUND:RESISTS",
+          "STRAIN-DISEASE:ASSOCIATED_WITH",
+          "STRAIN-DISEASE:INHIBITS",
+          "STRAIN-ISOLATE:INHABITS",
+          "STRAIN-MEDIUM:GROWS_ON",
+          "STRAIN-ORGANISM:INFECTS",
+          "STRAIN-ORGANISM:INHABITS",
+          "STRAIN-ORGANISM:INHIBITS",
+          "STRAIN-ORGANISM:SYMBIONT_OF",
+          "STRAIN-PHENOTYPE:INHIBITS",
+          "STRAIN-PHENOTYPE:PRESENTS",
+          "STRAIN-PHENOTYPE:PROMOTES",
+          "STRAIN-SPECIES:INHIBITS"
+        ],
+        "observed_but_unconfigured": [],
+        "observed_but_unconfigured_label_count": 0,
+        "observed_but_unconfigured_strain_label_count": 0,
+        "observed_but_unconfigured_strain_patterns": [],
+        "per_task": {
+          "max": 10,
+          "mean": 2.368,
+          "median": 2.0,
+          "min": 0,
+          "p95": 8
+        },
+        "total": 161
+      },
+      "sha256": "a547a3289ee546be4e0f23c2fa27d7223b5de7e53fc110acc2a74dac7cce637d",
+      "tasks": 68,
+      "unique_task_ids": 68
+    }
+  ]
+}

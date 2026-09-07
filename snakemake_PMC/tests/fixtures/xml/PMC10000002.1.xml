@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article xml:lang="fr" article-type="research-article">
+  <front>
+    <journal-meta>
+      <journal-title-group><journal-title>Journal des données fictives</journal-title></journal-title-group>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="pmcid">PMC10000002</article-id>
+      <article-id pub-id-type="pmid">40000002</article-id>
+      <title-group><article-title>Une souche bactérienne utilisée comme contrôle</article-title></title-group>
+      <pub-date pub-type="epub"><year>2026</year></pub-date>
+      <abstract><p>Cette phrase française doit être exclue du corpus final.</p></abstract>
+    </article-meta>
+  </front>
+  <body><sec><title>Résultats</title><p>La souche a produit un composé.</p></sec></body>
+</article>

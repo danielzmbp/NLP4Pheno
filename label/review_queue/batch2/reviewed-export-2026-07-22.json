@@ -1,0 +1,5475 @@
+[
+  {
+    "id": 87,
+    "annotations": [
+      {
+        "id": 87,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 171,
+              "end": 174,
+              "text": "IVA",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "ndwdYlt4GG",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 92,
+              "end": 97,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_a3306e79778f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:48:49.242235Z",
+        "updated_at": "2026-07-22T08:48:49.242255Z",
+        "draft_created_at": null,
+        "lead_time": 5.032,
+        "prediction": {
+          "id": 87,
+          "result": [
+            {
+              "value": {
+                "start": 171,
+                "end": 174,
+                "text": "IVA",
+                "labels": [
+                  "COMPOUND"
+                ]
+              },
+              "id": "ndwdYlt4GG",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_a3306e79778f",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 92,
+                "end": 97,
+                "text": "human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 24 minutes",
+          "score": 0.947368,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.321848Z",
+          "updated_at": "2026-07-21T20:24:24.321863Z",
+          "model": null,
+          "model_run": null,
+          "task": 87,
+          "project": 2
+        },
+        "result_count": 2,
+        "unique_id": "06a203b3-2d17-4854-a33a-71b464b97cad",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 87,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 87,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      87
+    ],
+    "data": {
+      "text": "In contrast, the uncorrected (pseudogenized) OR11H7P and three other randomly chosen intact human ORs (OR52E4, OR8A1, and OR12D2) did not yield specific responses to 3 mM IVA (Figure 4).",
+      "original_task_id": "21663",
+      "review_rank": 1,
+      "review_score": 0.947368,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "21663",
+      "review_rank": 1,
+      "review_score": 0.947368,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.947368,
+          "task_id": "21663",
+          "summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 92,
+            "end": 97,
+            "text": "human",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "human",
+            "support": 66,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315461Z",
+    "updated_at": "2026-07-22T08:48:49.294026Z",
+    "allow_skip": true,
+    "inner_id": 1,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 88,
+    "annotations": [
+      {
+        "id": 88,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 58,
+              "end": 62,
+              "text": "BL21",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "Wo3QKPyaw7",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 0,
+              "end": 5,
+              "text": "Human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_a83d5cd70457",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:48:57.607756Z",
+        "updated_at": "2026-07-22T08:48:57.607767Z",
+        "draft_created_at": null,
+        "lead_time": 8.102,
+        "prediction": {
+          "id": 88,
+          "result": [
+            {
+              "value": {
+                "start": 58,
+                "end": 62,
+                "text": "BL21",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "Wo3QKPyaw7",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_a83d5cd70457",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 0,
+                "end": 5,
+                "text": "Human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 24 minutes",
+          "score": 0.947368,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.321881Z",
+          "updated_at": "2026-07-21T20:24:24.321885Z",
+          "model": null,
+          "model_run": null,
+          "task": 88,
+          "project": 2
+        },
+        "result_count": 2,
+        "unique_id": "dc081bd7-5260-4358-a053-8bfb7e411c9e",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 88,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 88,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      88
+    ],
+    "data": {
+      "text": "Human αA- and αB-crystallins were expressed in bacterial (BL21) cells containing expression vectors (pET23d).",
+      "original_task_id": "21778",
+      "review_rank": 2,
+      "review_score": 0.947368,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'Human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "21778",
+      "review_rank": 2,
+      "review_score": 0.947368,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.947368,
+          "task_id": "21778",
+          "summary": "Review unannotated 'Human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 0,
+            "end": 5,
+            "text": "Human",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "human",
+            "support": 66,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315517Z",
+    "updated_at": "2026-07-22T08:48:57.654225Z",
+    "allow_skip": true,
+    "inner_id": 2,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 89,
+    "annotations": [
+      {
+        "id": 89,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 4,
+              "end": 10,
+              "text": "Caco-2",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "c7TrF-DvcJ",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 12,
+              "end": 17,
+              "text": "HTB37",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "EQeLScXHjz",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 103,
+              "end": 137,
+              "text": "Dulbeccos' Modified Eagles' Medium",
+              "labels": [
+                "MEDIUM"
+              ]
+            },
+            "id": "JUdo_9MVI_",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 139,
+              "end": 143,
+              "text": "DMEM",
+              "labels": [
+                "MEDIUM"
+              ]
+            },
+            "id": "145URy9r6j",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 171,
+              "end": 189,
+              "text": "fetal bovine serum",
+              "labels": [
+                "MEDIUM"
+              ]
+            },
+            "id": "P9n9tEU9id",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 191,
+              "end": 194,
+              "text": "FBS",
+              "labels": [
+                "MEDIUM"
+              ]
+            },
+            "id": "ZViBUrqSzb",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 25,
+              "end": 45,
+              "text": "colon adenocarcinoma",
+              "labels": [
+                "DISEASE"
+              ]
+            },
+            "id": "TnBOxg5bVq",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 19,
+              "end": 24,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_8302a7d75a60",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:02.958680Z",
+        "updated_at": "2026-07-22T08:49:02.958695Z",
+        "draft_created_at": null,
+        "lead_time": 5.1,
+        "prediction": {
+          "id": 89,
+          "result": [
+            {
+              "value": {
+                "start": 4,
+                "end": 10,
+                "text": "Caco-2",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "c7TrF-DvcJ",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 12,
+                "end": 17,
+                "text": "HTB37",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "EQeLScXHjz",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 103,
+                "end": 137,
+                "text": "Dulbeccos' Modified Eagles' Medium",
+                "labels": [
+                  "MEDIUM"
+                ]
+              },
+              "id": "JUdo_9MVI_",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 139,
+                "end": 143,
+                "text": "DMEM",
+                "labels": [
+                  "MEDIUM"
+                ]
+              },
+              "id": "145URy9r6j",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 171,
+                "end": 189,
+                "text": "fetal bovine serum",
+                "labels": [
+                  "MEDIUM"
+                ]
+              },
+              "id": "P9n9tEU9id",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 191,
+                "end": 194,
+                "text": "FBS",
+                "labels": [
+                  "MEDIUM"
+                ]
+              },
+              "id": "ZViBUrqSzb",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 25,
+                "end": 45,
+                "text": "colon adenocarcinoma",
+                "labels": [
+                  "DISEASE"
+                ]
+              },
+              "id": "TnBOxg5bVq",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_8302a7d75a60",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 19,
+                "end": 24,
+                "text": "human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 24 minutes",
+          "score": 0.947368,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.321918Z",
+          "updated_at": "2026-07-21T20:24:24.321922Z",
+          "model": null,
+          "model_run": null,
+          "task": 89,
+          "project": 2
+        },
+        "result_count": 8,
+        "unique_id": "651cae0d-5ad3-4dfd-9943-8f613b6ef941",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 89,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 89,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      89
+    ],
+    "data": {
+      "text": "The Caco-2 (HTB37) human colon adenocarcinoma cell line (ATCC, Manassas, VA) was routinely cultured in Dulbeccos' Modified Eagles' Medium (DMEM; Sigma) with 10% (vol/vol) fetal bovine serum (FBS; Sigma).",
+      "original_task_id": "21834",
+      "review_rank": 3,
+      "review_score": 0.947368,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "21834",
+      "review_rank": 3,
+      "review_score": 0.947368,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.947368,
+          "task_id": "21834",
+          "summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 19,
+            "end": 24,
+            "text": "human",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "human",
+            "support": 66,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315547Z",
+    "updated_at": "2026-07-22T08:49:03.011346Z",
+    "allow_skip": true,
+    "inner_id": 3,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 90,
+    "annotations": [
+      {
+        "id": 90,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 16,
+              "end": 21,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "BWCWy_QySn",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 137,
+              "end": 147,
+              "text": "Drosophila",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "ShHqkS78TC",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 181,
+              "end": 203,
+              "text": "Xanthomonas campestris",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "iFs8z4MtCz",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 242,
+              "end": 264,
+              "text": "Thermobaculum terrenum",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "88zZgzSKnU",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 283,
+              "end": 314,
+              "text": "Actinobacillus pleuropneumoniae",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "e3mIlg8Vhb",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 230,
+              "end": 241,
+              "text": "thermophile",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "gWT5OSAg3x",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 112,
+              "end": 117,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_27332225c97c",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:05.409296Z",
+        "updated_at": "2026-07-22T08:49:05.409313Z",
+        "draft_created_at": null,
+        "lead_time": 2.203,
+        "prediction": {
+          "id": 90,
+          "result": [
+            {
+              "value": {
+                "start": 16,
+                "end": 21,
+                "text": "human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "BWCWy_QySn",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 137,
+                "end": 147,
+                "text": "Drosophila",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "ShHqkS78TC",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 181,
+                "end": 203,
+                "text": "Xanthomonas campestris",
+                "labels": [
+                  "SPECIES"
+                ]
+              },
+              "id": "iFs8z4MtCz",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 242,
+                "end": 264,
+                "text": "Thermobaculum terrenum",
+                "labels": [
+                  "SPECIES"
+                ]
+              },
+              "id": "88zZgzSKnU",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 283,
+                "end": 314,
+                "text": "Actinobacillus pleuropneumoniae",
+                "labels": [
+                  "SPECIES"
+                ]
+              },
+              "id": "e3mIlg8Vhb",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 230,
+                "end": 241,
+                "text": "thermophile",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "gWT5OSAg3x",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_27332225c97c",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 112,
+                "end": 117,
+                "text": "human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 24 minutes",
+          "score": 0.947368,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.321947Z",
+          "updated_at": "2026-07-21T20:24:24.321950Z",
+          "model": null,
+          "model_run": null,
+          "task": 90,
+          "project": 2
+        },
+        "result_count": 7,
+        "unique_id": "d088cb84-b4a4-4c7b-8a22-b9a9d12d800a",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 90,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 90,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      90
+    ],
+    "data": {
+      "text": "So far, besides human OGT, only structures of four other members in GT41 family have been determined, including human OGT orthologues in Drosophila (DmOGT) [46], the plant pathogen Xanthomonas campestris (XcOGT) [47] and the soil thermophile Thermobaculum terrenum (TtOGT) [48], and Actinobacillus pleuropneumoniae HMW1C protein (ApHMW1C) [49].",
+      "original_task_id": "21924",
+      "review_rank": 4,
+      "review_score": 0.947368,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "21924",
+      "review_rank": 4,
+      "review_score": 0.947368,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.947368,
+          "task_id": "21924",
+          "summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 112,
+            "end": 117,
+            "text": "human",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "human",
+            "support": 66,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315576Z",
+    "updated_at": "2026-07-22T08:49:05.475162Z",
+    "allow_skip": true,
+    "inner_id": 4,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 91,
+    "annotations": [
+      {
+        "id": 91,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 49,
+              "end": 69,
+              "text": "echothiophate iodide",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "LcF0mnRHQ1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 148,
+              "end": 151,
+              "text": "OPs",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "prK-U0U2dz",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 21,
+              "end": 23,
+              "text": "OP",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "3oBxHzfGST",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 182,
+              "end": 204,
+              "text": "Brevundimonas diminuta",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "FfqtYA-pun",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 244,
+              "end": 281,
+              "text": "hydrolytic detoxification of V-agents",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "5KEacbO586",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 122,
+              "end": 127,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_0964ad069cc5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:07.496935Z",
+        "updated_at": "2026-07-22T08:49:07.496957Z",
+        "draft_created_at": null,
+        "lead_time": 1.831,
+        "prediction": {
+          "id": 91,
+          "result": [
+            {
+              "value": {
+                "start": 49,
+                "end": 69,
+                "text": "echothiophate iodide",
+                "labels": [
+                  "COMPOUND"
+                ]
+              },
+              "id": "LcF0mnRHQ1",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 148,
+                "end": 151,
+                "text": "OPs",
+                "labels": [
+                  "COMPOUND"
+                ]
+              },
+              "id": "prK-U0U2dz",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 21,
+                "end": 23,
+                "text": "OP",
+                "labels": [
+                  "COMPOUND"
+                ]
+              },
+              "id": "3oBxHzfGST",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 182,
+                "end": 204,
+                "text": "Brevundimonas diminuta",
+                "labels": [
+                  "SPECIES"
+                ]
+              },
+              "id": "FfqtYA-pun",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 244,
+                "end": 281,
+                "text": "hydrolytic detoxification of V-agents",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "5KEacbO586",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_0964ad069cc5",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 122,
+                "end": 127,
+                "text": "human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 24 minutes",
+          "score": 0.947368,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.321971Z",
+          "updated_at": "2026-07-21T20:24:24.321975Z",
+          "model": null,
+          "model_run": null,
+          "task": 91,
+          "project": 2
+        },
+        "result_count": 6,
+        "unique_id": "ff00dada-54c4-47b2-821c-f4e83c73e27c",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 91,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 91,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      91
+    ],
+    "data": {
+      "text": "The P-S bonded model OP in the present study was echothiophate iodide, and the enzymes were the reference G117H mutant of human BChE that hydrolyze OPs, and a new multiple mutant of Brevundimonas diminuta PTE, GG1, specially designed for rapid hydrolytic detoxification of V-agents [30].",
+      "original_task_id": "21953",
+      "review_rank": 5,
+      "review_score": 0.947368,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "21953",
+      "review_rank": 5,
+      "review_score": 0.947368,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.947368,
+          "task_id": "21953",
+          "summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 122,
+            "end": 127,
+            "text": "human",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "human",
+            "support": 66,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315607Z",
+    "updated_at": "2026-07-22T08:49:07.559119Z",
+    "allow_skip": true,
+    "inner_id": 5,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 92,
+    "annotations": [
+      {
+        "id": 92,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 108,
+              "end": 141,
+              "text": "Escherichia coli strain BL21(DE3)",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "pEK6UK9QV6",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 0,
+              "end": 5,
+              "text": "Human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_42beb8908ae1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 66,
+              "end": 71,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_a6460e2d2e2f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:14.538894Z",
+        "updated_at": "2026-07-22T08:49:14.538902Z",
+        "draft_created_at": null,
+        "lead_time": 6.782,
+        "prediction": {
+          "id": 92,
+          "result": [
+            {
+              "value": {
+                "start": 108,
+                "end": 141,
+                "text": "Escherichia coli strain BL21(DE3)",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "pEK6UK9QV6",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_42beb8908ae1",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 0,
+                "end": 5,
+                "text": "Human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            },
+            {
+              "id": "review_a6460e2d2e2f",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 66,
+                "end": 71,
+                "text": "human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 24 minutes",
+          "score": 0.947368,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.321991Z",
+          "updated_at": "2026-07-21T20:24:24.321994Z",
+          "model": null,
+          "model_run": null,
+          "task": 92,
+          "project": 2
+        },
+        "result_count": 3,
+        "unique_id": "3fe3c31f-e9a2-43c3-b8d3-7acdf3a34189",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 92,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 92,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      92
+    ],
+    "data": {
+      "text": "Human truncated tau151-391/4R (numbering according to the longest human tau isoform Tau40) was expressed in Escherichia coli strain BL21(DE3) (Sigma-Aldrich, St.",
+      "original_task_id": "22027",
+      "review_rank": 6,
+      "review_score": 0.947368,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'Human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences. | Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "22027",
+      "review_rank": 6,
+      "review_score": 0.947368,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.947368,
+          "task_id": "22027",
+          "summary": "Review unannotated 'Human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 0,
+            "end": 5,
+            "text": "Human",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "human",
+            "support": 66,
+            "label": "ORGANISM"
+          }
+        },
+        {
+          "category": "entity_omission",
+          "score": 0.947368,
+          "task_id": "22027",
+          "summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 66,
+            "end": 71,
+            "text": "human",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "human",
+            "support": 66,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315639Z",
+    "updated_at": "2026-07-22T08:49:14.574722Z",
+    "allow_skip": true,
+    "inner_id": 6,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 93,
+    "annotations": [
+      {
+        "id": 93,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 12,
+              "end": 22,
+              "text": "ivermectin",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "GwYePvs6-J",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 75,
+              "end": 92,
+              "text": "COVID-19 outbreak",
+              "labels": [
+                "DISEASE"
+              ]
+            },
+            "id": "M46VCaObm_",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 6,
+              "end": 11,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_675af71dd7ca",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:21.539223Z",
+        "updated_at": "2026-07-22T08:49:21.539249Z",
+        "draft_created_at": null,
+        "lead_time": 6.781,
+        "prediction": {
+          "id": 93,
+          "result": [
+            {
+              "value": {
+                "start": 12,
+                "end": 22,
+                "text": "ivermectin",
+                "labels": [
+                  "COMPOUND"
+                ]
+              },
+              "id": "GwYePvs6-J",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 75,
+                "end": 92,
+                "text": "COVID-19 outbreak",
+                "labels": [
+                  "DISEASE"
+                ]
+              },
+              "id": "M46VCaObm_",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_675af71dd7ca",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 6,
+                "end": 11,
+                "text": "human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 24 minutes",
+          "score": 0.947368,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322010Z",
+          "updated_at": "2026-07-21T20:24:24.322013Z",
+          "model": null,
+          "model_run": null,
+          "task": 93,
+          "project": 2
+        },
+        "result_count": 3,
+        "unique_id": "331ac8ce-a522-4ca4-82c9-00cf372b1566",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 93,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 93,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      93
+    ],
+    "data": {
+      "text": "Also, human ivermectin usage is vastly studied, especially with the recent COVID-19 outbreak.",
+      "original_task_id": "22478",
+      "review_rank": 7,
+      "review_score": 0.947368,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "22478",
+      "review_rank": 7,
+      "review_score": 0.947368,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.947368,
+          "task_id": "22478",
+          "summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 6,
+            "end": 11,
+            "text": "human",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "human",
+            "support": 66,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315666Z",
+    "updated_at": "2026-07-22T08:49:21.603060Z",
+    "allow_skip": true,
+    "inner_id": 7,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 94,
+    "annotations": [
+      {
+        "id": 94,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 19,
+              "end": 45,
+              "text": "weak antimicrobial effects",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "QGIvL1zCAS",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 81,
+              "end": 97,
+              "text": "Escherichia coli",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "uAgxf6Xf1e",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 99,
+              "end": 120,
+              "text": "Staphylococcus aureus",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "bl92nlzikg",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 126,
+              "end": 142,
+              "text": "Candida albicans",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "KjLqGyqCLj",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 200,
+              "end": 205,
+              "text": "A-549",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "LAfZLnZwN6",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 165,
+              "end": 191,
+              "text": "moderate cytotoxic effects",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "ssVKkHWMKq",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 55,
+              "end": 60,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_1be3f158fa43",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:24.696936Z",
+        "updated_at": "2026-07-22T08:49:24.696957Z",
+        "draft_created_at": null,
+        "lead_time": 2.888,
+        "prediction": {
+          "id": 94,
+          "result": [
+            {
+              "value": {
+                "start": 19,
+                "end": 45,
+                "text": "weak antimicrobial effects",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "QGIvL1zCAS",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 81,
+                "end": 97,
+                "text": "Escherichia coli",
+                "labels": [
+                  "SPECIES"
+                ]
+              },
+              "id": "uAgxf6Xf1e",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 99,
+                "end": 120,
+                "text": "Staphylococcus aureus",
+                "labels": [
+                  "SPECIES"
+                ]
+              },
+              "id": "bl92nlzikg",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 126,
+                "end": 142,
+                "text": "Candida albicans",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "KjLqGyqCLj",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 200,
+                "end": 205,
+                "text": "A-549",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "LAfZLnZwN6",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 165,
+                "end": 191,
+                "text": "moderate cytotoxic effects",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "ssVKkHWMKq",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_1be3f158fa43",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 55,
+                "end": 60,
+                "text": "human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.947368,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322035Z",
+          "updated_at": "2026-07-21T20:24:24.322038Z",
+          "model": null,
+          "model_run": null,
+          "task": 94,
+          "project": 2
+        },
+        "result_count": 7,
+        "unique_id": "8002c862-fecc-42f4-8bac-15aec51c7e7d",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 94,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 94,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      94
+    ],
+    "data": {
+      "text": "Only 340 possessed weak antimicrobial effects on three human pathogenic strains (Escherichia coli, Staphylococcus aureus, and Candida albicans) (MIC ≥ 15.63 µM) and moderate cytotoxic effects against A-549 cells (IC_50 = 8.89 µM) [109].",
+      "original_task_id": "22658",
+      "review_rank": 8,
+      "review_score": 0.947368,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "22658",
+      "review_rank": 8,
+      "review_score": 0.947368,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.947368,
+          "task_id": "22658",
+          "summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 55,
+            "end": 60,
+            "text": "human",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "human",
+            "support": 66,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315691Z",
+    "updated_at": "2026-07-22T08:49:24.753517Z",
+    "allow_skip": true,
+    "inner_id": 8,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 95,
+    "annotations": [
+      {
+        "id": 95,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 0,
+              "end": 15,
+              "text": "Gastroenteritis",
+              "labels": [
+                "DISEASE"
+              ]
+            },
+            "id": "NaWdZCcGpI",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 23,
+              "end": 35,
+              "text": "E. coli O142",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "ImoJkAPEe8",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 53,
+              "end": 65,
+              "text": "E. coli O142",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "QFCacFnnMT",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 74,
+              "end": 82,
+              "text": "diarrhea",
+              "labels": [
+                "DISEASE"
+              ]
+            },
+            "id": "kQbDd4XCdU",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 39,
+              "end": 44,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_0d6dd550bdfc",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "from_id": "ImoJkAPEe8",
+            "to_id": "NaWdZCcGpI",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "ASSOCIATED_WITH"
+            ]
+          },
+          {
+            "from_id": "QFCacFnnMT",
+            "to_id": "kQbDd4XCdU",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "ASSOCIATED_WITH"
+            ]
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:32.223772Z",
+        "updated_at": "2026-07-22T08:49:32.223785Z",
+        "draft_created_at": null,
+        "lead_time": 7.263,
+        "prediction": {
+          "id": 95,
+          "result": [
+            {
+              "value": {
+                "start": 0,
+                "end": 15,
+                "text": "Gastroenteritis",
+                "labels": [
+                  "DISEASE"
+                ]
+              },
+              "id": "NaWdZCcGpI",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 23,
+                "end": 35,
+                "text": "E. coli O142",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "ImoJkAPEe8",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 53,
+                "end": 65,
+                "text": "E. coli O142",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "QFCacFnnMT",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 74,
+                "end": 82,
+                "text": "diarrhea",
+                "labels": [
+                  "DISEASE"
+                ]
+              },
+              "id": "kQbDd4XCdU",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "from_id": "ImoJkAPEe8",
+              "to_id": "NaWdZCcGpI",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "ASSOCIATED_WITH"
+              ]
+            },
+            {
+              "from_id": "QFCacFnnMT",
+              "to_id": "kQbDd4XCdU",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "ASSOCIATED_WITH"
+              ]
+            },
+            {
+              "id": "review_0d6dd550bdfc",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 39,
+                "end": 44,
+                "text": "human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.947368,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322058Z",
+          "updated_at": "2026-07-21T20:24:24.322061Z",
+          "model": null,
+          "model_run": null,
+          "task": 95,
+          "project": 2
+        },
+        "result_count": 6,
+        "unique_id": "f1b3235c-fe40-4a8f-a628-b025f72888a4",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 95,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 95,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      95
+    ],
+    "data": {
+      "text": "Gastroenteritis due to E. coli O142 in human [3] and E. coli O142 induced diarrhea in animals [4] have been reported.",
+      "original_task_id": "22841",
+      "review_rank": 9,
+      "review_score": 0.947368,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "22841",
+      "review_rank": 9,
+      "review_score": 0.947368,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.947368,
+          "task_id": "22841",
+          "summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 39,
+            "end": 44,
+            "text": "human",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "human",
+            "support": 66,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315717Z",
+    "updated_at": "2026-07-22T08:49:32.285201Z",
+    "allow_skip": true,
+    "inner_id": 9,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 96,
+    "annotations": [
+      {
+        "id": 96,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 6,
+              "end": 29,
+              "text": "sporozoite immunization",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "HLPMK0vsAR",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 36,
+              "end": 52,
+              "text": "chemoprophylaxis",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "girvxieu02",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 171,
+              "end": 204,
+              "text": "Plasmodium falciparum strain NF54",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "bqUaC2EEPO",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 87,
+              "end": 116,
+              "text": "sterile homologous protection",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "BsMaTPgPZv",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 141,
+              "end": 158,
+              "text": "malaria infection",
+              "labels": [
+                "DISEASE"
+              ]
+            },
+            "id": "QpcDmbfX4Y",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 135,
+              "end": 140,
+              "text": "human",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_56cb2f7b8181",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:36.957634Z",
+        "updated_at": "2026-07-22T08:49:36.957656Z",
+        "draft_created_at": null,
+        "lead_time": 4.461,
+        "prediction": {
+          "id": 96,
+          "result": [
+            {
+              "value": {
+                "start": 6,
+                "end": 29,
+                "text": "sporozoite immunization",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "HLPMK0vsAR",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 36,
+                "end": 52,
+                "text": "chemoprophylaxis",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "girvxieu02",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 171,
+                "end": 204,
+                "text": "Plasmodium falciparum strain NF54",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "bqUaC2EEPO",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 87,
+                "end": 116,
+                "text": "sterile homologous protection",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "BsMaTPgPZv",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 141,
+                "end": 158,
+                "text": "malaria infection",
+                "labels": [
+                  "DISEASE"
+                ]
+              },
+              "id": "QpcDmbfX4Y",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_56cb2f7b8181",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 135,
+                "end": 140,
+                "text": "human",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.947368,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322081Z",
+          "updated_at": "2026-07-21T20:24:24.322085Z",
+          "model": null,
+          "model_run": null,
+          "task": 96,
+          "project": 2
+        },
+        "result_count": 6,
+        "unique_id": "21839349-37d8-4be6-9643-ab4e8eac12d2",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 96,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 96,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      96
+    ],
+    "data": {
+      "text": "Whole sporozoite immunization under chemoprophylaxis (CPS regime) induces long-lasting sterile homologous protection in the controlled human malaria infection model using Plasmodium falciparum strain NF54.",
+      "original_task_id": "23046",
+      "review_rank": 10,
+      "review_score": 0.947368,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "23046",
+      "review_rank": 10,
+      "review_score": 0.947368,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.947368,
+          "task_id": "23046",
+          "summary": "Review unannotated 'human' as ORGANISM; the exact mention is labeled ORGANISM in 66 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 135,
+            "end": 140,
+            "text": "human",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "human",
+            "support": 66,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315744Z",
+    "updated_at": "2026-07-22T08:49:37.015845Z",
+    "allow_skip": true,
+    "inner_id": 10,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 97,
+    "annotations": [
+      {
+        "id": 97,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 53,
+              "end": 56,
+              "text": "C15",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "-VE1dcGy-1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 113,
+              "end": 182,
+              "text": "incapable of forming somatic embryos under our SE-inducing conditions",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "TRsEtMB4Yu",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 12,
+              "end": 18,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_cd6ac0eadce8",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "from_id": "-VE1dcGy-1",
+            "to_id": "TRsEtMB4Yu",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:43.754693Z",
+        "updated_at": "2026-07-22T08:49:43.754714Z",
+        "draft_created_at": null,
+        "lead_time": 6.482,
+        "prediction": {
+          "id": 97,
+          "result": [
+            {
+              "value": {
+                "start": 53,
+                "end": 56,
+                "text": "C15",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "-VE1dcGy-1",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 113,
+                "end": 182,
+                "text": "incapable of forming somatic embryos under our SE-inducing conditions",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "TRsEtMB4Yu",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "from_id": "-VE1dcGy-1",
+              "to_id": "TRsEtMB4Yu",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            },
+            {
+              "id": "review_cd6ac0eadce8",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 12,
+                "end": 18,
+                "text": "plants",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.935042,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322101Z",
+          "updated_at": "2026-07-21T20:24:24.322104Z",
+          "model": null,
+          "model_run": null,
+          "task": 97,
+          "project": 2
+        },
+        "result_count": 4,
+        "unique_id": "4dedfb40-70be-4c74-ae38-612402aec6e7",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 97,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 97,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      97
+    ],
+    "data": {
+      "text": "Amongst the plants grown from these seeds, the plant C15 was found to represent a non-embryogenic (NE) genotype, incapable of forming somatic embryos under our SE-inducing conditions.",
+      "original_task_id": "21694",
+      "review_rank": 11,
+      "review_score": 0.935042,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "21694",
+      "review_rank": 11,
+      "review_score": 0.935042,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.935042,
+          "task_id": "21694",
+          "summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 12,
+            "end": 18,
+            "text": "plants",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "plants",
+            "support": 44,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315770Z",
+    "updated_at": "2026-07-22T08:49:43.818329Z",
+    "allow_skip": true,
+    "inner_id": 11,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 98,
+    "annotations": [
+      {
+        "id": 98,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 17,
+              "end": 23,
+              "text": "66S1MB",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "Awc3HwTf-u",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 28,
+              "end": 37,
+              "text": "LMG 31547",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "X1zsXOr5Ld",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 40,
+              "end": 50,
+              "text": "HAMBI 3720",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "xMMGguuNNE",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 148,
+              "end": 170,
+              "text": "Amphicarpaea bracteata",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "pIYnjUDRoL",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 74,
+              "end": 85,
+              "text": "root nodule",
+              "labels": [
+                "ISOLATE"
+              ]
+            },
+            "id": "DvOmeiBS9Q",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 91,
+              "end": 104,
+              "text": "soybean plant",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "iT9twZHVKg",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 171,
+              "end": 177,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_0e81e7082ba5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "from_id": "Awc3HwTf-u",
+            "to_id": "DvOmeiBS9Q",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          },
+          {
+            "from_id": "X1zsXOr5Ld",
+            "to_id": "DvOmeiBS9Q",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          },
+          {
+            "from_id": "xMMGguuNNE",
+            "to_id": "DvOmeiBS9Q",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          },
+          {
+            "from_id": "Awc3HwTf-u",
+            "to_id": "iT9twZHVKg",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          },
+          {
+            "from_id": "X1zsXOr5Ld",
+            "to_id": "iT9twZHVKg",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          },
+          {
+            "from_id": "xMMGguuNNE",
+            "to_id": "iT9twZHVKg",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:44.637708Z",
+        "updated_at": "2026-07-22T08:49:44.637727Z",
+        "draft_created_at": null,
+        "lead_time": 0.615,
+        "prediction": {
+          "id": 98,
+          "result": [
+            {
+              "value": {
+                "start": 17,
+                "end": 23,
+                "text": "66S1MB",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "Awc3HwTf-u",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 28,
+                "end": 37,
+                "text": "LMG 31547",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "X1zsXOr5Ld",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 40,
+                "end": 50,
+                "text": "HAMBI 3720",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "xMMGguuNNE",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 148,
+                "end": 170,
+                "text": "Amphicarpaea bracteata",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "pIYnjUDRoL",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 74,
+                "end": 85,
+                "text": "root nodule",
+                "labels": [
+                  "ISOLATE"
+                ]
+              },
+              "id": "DvOmeiBS9Q",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 91,
+                "end": 104,
+                "text": "soybean plant",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "iT9twZHVKg",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "from_id": "Awc3HwTf-u",
+              "to_id": "DvOmeiBS9Q",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHABITS"
+              ]
+            },
+            {
+              "from_id": "X1zsXOr5Ld",
+              "to_id": "DvOmeiBS9Q",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHABITS"
+              ]
+            },
+            {
+              "from_id": "xMMGguuNNE",
+              "to_id": "DvOmeiBS9Q",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHABITS"
+              ]
+            },
+            {
+              "from_id": "Awc3HwTf-u",
+              "to_id": "iT9twZHVKg",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHABITS"
+              ]
+            },
+            {
+              "from_id": "X1zsXOr5Ld",
+              "to_id": "iT9twZHVKg",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHABITS"
+              ]
+            },
+            {
+              "from_id": "xMMGguuNNE",
+              "to_id": "iT9twZHVKg",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHABITS"
+              ]
+            },
+            {
+              "id": "review_0e81e7082ba5",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 171,
+                "end": 177,
+                "text": "plants",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.935042,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322131Z",
+          "updated_at": "2026-07-21T20:24:24.322135Z",
+          "model": null,
+          "model_run": null,
+          "task": 98,
+          "project": 2
+        },
+        "result_count": 8,
+        "unique_id": "606584ba-1acc-441b-b114-5008ebc8cc27",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 98,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 98,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      98
+    ],
+    "data": {
+      "text": "The type strain, 66S1MB^T (=LMG 31547^T=HAMBI 3720^T) was isolated from a root nodule of a soybean plant that was inoculated with root-zone soil of Amphicarpaea bracteata plants growing in Quebec, Canada.",
+      "original_task_id": "22195",
+      "review_rank": 12,
+      "review_score": 0.935042,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "22195",
+      "review_rank": 12,
+      "review_score": 0.935042,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.935042,
+          "task_id": "22195",
+          "summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 171,
+            "end": 177,
+            "text": "plants",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "plants",
+            "support": 44,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315797Z",
+    "updated_at": "2026-07-22T08:49:44.700855Z",
+    "allow_skip": true,
+    "inner_id": 12,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 99,
+    "annotations": [
+      {
+        "id": 99,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 21,
+              "end": 34,
+              "text": "B. distachyon",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "1GNun-DZuj",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 62,
+              "end": 72,
+              "text": "orobanchol",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "-eXmUCd-1I",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 62,
+              "end": 85,
+              "text": "orobanchol biosynthesis",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "rOZCmaiLZ7",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 296,
+              "end": 302,
+              "text": "Bd21-3",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "SFPtdbzXgy",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 147,
+              "end": 153,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_0ca0e03487bc",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:53.104404Z",
+        "updated_at": "2026-07-22T08:49:53.104438Z",
+        "draft_created_at": null,
+        "lead_time": 8.174,
+        "prediction": {
+          "id": 99,
+          "result": [
+            {
+              "value": {
+                "start": 21,
+                "end": 34,
+                "text": "B. distachyon",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "1GNun-DZuj",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 62,
+                "end": 72,
+                "text": "orobanchol",
+                "labels": [
+                  "COMPOUND"
+                ]
+              },
+              "id": "-eXmUCd-1I",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 62,
+                "end": 85,
+                "text": "orobanchol biosynthesis",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "rOZCmaiLZ7",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 296,
+                "end": 302,
+                "text": "Bd21-3",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "SFPtdbzXgy",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_0ca0e03487bc",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 147,
+                "end": 153,
+                "text": "plants",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.935042,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322152Z",
+          "updated_at": "2026-07-21T20:24:24.322156Z",
+          "model": null,
+          "model_run": null,
+          "task": 99,
+          "project": 2
+        },
+        "result_count": 5,
+        "unique_id": "c5e7756c-07de-49aa-911f-94de81dd5a09",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 99,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 99,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      99
+    ],
+    "data": {
+      "text": "Considering that the B. distachyon BdCYP711A29 is involved in orobanchol biosynthesis, 4 weeks-old (end of the vegetative stage in our conditions) plants of overexpressing lines and TILLING mutants and their respective control lines were examined for the number of tillers and compared to the WT Bd21-3 ecotype.",
+      "original_task_id": "22396",
+      "review_rank": 13,
+      "review_score": 0.935042,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "22396",
+      "review_rank": 13,
+      "review_score": 0.935042,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.935042,
+          "task_id": "22396",
+          "summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 147,
+            "end": 153,
+            "text": "plants",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "plants",
+            "support": 44,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315822Z",
+    "updated_at": "2026-07-22T08:49:53.166709Z",
+    "allow_skip": true,
+    "inner_id": 13,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 100,
+    "annotations": [
+      {
+        "id": 100,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 149,
+              "end": 152,
+              "text": "A12",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "zFejAEpxy-",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 161,
+              "end": 168,
+              "text": "CIAT899",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "I_YfA1TZUU",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 311,
+              "end": 314,
+              "text": "343",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "I9K0fj2G8X",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 319,
+              "end": 322,
+              "text": "A10",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "6Fz1KoTQXq",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 0,
+              "end": 7,
+              "text": "Drought",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "0FRqZg3lz3",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 175,
+              "end": 209,
+              "text": "least affected by membrane leakage",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "mA_M15V4Nf",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 22,
+              "end": 50,
+              "text": "degradation of the membranes",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "XqWxFrluT-",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 83,
+              "end": 102,
+              "text": "electrolyte leakage",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "HkNmNfhxH5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 270,
+              "end": 276,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "IqDe1FdaaX",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 126,
+              "end": 132,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_b8b33577536f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "from_id": "zFejAEpxy-",
+            "to_id": "mA_M15V4Nf",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          },
+          {
+            "from_id": "I_YfA1TZUU",
+            "to_id": "mA_M15V4Nf",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          },
+          {
+            "from_id": "I9K0fj2G8X",
+            "to_id": "HkNmNfhxH5",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PROMOTES"
+            ]
+          },
+          {
+            "from_id": "6Fz1KoTQXq",
+            "to_id": "HkNmNfhxH5",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PROMOTES"
+            ]
+          },
+          {
+            "from_id": "I9K0fj2G8X",
+            "to_id": "XqWxFrluT-",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          },
+          {
+            "from_id": "6Fz1KoTQXq",
+            "to_id": "XqWxFrluT-",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:54.541496Z",
+        "updated_at": "2026-07-22T08:49:54.541511Z",
+        "draft_created_at": null,
+        "lead_time": 1.148,
+        "prediction": {
+          "id": 100,
+          "result": [
+            {
+              "value": {
+                "start": 149,
+                "end": 152,
+                "text": "A12",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "zFejAEpxy-",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 161,
+                "end": 168,
+                "text": "CIAT899",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "I_YfA1TZUU",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 311,
+                "end": 314,
+                "text": "343",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "I9K0fj2G8X",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 319,
+                "end": 322,
+                "text": "A10",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "6Fz1KoTQXq",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 0,
+                "end": 7,
+                "text": "Drought",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "0FRqZg3lz3",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 175,
+                "end": 209,
+                "text": "least affected by membrane leakage",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "mA_M15V4Nf",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 22,
+                "end": 50,
+                "text": "degradation of the membranes",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "XqWxFrluT-",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 83,
+                "end": 102,
+                "text": "electrolyte leakage",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "HkNmNfhxH5",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 270,
+                "end": 276,
+                "text": "plants",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "IqDe1FdaaX",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "from_id": "zFejAEpxy-",
+              "to_id": "mA_M15V4Nf",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            },
+            {
+              "from_id": "I_YfA1TZUU",
+              "to_id": "mA_M15V4Nf",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            },
+            {
+              "from_id": "I9K0fj2G8X",
+              "to_id": "HkNmNfhxH5",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PROMOTES"
+              ]
+            },
+            {
+              "from_id": "6Fz1KoTQXq",
+              "to_id": "HkNmNfhxH5",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PROMOTES"
+              ]
+            },
+            {
+              "from_id": "I9K0fj2G8X",
+              "to_id": "XqWxFrluT-",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            },
+            {
+              "from_id": "6Fz1KoTQXq",
+              "to_id": "XqWxFrluT-",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            },
+            {
+              "id": "review_b8b33577536f",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 126,
+                "end": 132,
+                "text": "plants",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.935042,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322186Z",
+          "updated_at": "2026-07-21T20:24:24.322189Z",
+          "model": null,
+          "model_run": null,
+          "task": 100,
+          "project": 2
+        },
+        "result_count": 11,
+        "unique_id": "549d7a95-5f05-44ce-b917-80d576ff9288",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 100,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 100,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      100
+    ],
+    "data": {
+      "text": "Drought also caused a degradation of the membranes as indicated by the increase in electrolyte leakage (Figure 6A), being the plants inoculated with A12 and the CIAT899 those least affected by membrane leakage; whereas the highest values were observed in not inoculated plants and those inoculated with strains 343 and A10, the most drought sensitive inoculation treatments.",
+      "original_task_id": "22537",
+      "review_rank": 14,
+      "review_score": 0.935042,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "22537",
+      "review_rank": 14,
+      "review_score": 0.935042,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.935042,
+          "task_id": "22537",
+          "summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 126,
+            "end": 132,
+            "text": "plants",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "plants",
+            "support": 44,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315849Z",
+    "updated_at": "2026-07-22T08:49:54.593986Z",
+    "allow_skip": true,
+    "inner_id": 14,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 101,
+    "annotations": [
+      {
+        "id": 101,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 0,
+              "end": 26,
+              "text": "Arabidopsis thaliana Col‐0",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "WLr9M6Pa3C",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 31,
+              "end": 45,
+              "text": "N. benthamiana",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "_EFAbPWhwj",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 46,
+              "end": 52,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_839d6727548b",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:59.057199Z",
+        "updated_at": "2026-07-22T08:49:59.057218Z",
+        "draft_created_at": null,
+        "lead_time": 4.197,
+        "prediction": {
+          "id": 101,
+          "result": [
+            {
+              "value": {
+                "start": 0,
+                "end": 26,
+                "text": "Arabidopsis thaliana Col‐0",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "WLr9M6Pa3C",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 31,
+                "end": 45,
+                "text": "N. benthamiana",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "_EFAbPWhwj",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_839d6727548b",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 46,
+                "end": 52,
+                "text": "plants",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.935042,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322206Z",
+          "updated_at": "2026-07-21T20:24:24.322209Z",
+          "model": null,
+          "model_run": null,
+          "task": 101,
+          "project": 2
+        },
+        "result_count": 3,
+        "unique_id": "4b6cc6dc-22d9-402d-9491-723af5aa7f5f",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 101,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 101,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      101
+    ],
+    "data": {
+      "text": "Arabidopsis thaliana Col‐0 and N. benthamiana plants were grown as described (Carbonell et al., 2014).",
+      "original_task_id": "22555",
+      "review_rank": 15,
+      "review_score": 0.935042,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "22555",
+      "review_rank": 15,
+      "review_score": 0.935042,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.935042,
+          "task_id": "22555",
+          "summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 46,
+            "end": 52,
+            "text": "plants",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "plants",
+            "support": 44,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315878Z",
+    "updated_at": "2026-07-22T08:49:59.117066Z",
+    "allow_skip": true,
+    "inner_id": 15,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 102,
+    "annotations": [
+      {
+        "id": 102,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 48,
+              "end": 59,
+              "text": "Arabidopsis",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "SJDhrErKeF",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 77,
+              "end": 82,
+              "text": "869T2",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "9zOSRczcsM",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 17,
+              "end": 40,
+              "text": "endophytic colonization",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "DzMpFhwHX3",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 60,
+              "end": 66,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_7e2d0c5038b5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "from_id": "9zOSRczcsM",
+            "to_id": "SJDhrErKeF",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          },
+          {
+            "from_id": "9zOSRczcsM",
+            "to_id": "DzMpFhwHX3",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:49:59.902368Z",
+        "updated_at": "2026-07-22T08:49:59.902382Z",
+        "draft_created_at": null,
+        "lead_time": 0.564,
+        "prediction": {
+          "id": 102,
+          "result": [
+            {
+              "value": {
+                "start": 48,
+                "end": 59,
+                "text": "Arabidopsis",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "SJDhrErKeF",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 77,
+                "end": 82,
+                "text": "869T2",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "9zOSRczcsM",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 17,
+                "end": 40,
+                "text": "endophytic colonization",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "DzMpFhwHX3",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "from_id": "9zOSRczcsM",
+              "to_id": "SJDhrErKeF",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHABITS"
+              ]
+            },
+            {
+              "from_id": "9zOSRczcsM",
+              "to_id": "DzMpFhwHX3",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            },
+            {
+              "id": "review_7e2d0c5038b5",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 60,
+                "end": 66,
+                "text": "plants",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.935042,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322227Z",
+          "updated_at": "2026-07-21T20:24:24.322230Z",
+          "model": null,
+          "model_run": null,
+          "task": 102,
+          "project": 2
+        },
+        "result_count": 5,
+        "unique_id": "deaf730a-0ea2-47ea-a9fa-2b4c337e53bc",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 102,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 102,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      102
+    ],
+    "data": {
+      "text": "We confirmed the endophytic colonization of the Arabidopsis plants by strain 869T2 by reisolating the bacteria from surface-sterilized inoculated plant tissues.",
+      "original_task_id": "22950",
+      "review_rank": 16,
+      "review_score": 0.935042,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "22950",
+      "review_rank": 16,
+      "review_score": 0.935042,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.935042,
+          "task_id": "22950",
+          "summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 60,
+            "end": 66,
+            "text": "plants",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "plants",
+            "support": 44,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315903Z",
+    "updated_at": "2026-07-22T08:49:59.951791Z",
+    "allow_skip": true,
+    "inner_id": 16,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 103,
+    "annotations": [
+      {
+        "id": 103,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 0,
+              "end": 20,
+              "text": "Agrobacterium GV3101",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "g9g2ODHhYB",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 112,
+              "end": 118,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_2c1dc619648f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:50:00.668333Z",
+        "updated_at": "2026-07-22T08:50:00.668353Z",
+        "draft_created_at": null,
+        "lead_time": 0.474,
+        "prediction": {
+          "id": 103,
+          "result": [
+            {
+              "value": {
+                "start": 0,
+                "end": 20,
+                "text": "Agrobacterium GV3101",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "g9g2ODHhYB",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "id": "review_2c1dc619648f",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 112,
+                "end": 118,
+                "text": "plants",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.935042,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322243Z",
+          "updated_at": "2026-07-21T20:24:24.322246Z",
+          "model": null,
+          "model_run": null,
+          "task": 103,
+          "project": 2
+        },
+        "result_count": 2,
+        "unique_id": "df9fb136-2353-4966-8c3c-714bf9157d29",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 103,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 103,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      103
+    ],
+    "data": {
+      "text": "Agrobacterium GV3101 containing the pB2GW7 vectors was applied using floral dipping, and transgenic T_1 and T_2 plants were selected by Basta spraying and genotyping as described previously (Martinez Trujillo et al., 2004; Jaudal et al., 2015).",
+      "original_task_id": "23060",
+      "review_rank": 17,
+      "review_score": 0.935042,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "23060",
+      "review_rank": 17,
+      "review_score": 0.935042,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.935042,
+          "task_id": "23060",
+          "summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 112,
+            "end": 118,
+            "text": "plants",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "plants",
+            "support": 44,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315927Z",
+    "updated_at": "2026-07-22T08:50:00.730207Z",
+    "allow_skip": true,
+    "inner_id": 17,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 104,
+    "annotations": [
+      {
+        "id": 104,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 13,
+              "end": 33,
+              "text": "P. phytofirmans PsJN",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "uQqGG3wNL1",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 49,
+              "end": 61,
+              "text": "plant growth",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "ka9mYXGs5B",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 73,
+              "end": 95,
+              "text": "plant disease severity",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "xno9H2v7OC",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 127,
+              "end": 157,
+              "text": "Pseudomonas syringae pv tomato",
+              "labels": [
+                "SPECIES"
+              ]
+            },
+            "id": "rWkqQwcLJI",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 161,
+              "end": 172,
+              "text": "Arabidopsis",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "KBHdwYR8_8",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 173,
+              "end": 179,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_e98069c95d9f",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "from_id": "uQqGG3wNL1",
+            "to_id": "ka9mYXGs5B",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PROMOTES"
+            ]
+          },
+          {
+            "from_id": "uQqGG3wNL1",
+            "to_id": "xno9H2v7OC",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHIBITS"
+            ]
+          },
+          {
+            "from_id": "uQqGG3wNL1",
+            "to_id": "KBHdwYR8_8",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "INHABITS"
+            ]
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:50:01.321357Z",
+        "updated_at": "2026-07-22T08:50:01.321367Z",
+        "draft_created_at": null,
+        "lead_time": 0.388,
+        "prediction": {
+          "id": 104,
+          "result": [
+            {
+              "value": {
+                "start": 13,
+                "end": 33,
+                "text": "P. phytofirmans PsJN",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "uQqGG3wNL1",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 49,
+                "end": 61,
+                "text": "plant growth",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "ka9mYXGs5B",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 73,
+                "end": 95,
+                "text": "plant disease severity",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "xno9H2v7OC",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 127,
+                "end": 157,
+                "text": "Pseudomonas syringae pv tomato",
+                "labels": [
+                  "SPECIES"
+                ]
+              },
+              "id": "rWkqQwcLJI",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 161,
+                "end": 172,
+                "text": "Arabidopsis",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "KBHdwYR8_8",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "from_id": "uQqGG3wNL1",
+              "to_id": "ka9mYXGs5B",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PROMOTES"
+              ]
+            },
+            {
+              "from_id": "uQqGG3wNL1",
+              "to_id": "xno9H2v7OC",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHIBITS"
+              ]
+            },
+            {
+              "from_id": "uQqGG3wNL1",
+              "to_id": "KBHdwYR8_8",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "INHABITS"
+              ]
+            },
+            {
+              "id": "review_e98069c95d9f",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 173,
+                "end": 179,
+                "text": "plants",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.935042,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322269Z",
+          "updated_at": "2026-07-21T20:24:24.322272Z",
+          "model": null,
+          "model_run": null,
+          "task": 104,
+          "project": 2
+        },
+        "result_count": 7,
+        "unique_id": "cdc5748e-b278-447f-89cc-daba18ea4a53",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 104,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 104,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      104
+    ],
+    "data": {
+      "text": "For example, P. phytofirmans PsJN stimulates the plant growth and reduce plant disease severity caused by a virulent strain of Pseudomonas syringae pv tomato in Arabidopsis plants (Timmermann et al., 2017).",
+      "original_task_id": "23097",
+      "review_rank": 18,
+      "review_score": 0.935042,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "23097",
+      "review_rank": 18,
+      "review_score": 0.935042,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.935042,
+          "task_id": "23097",
+          "summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 173,
+            "end": 179,
+            "text": "plants",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "plants",
+            "support": 44,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315951Z",
+    "updated_at": "2026-07-22T08:50:01.389433Z",
+    "allow_skip": true,
+    "inner_id": 18,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 105,
+    "annotations": [
+      {
+        "id": 105,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 44,
+              "end": 59,
+              "text": "E. coli O157:H7",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "KMxS8WzI5h",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 35,
+              "end": 42,
+              "text": "lettuce",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "-SU4YDg1-Q",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 121,
+              "end": 127,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "isqTyZqzNC",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 60,
+              "end": 127,
+              "text": "altered the composition of the other bacteria present on the plants",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "9EaVMpjpPr",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 141,
+              "end": 147,
+              "text": "plants",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "review_aeffa503dd7a",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "from_id": "KMxS8WzI5h",
+            "to_id": "9EaVMpjpPr",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:50:02.774662Z",
+        "updated_at": "2026-07-22T08:50:02.774680Z",
+        "draft_created_at": null,
+        "lead_time": 1.15,
+        "prediction": {
+          "id": 105,
+          "result": [
+            {
+              "value": {
+                "start": 44,
+                "end": 59,
+                "text": "E. coli O157:H7",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "KMxS8WzI5h",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 35,
+                "end": 42,
+                "text": "lettuce",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "-SU4YDg1-Q",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 121,
+                "end": 127,
+                "text": "plants",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "isqTyZqzNC",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "value": {
+                "start": 60,
+                "end": 127,
+                "text": "altered the composition of the other bacteria present on the plants",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "9EaVMpjpPr",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "manual"
+            },
+            {
+              "from_id": "KMxS8WzI5h",
+              "to_id": "9EaVMpjpPr",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            },
+            {
+              "id": "review_aeffa503dd7a",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "value": {
+                "start": 141,
+                "end": 147,
+                "text": "plants",
+                "labels": [
+                  "ORGANISM"
+                ]
+              }
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 25 minutes",
+          "score": 0.935042,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322291Z",
+          "updated_at": "2026-07-21T20:24:24.322295Z",
+          "model": null,
+          "model_run": null,
+          "task": 105,
+          "project": 2
+        },
+        "result_count": 6,
+        "unique_id": "d82276d3-6bf1-4b81-9f2a-fe4c236a0c09",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 105,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 105,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      105
+    ],
+    "data": {
+      "text": "Despite an inability to survive on lettuce, E. coli O157:H7 altered the composition of the other bacteria present on the plants on replicate plants in two independent trials.",
+      "original_task_id": "23109",
+      "review_rank": 19,
+      "review_score": 0.935042,
+      "review_categories": "entity_omission",
+      "review_summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences."
+    },
+    "meta": {
+      "original_task_id": "23109",
+      "review_rank": 19,
+      "review_score": 0.935042,
+      "review_issues": [
+        {
+          "category": "entity_omission",
+          "score": 0.935042,
+          "task_id": "23109",
+          "summary": "Review unannotated 'plants' as ORGANISM; the exact mention is labeled ORGANISM in 44 other occurrences.",
+          "action": {
+            "kind": "add_entity",
+            "start": 141,
+            "end": 147,
+            "text": "plants",
+            "suggested_label": "ORGANISM"
+          },
+          "evidence": {
+            "surface": "plants",
+            "support": 44,
+            "label": "ORGANISM"
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.315977Z",
+    "updated_at": "2026-07-22T08:50:02.829259Z",
+    "allow_skip": true,
+    "inner_id": 19,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 106,
+    "annotations": [
+      {
+        "id": 106,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 82,
+              "end": 88,
+              "text": "KT1115",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "PL6TbJjhQ4",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 20,
+              "end": 23,
+              "text": "RLs",
+              "labels": [
+                "COMPOUND"
+              ]
+            },
+            "id": "T_JuTp1dsD",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 20,
+              "end": 34,
+              "text": "RLs production",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "BSbQcJ73-q",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 38,
+              "end": 44,
+              "text": "KT1115",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "review_4232f15b6243",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "from_id": "PL6TbJjhQ4",
+            "to_id": "T_JuTp1dsD",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRODUCES"
+            ]
+          },
+          {
+            "from_id": "PL6TbJjhQ4",
+            "to_id": "BSbQcJ73-q",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRESENTS"
+            ]
+          },
+          {
+            "from_id": "review_4232f15b6243",
+            "to_id": "T_JuTp1dsD",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "PRODUCES"
+            ]
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:50:27.723057Z",
+        "updated_at": "2026-07-22T08:50:27.723074Z",
+        "draft_created_at": null,
+        "lead_time": 24.671,
+        "prediction": {
+          "id": 106,
+          "result": [
+            {
+              "value": {
+                "start": 82,
+                "end": 88,
+                "text": "KT1115",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "PL6TbJjhQ4",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "prediction"
+            },
+            {
+              "value": {
+                "start": 20,
+                "end": 23,
+                "text": "RLs",
+                "labels": [
+                  "COMPOUND"
+                ]
+              },
+              "id": "T_JuTp1dsD",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "prediction"
+            },
+            {
+              "value": {
+                "start": 20,
+                "end": 34,
+                "text": "RLs production",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "BSbQcJ73-q",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "prediction"
+            },
+            {
+              "value": {
+                "start": 38,
+                "end": 44,
+                "text": "KT1115",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "review_4232f15b6243",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "prediction"
+            },
+            {
+              "from_id": "PL6TbJjhQ4",
+              "to_id": "T_JuTp1dsD",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRODUCES"
+              ]
+            },
+            {
+              "from_id": "PL6TbJjhQ4",
+              "to_id": "BSbQcJ73-q",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRESENTS"
+              ]
+            },
+            {
+              "from_id": "review_4232f15b6243",
+              "to_id": "T_JuTp1dsD",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "PRODUCES"
+              ]
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 26 minutes",
+          "score": 0.983333,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322315Z",
+          "updated_at": "2026-07-21T20:24:24.322319Z",
+          "model": null,
+          "model_run": null,
+          "task": 106,
+          "project": 2
+        },
+        "result_count": 5,
+        "unique_id": "4e674017-c519-49de-9c65-42e3786b56df",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 106,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 106,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      106
+    ],
+    "data": {
+      "text": "Moreover, the total RLs production of KT1115/pPA4781 was 53.5% lower than that of KT1115.",
+      "original_task_id": "19680",
+      "review_rank": 20,
+      "review_score": 0.983333,
+      "review_categories": "relation_omission",
+      "review_summary": "Review missing STRAIN-COMPOUND:PRODUCES between 'kt1115' and 'rls'; it is present in 20/21 matching contexts."
+    },
+    "meta": {
+      "original_task_id": "19680",
+      "review_rank": 20,
+      "review_score": 0.983333,
+      "review_issues": [
+        {
+          "category": "relation_omission",
+          "score": 0.983333,
+          "task_id": "19680",
+          "summary": "Review missing STRAIN-COMPOUND:PRODUCES between 'kt1115' and 'rls'; it is present in 20/21 matching contexts.",
+          "action": {
+            "kind": "add_relation",
+            "from_id": "review_4232f15b6243",
+            "to_id": "T_JuTp1dsD",
+            "suggested_label": "PRODUCES"
+          },
+          "evidence": {
+            "typed_relation": "STRAIN-COMPOUND:PRODUCES",
+            "positive": 20,
+            "negative": 1,
+            "positive_fraction": 0.9523809523809523
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.316002Z",
+    "updated_at": "2026-07-22T08:50:27.782787Z",
+    "allow_skip": true,
+    "inner_id": 20,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 107,
+    "annotations": [
+      {
+        "id": 107,
+        "completed_by": 1,
+        "result": [
+          {
+            "value": {
+              "start": 48,
+              "end": 63,
+              "text": "B. thermophilus",
+              "labels": [
+                "ORGANISM"
+              ]
+            },
+            "id": "mV5ZcafeGx",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 28,
+              "end": 36,
+              "text": "symbiont",
+              "labels": [
+                "PHENOTYPE"
+              ]
+            },
+            "id": "HjlPWzMjlG",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "value": {
+              "start": 73,
+              "end": 78,
+              "text": "EPR9N",
+              "labels": [
+                "STRAIN"
+              ]
+            },
+            "id": "review_dbd333778ea5",
+            "from_name": "label",
+            "to_name": "text",
+            "type": "labels",
+            "origin": "prediction"
+          },
+          {
+            "from_id": "review_dbd333778ea5",
+            "to_id": "mV5ZcafeGx",
+            "type": "relation",
+            "direction": "right",
+            "labels": [
+              "SYMBIONT_OF"
+            ]
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-07-22T08:51:12.491681Z",
+        "updated_at": "2026-07-22T08:51:12.491697Z",
+        "draft_created_at": null,
+        "lead_time": 44.464,
+        "prediction": {
+          "id": 107,
+          "result": [
+            {
+              "value": {
+                "start": 48,
+                "end": 63,
+                "text": "B. thermophilus",
+                "labels": [
+                  "ORGANISM"
+                ]
+              },
+              "id": "mV5ZcafeGx",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "prediction"
+            },
+            {
+              "value": {
+                "start": 28,
+                "end": 36,
+                "text": "symbiont",
+                "labels": [
+                  "PHENOTYPE"
+                ]
+              },
+              "id": "HjlPWzMjlG",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "prediction"
+            },
+            {
+              "value": {
+                "start": 73,
+                "end": 78,
+                "text": "EPR9N",
+                "labels": [
+                  "STRAIN"
+                ]
+              },
+              "id": "review_dbd333778ea5",
+              "from_name": "label",
+              "to_name": "text",
+              "type": "labels",
+              "origin": "prediction"
+            },
+            {
+              "from_id": "review_dbd333778ea5",
+              "to_id": "mV5ZcafeGx",
+              "type": "relation",
+              "direction": "right",
+              "labels": [
+                "SYMBIONT_OF"
+              ]
+            }
+          ],
+          "model_version": "annotation-review-heuristics-v1",
+          "created_ago": "12 hours, 26 minutes",
+          "score": 0.974444,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-07-21T20:24:24.322335Z",
+          "updated_at": "2026-07-21T20:24:24.322339Z",
+          "model": null,
+          "model_run": null,
+          "task": 107,
+          "project": 2
+        },
+        "result_count": 4,
+        "unique_id": "736ef768-c283-456a-a371-6acde5bd9987",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 107,
+        "project": 2,
+        "updated_by": 1,
+        "parent_prediction": 107,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "drafts": [],
+    "predictions": [
+      107
+    ],
+    "data": {
+      "text": "However, previously studied symbiont genomes of B. thermophilus from the EPR9N regions do not possess any hydrogenase genes [10] , [12] .",
+      "original_task_id": "19356",
+      "review_rank": 21,
+      "review_score": 0.974444,
+      "review_categories": "relation_omission",
+      "review_summary": "Review missing STRAIN-ORGANISM:SYMBIONT_OF between 'epr9n' and 'b. thermophilus'; it is present in 8/9 matching contexts."
+    },
+    "meta": {
+      "original_task_id": "19356",
+      "review_rank": 21,
+      "review_score": 0.974444,
+      "review_issues": [
+        {
+          "category": "relation_omission",
+          "score": 0.974444,
+          "task_id": "19356",
+          "summary": "Review missing STRAIN-ORGANISM:SYMBIONT_OF between 'epr9n' and 'b. thermophilus'; it is present in 8/9 matching contexts.",
+          "action": {
+            "kind": "add_relation",
+            "from_id": "review_dbd333778ea5",
+            "to_id": "mV5ZcafeGx",
+            "suggested_label": "SYMBIONT_OF"
+          },
+          "evidence": {
+            "typed_relation": "STRAIN-ORGANISM:SYMBIONT_OF",
+            "positive": 8,
+            "negative": 1,
+            "positive_fraction": 0.8888888888888888
+          }
+        }
+      ]
+    },
+    "created_at": "2026-07-21T20:24:24.316029Z",
+    "updated_at": "2026-07-22T08:51:12.555911Z",
+    "allow_skip": true,
+    "inner_id": 21,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 1,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 2,
+    "updated_by": 1,
+    "comment_authors": []
+  }
+]

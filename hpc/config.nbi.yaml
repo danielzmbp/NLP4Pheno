@@ -1,0 +1,37 @@
+# NBI Slurm resources. Paths are supplied by submit_model_pipeline.sh so this
+# file remains usable from any shared project or scratch directory.
+slurm_cpu_partition: nbi-medium
+slurm_gpu_partition: ei-gpu
+slurm_download_partition: nbi-download
+slurm_gpu_gres: "gpu:a100:1"
+
+# Each training rule currently trains its label-specific models sequentially
+# inside one A100 allocation. These limits are minutes and deliberately leave
+# room for queue variation and checkpoint evaluation.
+ner_training_runtime: 4320
+rel_training_runtime: 5760
+# Full-corpus inference currently processes about 3.8 million strain-matched
+# sentences per label. Keep enough headroom for slower labels and Parquet
+# serialization; this value is in minutes.
+ner_prediction_runtime: 420
+ner_prediction_mem_mb: 32000
+ner_merge_runtime: 180
+ner_merge_mem_mb: 96000
+rel_format_runtime: 120
+rel_format_mem_mb: 48000
+rel_prediction_runtime: 600
+rel_prediction_mem_mb: 32000
+rel_row_batch_size: 8192
+rel_inference_batch_size: 256
+rel_group_runtime: 240
+rel_group_mem_mb: 64000
+rel_group_workers: 20
+rel_group_matrix_mb: 256
+rel_ground_runtime: 180
+rel_ground_mem_mb: 64000
+rel_species_qc_runtime: 180
+rel_species_qc_mem_mb: 64000
+rel_network_runtime: 60
+rel_network_mem_mb: 16000
+rel_link_runtime: 180
+rel_link_mem_mb: 32000

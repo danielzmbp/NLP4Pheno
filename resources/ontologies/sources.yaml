@@ -1,0 +1,76 @@
+sources:
+  OMP:
+    entity_types: [PHENOTYPE]
+    format: obo
+    prefix: "OMP:"
+    url: https://purl.obolibrary.org/obo/omp.obo
+    filename: omp.obo
+
+  OBA:
+    entity_types: [PHENOTYPE]
+    format: obo
+    prefix: "OBA:"
+    url: https://purl.obolibrary.org/obo/oba.obo
+    filename: oba.obo
+
+  PATO:
+    entity_types: [PHENOTYPE]
+    format: obo
+    prefix: "PATO:"
+    url: https://purl.obolibrary.org/obo/pato.obo
+    filename: pato.obo
+
+  CHEBI:
+    entity_types: [COMPOUND]
+    format: obo
+    prefix: "CHEBI:"
+    related_alias_policy: chemical_formula
+    url: https://purl.obolibrary.org/obo/chebi.obo
+    filename: chebi.obo
+
+  MONDO:
+    entity_types: [DISEASE]
+    format: obo
+    prefix: "MONDO:"
+    url: https://purl.obolibrary.org/obo/mondo.obo
+    filename: mondo.obo
+
+  ENVO:
+    entity_types: [ISOLATE]
+    format: obo
+    prefix: "ENVO:"
+    url: https://purl.obolibrary.org/obo/envo.obo
+    filename: envo.obo
+
+  UBERON:
+    entity_types: [ISOLATE]
+    format: obo
+    prefix: "UBERON:"
+    url: https://purl.obolibrary.org/obo/uberon.obo
+    filename: uberon.obo
+
+  FOODON:
+    entity_types: [ISOLATE]
+    format: owl_rdfxml
+    prefix: "FOODON:"
+    url: https://purl.obolibrary.org/obo/foodon.owl
+    filename: foodon.owl
+
+  MCO:
+    entity_types: [MEDIUM]
+    format: obo
+    prefix: "MCO:"
+    url: https://purl.obolibrary.org/obo/mco.obo
+    filename: mco.obo
+
+  MEDIADIVE:
+    entity_types: [MEDIUM]
+    format: mediadive
+    url: https://mediadive.dsmz.de/rest/media
+    filename: mediadive_media.json
+
+  NCBITAXON:
+    entity_types: [SPECIES, ORGANISM]
+    format: ncbi_taxdump
+    url: https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
+    filename: ncbi_taxdump.tar.gz

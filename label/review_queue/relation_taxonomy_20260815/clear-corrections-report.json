@@ -1,0 +1,79 @@
+{
+  "changes": [
+    {
+      "candidate_id": "",
+      "human_review_rank": null,
+      "notes": "Reverse the inhibition edge: AM-19226 survives exposure to the attacking V52 strain.",
+      "relations_added": 1,
+      "relations_dropped": 1,
+      "task_id": "19324"
+    },
+    {
+      "candidate_id": "",
+      "entities_edited": 4,
+      "human_review_rank": null,
+      "notes": "The four lung findings are phenotypes presented by PAO1 infection, not disease entities or generic associations.",
+      "relations_added": 4,
+      "relations_dropped": 4,
+      "task_id": "19500"
+    },
+    {
+      "candidate_id": "",
+      "human_review_rank": null,
+      "notes": "The links from isolate names to A. veronii encode taxonomic membership, not inhabitation; retain the separately annotated tilapia-host links.",
+      "relations_dropped": 4,
+      "task_id": "19997"
+    },
+    {
+      "candidate_id": "",
+      "entities_edited": 1,
+      "human_review_rank": null,
+      "notes": "Salmonella enterica serovar Typhimurium is used here as a taxonomic target, not a specific strain identifier.",
+      "relations_dropped": 0,
+      "task_id": "20132"
+    },
+    {
+      "candidate_id": "",
+      "human_review_rank": null,
+      "notes": "Persistence within the RAW 264.7 macrophage cell line is an inhabitation relation, not resistance to the cell line.",
+      "relations_added": 2,
+      "relations_dropped": 2,
+      "task_id": "21216"
+    },
+    {
+      "candidate_id": "",
+      "human_review_rank": null,
+      "notes": "The first clause directly supports G9 inhibition of V. harveyi; Altermonas and Bacillus BY-9 occur in a malformed comparison to prior work and are not supported as G9 targets.",
+      "relations_dropped": 2,
+      "task_id": "22629"
+    },
+    {
+      "candidate_id": "",
+      "human_review_rank": null,
+      "notes": "The sentence says the strains are associated with coral hosts; it does not describe infection or relations to the taxonomic synonyms Labrenzia/Roseibium.",
+      "relations_added": 2,
+      "relations_dropped": 4,
+      "task_id": "22778"
+    },
+    {
+      "candidate_id": "",
+      "human_review_rank": null,
+      "notes": "Biofilm is a phenotype presented by the strain; the sentence does not describe biofilm as a produced compound.",
+      "relations_added": 1,
+      "relations_dropped": 1,
+      "task_id": "23069"
+    }
+  ],
+  "corrected_tasks": 8,
+  "corrections": "label/review_queue/relation_taxonomy_20260815/clear-corrections.json",
+  "corrections_sha256": "fe1942e06deca15a4db3dae3d1cc17efce77c3653908bf6efbebab38dd39d3ad",
+  "created_at": "2026-08-15T21:05:16.567706+00:00",
+  "entities_edited": 5,
+  "output": "label/project-10-reviewed-2026-08-15-taxonomy-pass.json",
+  "output_sha256": "33c35334994b8ca4681cad3e388390357a8772e666d87116f64b791a2b44381a",
+  "relations_added": 10,
+  "relations_dropped": 18,
+  "source": "label/project-10-reviewed-2026-08-15.json",
+  "source_sha256": "4f13803f1915de29a7950bb8ff28cbcbadc3b88b7fbb8a5f3b552ebbafd0be75",
+  "source_tasks": 4129
+}

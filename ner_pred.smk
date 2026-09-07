@@ -7,9 +7,29 @@ from operator import itemgetter
 from glob import glob
 import itertools
 import csv
+import sys
+
+sys.path.append("scripts")
+from ner_postprocess import merge_entities as merge_entity_spans
 
 
 configfile: "config.yaml"
+
+
+HF_HOME = config.get("hf_home")
+if HF_HOME:
+    os.environ.update(
+        {
+            "HF_HOME": HF_HOME,
+            "HF_DATASETS_CACHE": f"{HF_HOME}/datasets",
+            "HF_MODULES_CACHE": f"{HF_HOME}/modules",
+            "TRANSFORMERS_CACHE": f"{HF_HOME}/transformers",
+            "HF_HUB_OFFLINE": "1",
+            "TRANSFORMERS_OFFLINE": "1",
+            "HF_DATASETS_OFFLINE": "1",
+            "HF_HUB_DISABLE_TELEMETRY": "1",
+        }
+    )
 
 
 labels_flat = config["ner_labels"][1:]
@@ -18,11 +38,20 @@ cuda = config["cuda_devices"]
 corpus = "corpus" + str(config["dataset"])
 preds = config["output_path"].rstrip("/") + "/preds" + str(config["dataset"])
 parquet_file = config["pmc_parquet_file"]
+CPU_PARTITION = config.get("slurm_cpu_partition", "cpu,cpu_il")
+GPU_PARTITION = config.get(
+    "slurm_gpu_partition", "gpu_h100,gpu_a100_il,gpu_h100_il"
+)
+GPU_GRES = config.get("slurm_gpu_gres", "gpu:1")
+NER_PREDICTION_RUNTIME = int(config.get("ner_prediction_runtime", 420))
+NER_PREDICTION_MEM_MB = int(config.get("ner_prediction_mem_mb", 32000))
+NER_MERGE_RUNTIME = int(config.get("ner_merge_runtime", 180))
+NER_MERGE_MEM_MB = int(config.get("ner_merge_mem_mb", 96000))
 
 STRAIN_PART_COUNT = 250
 
 COMMON_RESOURCES = {
-    "slurm_partition": "cpu,cpu_il",
+    "slurm_partition": CPU_PARTITION,
     "runtime": 30,
     "mem_mb": 3000,
     "cpus_per_task": 2,
@@ -37,34 +66,7 @@ def merge_entities(entity_list):
     if cache_key in MERGED_ENTITIES_CACHE:
         return MERGED_ENTITIES_CACHE[cache_key]
 
-    merged_list = []
-    skip = False
-    entity_len = len(entity_list)
-
-    for i in range(entity_len):
-        if skip:
-            skip = False
-            continue
-
-        current_entity = entity_list[i].copy()
-        current_entity.pop("word", None)
-
-        if current_entity["entity_group"] == "B":
-            scores = [current_entity["score"]]
-            next_idx = i + 1
-            while (
-                next_idx < entity_len
-                and entity_list[next_idx]["entity_group"] == "I"
-                and (entity_list[next_idx]["start"] - current_entity["end"]) <= 4
-            ):
-                scores.append(entity_list[next_idx]["score"])
-                current_entity["end"] = entity_list[next_idx]["end"]
-                skip = True
-                next_idx += 1
-
-            current_entity["score"] = np.mean(scores)
-
-        merged_list.append(current_entity)
+    merged_list = merge_entity_spans(entity_list)
 
     MERGED_ENTITIES_CACHE[cache_key] = merged_list
     return merged_list
@@ -128,7 +130,7 @@ rule generate_corpus:
     output:
         expand(corpus + "/{part}.txt", part=PARTS),
     resources:
-        slurm_partition="cpu,cpu_il",
+        slurm_partition=CPU_PARTITION,
         runtime=200,
         mem_mb=64000,
         cpus_per_task=4,
@@ -161,8 +163,8 @@ rule run_strain_prediction:
         "envs/pytorch.yml"
     retries: 3
     resources:
-        slurm_partition="gpu_h100,gpu_a100_il,gpu_h100_il",
-        slurm_extra="--gres=gpu:1",
+        slurm_partition=GPU_PARTITION,
+        gres=GPU_GRES,
         runtime=80,
         mem_mb=8000,
         cpus_per_task=4,
@@ -186,7 +188,7 @@ rule merge_strain_predictions:
     output:
         preds + "/NER_output/STRAIN/strains.parquet",
     resources:
-        slurm_partition="cpu,cpu_il",
+        slurm_partition=CPU_PARTITION,
         runtime=120,
         mem_mb=32000,
         cpus_per_task=8,
@@ -206,12 +208,16 @@ rule make_sentence_file:
         preds + "/NER_output/strains.txt",
         preds + "/NER_output/device_models.txt",
     resources:
-        slurm_partition="cpu",
+        slurm_partition=CPU_PARTITION,
         runtime=300,
-        mem_mb=8000,
+        mem_mb=32000,
         cpus_per_task=4,
     run:
-        df = pd.read_parquet(input[0])
+        # The merged strain table contains millions of rows and several
+        # prediction columns, but this rule only needs the sentence text.
+        # Restricting the Parquet projection avoids materializing the much
+        # larger entity/score/offset columns before de-duplication.
+        df = pd.read_parquet(input[0], columns=["text"])
         df.drop_duplicates(subset="text")["text"].to_csv(
             output[0], sep="\t", index=False, header=False, quoting=csv.QUOTE_NONE
         )
@@ -230,10 +236,10 @@ rule run_all_models:
     conda:
         "envs/pytorch.yml"
     resources:
-        slurm_partition="gpu_h100,gpu_a100_il,gpu_h100_il",
-        slurm_extra="--gres=gpu:1",
-        runtime=STRAIN_PART_COUNT,
-        mem_mb=8000,
+        slurm_partition=GPU_PARTITION,
+        gres=GPU_GRES,
+        runtime=NER_PREDICTION_RUNTIME,
+        mem_mb=NER_PREDICTION_MEM_MB,
     shell:
         """
         while read -r d m; do
@@ -252,7 +258,7 @@ rule agg_model_results:
     output:
         preds + "/NER_output/strain_preds.parquet",
     resources:
-        slurm_partition="cpu,cpu_il",
+        slurm_partition=CPU_PARTITION,
         runtime=180,
         mem_mb=48000,
         cpus_per_task=12,
@@ -299,21 +305,15 @@ rule merge_preds:
     output:
         preds + "/NER_output/preds.parquet",
     resources:
-        slurm_partition="cpu,cpu_il",
-        runtime=180,
-        mem_mb=32000,
+        slurm_partition=CPU_PARTITION,
+        runtime=NER_MERGE_RUNTIME,
+        mem_mb=NER_MERGE_MEM_MB,
         cpus_per_task=8,
-    run:
-        strains = pd.read_parquet(input[0])
-        others = pd.read_parquet(input[1])
-        others = others[others["score"] > cutoff]
-
-        strain_cols = strains.columns[1:]
-        strain_renamed = strains[strain_cols].add_suffix("_strain")
-        strains_processed = pd.concat([strains.iloc[:, [0]], strain_renamed], axis=1)
-
-        df = strains_processed.merge(
-            others.dropna(subset=["word"]), on="text", how="left"
-        )
-        df = df.dropna(subset=["word"])
-        df.to_parquet(output[0], compression="snappy")
+    shell:
+        """
+        python scripts/merge_ner_predictions.py \
+          {input[0]} \
+          {input[1]} \
+          --output {output[0]} \
+          --cutoff {cutoff}
+        """

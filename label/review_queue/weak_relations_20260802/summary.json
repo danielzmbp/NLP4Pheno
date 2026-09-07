@@ -1,0 +1,38 @@
+{
+  "annotations": "/ei/projects/c/ce37e266-dd0b-4c54-9b26-3cf53be99d1b/daniel/nlp4pheno/runs/run_20260802_taxonomy_core_df6c495/label/project-10-reviewed-2026-07-26.json",
+  "created_at": "2026-08-02T11:15:45.859357+00:00",
+  "include_relations": [
+    "STRAIN-DISEASE:INHIBITS",
+    "STRAIN-ORGANISM:INHIBITS",
+    "STRAIN-ORGANISM:SYMBIONT_OF",
+    "STRAIN-PHENOTYPE:INHIBITS",
+    "STRAIN-SPECIES:INHIBITS"
+  ],
+  "max_text_chars": 450,
+  "ner": "/ei/projects/c/ce37e266-dd0b-4c54-9b26-3cf53be99d1b/daniel/nlp4pheno/results_20260802_taxonomy_core_df6c495/preds2509/NER_output/ner_preds.parquet",
+  "per_relation_tier": 4,
+  "relations": "/ei/projects/c/ce37e266-dd0b-4c54-9b26-3cf53be99d1b/daniel/nlp4pheno/results_20260802_taxonomy_core_df6c495/preds2509/REL_output/preds_straininfo_grounded_pmc.pqt",
+  "sampled_relation_counts": {
+    "STRAIN-DISEASE:INHIBITS": 16,
+    "STRAIN-ORGANISM:INHIBITS": 15,
+    "STRAIN-ORGANISM:SYMBIONT_OF": 13,
+    "STRAIN-PHENOTYPE:INHIBITS": 12,
+    "STRAIN-SPECIES:INHIBITS": 12
+  },
+  "seed": 2509,
+  "seeded_entities": 417,
+  "seeded_relations": 347,
+  "selection_policy": {
+    "entity_tension": "RE >= .85 and at least one NER score < .82",
+    "high_grounded": "RE >= .95, both NER scores >= .90, unique ontology match",
+    "high_unresolved": "RE >= .90, both NER scores >= .90, ontology unresolved",
+    "relation_boundary": ".50 <= RE <= .67, both NER scores >= .90"
+  },
+  "tasks": 68,
+  "tier_counts": {
+    "entity_tension": 19,
+    "high_grounded": 16,
+    "high_unresolved": 16,
+    "relation_boundary": 17
+  }
+}

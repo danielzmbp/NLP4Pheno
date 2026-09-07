@@ -1,0 +1,259 @@
+[
+  {
+    "candidate_id": "pmc_candidate_69d9a5c1fffc01",
+    "notes": "Trimmed punctuation from manually added compounds and expanded the cardiovascular disease span to include symptoms.",
+    "edit_entities": [
+      {"id": "M4ee5mkJJx", "text": "LDL-cholesterol", "label": "COMPOUND"},
+      {"id": "Ea6VjObHBh", "text": "malondialdehyde", "label": "COMPOUND"},
+      {"id": "5x98UNSMdZ", "text": "cholesterol", "occurrence": 1, "label": "COMPOUND"},
+      {"id": "pred_entity_e6aebd403b9708", "text": "cardiovascular symptoms", "label": "DISEASE"}
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_008a2e7d9c62ef",
+    "notes": "Expanded the two oils and three abbreviated culture collection spans to their complete textual mentions.",
+    "edit_entities": [
+      {"id": "pred_entity_04afda074bda3f", "text": "Lavender oil", "label": "COMPOUND"},
+      {"id": "pred_entity_53ee6421bef6d7", "text": "clove essential oil", "label": "COMPOUND"},
+      {"id": "pred_entity_b45cf38dabac98", "text": "S. aureus (ATCC 6538)", "label": "STRAIN"},
+      {"id": "pred_entity_681fa11717b10e", "text": "P. aeruginosa (ATCC 27853)", "label": "STRAIN"},
+      {"id": "pred_entity_03d9224eb990e4", "text": "E. coli (ATCC 8739)", "label": "STRAIN"}
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_62c24b24228ad5",
+    "notes": "Trimmed sentence punctuation from the disease span.",
+    "edit_entities": [
+      {"id": "LnQGHpbm7S", "text": "microbial infections", "label": "DISEASE"}
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_4ca84f07bbb6ba",
+    "notes": "Removed a self-category symbiosis error and added the three explicit strain-host symbioses while retaining their broader INHABITS links.",
+    "drop_relations": [
+      ["pred_entity_2a1d6eddc11c27", "pred_entity_155de42d6ce237", "SYMBIONT_OF"]
+    ],
+    "add_relations": [
+      ["pred_entity_bb215419c08a2d", "pred_entity_44ff6c2df56b09", "SYMBIONT_OF"],
+      ["pred_entity_2f65bf8a711f8d", "pred_entity_515611a1e9dda7", "SYMBIONT_OF"],
+      ["pred_entity_2a1d6eddc11c27", "pred_entity_f44ec447850582", "SYMBIONT_OF"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_c20e36d9633675",
+    "notes": "Trimmed two strain boundaries and retyped Candidatus Evansia muelleri as a species; the resulting species-host relation is outside the configured strain relation taxonomy and was removed.",
+    "edit_entities": [
+      {"id": "tKTxz7YGJ8", "text": "Synechococcus elongatus PCC 7942", "label": "STRAIN"},
+      {"id": "HBAqoUWgfH", "text": "Candidatus Evansia muelleri", "label": "SPECIES"}
+    ],
+    "drop_relations": [
+      ["HBAqoUWgfH", "pred_entity_c9f93491ec481e", "SYMBIONT_OF"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_8d9c4786f985ed",
+    "notes": "Corrected NEC from a phenotype phrase to the disease mention used by the explicit protective relation.",
+    "edit_entities": [
+      {"id": "pred_entity_10016f31c4de00", "text": "NEC", "label": "DISEASE"}
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_5385bc0a9b0928",
+    "notes": "Removed reversed causal relations: LI0758 inhibited yeast growth; W303-1A and BY4741 were affected strains, not inhibitory agents. Also trimmed punctuation.",
+    "edit_entities": [
+      {"id": "rYGaktJKBY", "text": "S. cerevisiae growth", "label": "PHENOTYPE"}
+    ],
+    "drop_relations": [
+      ["pred_entity_83da2c24249905", "rYGaktJKBY", "INHIBITS"],
+      ["pred_entity_258ece9497c95e", "rYGaktJKBY", "INHIBITS"],
+      ["pred_entity_83da2c24249905", "pred_entity_4c67c26e098b0d", "INHIBITS"],
+      ["pred_entity_258ece9497c95e", "pred_entity_4c67c26e098b0d", "INHIBITS"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_3f26e7f129b228",
+    "notes": "Removed mango as an isolation source and its false INHABITS relation; the strain acted through fermented mango extract but was not stated to inhabit mango.",
+    "drop_entity_ids": ["Jhix6G0_pF"]
+  },
+  {
+    "candidate_id": "pmc_candidate_ea678738f5bb26",
+    "notes": "Trimmed commas from two strain spans.",
+    "edit_entities": [
+      {"id": "iv2ZmKZCXF", "text": "L. casei LMG 101/37 P-17504", "label": "STRAIN"},
+      {"id": "9MmcpzdoDP", "text": "B. animalis subsp. lactis Bi1 LMG P-17502", "label": "STRAIN"}
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_6ff4e45604edf7",
+    "notes": "Expanded bare ATCC identifiers to complete strain mentions.",
+    "edit_entities": [
+      {"id": "pred_entity_0baae93049875e", "text": "Enterococcus faecium (ATCC ® 27270)", "label": "STRAIN"},
+      {"id": "pred_entity_aff1ade6b7df30", "text": "Aspergillus niger (ATCC ® 6275)", "label": "STRAIN"}
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_beb867bbd5c3ca",
+    "notes": "Split the malformed combined OR191/LPU83 strain span and retained a conservative Medicago symbiosis link for the added OR191 mention.",
+    "edit_entities": [
+      {"id": "pred_entity_13b25ab0134975", "text": "LPU83", "label": "STRAIN"}
+    ],
+    "add_entities": [
+      {"id": "secondpass_or191", "text": "OR191", "label": "STRAIN"}
+    ],
+    "add_relations": [
+      ["secondpass_or191", "pred_entity_3261c124c5dc08", "SYMBIONT_OF"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_dd75f1bfdefd34",
+    "notes": "Removed the nested marmoset ISOLATE span; marmoset is the host organism, not a stated isolation material in this sentence.",
+    "drop_entity_ids": ["pred_entity_141fce54593065"]
+  },
+  {
+    "candidate_id": "pmc_candidate_ba443a4c05b939",
+    "notes": "Reassigned relations to the entities actually described: AC1100 degrades the xenobiotic, BR3459a is the Mimosa symbiont, and the Piptadenia statement applies to the species rather than either strain.",
+    "drop_relations": [
+      ["pred_entity_2ec84e388d15a5", "pred_entity_83b1998940a02c", "SYMBIONT_OF"],
+      ["pred_entity_2ec84e388d15a5", "pred_entity_a827e16900d0fb", "SYMBIONT_OF"],
+      ["pred_entity_2ec84e388d15a5", "pred_entity_a2bbd83c3c2618", "SYMBIONT_OF"],
+      ["pred_entity_ff92c279466858", "pred_entity_a827e16900d0fb", "SYMBIONT_OF"],
+      ["pred_entity_ff92c279466858", "pred_entity_a2bbd83c3c2618", "SYMBIONT_OF"]
+    ],
+    "add_relations": [
+      ["pred_entity_2ec84e388d15a5", "pred_entity_6a734539ab7bc1", "DEGRADES"],
+      ["pred_entity_ff92c279466858", "pred_entity_83b1998940a02c", "SYMBIONT_OF"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_8ee7a95a728fe5",
+    "notes": "Moved the symbiosis relation from the unrelated Azolla host to the cycad from which this Nostoc strain was isolated.",
+    "drop_relations": [
+      ["pred_entity_94346de2b19c4a", "pred_entity_a763273c886d36", "SYMBIONT_OF"]
+    ],
+    "add_relations": [
+      ["pred_entity_94346de2b19c4a", "pred_entity_3f032138f53e5e", "SYMBIONT_OF"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_f6d93f9a27a238",
+    "notes": "Removed food security as a phenotype; it is a metaphorical description, not an organism phenotype.",
+    "drop_entity_ids": ["pred_entity_33ea7401f47c83"]
+  },
+  {
+    "candidate_id": "pmc_candidate_9c7a0a8eaa2d67",
+    "notes": "Converted verb-containing phenotype spans and PRESENTS links into the explicit inhibition of biofilm formation and virulence.",
+    "edit_entities": [
+      {"id": "pred_entity_3b73dc3aa0a86c", "text": "biofilm formation", "label": "PHENOTYPE"},
+      {"id": "pred_entity_51d1bf18e6d195", "text": "virulence", "label": "PHENOTYPE"}
+    ],
+    "drop_relations": [
+      ["pred_entity_891af8cb6e93ed", "pred_entity_3b73dc3aa0a86c", "PRESENTS"],
+      ["pred_entity_891af8cb6e93ed", "pred_entity_51d1bf18e6d195", "PRESENTS"]
+    ],
+    "add_relations": [
+      ["pred_entity_891af8cb6e93ed", "pred_entity_3b73dc3aa0a86c", "INHIBITS"],
+      ["pred_entity_891af8cb6e93ed", "pred_entity_51d1bf18e6d195", "INHIBITS"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_38891e77e4c362",
+    "notes": "Removed disease effects attributed to TMA lyase inhibitors rather than the engineered strain; retained the strain's stated metabolic action and added its indole-acetate production.",
+    "drop_relations": [
+      ["pred_entity_0e1cd6540f04b2", "pred_entity_fe462e5ea119dc", "INHIBITS"],
+      ["pred_entity_0e1cd6540f04b2", "pred_entity_a4e817a3d12a85", "INHIBITS"]
+    ],
+    "add_relations": [
+      ["pred_entity_0e1cd6540f04b2", "pred_entity_6e1f72db2763a5", "PRODUCES"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_c1c743a51fb841",
+    "notes": "Replaced indirect strain-DIO effects with the explicitly stated production of the protective fatty-acid metabolite by each listed strain.",
+    "drop_relations": [
+      ["pred_entity_72dcd34dc2bc52", "pred_entity_48316f0415d755", "INHIBITS"],
+      ["pred_entity_caed6705175e51", "pred_entity_48316f0415d755", "INHIBITS"],
+      ["pred_entity_09eb55ab4e7dbb", "pred_entity_48316f0415d755", "INHIBITS"]
+    ],
+    "add_relations": [
+      ["pred_entity_09eb55ab4e7dbb", "pred_entity_61ff20c2d7f1e4", "PRODUCES"],
+      ["pred_entity_72dcd34dc2bc52", "pred_entity_61ff20c2d7f1e4", "PRODUCES"],
+      ["pred_entity_caed6705175e51", "pred_entity_61ff20c2d7f1e4", "PRODUCES"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_f5d9d5e347c686",
+    "notes": "Removed an adjective and an exact cross-type duplicate, and represented A. flavus as a microbial species.",
+    "drop_entity_ids": [
+      "pred_entity_43e13bbb4e9692",
+      "pred_entity_827851de4efbc9"
+    ],
+    "edit_entities": [
+      {"id": "pred_entity_7327197257c49d", "text": "A. flavus", "occurrence": 1, "label": "SPECIES"},
+      {"id": "pred_entity_271ca10f775644", "text": "A. flavus", "occurrence": 2, "label": "SPECIES"}
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_aa33b83154d9f5",
+    "notes": "Removed a word-fragment phenotype and two relations contradicted by sentence scope: NGR234 is contrasted with nitrogen fixation, and V. unguiculata belongs to the G49 host list.",
+    "drop_entity_ids": ["pred_entity_b00ceab73da2f0"],
+    "drop_relations": [
+      ["pred_entity_2a929111f45bdd", "pred_entity_be4a38531c0309", "SYMBIONT_OF"],
+      ["pred_entity_4b65f41feb1fd2", "pred_entity_91a2844ff80470", "PRESENTS"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_94720c443c975a",
+    "notes": "Trimmed Tucson, added the separately listed IS strain, and retained only sentence-local strain-host symbiosis links.",
+    "edit_entities": [
+      {"id": "pred_entity_310956820a43fc", "text": "S. symbiotica Tucson", "label": "STRAIN"}
+    ],
+    "add_entities": [
+      {"id": "secondpass_s_symbiotica_is", "text": "IS", "label": "STRAIN"}
+    ],
+    "drop_relations": [
+      ["pred_entity_c1f9ccb313a8bb", "pred_entity_e0d1ee7e5b610f", "SYMBIONT_OF"],
+      ["pred_entity_c1f9ccb313a8bb", "pred_entity_cd91141ef8f242", "SYMBIONT_OF"],
+      ["pred_entity_310956820a43fc", "pred_entity_e0d1ee7e5b610f", "SYMBIONT_OF"],
+      ["pred_entity_310956820a43fc", "pred_entity_798fe80e1a8238", "SYMBIONT_OF"]
+    ],
+    "add_relations": [
+      ["secondpass_s_symbiotica_is", "pred_entity_cd91141ef8f242", "SYMBIONT_OF"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_63c631a223d24d",
+    "notes": "Removed the organism-level inhibition inferred from disruption of an infection effect; the explicit inhibition of stomatal reopening remains.",
+    "drop_relations": [
+      ["pred_entity_894bf255310f5e", "pred_entity_c1edef2060d97c", "INHIBITS"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_7d400562d14ef5",
+    "notes": "Removed all four symbiosis positives because the sentence explicitly describes these strain-cultivar combinations as incompatible.",
+    "drop_relations": [
+      ["pred_entity_6348abcb1cca34", "pred_entity_e018440cdb86b4", "SYMBIONT_OF"],
+      ["pred_entity_2500ec741b32af", "pred_entity_e018440cdb86b4", "SYMBIONT_OF"],
+      ["pred_entity_d50af9cb69dda9", "pred_entity_e018440cdb86b4", "SYMBIONT_OF"],
+      ["pred_entity_aa23c4326b0e96", "pred_entity_e018440cdb86b4", "SYMBIONT_OF"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_e176b52f5b9904",
+    "notes": "Expanded both observed phenotypes to include their direction and linked the strain to the enhanced biomass phenotype as well as impaired biofilm formation.",
+    "edit_entities": [
+      {"id": "pred_entity_321f68638a85bb", "text": "enhanced biomass growth", "label": "PHENOTYPE"},
+      {"id": "pred_entity_6ed4ed96db2e4b", "text": "impairment in biofilm formation", "label": "PHENOTYPE"}
+    ],
+    "add_relations": [
+      ["pred_entity_ea258939129ce4", "pred_entity_321f68638a85bb", "PRESENTS"]
+    ]
+  },
+  {
+    "candidate_id": "pmc_candidate_c6abdaa1a10120",
+    "notes": "Removed the out-of-taxonomy strain-species PROMOTES edge and a contextual biofilm PRESENTS edge; the configured strain-phenotype growth promotion relation captures the stated effect.",
+    "drop_relations": [
+      ["pred_entity_02095e0c72b92e", "pred_entity_a9c4c50d4f11df", "PROMOTES"],
+      ["pred_entity_02095e0c72b92e", "pred_entity_33789282d90540", "PRESENTS"]
+    ]
+  }
+]

@@ -40,8 +40,6 @@ from typing import Optional
 import datasets
 import numpy as np
 from datasets import ClassLabel, load_dataset
-import evaluate
-
 import transformers
 from transformers import (
     AutoConfig,
@@ -57,6 +55,8 @@ from transformers import (
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
+
+from evaluate_utils import load_metric
 
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
@@ -497,7 +497,7 @@ def main():
     data_collator = DataCollatorForTokenClassification(tokenizer, pad_to_multiple_of=8 if training_args.fp16 else None)
 
     # Metrics
-    metric = evaluate.load("seqeval")
+    metric = load_metric("seqeval")
 
     def compute_metrics(p):
         """

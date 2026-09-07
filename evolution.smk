@@ -4,7 +4,11 @@ import types
 configfile: "config.yaml"
 
 data = config["dataset"]
-path = f"/home/tu/tu_tu/tu_kmpaj01/link/xgboost/seqfiles_{data}"
+path = f"{config['output_path'].rstrip('/')}/xgboost/seqfiles_{data}"
+hyphy_remove_duplicates = config.get(
+    "hyphy_remove_duplicates",
+    "/home/tu/tu_tu/tu_kmpaj01/hyphy-analyses/remove-duplicates/remove-duplicates.bf",
+)
 (R,) = glob_wildcards(path + "/{rel}/seq.faa")
 
 # Common resource configurations
@@ -384,7 +388,7 @@ rule remove_dups:
             echo "# Invalid input files" > "{output}"
         else
             set -e  # Re-enable exit on error
-            hyphy /home/tu/tu_tu/tu_kmpaj01/hyphy-analyses/remove-duplicates/remove-duplicates.bf --msa "{input.aln_codon}" --tree "{input.tree}" --output "{output}" || {{
+            hyphy {hyphy_remove_duplicates} --msa "{input.aln_codon}" --tree "{input.tree}" --output "{output}" || {{
                 echo "HyPhy remove_dups failed for {wildcards.rel}"
                 echo "# HyPhy remove_dups failed" > "{output}"
             }}

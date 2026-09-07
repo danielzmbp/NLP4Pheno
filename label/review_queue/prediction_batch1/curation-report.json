@@ -1,0 +1,24 @@
+{
+  "created_at": "2026-07-26T16:08:27.242430+00:00",
+  "curated_output": "label/review_queue/prediction_batch1/codex-curated.json",
+  "curated_output_sha256": "1696a724d656225637067da2246f2c3f5eb3e71cb6f28c8d28ead9a1566e3fc2",
+  "curated_tasks": 27,
+  "curator": "Codex",
+  "decision_status_counts": {
+    "accepted": 9,
+    "corrected": 9,
+    "deferred": 5,
+    "hard_negative": 9
+  },
+  "decisions": 32,
+  "decisions_file": "label/review_queue/prediction_batch1/codex-decisions.json",
+  "decisions_sha256": "ed7cdd436a3f95ce97ab220076147f4524788095d7133974efe15534ca17c42b",
+  "deferred_unselected_tasks": 69,
+  "queue": "label/review_queue/prediction_batch1/queue.json",
+  "queue_sha256": "dce06891fd506d6e46659826be0238ee8e841ea78251126abc14d8d81774d031",
+  "remaining_output": "label/review_queue/prediction_batch1/human-queue.json",
+  "remaining_output_sha256": "acfd67115345e81e6e95f3a691152bc755985991a4ef072b318ab55c9dd63212",
+  "remaining_per_stratum": 1,
+  "remaining_review_tasks": 55,
+  "source_tasks": 151
+}

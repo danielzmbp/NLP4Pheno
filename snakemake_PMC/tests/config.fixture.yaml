@@ -1,0 +1,47 @@
+source:
+  mode: fixture
+  snapshot_date: "2026-07-20"
+  start_date: "2026-01-01"
+  query: "fixture open_access[filter]"
+  fixture_ids: tests/fixtures/pmcids.txt
+  fixture_inventory_files:
+    - tests/fixtures/inventory.csv
+  fixture_xml_dir: tests/fixtures/xml
+  inventory_version: fixture
+  bucket_url: https://pmc-oa-opendata.s3.amazonaws.com
+  inventory_prefix: inventory-reports/pmc-oa-opendata/metadata/
+  max_missing_fraction: 0.0
+
+processing:
+  chunk_count: 4
+  max_text_chars: 100
+  min_text_chars: 10
+  publication_year_min: 1950
+  allowed_languages: [en]
+  include_unknown_language: false
+  excluded_section_patterns:
+    - "^references?$"
+    - "acknowledg"
+  parquet_compression: zstd
+  row_group_size: 1000
+
+download:
+  workers_per_job: 2
+  verify_metadata_json: false
+  request_timeout_seconds: 10
+  retries: 1
+  max_failure_fraction: 0.0
+  min_chunk_failures_for_abort: 1
+  user_agent: "NLP4Pheno fixture test"
+
+resources:
+  cpu_partition: cpu
+  discovery_mem_mb: 1000
+  inventory_mem_mb: 1000
+  selection_mem_mb: 1000
+  partition_mem_mb: 1000
+  parse_mem_mb: 1000
+  merge_mem_mb: 1000
+
+output_dir: tests/tmp/output
+work_dir: tests/tmp/work

@@ -2,14 +2,35 @@ import pandas as pd
 import os
 import json
 import numpy as np
-import re
 import random
 import copy
+import sys
 from operator import itemgetter
-from sklearn.model_selection import train_test_split
+
+sys.path.append("scripts")
+from annotation_utils import load_annotations, merged_pmc_groups, source_group
+from frozen_splits import frozen_split_indices, load_frozen_split_manifest
+from ner_data import build_dataset
+from split_utils import three_way_group_split
 
 
 configfile: "config.yaml"
+
+
+HF_HOME = config.get("hf_home")
+if HF_HOME:
+    os.environ.update(
+        {
+            "HF_HOME": HF_HOME,
+            "HF_DATASETS_CACHE": f"{HF_HOME}/datasets",
+            "HF_MODULES_CACHE": f"{HF_HOME}/modules",
+            "TRANSFORMERS_CACHE": f"{HF_HOME}/transformers",
+            "HF_HUB_OFFLINE": "1",
+            "TRANSFORMERS_OFFLINE": "1",
+            "HF_DATASETS_OFFLINE": "1",
+            "HF_HUB_DISABLE_TELEMETRY": "1",
+        }
+    )
 
 
 labels = config["ner_labels"]
@@ -17,9 +38,28 @@ model_sets = config["model_sets"]
 input_file = config["input_file"]
 cuda = config["cuda_devices"]
 test_size = config["ner_test"]
+annotation_pmc_matches_file = config.get("annotation_pmc_matches_file")
+frozen_split_manifest_file = config.get("frozen_split_manifest")
+split_inputs = [input_file] + (
+    [annotation_pmc_matches_file] if annotation_pmc_matches_file else []
+) + (
+    [frozen_split_manifest_file] if frozen_split_manifest_file else []
+)
+CPU_PARTITION = config.get("slurm_cpu_partition", "cpu")
+GPU_PARTITION = config.get(
+    "slurm_gpu_partition", "gpu_a100_il,gpu_h100_il,gpu_a100"
+)
+GPU_GRES = config.get("slurm_gpu_gres", "gpu:1")
+PRETRAINED_MODEL = config.get("pretrained_model_path") or (
+    f"michiyasunaga/BioLinkBERT-{config['model']}"
+)
 
 # Common resource configuration
-COMMON_RESOURCES = {"slurm_partition": "cpu", "runtime": 10, "mem_mb": 8000}
+COMMON_RESOURCES = {
+    "slurm_partition": CPU_PARTITION,
+    "runtime": 10,
+    "mem_mb": 8000,
+}
 
 # Cache strain catalog globally to avoid recomputation
 STRAIN_CATALOG = None
@@ -30,8 +70,7 @@ def load_json_data(input_file):
     """Load and cache JSON data to avoid repeated file reads"""
     global JSON_DATA_CACHE
     if JSON_DATA_CACHE is None:
-        with open(input_file) as f:
-            JSON_DATA_CACHE = json.load(f)
+        JSON_DATA_CACHE = load_annotations(input_file)
     return JSON_DATA_CACHE
 
 
@@ -53,23 +92,8 @@ def extract_strain_catalog(json_data):
                             and result["value"]["labels"][0] == "STRAIN"
                         ):
                             strain_catalog.add(result["value"]["text"])
-    STRAIN_CATALOG = list(strain_catalog)
+    STRAIN_CATALOG = sorted(strain_catalog)
     return STRAIN_CATALOG
-
-
-def replace_hyphens_in_data(sentences):
-    """Replace hyphens in sentence data with spaces"""
-    for sentence in sentences:
-        for annotation in sentence["annotations"]:
-            for result in annotation["result"]:
-                if "value" in result and "text" in result["value"]:
-                    result["value"]["text"] = re.sub(
-                        r"(?<=\w)-(?=\w)", " ", result["value"]["text"]
-                    )
-        if "data" in sentence and "text" in sentence["data"]:
-            sentence["data"]["text"] = re.sub(
-                r"(?<=\w)-(?=\w)", " ", sentence["data"]["text"]
-            )
 
 
 rule all:
@@ -80,17 +104,21 @@ rule all:
 
 rule make_split:
     input:
-        input_file,
+        split_inputs,
     output:
-        expand("NER/{ENT}/{SET}.jsonls", ENT=labels, SET=model_sets),
+        datasets=expand("NER/{ENT}/{SET}.jsonls", ENT=labels, SET=model_sets),
+        summary="NER/split_summary.json",
     resources:
         **COMMON_RESOURCES,
     params:
         seed=config["seed"],
     run:
         seed = params.seed
+        summary = {}
         # Load JSON data once and reuse
         json_file = load_json_data(input_file)
+        pmc_groups = merged_pmc_groups(json_file, annotation_pmc_matches_file)
+        frozen_manifest = load_frozen_split_manifest(frozen_split_manifest_file)
 
         for label in labels:
             sentences = []
@@ -99,53 +127,95 @@ rule make_split:
                 # Create a deep copy to avoid modifying the original data
                 item_copy = copy.deepcopy(item)
                 annotations = []
-                indices_to_remove = []
-                for a in item_copy["annotations"]:
-                    for ind, r in enumerate(a["result"]):
-                        try:
-                            annotations.append(r["value"]["labels"][0])
-                            if r["value"]["labels"][0] != label:
-                                indices_to_remove.append(ind)
-                        except (KeyError, IndexError):
-                            pass
-                if item_copy.get("annotations") and item_copy["annotations"]:
-                    for index in sorted(indices_to_remove, reverse=True):
-                        if len(item_copy["annotations"][0]["result"]) > index:
-                            item_copy["annotations"][0]["result"].pop(index)
+                for annotation in item_copy.get("annotations", []):
+                    retained_results = []
+                    for result in annotation.get("result", []):
+                        if result.get("type") != "labels":
+                            continue
+                        result_labels = result.get("value", {}).get("labels", [])
+                        annotations.extend(result_labels)
+                        if label in result_labels:
+                            retained_results.append(result)
+                    annotation["result"] = retained_results
                 sentences.append(item_copy)
                 if label in annotations:
                     ners.append(1)
                 else:
                     ners.append(0)
                     # count_positives = np.sum(ners)  # Unused variable
-            t = list(zip(sentences, ners))
-            sort = sorted(t, key=itemgetter(1))
-            random.seed(seed)
-            random.shuffle(sort)
-            sentences, ners = zip(*sort)
-            sentences = list(sentences)
-
-            replace_hyphens_in_data(sentences)
-
-            X_train, X_test_dev, _, y_test_dev = train_test_split(
-                sentences,
-                ners,
-                test_size=test_size,
-                random_state=params.seed,
-                stratify=ners,
+            source_groups = [
+                source_group(item.get("id"), pmc_groups) for item in sentences
+            ]
+            frozen_stats = None
+            if frozen_manifest is not None:
+                split_spec = frozen_manifest["ner"][label]
+                split_indices, frozen_stats = frozen_split_indices(
+                    [item.get("id") for item in sentences],
+                    source_groups,
+                    dev_task_ids=split_spec["dev_task_ids"],
+                    test_task_ids=split_spec["test_task_ids"],
+                )
+            else:
+                split_indices = three_way_group_split(
+                    ners,
+                    source_groups,
+                    test_and_dev_size=test_size,
+                    seed=params.seed,
+                )
+            sentence_split = tuple(
+                [sentences[index] for index in split_indices[split]]
+                for split in model_sets
             )
-            X_test, X_dev, _, _ = train_test_split(
-                X_test_dev,
-                y_test_dev,
-                test_size=0.5,
-                random_state=params.seed,
-                stratify=y_test_dev,
+            label_split = tuple(
+                [ners[index] for index in split_indices[split]]
+                for split in model_sets
             )
-            sentence_split = (X_train, X_test, X_dev)
-            for s, y in zip(model_sets, sentence_split):
+            task_sets = [set(item.get("id") for item in split) for split in sentence_split]
+            source_group_sets = [
+                {source_group(item.get("id"), pmc_groups) for item in split}
+                for split in sentence_split
+            ]
+            if (
+                task_sets[0] & task_sets[1]
+                or task_sets[0] & task_sets[2]
+                or task_sets[1] & task_sets[2]
+            ):
+                raise RuntimeError(f"Task leakage detected while splitting {label}")
+            if (
+                source_group_sets[0] & source_group_sets[1]
+                or source_group_sets[0] & source_group_sets[2]
+                or source_group_sets[1] & source_group_sets[2]
+            ):
+                raise RuntimeError(f"Source-article leakage detected while splitting {label}")
+            summary[label] = {}
+            for s, y, split_labels in zip(model_sets, sentence_split, label_split):
+                summary[label][s] = {
+                    "tasks": len(y),
+                    "groups": len({source_group(item.get("id"), pmc_groups) for item in y}),
+                    "pmc_linked_tasks": sum(str(item.get("id")) in pmc_groups for item in y),
+                    "positive_tasks": int(sum(split_labels)),
+                    "negative_tasks": int(len(split_labels) - sum(split_labels)),
+                }
                 with open(f"NER/{label}/{s}.jsonls", "w") as f:
                     json.dump(list(y), f)
                     f.write("\n")
+            if frozen_stats is not None:
+                summary[label]["frozen_assignment"] = frozen_stats
+        with open(output.summary, "w") as handle:
+            json.dump(
+                {
+                    "grouping": (
+                        "frozen_dev_test_plus_train_only_new_groups"
+                        if frozen_manifest is not None
+                        else "unique_pmcid_else_task_id"
+                    ),
+                    "pmc_linked_tasks": len(pmc_groups),
+                    "labels": summary,
+                },
+                handle,
+                indent=2,
+                sort_keys=True,
+            )
 
 
 rule data_aug:
@@ -160,8 +230,19 @@ rule data_aug:
         seed=config["seed"],
     run:
         # Use cached JSON data and strain catalog
+        random.seed(params.seed)
         json_file = load_json_data(input_file)
         strain_catalog = extract_strain_catalog(json_file)
+        normalized_strain_catalog = sorted(set(strain_catalog))
+        strain_spans_by_task = {}
+        for task in json_file:
+            spans = []
+            for annotation in task.get("annotations", []):
+                for result in annotation.get("result", []):
+                    value = result.get("value", {})
+                    if "STRAIN" in value.get("labels", []):
+                        spans.append((int(value["start"]), int(value["end"])))
+            strain_spans_by_task[str(task.get("id"))] = spans
 
         for label in labels:
             if label == "STRAIN":
@@ -195,79 +276,53 @@ rule data_aug:
                             else:
                                 items_without_annotations.append(i)
 
-                        no_annotations_count = len(items_without_annotations)
-                        with_annotations_count = len(items_with_annotations)
-
-                        def replace_entities_with_random(item, strain_catalog):
+                        def replace_entities_with_random(item):
                             new_item = copy.deepcopy(item)
-
-                            original_text = new_item["data"]["text"]
-                            new_text = original_text
-                            offset_adjustment = 0
-                            replacement_made = False
-
-                            # Search for substrings from strain_catalog in the text
-                            for strain in strain_catalog:
-                                if strain in new_text and not replacement_made:
-                                    # Find the position of the strain in the text
-                                    strain_pos = new_text.find(strain)
-
-                                    # Replace the first occurrence of the strain with a random one from the catalog
-                                    replacement = random.choice(strain_catalog)
-                                    new_text = new_text.replace(strain, replacement, 1)
-
-                                    # Calculate the offset adjustment (difference in length)
-                                    offset_adjustment = len(replacement) - len(strain)
-
-                                    # Update all annotation positions that come after the replacement
-                                    if new_item.get("annotations"):
-                                        for annotation in new_item["annotations"]:
-                                            if annotation.get("result"):
-                                                for result in annotation["result"]:
-                                                    if (
-                                                        "value" in result
-                                                            and "start" in result["value"]
-                                                            and "end" in result["value"]
-                                                        ):
-                                                            # If annotation starts after the replacement point, adjust its position
-                                                            if (
-                                                                result["value"]["start"]
-                                                                > strain_pos
-                                                            ):
-                                                                result["value"][
-                                                                "start"
-                                                            ] += offset_adjustment
-                                                                result["value"][
-                                                                    "end"
-                                                                ] += offset_adjustment
-                                                    # If annotation contains the replacement point, adjust only the end
-                                                    elif (
-                                                        "value" in result
-                                                            and "end" in result["value"]
-                                                            and result["value"]["end"]
-                                                            > strain_pos
-                                                        ):
-                                                        result["value"][
-                                                            "end"
-                                                        ] += offset_adjustment
-
-                                    replacement_made = True
-                                    break  # Only replace one entity and stop
-
-                                    # Update the text in the item
-                            new_item["data"]["text"] = new_text
-
-                            return new_item
-                            # Generate as many items as there are without annotations
-
-                        num_to_generate = with_annotations_count
-                        augmented_items = []
-                        for _ in range(num_to_generate):
-                            random_item = random.choice(items_with_annotations)
-                            augmented_item = replace_entities_with_random(
-                                random_item, strain_catalog
+                            target_spans = [
+                                (result["value"]["start"], result["value"]["end"])
+                                for annotation in new_item.get("annotations", [])
+                                for result in annotation.get("result", [])
+                                if "value" in result
+                            ]
+                            candidates = [
+                                span
+                                for span in strain_spans_by_task.get(str(new_item.get("id")), [])
+                                if all(
+                                    span[1] <= target_start or span[0] >= target_end
+                                    for target_start, target_end in target_spans
+                                )
+                            ]
+                            if not candidates:
+                                return None
+                            strain_start, strain_end = random.choice(candidates)
+                            text = new_item["data"]["text"]
+                            original_strain = text[strain_start:strain_end]
+                            alternatives = [
+                                strain
+                                for strain in normalized_strain_catalog
+                                if strain != original_strain
+                            ]
+                            if not alternatives:
+                                return None
+                            replacement = random.choice(alternatives)
+                            adjustment = len(replacement) - len(original_strain)
+                            new_item["data"]["text"] = (
+                                text[:strain_start] + replacement + text[strain_end:]
                             )
-                            augmented_items.append(augmented_item)
+                            for annotation in new_item.get("annotations", []):
+                                for result in annotation.get("result", []):
+                                    value = result.get("value", {})
+                                    if value.get("start", -1) >= strain_end:
+                                        value["start"] += adjustment
+                                        value["end"] += adjustment
+                            new_item["id"] = f"{new_item.get('id')}:aug:{label}"
+                            return new_item
+
+                        augmented_items = []
+                        for random_item in items_with_annotations:
+                            augmented_item = replace_entities_with_random(random_item)
+                            if augmented_item is not None:
+                                augmented_items.append(augmented_item)
 
                         all_items = []
                         all_items.extend(items_with_annotations)
@@ -286,70 +341,28 @@ rule data_aug:
                                     outfile.write(line)
 
 
-rule convert_splits:
+rule build_ner_datasets:
     input:
-        json=expand("NER/{ENT}/{SET}.jsonla", ENT=labels, SET=model_sets),
-        config="label/config.xml",
+        expand("NER/{ENT}/{SET}.jsonla", ENT=labels, SET=model_sets),
     output:
-        conll=expand("NER/{ENT}/{SET}.conll", ENT=labels, SET=model_sets),
-    resources:
-        slurm_partition="cpu",
-        runtime=60,  # Increased from 10 to 60 minutes
-        mem_mb=8000,
-    shell:
-        """
-        for file in NER/**/*.jsonla; do
-            output_dir="${{file%.jsonla}}"
-            output_file="${{file%.jsonla}}.conll"
-            label-studio-converter export -i "$file" -c {input.config} -f CONLL2003 -o "$output_dir"
-            cat "$output_dir/result.conll" > "$output_file"
-            rm -rf "$output_dir"
-        done
-        """
-
-
-rule convert_to_bio:
-    input:
-        expand("NER/{ENT}/{SET}.conll", ENT=labels, SET=model_sets),
-    output:
-        expand("NER/{ENT}/{SET}.txt", ENT=labels, SET=model_sets),
+        json=expand("NER/{ENT}/{SET}.json", ENT=labels, SET=model_sets),
+        bio=expand("NER/{ENT}/{SET}.txt", ENT=labels, SET=model_sets),
+        summary="NER/dataset_summary.json",
     resources:
         **COMMON_RESOURCES,
     run:
+        stats = {}
         for label in labels:
+            stats[label] = {}
             for split in model_sets:
-                with open(f"NER/{label}/{split}.conll") as infile:
-                    with open(f"NER/{label}/{split}.txt", "w") as outfile:
-                        for line in infile:
-                            if line.endswith(f"{label}\n"):
-                                outfile.write(
-                                    line[: -len(f"{label}") - 2] + "\n"
-                                )  ## if the label is the last word, remove it and leave only the BIO tag
-
-                            elif line.endswith("O\n"):
-                                outfile.write(line)
-                            elif line == "\n":
-                                outfile.write(line)
-                            else:
-                                outfile.write(re.sub(r" [BI]-.*", " O", line))
-
-
-rule convert_to_json:
-    input:
-        expand("NER/{ENT}/{SET}.txt", ENT=labels, SET=model_sets),
-    output:
-        expand("NER/{ENT}/{SET}.json", ENT=labels, SET=model_sets),
-    resources:
-        slurm_partition="cpu",
-        runtime=60,  # Increased from 10 to 60 minutes
-        mem_mb=8000,
-    shell:
-        """
-        for file in NER/**/*.txt; do
-            output_file="${{file%.txt}}.json"
-            python scripts/conll2003_to_jsonl.py "$file" "$output_file"
-        done
-        """
+                stats[label][split] = build_dataset(
+                    f"NER/{label}/{split}.jsonla",
+                    label=label,
+                    json_output=f"NER/{label}/{split}.json",
+                    bio_output=f"NER/{label}/{split}.txt",
+                )
+        with open(output.summary, "w") as handle:
+            json.dump(stats, handle, indent=2, sort_keys=True)
 
 
 rule run_linkbert:
@@ -363,17 +376,17 @@ rule run_linkbert:
     params:
         epochs=config["ner_epochs"],
         cuda=lambda w: ",".join([str(i) for i in cuda]),
-        model_type=config["model"],
+        model_path=PRETRAINED_MODEL,
         entities=" ".join(labels),
     resources:
-        slurm_partition="gpu_a100_il,gpu_h100_il,gpu_a100",
-        slurm_extra="--gres=gpu:1",
-        runtime=120,
+        slurm_partition=GPU_PARTITION,
+        gres=GPU_GRES,
+        runtime=int(config.get("ner_training_runtime", 120)),
         mem_mb=32000,
+        cpus_per_task=4,
     shell:
         """
-        export MODEL_PATH=michiyasunaga/BioLinkBERT-{params.model_type}
-        export MODEL=BioLinkBERT-{params.model_type}
+        export MODEL_PATH="{params.model_path}"
         export CUDA_VISIBLE_DEVICES={params.cuda}
         export EPOCHS={params.epochs}
         export TOKENIZERS_PARALLELISM=true
@@ -400,7 +413,7 @@ rule run_linkbert:
             --learning_rate 2e-5 --warmup_ratio 0.5 --num_train_epochs $EPOCHS --max_seq_length 512 \
             --save_strategy epoch --eval_strategy epoch --logging_strategy epoch --save_total_limit 2 \
             --output_dir $outdir --overwrite_output_dir --load_best_model_at_end --metric_for_best_model eval_loss \
-            |& tee $outdir/log.txt 
+            2>&1 | tee $outdir/log.txt
             rm -rf $outdir/checkpoint-*
         done
         """
@@ -429,7 +442,7 @@ rule aggregate_data:
     output:
         "NER_output/aggregated_eval.tsv",
     resources:
-        slurm_partition="cpu",
+        slurm_partition=CPU_PARTITION,
         runtime=10,
         mem_mb=8000,
     run:
@@ -452,7 +465,7 @@ rule plot:
     params:
         labels=labels,
     resources:
-        slurm_partition="cpu",
+        slurm_partition=CPU_PARTITION,
         runtime=30,
         mem_mb=8000,
     script:

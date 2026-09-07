@@ -1,0 +1,200 @@
+[
+  {
+    "candidate_id": "pmc_candidate_30421a46ddad43",
+    "status": "accepted",
+    "notes": "The title directly evaluates BB-12 in infant colic; both spans and ASSOCIATED_WITH are supported."
+  },
+  {
+    "candidate_id": "pmc_candidate_166a577731db36",
+    "status": "hard_negative",
+    "drop_all_relations": true,
+    "notes": "Human illness refers to earlier eae-negative STEC strains, whereas both O157:H7 mentions occur in later statements about absence/presence; the predicted cross-sentence edges are unsupported."
+  },
+  {
+    "candidate_id": "pmc_candidate_386b4407c44628",
+    "status": "corrected",
+    "add_relations": [
+      ["pred_entity_61e454bb150551", "pred_entity_29acf3e32b1081", "ASSOCIATED_WITH"]
+    ],
+    "notes": "TIGR4 explicitly infects zebrafish and causes the pneumococcal meningitis model; added the disease association."
+  },
+  {
+    "candidate_id": "pmc_candidate_ed535a90a90d7a",
+    "status": "corrected",
+    "keep_relations": [
+      ["pred_entity_2f10d8ce375e2d", "pred_entity_739684f1dc03cf", "INFECTS"]
+    ],
+    "notes": "The mice are explicitly infected with TIGR4. The passage describes an experiment on evolution of resistance but does not assert that this inoculum already resists fluoroquinolone."
+  },
+  {
+    "candidate_id": "pmc_candidate_586db07ace5a52",
+    "status": "hard_negative",
+    "drop_entity_ids": ["pred_entity_b6fe60948bae4d"],
+    "drop_all_relations": true,
+    "notes": "The token 'to' is not a phenotype; removed the false entity and relation."
+  },
+  {
+    "candidate_id": "pmc_candidate_7f86405b885341",
+    "status": "corrected",
+    "keep_relations": [
+      ["pred_entity_7c8280ba21bc95", "pred_entity_06b4e6ff1915d5", "PROMOTES"]
+    ],
+    "notes": "Only the first ts-11 mention is the vaccine population explicitly linked to the higher antibody response."
+  },
+  {
+    "candidate_id": "pmc_candidate_f6be5482152e70",
+    "status": "corrected",
+    "keep_relations": [
+      ["pred_entity_9d0dd832a84a92", "pred_entity_2f83cbd0e1013f", "PRESENTS"]
+    ],
+    "notes": "The passage says E. coli did not influence A. baumannii survival, so the interspecies inhibition edge is contradicted. AsaA is linked to bacterial competition in ATCC 17978."
+  },
+  {
+    "candidate_id": "pmc_candidate_e40f0476668297",
+    "status": "hard_negative",
+    "drop_all_relations": true,
+    "notes": "Although SGH10 inhibited some gut commensals, B. thetaiotaomicron was specifically described as relatively unperturbed."
+  },
+  {
+    "candidate_id": "pmc_candidate_7d79c098ebbdb3",
+    "status": "hard_negative",
+    "drop_entity_ids": ["pred_entity_8ed445a9760669"],
+    "drop_all_relations": true,
+    "notes": "Bacteriophages inhibit E. coli O157:H7; the strain does not inhibit its own species. The predicted strain span also begins mid-token."
+  },
+  {
+    "candidate_id": "pmc_candidate_d0d29e882883e5",
+    "status": "accepted",
+    "notes": "The title explicitly states that GH 2-4T was isolated from mangrove soil."
+  },
+  {
+    "candidate_id": "pmc_candidate_d40574d8dc46ac",
+    "status": "accepted",
+    "notes": "CL16 is explicitly stated to have been isolated from mangrove soil."
+  },
+  {
+    "candidate_id": "pmc_candidate_1d4b5172091bc8",
+    "status": "corrected",
+    "drop_entity_ids": ["pred_entity_26ba554034634e"],
+    "notes": "Cellulose degradation is supported by the strain's GH repertoire. 'Thermophilic' modifies GH9, not the strain phenotype."
+  },
+  {
+    "candidate_id": "pmc_candidate_2d452c454d862d",
+    "status": "corrected",
+    "keep_relations": [
+      ["pred_entity_cfae8d36c3d1d0", "pred_entity_14e30702e1233e", "INHIBITS"]
+    ],
+    "notes": "RTN shows bacteriostatic activity against the strain. A high MIC and the phrase 'resistant strain' do not establish strain-specific resistance to RTN."
+  },
+  {
+    "candidate_id": "pmc_candidate_d0749e25b9ec60",
+    "status": "corrected",
+    "keep_relations": [
+      ["pred_entity_f3d3c267377f3c", "pred_entity_2bf6a66226152f", "RESISTS"]
+    ],
+    "notes": "The first ST34 mention is explicitly linked to NTS cephalosporin resistance; the later mention concerns clonal dissemination."
+  },
+  {
+    "candidate_id": "pmc_candidate_7ca58c75182c5a",
+    "status": "corrected",
+    "keep_relations": [
+      ["pred_entity_5f6a6809c6b409", "pred_entity_a13e2f686fb260", "INHIBITS"]
+    ],
+    "notes": "NCDO 2118 improved colitis signs. The later UC result is attributed to a different probiotic intervention."
+  },
+  {
+    "candidate_id": "pmc_candidate_f3d2f9ef609d12",
+    "status": "accepted",
+    "notes": "The type strain is explicitly stated to have been isolated from ditch sediment."
+  },
+  {
+    "candidate_id": "pmc_candidate_6e75152db5aa42",
+    "status": "hard_negative",
+    "drop_entity_ids": ["pred_entity_fffd1a24bc3b7f", "pred_entity_27205991d8b2eb"],
+    "drop_all_relations": true,
+    "notes": "PA21 is administered in mg/kg and refers to a protective antibody/reagent, not a microbial strain."
+  },
+  {
+    "candidate_id": "pmc_candidate_1d4c348843cb34",
+    "status": "hard_negative",
+    "drop_entity_ids": ["pred_entity_ac9109c9d1aa49"],
+    "drop_all_relations": true,
+    "notes": "The sentence explicitly reports no inhibitory effect. Downy mildew is retained as DISEASE, not duplicated as ORGANISM."
+  },
+  {
+    "candidate_id": "pmc_candidate_faaaf192b27081",
+    "status": "accepted",
+    "notes": "PD630 is explicitly described as having potential for triacylglyceride production."
+  },
+  {
+    "candidate_id": "pmc_candidate_6a3b9b6bf1a412",
+    "status": "corrected",
+    "keep_relations": [
+      ["pred_entity_521a548aa8bbce", "pred_entity_6be0039b4f5a96", "PROMOTES"]
+    ],
+    "notes": "The first administration is explicitly reported to promote immunoregulation; the second occurrence describes a separate null result."
+  },
+  {
+    "candidate_id": "pmc_candidate_b3dd9942744184",
+    "status": "hard_negative",
+    "drop_all_relations": true,
+    "notes": "MAC 101 is a standard strain used to investigate M. avium infection; it is not said to inhibit M. avium."
+  },
+  {
+    "candidate_id": "pmc_candidate_bc4d3c3a798cde",
+    "status": "accepted",
+    "notes": "CBS712 fermentation capability and reduced xylose consumption/catabolism directly support both seeded relations."
+  },
+  {
+    "candidate_id": "pmc_candidate_90a3990f169cc8",
+    "status": "accepted",
+    "notes": "The strain's enzymes are described as enabling utilization of xylan, supporting DEGRADES."
+  },
+  {
+    "candidate_id": "pmc_candidate_050af93ac8605c",
+    "status": "hard_negative",
+    "drop_all_relations": true,
+    "notes": "Selection for later therapeutic evaluation does not establish that AF73-05CM02 inhibits IBD."
+  },
+  {
+    "candidate_id": "pmc_candidate_0dc811a8d53d45",
+    "status": "accepted",
+    "notes": "Plant tissues were transformed by R. rhizogenes, supporting the configured host infection relation."
+  },
+  {
+    "candidate_id": "pmc_candidate_f84a5119e790ac",
+    "status": "accepted",
+    "notes": "MH96 is explicitly described as virulent during intrahemocoelic infection of G. mellonella."
+  },
+  {
+    "candidate_id": "pmc_candidate_4cde432284de0d",
+    "status": "hard_negative",
+    "drop_all_relations": true,
+    "notes": "Plant extracts, not E. coli O157:H7, provide the inhibition, and Salmonella is explicitly not inhibited."
+  },
+  {
+    "candidate_id": "pmc_candidate_8cb6de42aedcfb",
+    "status": "deferred",
+    "notes": "Gas vesicles are clearly biosynthesized by NRC-1, but their appropriate NLP4Pheno entity class (COMPOUND versus PHENOTYPE/structure) needs project-owner judgment."
+  },
+  {
+    "candidate_id": "pmc_candidate_a30cfacbd60181",
+    "status": "deferred",
+    "notes": "The disease-prevention claim is made for probiotics collectively after a BB12-specific immune observation; relation specificity needs review."
+  },
+  {
+    "candidate_id": "pmc_candidate_541b78b13989e2",
+    "status": "deferred",
+    "notes": "The seeded strain-to-organism inhibition edges are wrong, while the actual compound/peptide inhibitors were missed; this needs span reconstruction."
+  },
+  {
+    "candidate_id": "pmc_candidate_fa2fbb2f67eaf6",
+    "status": "deferred",
+    "notes": "The passage mentions protease production in a strain biofilm but does not unambiguously state biofilm formation as the strain phenotype."
+  },
+  {
+    "candidate_id": "pmc_candidate_0248c18244d641",
+    "status": "deferred",
+    "notes": "The BGC suggests biosynthetic potential for azinothricin derivatives, but the passage does not report observed production."
+  }
+]
